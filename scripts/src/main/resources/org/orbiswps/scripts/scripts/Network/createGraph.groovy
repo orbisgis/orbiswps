@@ -1,8 +1,8 @@
-package org.orbisgis.orbiswpsservicescripts.scripts.Network
+package org.orbiswps.scripts.scripts.Network
 
-import org.orbisgis.orbiswpsgroovyapi.input.*
-import org.orbisgis.orbiswpsgroovyapi.output.*
-import org.orbisgis.orbiswpsgroovyapi.process.*
+import org.orbiswps.groovyapi.input.*
+import org.orbiswps.groovyapi.output.*
+import org.orbiswps.groovyapi.process.*
 
 /**
  * This process creates a graph network.

@@ -1,12 +1,12 @@
-package org.orbisgis.orbiswpsservicescripts.scripts.Export
+package org.orbiswps.scripts.scripts.Export
 
 import org.h2gis.api.DriverFunction
 import org.h2gis.functions.io.dbf.DBFDriverFunction
 import org.orbisgis.corejdbc.H2GISProgressMonitor
 
-import org.orbisgis.orbiswpsgroovyapi.input.*
-import org.orbisgis.orbiswpsgroovyapi.output.*
-import org.orbisgis.orbiswpsgroovyapi.process.*
+import org.orbiswps.groovyapi.input.*
+import org.orbiswps.groovyapi.output.*
+import org.orbiswps.groovyapi.process.*
 /**
  * @author Erwan Bocher
  */

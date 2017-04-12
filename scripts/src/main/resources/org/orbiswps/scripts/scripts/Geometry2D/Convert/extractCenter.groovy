@@ -1,8 +1,8 @@
-package org.orbisgis.orbiswpsservicescripts.scripts.Geometry2D.Convert
+package org.orbiswps.scripts.scripts.Geometry2D.Convert
 
-import org.orbisgis.orbiswpsgroovyapi.input.*
-import org.orbisgis.orbiswpsgroovyapi.output.*
-import org.orbisgis.orbiswpsgroovyapi.process.*
+import org.orbiswps.groovyapi.input.*
+import org.orbiswps.groovyapi.output.*
+import org.orbiswps.groovyapi.process.*
 
 /**
  * This process extract the center of a geometry table using  SQL functions.

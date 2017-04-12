@@ -1,8 +1,8 @@
-package org.orbisgis.orbiswpsservicescripts.scripts.Export
+package org.orbiswps.scripts.scripts.Export
 
-import org.orbisgis.orbiswpsgroovyapi.input.*
-import org.orbisgis.orbiswpsgroovyapi.output.*
-import org.orbisgis.orbiswpsgroovyapi.process.*
+import org.orbiswps.groovyapi.input.*
+import org.orbiswps.groovyapi.output.*
+import org.orbiswps.groovyapi.process.*
 
 import org.h2gis.functions.io.geojson.GeoJsonDriverFunction
 import org.orbisgis.corejdbc.H2GISProgressMonitor

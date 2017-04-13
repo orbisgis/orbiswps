@@ -38,6 +38,7 @@ package org.orbiswps.server.controller.utils;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import org.orbiswps.server.execution.ProcessExecutionListener;
+import org.orbiswps.server.utils.ProgressMonitor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -53,7 +54,6 @@ import java.util.UUID;
  */
 public class Job implements ProcessExecutionListener, PropertyChangeListener {
 
-    public static final String PROGRESS_PROPERTY = "progress";
     /** Process polling time in milliseconds. */
     private static final long MAX_PROCESS_POLLING_MILLIS = 10000;
     private static final long BASE_PROCESS_POLLING_MILLIS = 1000;
@@ -154,8 +154,14 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-        if(propertyChangeEvent.getPropertyName().equals(PROGRESS_PROPERTY)){
-            setProgress((int)propertyChangeEvent.getNewValue());
+        if(propertyChangeEvent.getPropertyName().equals(ProgressMonitor.PROPERTY_PROGRESS)){
+            Object value = propertyChangeEvent.getNewValue();
+            if(value instanceof Double){
+                setProgress(((Double)value).intValue());
+            }
+            else {
+                setProgress((int)value);
+            }
         }
     }
 }

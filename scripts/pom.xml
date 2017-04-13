@@ -80,6 +80,16 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.orbisgis</groupId>
+            <artifactId>h2gis-functions</artifactId>
+            <version>${h2gis-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.orbisgis</groupId>
+            <artifactId>h2gis-functions</artifactId>
+            <version>${h2gis-version}</version>
+        </dependency>
     </dependencies>
 
 </project>

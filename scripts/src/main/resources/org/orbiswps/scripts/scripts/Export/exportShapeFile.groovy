@@ -5,7 +5,6 @@ import org.orbiswps.groovyapi.output.*
 import org.orbiswps.groovyapi.process.*
 
 import org.h2gis.functions.io.shp.SHPDriverFunction
-import org.orbisgis.corejdbc.H2GISProgressMonitor
 import org.h2gis.api.DriverFunction
 
 
@@ -22,7 +21,7 @@ import org.h2gis.api.DriverFunction
 def processing() {
     File outputFile = new File(fileDataInput[0])    
     DriverFunction exp = new SHPDriverFunction();
-    exp.exportTable(sql.getDataSource().getConnection(), inputJDBCTable, outputFile,new H2GISProgressMonitor(progressMonitor)); 
+    exp.exportTable(sql.getDataSource().getConnection(), inputJDBCTable, outputFile,progressMonitor);
     if(dropInputTable){
 	sql.execute "drop table if exists " + inputJDBCTable
     }

@@ -126,9 +126,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.orbisgis</groupId>
-            <artifactId>commons</artifactId>
-            <version>${project.version}</version>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io-version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -149,6 +149,11 @@
             <groupId>com.googlecode.gettext-commons</groupId>
             <artifactId>gettext-commons</artifactId>
             <version>${gettext-commons-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.orbisgis</groupId>
+            <artifactId>h2gis-api</artifactId>
+            <version>${h2gis-version}</version>
         </dependency>
     </dependencies>
 

@@ -37,17 +37,18 @@
 package org.orbiswps.server.execution;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
-import org.orbisgis.commons.progress.SwingWorkerPM;
 import org.orbiswps.server.controller.utils.Job;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.controller.process.ProcessManager;
+import org.orbiswps.server.utils.ProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,10 +56,7 @@ import java.util.Map;
  *
  * @author Sylvain PALOMINOS
  */
-public class ProcessWorker extends SwingWorkerPM {
-
-    /** One hundred */
-    private static final long ONE_HUNDRED = 100;
+public class ProcessWorker implements Runnable, PropertyChangeListener {
 
     /** Process execution listener which will be watching the execution */
     private Job job;
@@ -74,19 +72,21 @@ public class ProcessWorker extends SwingWorkerPM {
     private static final I18n I18N = I18nFactory.getI18n(ProcessWorker.class);
     /** Logger */
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWorker.class);
+    private ProgressMonitor progressMonitor;
 
     public ProcessWorker(Job job,
                          ProcessIdentifier processIdentifier,
                          ProcessManager processManager,
                          Map<URI, Object> dataMap,
                          Map<String, Object> propertiesMap){
-        super(job.getProcess().getTitle().get(0).getValue(), ONE_HUNDRED);
         this.job = job;
-        this.addPropertyChangeListener(Job.PROGRESS_PROPERTY, this.job);
         this.processIdentifier = processIdentifier;
         this.processManager = processManager;
         this.dataMap = dataMap;
         this.propertiesMap = propertiesMap;
+        progressMonitor = new ProgressMonitor(job.getProcess().getTitle().get(0).getValue());
+        progressMonitor.addPropertyChangeListener(ProgressMonitor.PROPERTY_PROGRESS, this.job);
+        progressMonitor.addPropertyChangeListener(ProgressMonitor.PROPERTY_CANCEL, this);
     }
 
     /**
@@ -98,14 +98,13 @@ public class ProcessWorker extends SwingWorkerPM {
     }
 
     @Override
-    public Object doInBackground() {
+    public void run() {
         String title = job.getProcess().getTitle().get(0).getValue();
-        this.setTaskName(I18N.tr("{0} : Preprocessing", title));
+        progressMonitor.setTaskName(I18N.tr("{0} : Preprocessing", title));
         if(job != null) {
             job.setStartTime(System.currentTimeMillis());
             job.setProcessState(ProcessExecutionListener.ProcessState.RUNNING);
         }
-        Map<URI, Object> stash = new HashMap<>();
         ProcessDescriptionType process = processIdentifier.getProcessDescriptionType();
         //Catch all the Exception that can be thrown during the script execution.
         try {
@@ -123,10 +122,10 @@ public class ProcessWorker extends SwingWorkerPM {
             if(job != null) {
                 job.appendLog(ProcessExecutionListener.LogType.INFO, I18N.tr("Execute the script."));
             }
-            this.setTaskName(I18N.tr("{0} : Execution", title));
-            processManager.executeProcess(job.getId(), processIdentifier, dataMap, propertiesMap, this.getProgressMonitor());
+            progressMonitor.setTaskName(I18N.tr("{0} : Execution", title));
+            processManager.executeProcess(job.getId(), processIdentifier, dataMap, propertiesMap, progressMonitor);
 
-            this.setTaskName(I18N.tr("{0} : Postprocessing", title));
+            progressMonitor.setTaskName(I18N.tr("{0} : Postprocessing", title));
             //Post-process the data
             if(job != null) {
                 job.appendLog(ProcessExecutionListener.LogType.INFO, I18N.tr("Post-processing."));
@@ -150,12 +149,18 @@ public class ProcessWorker extends SwingWorkerPM {
                         process.getTitle(),e.getMessage()));
             }
         }
-        return null;
+    }
+
+    public void cancel() {
+        if(!progressMonitor.isCanceled()){
+            progressMonitor.cancel();
+        }
     }
 
     @Override
-    public void cancel() {
-        processManager.cancelProcess(job.getId());
-        super.cancel();
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        if(propertyChangeEvent.getPropertyName().equals(ProgressMonitor.PROPERTY_CANCEL)){
+            processManager.cancelProcess(job.getId());
+        }
     }
 }

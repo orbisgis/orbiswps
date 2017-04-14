@@ -130,7 +130,7 @@ public class WpsScriptPluginTest {
         private String scriptFolder;
 
         @Override
-        public List<ProcessIdentifier> addProcess(File f, String[] iconName, boolean isDefault, String nodePath) {
+        public List<ProcessIdentifier> addProcess(File f) {
             addScriptList.add(f);
             //Building of an empty processOffering
             CodeType codeType = new CodeType();
@@ -141,7 +141,7 @@ public class WpsScriptPluginTest {
             processOffering.setProcess(processDescriptionType);
             //Return the ProcessIdentifier of the source to add
             List<ProcessIdentifier> processIdentifierList = new ArrayList<>();
-            processIdentifierList.add(new ProcessIdentifier(processOffering, null, null, null));
+            processIdentifierList.add(new ProcessIdentifier(processOffering, f.getAbsolutePath()));
             return processIdentifierList;
         }
 

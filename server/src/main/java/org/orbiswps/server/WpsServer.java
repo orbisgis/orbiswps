@@ -177,12 +177,9 @@ public interface WpsServer {
     /**
      * Add a local groovy file or directory of processes to the wps service.
      * @param f  File object to add to the service.
-     * @param iconName Icon file name associated to the script
-     * @param isDefaultScript True if the scripts are default scripts (unremovable). False otherwise
-     * @param nodePath
      * @return
      */
-    List<ProcessIdentifier> addProcess(File f, String[] iconName, boolean isDefaultScript, String nodePath);
+    List<ProcessIdentifier> addProcess(File f);
 
     /**
      * Remove the process corresponding to the given codeType.

@@ -39,8 +39,10 @@ package org.orbiswps.scripts;
 import net.opengis.ows._2.CodeType;
 import org.apache.commons.io.IOUtils;
 
+import org.orbiswps.client.api.WpsClient;
 import org.orbiswps.server.WpsServer;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
+import org.orbiswps.server.utils.ProcessMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
@@ -49,7 +51,9 @@ import org.xnap.commons.i18n.I18nFactory;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * In the WpsService, the script are organized in a tree, which has the WpsService as root.
@@ -92,15 +96,20 @@ public class WpsScriptsPackage {
     protected static final Logger LOGGER = LoggerFactory.getLogger(WpsScriptsPackage.class);
 
     /**
-     * The WPS service of OrbisGIS.
-     * The WPS service contains all the declared processes available for the client (in OrbisGIS the toolbox).
+     * The WPS service.
+     * The WPS service contains all the declared processes available for the client.
      */
     protected WpsServer wpsServer;
 
     /**
+     * The WPS client.
+     */
+    protected WpsClient wpsClient;
+
+    /**
      * List of identifier of the processes loaded by this plusgin.
      */
-    protected List<CodeType> listIdProcess;
+    protected List<URI> listIdProcess;
 
     /**
      * This method loads the scripts one by one under different node path with different icons.
@@ -141,16 +150,21 @@ public class WpsScriptsPackage {
             LOGGER.error(I18N.tr("Unable to copy the content of the script to the temporary file."));
             return;
         }
-        List<ProcessIdentifier> piList = wpsServer.addProcess(tempFile,
-                icons,
-                false,
-                path);
+        List<ProcessIdentifier> piList = wpsServer.addProcess(tempFile);
         if(piList != null) {
             for (ProcessIdentifier pi : piList) {
                 if (pi == null || pi.getProcessDescriptionType() == null || pi.getProcessDescriptionType().getInput() == null) {
                     LOGGER.error(I18N.tr("Error, the ProcessIdentifier get is malformed."));
                 }
-                listIdProcess.add(pi.getProcessDescriptionType().getIdentifier());
+                URI uri = URI.create(pi.getProcessDescriptionType().getIdentifier().getValue());
+                if(wpsClient != null){
+                    Map<ProcessMetadata.INTERNAL_METADATA, Object> metadataMap = new HashMap<>();
+                    metadataMap.put(ProcessMetadata.INTERNAL_METADATA.IS_REMOVABLE, false);
+                    metadataMap.put(ProcessMetadata.INTERNAL_METADATA.NODE_PATH, path);
+                    metadataMap.put(ProcessMetadata.INTERNAL_METADATA.ICON_ARRAY, icons);
+                    wpsClient.addProcessMetadata(uri, metadataMap);
+                }
+                listIdProcess.add(uri);
             }
         }
     }
@@ -159,8 +173,8 @@ public class WpsScriptsPackage {
      * This method removes all the scripts contained in the 'listIdProcess' list. (Be careful before any modification)
      */
     protected void removeAllScripts(){
-        for(CodeType idProcess : listIdProcess){
-            wpsServer.removeProcess(URI.create(idProcess.getValue()));
+        for(URI idProcess : listIdProcess){
+            wpsServer.removeProcess(idProcess);
         }
     }
 

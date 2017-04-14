@@ -92,13 +92,13 @@ public class ParserController {
         groovyClassLoader = new GroovyShell().getClassLoader();
     }
 
-    public Class getProcessClass(URI sourceFileURI){
+    public Class getProcessClass(String filePath){
         try {
-            File groovyFile = new File(sourceFileURI);
+            File groovyFile = new File(filePath);
             groovyClassLoader.clearCache();
             return groovyClassLoader.parseClass(groovyFile);
         } catch (Exception e) {
-            LOGGER.error(I18N.tr("Can not parse the process : {0}\n Cause : {1}.", sourceFileURI, e.getLocalizedMessage()));
+            LOGGER.error(I18N.tr("Can not parse the process : {0}\n Cause : {1}.", filePath, e.getLocalizedMessage()));
         }
         return null;
     }
@@ -112,7 +112,7 @@ public class ParserController {
     public ProcessOffering parseProcess(String processPath) throws MalformedScriptException {
         //Retrieve the class corresponding to the Groovy script.
         File processFile = new File(processPath);
-        Class clazz = getProcessClass(processFile.toURI());
+        Class clazz = getProcessClass(processPath);
         if(clazz == null){
             return null;
         }

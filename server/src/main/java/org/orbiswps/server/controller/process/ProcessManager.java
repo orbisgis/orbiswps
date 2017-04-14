@@ -104,7 +104,7 @@ public class ProcessManager {
         this.dataSource = dataSource;
     }
 
-    public ProcessIdentifier addScript(URI scriptUri, String[] category, boolean isRemovable, String nodePath){
+    public ProcessIdentifier addScript(URI scriptUri){
         File f = new File(scriptUri);
         if(!f.exists()){
             LOGGER.error(I18N.tr("The script file doesn't exists."));
@@ -143,35 +143,7 @@ public class ProcessManager {
                     }
                 }
                 if(!isAcceptedDBMS){
-                    return new ProcessIdentifier(null, null, null, null);
-                }
-
-                //Sets the metadatas used by the OrbisGIS wps client
-                MetadataType isRemovableMetadata = new MetadataType();
-                isRemovableMetadata.setTitle(ProcessMetadata.INTERNAL_METADATA.IS_REMOVABLE.name());
-                isRemovableMetadata.setRole(ProcessMetadata.INTERNAL_METADATA_NAME);
-                isRemovableMetadata.setAbstractMetaData(isRemovable);
-                processOffering.getProcess().getMetadata().add(isRemovableMetadata);
-                if(nodePath != null) {
-                    MetadataType nodePathMetadata = new MetadataType();
-                    nodePathMetadata.setTitle(ProcessMetadata.INTERNAL_METADATA.NODE_PATH.name());
-                    nodePathMetadata.setRole(ProcessMetadata.INTERNAL_METADATA_NAME);
-                    nodePathMetadata.setAbstractMetaData(nodePath);
-                    processOffering.getProcess().getMetadata().add(nodePathMetadata);
-                }
-                if(category != null) {
-                    MetadataType iconArrayMetadata = new MetadataType();
-                    iconArrayMetadata.setTitle(ProcessMetadata.INTERNAL_METADATA.ICON_ARRAY.name());
-                    iconArrayMetadata.setRole(ProcessMetadata.INTERNAL_METADATA_NAME);
-                    String iconString = "";
-                    for (String icon : category) {
-                        if (!iconString.isEmpty()) {
-                            iconString += ";";
-                        }
-                        iconString += icon;
-                    }
-                    iconArrayMetadata.setAbstractMetaData(iconString);
-                    processOffering.getProcess().getMetadata().add(iconArrayMetadata);
+                    return new ProcessIdentifier(null, null);
                 }
             } catch (MalformedScriptException e) {
                 LOGGER.error(I18N.tr("Unable to parse the process {0}.\nCause : {1}", scriptUri, e.getMessage()), e);
@@ -179,10 +151,7 @@ public class ProcessManager {
             //If the process is not already registered
             if(processOffering != null) {
                 //Save the process in a ProcessIdentifier
-                ProcessIdentifier pi = new ProcessIdentifier(processOffering, scriptUri, f.getParentFile().toURI(),
-                        nodePath);
-                pi.setCategory(category);
-                pi.setRemovable(isRemovable);
+                ProcessIdentifier pi = new ProcessIdentifier(processOffering, f.getAbsolutePath());
                 processIdList.add(pi);
                 return pi;
             }
@@ -194,15 +163,14 @@ public class ProcessManager {
     /**
      * Adds a local source to the toolbox and get all the groovy script.
      * @param uri URI to the local source.
-     * @param category
      * @return 
      */
-    public List<ProcessIdentifier> addLocalSource(URI uri, String[] category){
+    public List<ProcessIdentifier> addLocalSource(URI uri){
         List<ProcessIdentifier> piList = new ArrayList<>();
         File folder = new File(uri);
         if(folder.exists() && folder.isDirectory()){
             for(File f : folder.listFiles()){
-                ProcessIdentifier pi = addScript(f.toURI(), category, true, "localhost");
+                ProcessIdentifier pi = addScript(f.toURI());
                 if(pi != null) {
                     piList.add(pi);
                 }
@@ -228,7 +196,7 @@ public class ProcessManager {
             ProgressMonitor progressMonitor){
 
         ProcessDescriptionType process = processIdentifier.getProcessDescriptionType();
-        Class clazz = parserController.getProcessClass(processIdentifier.getSourceFileURI());
+        Class clazz = parserController.getProcessClass(processIdentifier.getFilePath());
         GroovyObject groovyObject = createProcess(process, clazz, dataMap);
         if(groovyObject != null) {
             CancelClosure closure = new CancelClosure(this);
@@ -504,24 +472,6 @@ public class ProcessManager {
     }
 
     /**
-     * Returns a string containing all the sources add to the service with all the URI separated by a ;.
-     * @return A string containing all the sources add to the service with all the URI separated by a ;.
-     */
-    public String getListSourcesAsString(){
-        String str = "";
-        for(ProcessIdentifier pi : processIdList){
-            if(pi.isRemovable()) {
-                if (str.isEmpty()) {
-                    str += pi.getSourceFileURI();
-                } else {
-                    str += ";" + pi.getSourceFileURI();
-                }
-            }
-        }
-        return str;
-    }
-
-    /**
      * Cancel the job corresponding to the jobID.
      * @param jobId Id of the job to cancel.
      */
@@ -529,7 +479,7 @@ public class ProcessManager {
         closureMap.get(jobId).cancel();
     }
 
-    public void filterProcessByDatabase(WpsServer.Database database) {
+    public void filterProcessByDatabase() {
         List<ProcessDescriptionType> toRemove = new ArrayList<>();
         for(ProcessIdentifier pi : getAllProcessIdentifier()){
             boolean isAccepted = false;

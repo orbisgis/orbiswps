@@ -38,6 +38,7 @@ package org.orbiswps.client.api;
 
 import net.opengis.wps._2_0.Result;
 import net.opengis.wps._2_0.StatusInfo;
+import org.orbiswps.server.utils.ProcessMetadata;
 
 import java.net.URI;
 import java.util.Map;
@@ -97,4 +98,20 @@ public interface WpsClient {
      * @return The StatusInfo object containing the status of the job resulting of the request.
      */
     StatusInfo executeProcess(URI processIdentifier, Map<URI,Object> dataMap);
+
+    /**
+     * Adds metadata (like Icons to use, node path ...) to use in the WPS client for the process having the given
+     * identifier.
+     *
+     * @param processIdentifier Identifier of the process.
+     * @param metadataMap Map of metadata to use for the process in the client (like Icons to use, node path ...)
+     */
+    void addProcessMetadata(URI processIdentifier, Map<ProcessMetadata.INTERNAL_METADATA, Object> metadataMap);
+
+    /**
+     * Removes all the metadata registered for the process having the given identifier.
+     *
+     * @param processIdentifier Identifier of the process.
+     */
+    void removeProcessMetadata(URI processIdentifier);
 }

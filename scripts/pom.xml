@@ -81,6 +81,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.orbiswps</groupId>
+            <artifactId>client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.orbisgis</groupId>
             <artifactId>h2gis-functions</artifactId>
             <version>${h2gis-version}</version>

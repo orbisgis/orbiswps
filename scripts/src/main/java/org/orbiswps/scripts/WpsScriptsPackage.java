@@ -43,6 +43,7 @@ import org.orbiswps.client.api.WpsClient;
 import org.orbiswps.server.WpsServer;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.utils.ProcessMetadata;
+import org.orbiswps.server.utils.WpsScriptUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
@@ -128,28 +129,7 @@ public class WpsScriptsPackage {
             }
         }
         URL scriptUrl = this.getClass().getResource(processpath);
-        if(scriptUrl == null){
-            LOGGER.error(I18N.tr("Unable to get the URL of the process {0}", processpath));
-            return;
-        }
-        final File tempFile = new File(tempFolder.getAbsolutePath(), new File(scriptUrl.getFile()).getName());
-        if(!tempFile.exists()) {
-            try{
-                if(!tempFile.createNewFile()){
-                    LOGGER.error(I18N.tr("Unable to create the script file."));
-                    return;
-                }
-            } catch (IOException e) {
-                LOGGER.error(I18N.tr("Unable to create the icon file.\n Error : {0}", e.getMessage()));
-            }
-        }
-        try (FileOutputStream out = new FileOutputStream(tempFile)) {
-            IOUtils.copy(scriptUrl.openStream(), out);
-        }
-        catch (Exception e){
-            LOGGER.error(I18N.tr("Unable to copy the content of the script to the temporary file."));
-            return;
-        }
+        File tempFile = WpsScriptUtils.copyResourceFile(scriptUrl, tempFolder);
         List<ProcessIdentifier> piList = wpsServer.addProcess(tempFile);
         if(piList != null) {
             for (ProcessIdentifier pi : piList) {

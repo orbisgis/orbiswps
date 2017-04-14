@@ -287,32 +287,32 @@ public class TestWpsServerGetProcesses {
                 URL url = this.getClass().getResource("JDBCTable.groovy");
                 if (url != null) {
                     File f = new File(url.toURI());
-                    localWpsService.addProcess(f, null, true, "test");
+                    localWpsService.addProcess(f);
                 }
                 url = this.getClass().getResource("JDBCColumn.groovy");
                 if (url != null) {
                     File f = new File(url.toURI());
-                    localWpsService.addProcess(f, null, true, "test");
+                    localWpsService.addProcess(f);
                 }
                 url = this.getClass().getResource("JDBCValue.groovy");
                 if (url != null) {
                     File f = new File(url.toURI());
-                    localWpsService.addProcess(f, null, true, "test");
+                    localWpsService.addProcess(f);
                 }
                 url = this.getClass().getResource("Enumeration.groovy");
                 if (url != null) {
                     File f = new File(url.toURI());
-                    localWpsService.addProcess(f, null, true, "test");
+                    localWpsService.addProcess(f);
                 }
                 url = this.getClass().getResource("GeometryData.groovy");
                 if (url != null) {
                     File f = new File(url.toURI());
-                    localWpsService.addProcess(f, null, true, "test");
+                    localWpsService.addProcess(f);
                 }
                 url = this.getClass().getResource("RawData.groovy");
                 if (url != null) {
                     File f = new File(url.toURI());
-                    localWpsService.addProcess(f, null, true, "test");
+                    localWpsService.addProcess(f);
                 }
             } catch (URISyntaxException e) {
                 e.printStackTrace();

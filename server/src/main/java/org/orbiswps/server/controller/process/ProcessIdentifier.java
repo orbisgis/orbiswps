@@ -40,8 +40,6 @@ package org.orbiswps.server.controller.process;
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import net.opengis.wps._2_0.ProcessOffering;
 
-import java.net.URI;
-
 /**
  * @author Sylvain PALOMINOS
  **/
@@ -49,55 +47,22 @@ import java.net.URI;
 public class ProcessIdentifier {
 
     private ProcessOffering processOffering;
-    private URI sourceFileURI;
-    private URI parent;
-    private String[] category;
-    private boolean isRemovable;
-    private String nodePath;
+    private String filePath;
 
-    public ProcessIdentifier(ProcessOffering processOffering, URI sourceFileURI, URI parent, String nodePath){
+    public ProcessIdentifier(ProcessOffering processOffering, String filePath){
         this.processOffering = processOffering;
-        this.sourceFileURI = sourceFileURI;
-        this.parent = parent;
-        this.category = null;
-        this.isRemovable = false;
-        this.nodePath = nodePath;
-    }
-
-    public void setCategory(String[] category){
-        this.category = category;
-    }
-
-    public void setRemovable(boolean isRemovable){
-        this.isRemovable = isRemovable;
+        this.filePath = filePath;
     }
 
     public ProcessDescriptionType getProcessDescriptionType() {
         return processOffering.getProcess();
     }
 
-    public URI getSourceFileURI() {
-        return sourceFileURI;
-    }
-
-    public URI getParent(){
-        return parent;
-    }
-
-    public String[] getCategory(){
-        return category;
-    }
-
-    public boolean isRemovable(){
-        return isRemovable;
-    }
-
     public ProcessOffering getProcessOffering(){
         return processOffering;
     }
 
-    public String getNodePath(){
-        return nodePath;
-
+    public String getFilePath(){
+        return filePath;
     }
 }

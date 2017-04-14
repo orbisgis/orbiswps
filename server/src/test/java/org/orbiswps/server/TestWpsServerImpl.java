@@ -78,37 +78,37 @@ public class TestWpsServerImpl {
             URL url = this.getClass().getResource("JDBCTable.groovy");
             Assert.assertNotNull("Unable to load the script 'JDBCTable.groovy'", url);
             File f = new File(url.toURI());
-            localWpsServer.addProcess(f, null, true, "test");
+            localWpsServer.addProcess(f);
 
             url = this.getClass().getResource("JDBCColumn.groovy");
             Assert.assertNotNull("Unable to load the script 'JDBCColumn.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f, null, true, "test");
+            localWpsServer.addProcess(f);
 
             url = this.getClass().getResource("JDBCValue.groovy");
             Assert.assertNotNull("Unable to load the script 'JDBCValue.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f, null, true, "test");
+            localWpsServer.addProcess(f);
 
             url = this.getClass().getResource("Enumeration.groovy");
             Assert.assertNotNull("Unable to load the script 'Enumeration.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f, null, true, "test");
+            localWpsServer.addProcess(f);
 
             url = this.getClass().getResource("EnumerationLongProcess.groovy");
             Assert.assertNotNull("Unable to load the script 'EnumerationLongProcess.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f, null, true, "test");
+            localWpsServer.addProcess(f);
 
             url = this.getClass().getResource("GeometryData.groovy");
             Assert.assertNotNull("Unable to load the script 'GeometryData.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f, null, true, "test");
+            localWpsServer.addProcess(f);
 
             url = this.getClass().getResource("RawData.groovy");
             Assert.assertNotNull("Unable to load the script 'RawData.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f, null, true, "test");
+            localWpsServer.addProcess(f);
 
         }
         catch (URISyntaxException e) {

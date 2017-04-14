@@ -616,7 +616,7 @@ public class WpsServerImpl implements WpsServer {
     @Override
     public void setDatabase(Database database){
         this.database = database;
-        processManager.filterProcessByDatabase(database);
+        processManager.filterProcessByDatabase();
     }
     @Override
     public Database getDatabase() {
@@ -681,16 +681,16 @@ public class WpsServerImpl implements WpsServer {
     }
 
     @Override
-    public List<ProcessIdentifier> addProcess(File f, String[] iconName, boolean isRemovable, String nodePath){
+    public List<ProcessIdentifier> addProcess(File f){
         List<ProcessIdentifier> piList = new ArrayList<>();
         if(f.getName().endsWith(".groovy")) {
-            ProcessIdentifier pi = this.getProcessManager().addScript(f.toURI(), iconName, isRemovable, nodePath);
+            ProcessIdentifier pi = this.getProcessManager().addScript(f.toURI());
             if(pi != null && pi.getProcessOffering() != null && pi.getProcessDescriptionType() != null){
                 piList.add(pi);
             }
         }
         else if(f.isDirectory()){
-            piList.addAll(this.getProcessManager().addLocalSource(f.toURI(), iconName));
+            piList.addAll(this.getProcessManager().addLocalSource(f.toURI()));
         }
         for(WpsServerListener listener : wpsServerListenerList){
             listener.onScriptAdd();

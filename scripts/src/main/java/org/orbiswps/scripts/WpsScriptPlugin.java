@@ -36,11 +36,9 @@
  */
 package org.orbiswps.scripts;
 
+import org.orbiswps.client.api.WpsClient;
 import org.orbiswps.server.WpsServer;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
@@ -108,6 +106,23 @@ public class WpsScriptPlugin extends WpsScriptsPackage {
     }
 
     /**
+     * OSGI method used to give to the plugin the WpsClient. (Be careful before any modification)
+     * @param wpsClient
+     */
+    @Reference
+    public void setWpsClient(WpsClient wpsClient) {
+        this.wpsClient = wpsClient;
+    }
+
+    /**
+     * OSGI method used to remove from the plugin the WpsClient. (Be careful before any modification)
+     * @param wpsClient
+     */
+    public void unsetWpsClient(WpsClient wpsClient) {
+        this.wpsClient = null;
+    }
+
+    /**
      * This methods is called once the plugin is loaded.
      *
      * It first check if the WpsService is ready.
@@ -130,6 +145,7 @@ public class WpsScriptPlugin extends WpsScriptsPackage {
      */
     @Activate
     public void activate(){
+        System.out.println("test");
         listIdProcess = new ArrayList<>();
         //Check the WpsService
         if(wpsServer != null){

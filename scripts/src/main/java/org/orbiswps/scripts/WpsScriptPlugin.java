@@ -145,45 +145,23 @@ public class WpsScriptPlugin extends WpsScriptsPackage {
      */
     @Activate
     public void activate(){
-        System.out.println("test");
         listIdProcess = new ArrayList<>();
         //Check the WpsService
         if(wpsServer != null){
+            //Mark the string to translate which will be used in the tree path.
+            I18N.tr("OrbisGIS");
+            I18N.tr("Network");
+            I18N.tr("Table");
+            I18N.tr("Geometry2D");
+            I18N.tr("Convert");
+            I18N.tr("Create");
+            I18N.tr("Buffer");
+            I18N.tr("Properties");
+            I18N.tr("Transform");
+            I18N.tr("Import");
+            I18N.tr("Export");
             //Default method to load the scripts
-            String[] icons = new String[]{loadIcon("orbisgis.png")};
-            customLoadScript("scripts/Network/createGraph.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Network"));
-            customLoadScript("scripts/Table/deleteRows.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Table"));
-            customLoadScript("scripts/Table/describeColumns.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Table"));
-            customLoadScript("scripts/Table/insertValues.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Table"));
-            customLoadScript("scripts/Table/joinTables.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Table"));
-            customLoadScript("scripts/Table/deleteColumns.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Table"));
-            customLoadScript("scripts/Geometry2D/Convert/extractCenter.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Geometry2D")+"/"+I18N.tr("Convert"));
-            customLoadScript("scripts/Geometry2D/Create/createGridOfPoints.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Geometry2D")+"/"+I18N.tr("Create"));
-            customLoadScript("scripts/Geometry2D/Create/createGridOfPolygons.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Geometry2D")+"/"+I18N.tr("Create"));
-            customLoadScript("scripts/Geometry2D/Create/fixedExtrudePolygons.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Geometry2D")+"/"+I18N.tr("Create"));
-            customLoadScript("scripts/Geometry2D/Create/variableExtrudePolygons.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Geometry2D")+"/"+I18N.tr("Create"));
-            customLoadScript("scripts/Geometry2D/Buffer/fixedDistanceBuffer.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Geometry2D")+"/"+I18N.tr("Buffer"));
-            customLoadScript("scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Geometry2D")+"/"+I18N.tr("Buffer"));
-            customLoadScript("scripts/Geometry2D/Properties/geometryProperties.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Geometry2D")+"/"+I18N.tr("Properties"));
-            customLoadScript("scripts/Geometry2D/Transform/reprojectGeometries.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Geometry2D")+"/"+I18N.tr("Transform"));
-            
-            //Data importer
-            customLoadScript("scripts/Import/importCSVFile.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Import"));
-            customLoadScript("scripts/Import/importDBFFile.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Import"));
-            customLoadScript("scripts/Import/importShapeFile.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Import"));
-            customLoadScript("scripts/Import/importGeoJsonFile.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Import"));
-            customLoadScript("scripts/Import/importOSMFile.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Import"));
-            customLoadScript("scripts/Import/importGPXFile.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Import"));
-            customLoadScript("scripts/Import/importTSVFile.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Import"));
-            customLoadScript("scripts/Import/csvToPointsTable.groovy", icons, I18N.tr("OrbisGIS")+"/"+I18N.tr("Import"));
-            
-            //Data exporter
-            customLoadScript("scripts/Export/exportCSVFile.groovy", icons, I18N.tr("OrbisGIS") + "/" + I18N.tr("Export"));
-            customLoadScript("scripts/Export/exportTSVFile.groovy", icons, I18N.tr("OrbisGIS") + "/" + I18N.tr("Export"));
-            customLoadScript("scripts/Export/exportDBFFile.groovy", icons, I18N.tr("OrbisGIS") + "/" + I18N.tr("Export"));
-            customLoadScript("scripts/Export/exportGeoJsonFile.groovy", icons, I18N.tr("OrbisGIS") + "/" + I18N.tr("Export"));
-            customLoadScript("scripts/Export/exportShapeFile.groovy", icons, I18N.tr("OrbisGIS") + "/" + I18N.tr("Export"));
-            customLoadScript("scripts/Export/exportKMLFile.groovy", icons, I18N.tr("OrbisGIS") + "/" + I18N.tr("Export"));
+            loadAllScripts();
         }
         else{
             LoggerFactory.getLogger(WpsScriptsPackage.class).error(

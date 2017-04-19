@@ -127,6 +127,9 @@ public class WpsServerImpl implements WpsServer {
 
     /**
      * Initialization of the WpsServer with the given properties.
+     *
+     * @param scriptFolder String path to the OrbisGIS script folder.
+     * @param dataSource DataSource to be used by the server.
      */
     public WpsServerImpl(String scriptFolder, DataSource dataSource){
         super();
@@ -134,10 +137,11 @@ public class WpsServerImpl implements WpsServer {
         this.setDataSource(dataSource);
     }
 
+    /**
+     * Method called on bundle activation.
+     */
     @Activate
-    public void activate(){
-
-    }
+    public void activate(){}
 
     /*******************************************************************/
     /** Methods from the WpsService class.                            **/
@@ -198,8 +202,6 @@ public class WpsServerImpl implements WpsServer {
         else{
             requestedSections.add(SectionName.All);
         }
-        //TODO be able to manage the UpdateSequence parameter
-        //TODO be able to manage the AcceptFormat parameter
         //Languages check
         //If the language is not supported, add an ExceptionType with the error.
         String requestLanguage = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;
@@ -256,7 +258,6 @@ public class WpsServerImpl implements WpsServer {
 
         /** Building of the WPSCapabilitiesTypeAnswer **/
 
-        //TODO add the UpdateSequence element
         //Copy the content of the basicCapabilities into the new one
         WPSCapabilitiesType capabilitiesType = new WPSCapabilitiesType();
         capabilitiesType.setExtension(new WPSCapabilitiesType.Extension());
@@ -484,7 +485,6 @@ public class WpsServerImpl implements WpsServer {
     public Result getResult(GetResult getResult) {
         Result result = new Result();
         //generate the XMLGregorianCalendar Object to put in the Result Object
-        //TODO make the service be able to set the expiration date
         XMLGregorianCalendar date = getXMLGregorianCalendar(0);
         result.setExpirationDate(date);
         //Get the concerned Job
@@ -508,13 +508,17 @@ public class WpsServerImpl implements WpsServer {
                 Data data = new Data();
                 data.setEncoding("simple");
                 data.setMimeType("");
-                //TODO make the difference between the different data type from the map.
                 List<Serializable> serializableList = new ArrayList<>();
                 serializableList.add(entry.getValue().toString());
                 data.getContent().clear();
                 data.getContent().addAll(serializableList);
                 output.setData(data);
                 listOutput.add(output);
+                //Sets and schedule the destroy date
+                long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
+                if(destructionDelay != 0) {
+                    scheduleResultDestroying(entry.getKey(), getXMLGregorianCalendar(destructionDelay));
+                }
             }
         }
         result.getOutput().clear();
@@ -626,21 +630,9 @@ public class WpsServerImpl implements WpsServer {
     public void setDataSource(DataSource dataSource){
         this.processManager.setDataSource(dataSource);
     }
-
+    @Override
     public void setExecutorService(ExecutorService executorService){
         this.executorService = executorService;
-    }
-
-    protected ExecutorService getExecutorService(){
-        return executorService;
-    }
-
-    protected Map<UUID, Job> getJobMap(){
-        return jobMap;
-    }
-
-    protected ProcessManager getProcessManager(){
-        return processManager;
     }
 
     /************************/
@@ -684,13 +676,13 @@ public class WpsServerImpl implements WpsServer {
     public List<ProcessIdentifier> addProcess(File f){
         List<ProcessIdentifier> piList = new ArrayList<>();
         if(f.getName().endsWith(".groovy")) {
-            ProcessIdentifier pi = this.getProcessManager().addScript(f.toURI());
+            ProcessIdentifier pi = this.processManager.addScript(f.toURI());
             if(pi != null && pi.getProcessOffering() != null && pi.getProcessDescriptionType() != null){
                 piList.add(pi);
             }
         }
         else if(f.isDirectory()){
-            piList.addAll(this.getProcessManager().addLocalSource(f.toURI()));
+            piList.addAll(this.processManager.addLocalSource(f.toURI()));
         }
         for(WpsServerListener listener : wpsServerListenerList){
             listener.onScriptAdd();
@@ -702,9 +694,9 @@ public class WpsServerImpl implements WpsServer {
     public void removeProcess(URI identifier){
         CodeType codeType = new CodeType();
         codeType.setValue(identifier.toString());
-        ProcessDescriptionType process = this.getProcessManager().getProcess(codeType);
+        ProcessDescriptionType process = this.processManager.getProcess(codeType);
         if(process != null) {
-            this.getProcessManager().removeProcess(process);
+            this.processManager.removeProcess(process);
         }
         for(WpsServerListener listener : wpsServerListenerList){
             listener.onScriptRemoved();
@@ -761,5 +753,14 @@ public class WpsServerImpl implements WpsServer {
     @Override
     public void removeWpsServerListener(WpsServerListener wpsServerListener) {
         this.wpsServerListenerList.remove(wpsServerListener);
+    }
+
+    /**
+     * Schedule the destroying of a generated result at the given date.
+     * @param resultUri Uri of the result to destroy.
+     * @param date Date when the result should be destroyed.
+     */
+    public void scheduleResultDestroying(URI resultUri, XMLGregorianCalendar date){
+        //To be implemented
     }
 }

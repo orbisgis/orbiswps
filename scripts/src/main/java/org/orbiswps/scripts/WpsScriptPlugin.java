@@ -149,17 +149,17 @@ public class WpsScriptPlugin extends WpsScriptsPackage {
         //Check the WpsService
         if(wpsServer != null){
             //Mark the string to translate which will be used in the tree path.
-            I18N.tr("OrbisGIS");
-            I18N.tr("Network");
-            I18N.tr("Table");
-            I18N.tr("Geometry2D");
-            I18N.tr("Convert");
-            I18N.tr("Create");
-            I18N.tr("Buffer");
-            I18N.tr("Properties");
-            I18N.tr("Transform");
-            I18N.tr("Import");
-            I18N.tr("Export");
+            I18n.marktr("OrbisGIS");
+            I18n.marktr("Network");
+            I18n.marktr("Table");
+            I18n.marktr("Geometry2D");
+            I18n.marktr("Convert");
+            I18n.marktr("Create");
+            I18n.marktr("Buffer");
+            I18n.marktr("Properties");
+            I18n.marktr("Transform");
+            I18n.marktr("Import");
+            I18n.marktr("Export");
             //Default method to load the scripts
             loadAllScripts();
         }

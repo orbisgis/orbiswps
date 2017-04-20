@@ -459,12 +459,17 @@ public class WpsServerProperties {
         /** String representation of the delay before destroying results. */
         private String destroyDelay;
 
+        public final long BASE_PROCESS_POLLING_DELAY;
+        public final long MAX_PROCESS_POLLING_DELAY;
+
         /**
          * Properties which are not defined in the WPS standard.
          * @param properties Loaded Properties.
          */
         public CustomProperties(Properties properties){
             destroyDelay = properties.getProperty("DESTROY_DURATION");
+            BASE_PROCESS_POLLING_DELAY = Long.decode(properties.getProperty("BASE_PROCESS_POLLING_DELAY"));
+            MAX_PROCESS_POLLING_DELAY = Long.decode(properties.getProperty("MAX_PROCESS_POLLING_DELAY"));
         }
 
         /**

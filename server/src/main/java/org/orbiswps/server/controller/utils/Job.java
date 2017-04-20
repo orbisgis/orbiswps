@@ -55,8 +55,8 @@ import java.util.UUID;
 public class Job implements ProcessExecutionListener, PropertyChangeListener {
 
     /** Process polling time in milliseconds. */
-    private static final long MAX_PROCESS_POLLING_MILLIS = 10000;
-    private static final long BASE_PROCESS_POLLING_MILLIS = 1000;
+    private final long MAX_PROCESS_POLLING_DELAY_MILLIS;
+    private final long BASE_PROCESS_POLLING_DELAY_MILLIS;
     /** WPS process */
     private ProcessDescriptionType process;
     /** Unique identifier of the job */
@@ -69,16 +69,21 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
     private ProcessState state;
     /** Map of the input/output data of the process execution */
     private Map<URI, Object> dataMap;
-    private long processPollingTime;
+    /** Actual process polling delay in milliseconds */
+    private long processPollingDelay;
+    /** Progress of the job. */
     private int progress = 0;
 
-    public Job(ProcessDescriptionType process, UUID id, Map<URI, Object> dataMap){
+    public Job(ProcessDescriptionType process, UUID id, Map<URI, Object> dataMap,
+               long maxPollingDelay, long basePollingDelay){
         this.process = process;
         this.id = id;
         logMap = new HashMap<>();
         state = ProcessState.ACCEPTED;
         this.dataMap = dataMap;
-        processPollingTime = BASE_PROCESS_POLLING_MILLIS;
+        MAX_PROCESS_POLLING_DELAY_MILLIS = maxPollingDelay;
+        BASE_PROCESS_POLLING_DELAY_MILLIS = basePollingDelay;
+        processPollingDelay = basePollingDelay;
     }
 
     @Override
@@ -86,6 +91,10 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
         startTime = time;
     }
 
+    /**
+     * Returns the start time.
+     * @return The start time.
+     */
     public long getStartTime(){
         return startTime;
     }
@@ -137,17 +146,25 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
      * @return The process polling time.
      */
     public long getProcessPollingTime(){
-        long time = processPollingTime;
-        if(processPollingTime < MAX_PROCESS_POLLING_MILLIS) {
-            processPollingTime += BASE_PROCESS_POLLING_MILLIS;
+        long time = processPollingDelay;
+        if(processPollingDelay < MAX_PROCESS_POLLING_DELAY_MILLIS) {
+            processPollingDelay += BASE_PROCESS_POLLING_DELAY_MILLIS;
         }
         return time;
     }
 
-    public void setProgress(int i){
-        progress = i;
+    /**
+     * Set the job progress. Should be between 0and 100 included.
+     * @param progress new progress.
+     */
+    public void setProgress(int progress){
+        this.progress = progress;
     }
 
+    /**
+     * Returns the job progress.
+     * @return The job progress.
+     */
     public int getProgress(){
         return progress;
     }

@@ -95,10 +95,13 @@ public class WpsServerImpl implements WpsServer {
     /** Map containing all the properties to give to the groovy object.
      * The following words are reserved and SHOULD NOT be used as keys : 'logger', 'sql', 'isH2'. */
     private Map<String, Object> propertiesMap;
+    /** True if a process is running, false otherwise. */
     private boolean processRunning = false;
+    /** FIFO list of ProcessWorker, it is used to run the processes one by one in the good order. */
     private LinkedList<ProcessWorker> workerFIFO;
     /** Properties of the wps server */
     private WpsServerProperties wpsProp;
+    /** String path to the script folder. */
     private String scriptFolder;
     /** List of OrbisGISWpsServerListener. */
     private List<WpsServerListener> wpsServerListenerList = new ArrayList<>();
@@ -408,7 +411,9 @@ public class WpsServerImpl implements WpsServer {
         //Get the Process
         ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(execute.getIdentifier());
         //Generate the processInstance
-        Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap);
+        Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
+                wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
+                wpsProp.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
         jobMap.put(jobId, job);
         statusInfo.setStatus(job.getState().name());
 

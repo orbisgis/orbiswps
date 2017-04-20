@@ -37,14 +37,33 @@
 package org.orbiswps.server.execution;
 
 /**
+ * Interface to implement to be able to follow a process execution.
+ *
  * @author Sylvain PALOMINOS
  */
 public interface ProcessExecutionListener {
 
+    /** States the process can have. */
     enum ProcessState{RUNNING, SUCCEEDED, FAILED, ACCEPTED, IDLE}
+    /** Type of the logs. */
     enum LogType{INFO, WARN, ERROR}
 
+    /**
+     * Sets the time when the process is starting.
+     * @param time Time in milliseconds when the process is starting.
+     */
     void setStartTime(long time);
+
+    /**
+     * Append a log with the given type and the given message.
+     * @param logType Type of the log.
+     * @param message Message of the log.
+     */
     void appendLog(LogType logType, String message);
+
+    /**
+     * Sets the state of the process.
+     * @param processState State of the process.
+     */
     void setProcessState(ProcessState processState);
 }

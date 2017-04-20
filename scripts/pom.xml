@@ -54,7 +54,7 @@
                 <configuration>
                     <poDirectory>src/main/resources/org/orbiswps/scripts/translation/</poDirectory>
                     <targetBundle>org.orbiswps.scripts.Messages</targetBundle>
-                    <keywords>-ktr</keywords>
+                    <keywords>-ktr -kmarktr</keywords>
                     <outputFormat>properties</outputFormat>
                 </configuration>
             </plugin>

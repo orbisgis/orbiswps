@@ -36,25 +36,25 @@
  */
 package org.orbiswps.scripts;
 
-import net.opengis.ows._2.CodeType;
 import org.apache.commons.io.IOUtils;
-
 import org.orbiswps.client.api.WpsClient;
 import org.orbiswps.server.WpsServer;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.utils.ProcessMetadata;
 import org.orbiswps.server.utils.WpsScriptUtils;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * In the WpsService, the script are organized in a tree, which has the WpsService as root.
@@ -113,31 +113,90 @@ public class WpsScriptsPackage {
     protected List<URI> listIdProcess;
 
     /**
-     * This method loads the scripts one by one under different node path with different icons.
-     * (Be careful before any modification)
-     * @param processpath
-     * @param icons
-     * @param path
+     * Adds to the WpsServer all the script contained in the 'scripts' resource folder.
      */
-    protected void customLoadScript(String processpath, String[] icons, String path){
+    protected void loadAllScripts(){
+        String[] icons = new String[]{loadIcon("orbisgis.png")};
+        String resourceName = "scripts";
+        String nodePath = I18N.tr("OrbisGIS");
+        URL resourceUrl = this.getClass().getResource(resourceName);
+        List<URL> urls = new ArrayList<>();
+        if(resourceUrl.getProtocol().equalsIgnoreCase("bundle")){
+            addAllGroovyUrls(resourceUrl, icons, resourceName);
+        }
+        else if(resourceUrl.getProtocol().equalsIgnoreCase("file")){
+            addAllGroovyUrls(new File(resourceUrl.getFile()), icons, resourceName);
+        }
+        for(URL url : urls){
+            loadScript(url, icons, nodePath);
+        }
+    }
+
+    /**
+     * Adds recursively all the script contained in a folder.
+     * @param resourceUrl Url of the directory to explore.
+     */
+    private void addAllGroovyUrls(URL resourceUrl, String[] icons, String nodePath){
+        //Get the URL of all the files contained in the 'script' folder.
+        Enumeration<URL> enumUrl = FrameworkUtil.getBundle(this.getClass()).findEntries(resourceUrl.getFile(), "*", false);
+        //For each url, if it is a file, load it, if it is a directory, check its content.
+        while(enumUrl.hasMoreElements()) {
+            URL scriptUrl = enumUrl.nextElement();
+            //If the url if a groovy file,
+            if(scriptUrl.getFile().endsWith(".groovy")) {
+                loadScript(scriptUrl, icons, nodePath);
+            }
+            //If the url is a folder,
+            else {
+                //Recursively add the scripts.
+                addAllGroovyUrls(scriptUrl, icons, nodePath+"/"+ I18N.tr(new File(scriptUrl.getFile()).getName()));
+            }
+        }
+    }
+
+    /**
+     * Adds recursively all the script contained in a folder.
+     * @param directory Directory to explore.
+     */
+    private void addAllGroovyUrls(File directory, String[] icons, String nodePath){
+        for(File f : directory.listFiles()) {
+            if (f.isDirectory()) {
+                addAllGroovyUrls(f, icons, nodePath+"/"+ I18N.tr(f.getName()));
+            }
+            else {
+                try {
+                    loadScript(f.toURI().toURL(), icons, nodePath);
+                } catch (MalformedURLException e) {
+                    LOGGER.warn("Unable to get the URL of the script : {0}", directory.getName());
+                }
+            }
+        }
+    }
+
+    /**
+     * Load a script by adding it to the wpsServer and saving the resulting ProcessIdentifier.
+     * @param scriptUrl Url of the script to add.
+     * @param icons Array of icons to use in the UI.
+     * @param path Path to use for this script for the UI representation
+     */
+    private void loadScript(URL scriptUrl, String[] icons, String path) {
         String tempFolderPath = wpsServer.getScriptFolder();
         File tempFolder = new File(tempFolderPath, "wpsscripts");
-        if(!tempFolder.exists()) {
-            if(!tempFolder.mkdirs()){
+        if (!tempFolder.exists()) {
+            if (!tempFolder.mkdirs()) {
                 LOGGER.error(I18N.tr("Unable to create the OrbisGIS temporary folder."));
                 return;
             }
         }
-        URL scriptUrl = this.getClass().getResource(processpath);
         File tempFile = WpsScriptUtils.copyResourceFile(scriptUrl, tempFolder);
         List<ProcessIdentifier> piList = wpsServer.addProcess(tempFile);
-        if(piList != null) {
+        if (piList != null) {
             for (ProcessIdentifier pi : piList) {
                 if (pi == null || pi.getProcessDescriptionType() == null || pi.getProcessDescriptionType().getInput() == null) {
                     LOGGER.error(I18N.tr("Error, the ProcessIdentifier get is malformed."));
                 }
                 URI uri = URI.create(pi.getProcessDescriptionType().getIdentifier().getValue());
-                if(wpsClient != null){
+                if (wpsClient != null) {
                     Map<ProcessMetadata.INTERNAL_METADATA, Object> metadataMap = new HashMap<>();
                     metadataMap.put(ProcessMetadata.INTERNAL_METADATA.IS_REMOVABLE, false);
                     metadataMap.put(ProcessMetadata.INTERNAL_METADATA.NODE_PATH, path);

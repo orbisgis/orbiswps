@@ -624,7 +624,11 @@ public class TestWpsServerImpl {
                         "null",
                 statusInfo.getExpirationDate());
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the status info estimated completion " +
+<<<<<<< Updated upstream
                         "should be null",
+=======
+                        "should not be null",
+>>>>>>> Stashed changes
                 statusInfo.getEstimatedCompletion());
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the status info percent complete" +
                         "should not not be null",

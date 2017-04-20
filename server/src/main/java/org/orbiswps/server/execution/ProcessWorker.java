@@ -89,14 +89,6 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
         progressMonitor.addPropertyChangeListener(ProgressMonitor.PROPERTY_CANCEL, this);
     }
 
-    /**
-     * Returns the data Map.
-     * @return The data Map.
-     */
-    public Map<URI, Object> getDataMap(){
-        return dataMap;
-    }
-
     @Override
     public void run() {
         String title = job.getProcess().getTitle().get(0).getValue();
@@ -136,6 +128,7 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
                 job.appendLog(ProcessExecutionListener.LogType.INFO, I18N.tr("End of the process."));
                 job.setProcessState(ProcessExecutionListener.ProcessState.SUCCEEDED);
             }
+            progressMonitor.endOfProgress();
         }
         catch (Exception e) {
             if(job != null) {
@@ -148,12 +141,6 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
                 LOGGER.error(I18N.tr("Error on execution the WPS  process {0}.\nCause : {1}.",
                         process.getTitle(),e.getMessage()));
             }
-        }
-    }
-
-    public void cancel() {
-        if(!progressMonitor.isCanceled()){
-            progressMonitor.cancel();
         }
     }
 

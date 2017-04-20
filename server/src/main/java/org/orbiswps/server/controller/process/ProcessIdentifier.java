@@ -41,12 +41,16 @@ import net.opengis.wps._2_0.ProcessDescriptionType;
 import net.opengis.wps._2_0.ProcessOffering;
 
 /**
+ * Class containing information to identify a process.
+ *
  * @author Sylvain PALOMINOS
  **/
 
 public class ProcessIdentifier {
 
+    /** ProcessOffering object. */
     private ProcessOffering processOffering;
+    /** File path of the process. */
     private String filePath;
 
     public ProcessIdentifier(ProcessOffering processOffering, String filePath){
@@ -54,14 +58,27 @@ public class ProcessIdentifier {
         this.filePath = filePath;
     }
 
+    /**
+     * Returns the ProcessDescriptionType object.
+     * @return The ProcessDescriptionType object.
+     */
     public ProcessDescriptionType getProcessDescriptionType() {
         return processOffering.getProcess();
     }
 
+
+    /**
+     * Returns the ProcessOffering object.
+     * @return The ProcessOffering object.
+     */
     public ProcessOffering getProcessOffering(){
         return processOffering;
     }
 
+    /**
+     * Returns the process file path.
+     * @return The process file path.
+     */
     public String getFilePath(){
         return filePath;
     }

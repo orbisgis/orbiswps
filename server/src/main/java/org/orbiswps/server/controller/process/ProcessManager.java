@@ -76,9 +76,13 @@ public class ProcessManager {
     private List<ProcessIdentifier> processIdList;
     /** Controller used to parse process */
     private ParserController parserController;
+    /** DataSource to use. */
     private DataSource dataSource;
-    private WpsServer wpsService;
+    /** WpsServer to use. */
+    private WpsServer wpsServer;
+    /** Map of closure for the process cancellation. */
     private Map<UUID, CancelClosure> closureMap;
+    /** Logger object. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManager.class);
     /** I18N object */
     private static final I18n I18N = I18nFactory.getI18n(ProcessManager.class);
@@ -86,13 +90,13 @@ public class ProcessManager {
     /**
      * Main constructor.
      * @param dataSource
-     * @param wpsService
+     * @param wpsServer
      */
-    public ProcessManager(DataSource dataSource, WpsServer wpsService){
+    public ProcessManager(DataSource dataSource, WpsServer wpsServer){
         processIdList = new ArrayList<>();
         parserController = new ParserController();
         this.setDataSource(dataSource);
-        this.wpsService = wpsService;
+        this.wpsServer = wpsServer;
         this.closureMap = new HashMap<>();
     }
 
@@ -104,6 +108,11 @@ public class ProcessManager {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Adds a script which is at the given URI and returns its process identifier.
+     * @param scriptUri Uri of the process.
+     * @return Process identifier corresponding to the process.
+     */
     public ProcessIdentifier addScript(URI scriptUri){
         File f = new File(scriptUri);
         if(!f.exists()){
@@ -135,9 +144,9 @@ public class ProcessManager {
                 }
                 if(! isAcceptedDBMS){
                     for(MetadataType metadata : processOffering.getProcess().getMetadata()){
-                        if(wpsService.getDatabase() == null ||
+                        if(wpsServer.getDatabase() == null ||
                                 (metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME) &&
-                                metadata.getTitle().toLowerCase().equals(wpsService.getDatabase().name().toLowerCase()))){
+                                metadata.getTitle().toLowerCase().equals(wpsServer.getDatabase().name().toLowerCase()))){
                             isAcceptedDBMS = true;
                         }
                     }
@@ -163,7 +172,7 @@ public class ProcessManager {
     /**
      * Adds a local source to the toolbox and get all the groovy script.
      * @param uri URI to the local source.
-     * @return 
+     * @return The list of process identifier corresponding to the given uri.
      */
     public List<ProcessIdentifier> addLocalSource(URI uri){
         List<ProcessIdentifier> piList = new ArrayList<>();
@@ -205,7 +214,7 @@ public class ProcessManager {
                 WpsSql sql = new WpsSql(dataSource);
                 sql.withStatement(closure);
                 groovyObject.setProperty("sql", sql);
-                groovyObject.setProperty("isH2", wpsService.getDatabase().equals(WpsServer.Database.H2GIS));
+                groovyObject.setProperty("isH2", wpsServer.getDatabase().equals(WpsServer.Database.H2GIS));
             }
             groovyObject.setProperty("logger", LoggerFactory.getLogger(ProcessManager.class));
             groovyObject.setProperty("progressMonitor", progressMonitor);
@@ -479,13 +488,17 @@ public class ProcessManager {
         closureMap.get(jobId).cancel();
     }
 
+    /**
+     * Filter the process list according to the database.
+     * It is done in a separated function because when the processes are loaded, it is possible that the Database has not been
+     */
     public void filterProcessByDatabase() {
         List<ProcessDescriptionType> toRemove = new ArrayList<>();
         for(ProcessIdentifier pi : getAllProcessIdentifier()){
             boolean isAccepted = false;
             for(MetadataType metadata : pi.getProcessDescriptionType().getMetadata()){
                 if(metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME) &&
-                        metadata.getTitle().toLowerCase().equals(wpsService.getDatabase().name().toLowerCase())){
+                        metadata.getTitle().toLowerCase().equals(wpsServer.getDatabase().name().toLowerCase())){
                     isAccepted = true;
                 }
             }

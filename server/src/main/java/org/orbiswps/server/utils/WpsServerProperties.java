@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -64,10 +65,12 @@ public class WpsServerProperties {
     private static final String SERVER_PROPERTIES = "wpsServer.properties";
     private static final String BASIC_SERVER_PROPERTIES = "basicWpsServer.properties";
 
+    /** Properties objects */
     public GlobalProperties GLOBAL_PROPERTIES;
     public ServiceIdentificationProperties SERVICE_IDENTIFICATION_PROPERTIES;
     public ServiceProviderProperties SERVICE_PROVIDER_PROPERTIES;
     public OperationsMetadataProperties OPERATIONS_METADATA_PROPERTIES;
+    public CustomProperties CUSTOM_PROPERTIES;
 
     /**
      * Creates a WpsServerProperties object which contains all the properties used in a WpsServer.
@@ -92,6 +95,7 @@ public class WpsServerProperties {
                     SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
                     SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
                     OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
+                    CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
                 } catch (Exception e) {
                     LOGGER.warn(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the default configuration.", e.getMessage()));
                     wpsProperties = null;
@@ -111,6 +115,7 @@ public class WpsServerProperties {
                     SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
                     SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
                     OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
+                    CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
                 } catch (Exception ex) {
                     LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the default configuration.", ex.getMessage()));
                     GLOBAL_PROPERTIES = null;
@@ -433,6 +438,51 @@ public class WpsServerProperties {
             else{
                 DISMISS_OPERATION = null;
             }
+        }
+    }
+
+    /**
+     * Class containing custom properties which are not defined in the WPS standard.
+     */
+    public class CustomProperties{
+        /** Static value to convert seconds into milliseconds.*/
+        private static final int secondsToMillis = 1000;
+        /** Static value to convert minutes into milliseconds.*/
+        private static final int minutesToMillis = 60 * secondsToMillis;
+        /** Static value to convert hours into milliseconds.*/
+        private static final int hoursToMillis = 60 * minutesToMillis;
+        /** Static value to convert days into milliseconds.*/
+        private static final int daysToMillis = 24 * hoursToMillis;
+        /** Static value to convert years into milliseconds.*/
+        private static final int yearsToMillis = (int)(365.25 * daysToMillis);
+
+        /** String representation of the delay before destroying results. */
+        private String destroyDelay;
+
+        public final long BASE_PROCESS_POLLING_DELAY;
+        public final long MAX_PROCESS_POLLING_DELAY;
+
+        /**
+         * Properties which are not defined in the WPS standard.
+         * @param properties Loaded Properties.
+         */
+        public CustomProperties(Properties properties){
+            destroyDelay = properties.getProperty("DESTROY_DURATION");
+            BASE_PROCESS_POLLING_DELAY = Long.decode(properties.getProperty("BASE_PROCESS_POLLING_DELAY"));
+            MAX_PROCESS_POLLING_DELAY = Long.decode(properties.getProperty("MAX_PROCESS_POLLING_DELAY"));
+        }
+
+        /**
+         * Returns the delay before the result deletion in milliseconds.
+         * @return The delay before the result deletion in milliseconds.
+         */
+        public long getDestroyDelayInMillis(){
+            int years = Integer.decode(destroyDelay.substring(0, destroyDelay.indexOf("Y")));
+            int days = Integer.decode(destroyDelay.substring(destroyDelay.indexOf("Y")+1, destroyDelay.indexOf("D")));
+            int hours = Integer.decode(destroyDelay.substring(destroyDelay.indexOf("D")+1, destroyDelay.indexOf("H")));
+            int minutes = Integer.decode(destroyDelay.substring(destroyDelay.indexOf("H")+1, destroyDelay.indexOf("M")));
+            int seconds = Integer.decode(destroyDelay.substring(destroyDelay.indexOf("M")+1, destroyDelay.indexOf("S")));
+            return seconds*secondsToMillis + minutes*minutesToMillis + hours*hoursToMillis + days*daysToMillis + years*yearsToMillis;
         }
     }
 }

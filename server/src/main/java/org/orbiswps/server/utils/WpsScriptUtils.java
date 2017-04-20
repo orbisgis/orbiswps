@@ -21,6 +21,13 @@ public class WpsScriptUtils {
     private static final I18n I18N = I18nFactory.getI18n(WpsScriptUtils.class);
     protected static final Logger LOGGER = LoggerFactory.getLogger(WpsScriptUtils.class);
 
+    /**
+     * Copy the given resource into the given folder.
+     *
+     * @param resourceFileUrl Url of the resource file to copy.
+     * @param folder Folder where the file should be copied
+     * @return The Copied File object.
+     */
     public static File copyResourceFile(URL resourceFileUrl, File folder) {
         if (resourceFileUrl == null) {
             LOGGER.error(I18N.tr("Unable to get the URL of the process {0}", resourceFileUrl));

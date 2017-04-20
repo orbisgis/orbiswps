@@ -114,7 +114,7 @@ public class ProgressMonitor implements ProgressVisitor {
      */
     public void progressTo(long progress) {
         double oldProgress = progressDone;
-        pushProgression(progressDone-(double)progress/stepCount);
+        pushProgression((double)progress/stepCount-progressDone);
         triggerPropertyChangeEvent(PROPERTY_PROGRESS, oldProgress*100, progressDone*100);
     }
 

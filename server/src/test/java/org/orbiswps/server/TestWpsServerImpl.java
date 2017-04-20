@@ -623,11 +623,11 @@ public class TestWpsServerImpl {
         Assert.assertNull("Error on unmarshalling the WpsService answer, the status info expiration date should be " +
                         "null",
                 statusInfo.getExpirationDate());
-        Assert.assertNull("Error on unmarshalling the WpsService answer, the status info estimated completion " +
+        Assert.assertNotNull("Error on unmarshalling the WpsService answer, the status info estimated completion " +
                         "should be null",
                 statusInfo.getEstimatedCompletion());
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the status info percent complete" +
-                        "should not be null",
+                        "should not not be null",
                 statusInfo.getPercentCompleted());
 
         //Now test the getResult request

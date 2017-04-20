@@ -65,6 +65,7 @@ public class WpsServerProperties {
     private static final String SERVER_PROPERTIES = "wpsServer.properties";
     private static final String BASIC_SERVER_PROPERTIES = "basicWpsServer.properties";
 
+    /** Properties objects */
     public GlobalProperties GLOBAL_PROPERTIES;
     public ServiceIdentificationProperties SERVICE_IDENTIFICATION_PROPERTIES;
     public ServiceProviderProperties SERVICE_PROVIDER_PROPERTIES;

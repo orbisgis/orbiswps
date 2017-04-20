@@ -208,17 +208,30 @@ public class ProcessTranslator {
         translatedDescriptionType.getMetadata().addAll(descriptionType.getMetadata());
     }
 
+    /**
+     * Returns the best effort language, i.e. :
+     * The requested language is 'FR-fr', so first try to get the 'FR-fr'.
+     * If not available, try to get the 'FR' language.
+     * If not available, return the default language.
+     * @param requestedLanguage Desired language.
+     * @param defaultLanguage Default language
+     * @param availableLanguages List of available languages.
+     * @return The best effort language
+     */
     private static String getBestEffortLanguage(
             String requestedLanguage,
             String defaultLanguage,
             List<String> availableLanguages){
 
+        //If the requested language is '*', return the default one.
         if(requestedLanguage.equals("*")){
             return defaultLanguage;
         }
+        //Try to get the requested language.
         if (availableLanguages.contains(requestedLanguage)) {
             return requestedLanguage;
         }
+        //Try to get the root language
         for (String language : availableLanguages) {
             if (requestedLanguage.substring(0, 2).equals(language.substring(0, 2))) {
                 return language;

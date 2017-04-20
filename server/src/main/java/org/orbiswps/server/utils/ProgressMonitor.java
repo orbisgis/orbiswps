@@ -50,21 +50,37 @@ import java.beans.PropertyChangeSupport;
  */
 public class ProgressMonitor implements ProgressVisitor {
 
+    /** Properties for the PropertiesChangeEvent. */
     public static String PROPERTY_PROGRESS = "PROPERTY_PROGRESS";
     public static String PROPERTY_CANCEL = "PROPERTY_CANCEL";
+    public static String PROPERTY_NAME = "PROPERTY_NAME";
 
+    /** Progress done by the process. Should be between 0.0 and 1.0 included. */
     private double progressDone = 0;
+    /** Name of the task. */
     private String taskName;
+    /** PropertyChangeSupport object managing the PropertyChangeEvent. */
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    /** True if the process has been cancelled, false otherwise. */
     private boolean isCancelled;
+    /** Count of step to do. */
     private int stepCount;
+    /** Count of step done. */
     private int stepDone = 0;
 
+    /**
+     * Main constructor.
+     * @param taskName Name of the task.
+     */
     public ProgressMonitor(String taskName) {
         this.isCancelled = false;
         this.taskName = taskName;
     }
 
+    /**
+     * Increase the progression with the given value.
+     * @param incProg Increment of the progression.
+     */
     private synchronized void pushProgression(double incProg) {
         if(progressDone + incProg > 1.0){
             progressDone = 1.0;
@@ -74,18 +90,32 @@ public class ProgressMonitor implements ProgressVisitor {
         }
     }
 
-    public String getCurrentTaskName() {
+    /**
+     * Returns the task name.
+     * @return The task name.
+     */
+    public String getTaskName() {
         return taskName;
     }
 
-    public void progressTo(long progress) {
-        double oldProgress = progressDone;
-        pushProgression((double)progress/stepCount);
-        triggerPropertyChangeEvent(PROPERTY_PROGRESS, oldProgress*100, progressDone*100);
+    /**
+     * Sets te task name.
+     * @param taskName New task name.
+     */
+    public void setTaskName(String taskName){
+        String oldName = taskName;
+        this.taskName = taskName;
+        triggerPropertyChangeEvent(PROPERTY_NAME, oldName, taskName);
     }
 
-    public void setTaskName(String taskName){
-        this.taskName = taskName;
+    /**
+     * Progress to the given value
+     * @param progress Progression value to use to set the progressDone.
+     */
+    public void progressTo(long progress) {
+        double oldProgress = progressDone;
+        pushProgression(progressDone-(double)progress/stepCount);
+        triggerPropertyChangeEvent(PROPERTY_PROGRESS, oldProgress*100, progressDone*100);
     }
 
     @Override
@@ -139,10 +169,20 @@ public class ProgressMonitor implements ProgressVisitor {
         propertyChangeSupport.addPropertyChangeListener(property, listener);
     }
 
+    /**
+     * Removes the given PropertyChangeListener object.
+     * @param listener Listener to remove.
+     */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
+    /**
+     * Creates a PropertyChangeEvent and fire it.
+     * @param propertyName Name of the property.
+     * @param oldValue Old value of the property.
+     * @param newValue New Value of the property.
+     */
     private void triggerPropertyChangeEvent(String propertyName, Object oldValue, Object newValue){
         PropertyChangeEvent event = new PropertyChangeEvent(this, propertyName, oldValue, newValue);
         propertyChangeSupport.firePropertyChange(event);

@@ -66,16 +66,36 @@ public enum DataType {
     BOOLEAN("http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#boolean"),
 
     //Other types
-    OTHER("other"),
-    GEOMETRY("geometry"),
-    POINT("point"),
-    LINESTRING("linestring"),
-    POLYGON("polygon"),
-    MULTIPOINT("multipolygon"),
-    MULTILINESTRING("multilinestring"),
-    MULTIPOLYGON("multipolygon"),
-    RASTER("raster"),
-    NONE("none");
+    OTHER("OTHER"),
+    GEOMETRY("GEOMETRY"),
+    POINT("POINT"),
+    LINESTRING("LINESTRING"),
+    POLYGON("POLYGON"),
+    MULTIPOINT("MULTIPOINT"),
+    MULTILINESTRING("MULTILINESTRING"),
+    MULTIPOLYGON("MULTIPOLYGON"),
+    GEOMCOLLECTION("GEOMCOLLECTION"),
+    GEOMETRYZ("GEOMETRYZ"),
+    POINTZ("POINTZ"),
+    LINESTRINGZ("LINESTRINGZ"),
+    POLYGONZ("POLYGONZ"),
+    MULTIPOINTZ("MULTIPOINTZ"),
+    MULTILINESTRINGZ("MULTILINESTRINGZ"),
+    MULTIPOLYGONZ("MULTIPOLYGONZ"),
+    GEOMCOLLECTIONZ("GEOMCOLLECTIONZ"),
+    GEOMETRYM("GEOMETRYM"),
+    POINTM("POINTM"),
+    LINESTRINGM("LINESTRINGM"),
+    POLYGONM("POLYGONM"),
+    MULTIPOINTM("MULTIPOINTM"),
+    MULTILINESTRINGM("MULTILINESTRINGM"),
+    MULTIPOLYGONM("MULTIPOLYGONM"),
+    GEOMCOLLECTIONM("GEOMCOLLECTIONM"),
+    GEOMETRYZM("GEOMETRYZM"),
+    POINTZM("POINTZM"),
+    LINESTRINGZM("LINESTRINGZM"),
+    RASTER("RASTER"),
+    NONE("NONE");
 
     /** URI for the data type. */
     private URI uri;
@@ -92,6 +112,11 @@ public enum DataType {
         }
     }
 
+    /**
+     * Return true is the type is spatial, false otherwise.
+     * @param dataType DataType to test.
+     * @return True if the given data type is spatial, false otherwise.
+     */
     public static boolean isSpatialType(DataType dataType){
         return dataType.equals(GEOMETRY) ||
                 dataType.equals(POINT) ||
@@ -99,7 +124,86 @@ public enum DataType {
                 dataType.equals(POLYGON) ||
                 dataType.equals(MULTIPOINT) ||
                 dataType.equals(MULTILINESTRING) ||
-                dataType.equals(MULTIPOLYGON);
+                dataType.equals(MULTIPOLYGON) ||
+                dataType.equals(GEOMCOLLECTION) ||
+                dataType.equals(GEOMETRYZ) ||
+                dataType.equals(POINTZ) ||
+                dataType.equals(LINESTRINGZ) ||
+                dataType.equals(POLYGONZ) ||
+                dataType.equals(MULTIPOINTZ) ||
+                dataType.equals(MULTILINESTRINGZ) ||
+                dataType.equals(MULTIPOLYGONZ) ||
+                dataType.equals(GEOMCOLLECTIONZ) ||
+                dataType.equals(GEOMETRYM) ||
+                dataType.equals(POINTM) ||
+                dataType.equals(LINESTRINGM) ||
+                dataType.equals(POLYGONM) ||
+                dataType.equals(MULTIPOINTM) ||
+                dataType.equals(MULTILINESTRINGM) ||
+                dataType.equals(MULTIPOLYGONM) ||
+                dataType.equals(GEOMCOLLECTIONM) ||
+                dataType.equals(GEOMETRYZM) ||
+                dataType.equals(POINTZM) ||
+                dataType.equals(LINESTRINGZM);
+    }
+
+    /**
+     * Return true is the type is spatial with Z dimension, false otherwise.
+     * @param dataType DataType to test.
+     * @return True if the given data type is spatial, false otherwise.
+     */
+    public static boolean isSpatialZType(DataType dataType){
+        return dataType.equals(GEOMETRYZ) ||
+                dataType.equals(POINTZ) ||
+                dataType.equals(LINESTRINGZ) ||
+                dataType.equals(POLYGONZ) ||
+                dataType.equals(MULTIPOINTZ) ||
+                dataType.equals(MULTILINESTRINGZ) ||
+                dataType.equals(MULTIPOLYGONZ) ||
+                dataType.equals(GEOMCOLLECTIONZ) ||
+                dataType.equals(GEOMETRYZM) ||
+                dataType.equals(POINTZM) ||
+                dataType.equals(LINESTRINGZM);
+    }
+
+    /**
+     * Return true is the type is spatial with M dimension, false otherwise.
+     * @param dataType DataType to test.
+     * @return True if the given data type is spatial, false otherwise.
+     */
+    public static boolean isSpatialMType(DataType dataType){
+        return dataType.equals(GEOMETRYM) ||
+                dataType.equals(POINTM) ||
+                dataType.equals(LINESTRINGM) ||
+                dataType.equals(POLYGONM) ||
+                dataType.equals(MULTIPOINTM) ||
+                dataType.equals(MULTILINESTRINGM) ||
+                dataType.equals(MULTIPOLYGONM) ||
+                dataType.equals(GEOMCOLLECTIONM) ||
+                dataType.equals(GEOMETRYZM) ||
+                dataType.equals(POINTZM) ||
+                dataType.equals(LINESTRINGZM);
+    }
+
+    /**
+     * Return true is the type is spatial with Z and M dimension, false otherwise.
+     * @param dataType DataType to test.
+     * @return True if the given data type is spatial, false otherwise.
+     */
+    public static boolean isSpatialZMType(DataType dataType){
+        return dataType.equals(GEOMETRYZM) ||
+                dataType.equals(POINTZM) ||
+                dataType.equals(LINESTRINGZM);
+    }
+
+    public static boolean isNumber(DataType dataType){
+        return dataType.equals(INTEGER) ||
+                dataType.equals(DOUBLE) ||
+                dataType.equals(FLOAT) ||
+                dataType.equals(SHORT) ||
+                dataType.equals(BYTE) ||
+                dataType.equals(UNSIGNED_BYTE) ||
+                dataType.equals(LONG);
     }
 
     public static DataType getDataTypeFromFieldType(String fieldType){
@@ -114,86 +218,116 @@ public enum DataType {
         return uri;
     }
 
-    public static boolean testDBType(DataType dataType, String dbTypeName){
+    public static DataType getDataType(String dbTypeName){
         dbTypeName = dbTypeName.toUpperCase();
-        switch(dataType) {
-            case INTEGER:
-                return (dbTypeName.equals("INT") || dbTypeName.equals("INTEGER") ||
-                        dbTypeName.equals("MEDIUMINT") || dbTypeName.equals("INT4") || dbTypeName.equals("SIGNED"));
-            case BOOLEAN:
-                return (dbTypeName.equals("BOOLEAN") || dbTypeName.equals("BIT") || dbTypeName.equals("BOOL"));
-            case BYTE:
-                return (dbTypeName.equals("TINYINT"));
-            case SHORT:
-                return (dbTypeName.equals("SMALLINT") || dbTypeName.equals("INT2") || dbTypeName.equals("YEAR"));
-            case LONG:
-                return (dbTypeName.equals("BIGINT") || dbTypeName.equals("INT8") || dbTypeName.equals("IDENTITY") ||
-                        dbTypeName.equals("BIGSERIAL") || dbTypeName.equals("SERIAL8"));
-            case DOUBLE:
-                return (dbTypeName.equals("DOUBLE") || dbTypeName.equals("FLOAT") || dbTypeName.equals("FLOAT8"));
-            case FLOAT:
-                return (dbTypeName.equals("REAL") || dbTypeName.equals("FLOAT4"));
-            case STRING:
-                return (dbTypeName.equals("VARCHAR") || dbTypeName.equals("LONGVARCHAR") ||
-                        dbTypeName.equals("VARCHAR2") || dbTypeName.equals("NVARCHAR") ||
-                        dbTypeName.equals("NVARCHAR2") || dbTypeName.equals("VARCHAR_CASESENSITIVE") ||
-                        dbTypeName.equals("VARCHAR_IGNORECASE") || dbTypeName.equals("CHAR") ||
-                        dbTypeName.equals("CHARACTER") || dbTypeName.equals("NCHAR"));
-
-            case NUMBER:
-                return (dbTypeName.equals("INT") || dbTypeName.equals("INTEGER") || dbTypeName.equals("MEDIUMINT") ||
-                        dbTypeName.equals("INT4") || dbTypeName.equals("SIGNED") || dbTypeName.equals("TINYINT") ||
-                        dbTypeName.equals("SMALLINT") || dbTypeName.equals("INT2") || dbTypeName.equals("YEAR") ||
-                        dbTypeName.equals("BIGINT") || dbTypeName.equals("INT8") || dbTypeName.equals("IDENTITY") ||
-                        dbTypeName.equals("DOUBLE") || dbTypeName.equals("FLOAT") || dbTypeName.equals("FLOAT8") ||
-                        dbTypeName.equals("REAL") || dbTypeName.equals("FLOAT4"));
-
-            case OTHER:
-                return (dbTypeName.equals("OTHER"));
-            case GEOMETRY:
-                return (dbTypeName.equals("POINT") || dbTypeName.equals("POLYGON") || dbTypeName.equals("LINESTRING") ||
-                        dbTypeName.equals("MULTIPOINT") || dbTypeName.equals("MULTILINESTRING") ||
-                        dbTypeName.equals("GEOMETRY") || dbTypeName.equals("MULTIPOLYGON") ||
-                        dbTypeName.equals("GEOMETRYCOLLECTION"));
-            case POINT:
-                return (dbTypeName.equalsIgnoreCase(POINT.name()));
-            case LINESTRING:
-                return (dbTypeName.equalsIgnoreCase(LINESTRING.name()));
-            case POLYGON:
-                return (dbTypeName.equalsIgnoreCase(POLYGON.name()));
-            case MULTIPOINT:
-                return (dbTypeName.equalsIgnoreCase(MULTIPOINT.name()));
-            case MULTILINESTRING:
-                return (dbTypeName.equalsIgnoreCase(MULTILINESTRING.name()));
-            case MULTIPOLYGON:
-                return (dbTypeName.equalsIgnoreCase(MULTIPOLYGON.name()));
-            default: return false;
+        switch(dbTypeName) {
+            case "INT":
+            case "INTEGER":
+            case "MEDIUMINT":
+            case "INT4":
+            case "SIGNED":
+            case "SERIAL":
+            case "SERIAL4":
+                return INTEGER;
+            case "BOOLEAN":
+            case "BIT":
+            case "BOOL":
+                return BOOLEAN;
+            case "TINYINT":
+                return BYTE;
+            case "SMALLINT":
+            case "INT2":
+            case "YEAR":
+            case "SERIAL2":
+            case "SMALLSERIAL":
+                return SHORT;
+            case "BIGINT":
+            case "INT8":
+            case "IDENTITY":
+            case "BIGSERIAL":
+            case "SERIAL8":
+                return LONG;
+            case "DOUBLE":
+            case "FLOAT":
+            case "FLOAT8":
+                return DOUBLE;
+            case "REAL":
+            case "FLOAT4":
+                return FLOAT;
+            case "VARCHAR":
+            case "LONGVARCHAR":
+            case "VARCHAR2":
+            case "NVARCHAR":
+            case "NVARCHAR2":
+            case "VARCHAR_CASESENSITIVE":
+            case "VARCHAR_IGNORECASE":
+            case "CHAR":
+            case "CHARACTER":
+            case "NCHAR":
+                return STRING;
+            case "OTHER": return OTHER;
+            case "GEOMETRY": return GEOMETRY;
+            case "POINT": return POINT;
+            case "LINESTRING": return LINESTRING;
+            case "POLYGON": return POLYGON;
+            case "MULTIPOINT": return MULTIPOINT;
+            case "MULTILINESTRING": return MULTILINESTRING;
+            case "MULTIPOLYGON": return MULTIPOLYGON;
+            case "GEOMCOLLECTION": return GEOMCOLLECTION;
+            case "GEOMETRYZ": return GEOMETRYZ;
+            case "POINTZ": return POINTZ;
+            case "LINESTRINGZ": return LINESTRINGZ;
+            case "POLYGONZ": return POLYGONZ;
+            case "MULTIPOINTZ": return MULTIPOINTZ;
+            case "MULTILINESTRINGZ": return MULTILINESTRINGZ;
+            case "MULTIPOLYGONZ": return MULTIPOLYGONZ;
+            case "GEOMCOLLECTIONZ": return GEOMCOLLECTIONZ;
+            case "GEOMETRYM": return GEOMETRYM;
+            case "POINTM": return POINTM;
+            case "LINESTRINGM": return LINESTRINGM;
+            case "POLYGONM": return POLYGONM;
+            case "MULTIPOINTM": return MULTIPOINTM;
+            case "MULTILINESTRINGM": return MULTILINESTRINGM;
+            case "MULTIPOLYGONM": return MULTIPOLYGONM;
+            case "GEOMCOLLECTIONM": return GEOMCOLLECTIONM;
+            case "GEOMETRYZM": return GEOMETRYZM;
+            case "POINTZM": return POINTZM;
+            case "LINESTRINGZM": return LINESTRINGZM;
+            case "RASTER": return RASTER;
+            default: return DataType.valueOf(dbTypeName.toUpperCase());
         }
     }
 
-    public static boolean testGeometryType(DataType dataType, int type){
-        switch(dataType) {
-            case GEOMETRY:
-                return (type == GeometryTypeCodes.GEOMETRY) ||
-                        (type == GeometryTypeCodes.POINT) ||
-                        (type == GeometryTypeCodes.LINESTRING) ||
-                        (type == GeometryTypeCodes.POLYGON) ||
-                        (type == GeometryTypeCodes.MULTIPOINT) ||
-                        (type == GeometryTypeCodes.MULTILINESTRING) ||
-                        (type == GeometryTypeCodes.MULTIPOLYGON);
-            case POINT:
-                return type == GeometryTypeCodes.POINT;
-            case LINESTRING:
-                return type == GeometryTypeCodes.LINESTRING;
-            case POLYGON:
-                return type == GeometryTypeCodes.POLYGON;
-            case MULTIPOINT:
-                return type == GeometryTypeCodes.MULTIPOINT;
-            case MULTILINESTRING:
-                return type == GeometryTypeCodes.MULTILINESTRING;
-            case MULTIPOLYGON:
-                return type == GeometryTypeCodes.MULTIPOLYGON;
-            default: return false;
+    public static DataType getGeometryType(int geometryType){
+        switch(geometryType) {
+            case GeometryTypeCodes.GEOMETRY: return GEOMETRY;
+            case GeometryTypeCodes.POINT: return POINT;
+            case GeometryTypeCodes.LINESTRING: return LINESTRING;
+            case GeometryTypeCodes.POLYGON: return POLYGON;
+            case GeometryTypeCodes.MULTIPOINT: return MULTIPOINT;
+            case GeometryTypeCodes.MULTILINESTRING: return MULTILINESTRING;
+            case GeometryTypeCodes.MULTIPOLYGON: return MULTIPOLYGON;
+            case GeometryTypeCodes.GEOMCOLLECTION: return GEOMCOLLECTION;
+            case GeometryTypeCodes.GEOMETRYZ: return GEOMETRYZ;
+            case GeometryTypeCodes.POINTZ: return POINTZ;
+            case GeometryTypeCodes.LINESTRINGZ: return LINESTRINGZ;
+            case GeometryTypeCodes.POLYGONZ: return POLYGONZ;
+            case GeometryTypeCodes.MULTIPOINTZ: return MULTIPOINTZ;
+            case GeometryTypeCodes.MULTILINESTRINGZ: return MULTILINESTRINGZ;
+            case GeometryTypeCodes.MULTIPOLYGONZ: return MULTIPOLYGONZ;
+            case GeometryTypeCodes.GEOMCOLLECTIONZ: return GEOMCOLLECTIONZ;
+            case GeometryTypeCodes.GEOMETRYM: return GEOMETRYM;
+            case GeometryTypeCodes.POINTM: return POINTM;
+            case GeometryTypeCodes.LINESTRINGM: return LINESTRINGM;
+            case GeometryTypeCodes.POLYGONM: return POLYGONM;
+            case GeometryTypeCodes.MULTIPOINTM: return MULTIPOINTM;
+            case GeometryTypeCodes.MULTILINESTRINGM: return MULTILINESTRINGM;
+            case GeometryTypeCodes.MULTIPOLYGONM: return MULTIPOLYGONM;
+            case GeometryTypeCodes.GEOMCOLLECTIONM: return GEOMCOLLECTIONM;
+            case GeometryTypeCodes.GEOMETRYZM: return GEOMETRYZM;
+            case GeometryTypeCodes.POINTZM: return POINTZM;
+            case GeometryTypeCodes.LINESTRINGZM: return LINESTRINGZM;
+            default: return GEOMETRY;
         }
     }
 
@@ -225,44 +359,71 @@ public enum DataType {
     }
 
     /**
+     * Test if the given dataType is equivalent to this one.
+     * @param dataTypeToTest DataType to test.
+     * @return True if the DataType are equivalent, false otherwise.
+     */
+    public boolean isDataTypeEquivalent(DataType dataTypeToTest){
+        if(this.equals(dataTypeToTest)){
+            return true;
+        }
+        else{
+            switch(this) {
+                case GEOMETRY: return DataType.isSpatialType(dataTypeToTest);
+                case POINT: return dataTypeToTest.equals(POINTZ)||dataTypeToTest.equals(POINTM)||dataTypeToTest.equals(POINTZM);
+                case LINESTRING: return dataTypeToTest.equals(LINESTRINGZ)||dataTypeToTest.equals(LINESTRINGM)||dataTypeToTest.equals(LINESTRINGZM);
+                case POLYGON: return dataTypeToTest.equals(POLYGONZ)||dataTypeToTest.equals(POLYGONM);
+                case MULTIPOINT: return dataTypeToTest.equals(MULTIPOINTZ)||dataTypeToTest.equals(MULTIPOINTM);
+                case MULTILINESTRING: return dataTypeToTest.equals(MULTILINESTRINGZ)||dataTypeToTest.equals(MULTILINESTRINGM);
+                case MULTIPOLYGON: return dataTypeToTest.equals(MULTIPOLYGONZ)||dataTypeToTest.equals(MULTIPOLYGONM);
+                case GEOMCOLLECTION: return dataTypeToTest.equals(MULTIPOINT)||dataTypeToTest.equals(MULTIPOINTZ)||dataTypeToTest.equals(MULTIPOINTM)||
+                        dataTypeToTest.equals(MULTILINESTRING)||dataTypeToTest.equals(MULTILINESTRINGZ)||dataTypeToTest.equals(MULTILINESTRINGM)||
+                        dataTypeToTest.equals(MULTIPOLYGON)||dataTypeToTest.equals(MULTIPOLYGONZ)||dataTypeToTest.equals(MULTIPOLYGONM);
+
+                case GEOMETRYZ: return isSpatialZType(dataTypeToTest);
+                case POINTZ: return dataTypeToTest.equals(POINTZM);
+                case LINESTRINGZ: return dataTypeToTest.equals(LINESTRINGZM);
+                case GEOMCOLLECTIONZ: return dataTypeToTest.equals(MULTIPOINTZ)||dataTypeToTest.equals(MULTILINESTRINGZ)||dataTypeToTest.equals(MULTIPOLYGONZ);
+
+                case GEOMETRYM: return isSpatialMType(dataTypeToTest);
+                case POINTM: return dataTypeToTest.equals(POINTZM);
+                case LINESTRINGM: return dataTypeToTest.equals(LINESTRINGZM);
+                case GEOMCOLLECTIONM: return dataTypeToTest.equals(MULTIPOINTM)||dataTypeToTest.equals(MULTILINESTRINGM)||dataTypeToTest.equals(MULTIPOLYGONM);
+            }
+        }
+        return false;
+    }
+
+    /**
      * Copy of the GeometryTypeCodes interface from the H2GIS project.
      */
     private interface GeometryTypeCodes{
-            public static final int GEOMETRY = 0;
-            public static final int POINT = 1;
-            public static final int LINESTRING = 2;
-            public static final int POLYGON = 3;
-            public static final int MULTIPOINT = 4;
-            public static final int MULTILINESTRING = 5;
-            public static final int MULTIPOLYGON = 6;
-            public static final int GEOMCOLLECTION = 7;
-            public static final int CURVE = 13;
-            public static final int SURFACE = 14;
-            public static final int POLYHEDRALSURFACE = 15;
-            public static final int GEOMETRYZ = 1000;
-            public static final int POINTZ = POINT + 1000;
-            public static final int LINESTRINGZ = LINESTRING + 1000;
-            public static final int POLYGONZ = POLYGON + 1000;
-            public static final int MULTIPOINTZ = MULTIPOINT + 1000;
-            public static final int MULTILINESTRINGZ = MULTILINESTRING + 1000;
-            public static final int MULTIPOLYGONZ = MULTIPOLYGON + 1000;
-            public static final int GEOMCOLLECTIONZ = GEOMCOLLECTION + 1000;
-            public static final int CURVEZ = CURVE + 1000;
-            public static final int SURFACEZ = SURFACE + 1000;
-            public static final int POLYHEDRALSURFACEZ = POLYHEDRALSURFACE + 1000;
-            public static final int GEOMETRYM = 2000;
-            public static final int POINTM = POINT + 2000;
-            public static final int LINESTRINGM = LINESTRING + 2000;
-            public static final int POLYGONM = POLYGON + 2000;
-            public static final int MULTIPOINTM = MULTIPOINT + 2000;
-            public static final int MULTILINESTRINGM = MULTILINESTRING + 2000;
-            public static final int MULTIPOLYGONM = MULTIPOLYGON + 2000;
-            public static final int GEOMCOLLECTIONM = GEOMCOLLECTION + 2000;
-            public static final int CURVEM = CURVE + 2000;
-            public static final int SURFACEM = SURFACE + 2000;
-            public static final int POLYHEDRALSURFACEM = POLYHEDRALSURFACE + 2000;
-            public static final int GEOMETRYZM = 3000;
-            public static final int POINTZM = POINT + 3000;
-            public static final int LINESTRINGZM = LINESTRING + 3000;
+        int GEOMETRY = 0;
+        int POINT = 1;
+        int LINESTRING = 2;
+        int POLYGON = 3;
+        int MULTIPOINT = 4;
+        int MULTILINESTRING = 5;
+        int MULTIPOLYGON = 6;
+        int GEOMCOLLECTION = 7;
+        int GEOMETRYZ = 1000;
+        int POINTZ = POINT + 1000;
+        int LINESTRINGZ = LINESTRING + 1000;
+        int POLYGONZ = POLYGON + 1000;
+        int MULTIPOINTZ = MULTIPOINT + 1000;
+        int MULTILINESTRINGZ = MULTILINESTRING + 1000;
+        int MULTIPOLYGONZ = MULTIPOLYGON + 1000;
+        int GEOMCOLLECTIONZ = GEOMCOLLECTION + 1000;
+        int GEOMETRYM = 2000;
+        int POINTM = POINT + 2000;
+        int LINESTRINGM = LINESTRING + 2000;
+        int POLYGONM = POLYGON + 2000;
+        int MULTIPOINTM = MULTIPOINT + 2000;
+        int MULTILINESTRINGM = MULTILINESTRING + 2000;
+        int MULTIPOLYGONM = MULTIPOLYGON + 2000;
+        int GEOMCOLLECTIONM = GEOMCOLLECTION + 2000;
+        int GEOMETRYZM = 3000;
+        int POINTZM = POINT + 3000;
+        int LINESTRINGZM = LINESTRING + 3000;
     }
 }

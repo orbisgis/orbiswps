@@ -74,6 +74,15 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
     /** Progress of the job. */
     private int progress = 0;
 
+    /**
+     * Main constructor.
+     *
+     * @param process Process done in the job.
+     * @param id UUID of the job.
+     * @param dataMap Map containing the data for the process execution.
+     * @param maxPollingDelay Maximum value of the polling delay.
+     * @param basePollingDelay Base value of the polling delay.
+     */
     public Job(ProcessDescriptionType process, UUID id, Map<URI, Object> dataMap,
                long maxPollingDelay, long basePollingDelay){
         this.process = process;

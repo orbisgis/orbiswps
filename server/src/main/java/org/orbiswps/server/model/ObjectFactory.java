@@ -70,8 +70,7 @@ public class ObjectFactory {
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: net.opengis.wps.v_2_0
      *
      */
-    public ObjectFactory() {
-    }
+    public ObjectFactory() {}
 
     /**
      * Create an instance of {@link JDBCTable }
@@ -83,29 +82,29 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link JDBCTable }{@code >}}
      *
-     * @param JDBCTable
-     * @return 
+     * @param jdbcTable Class to package inside a JAXBElement.
+     * @return The JAXBElement.
      */
     @XmlElementDecl(namespace="http://orbisgis.org",
             name="JDBCTable",
             substitutionHeadNamespace="http://www.opengis.net/wps/2.0",
             substitutionHeadName="DataDescription")
-    public JAXBElement<JDBCTable> createJDBCTable(JDBCTable JDBCTable) {
-        return new JAXBElement<>(_JDBCTable_QNAME, JDBCTable.class, JDBCTable);
+    public JAXBElement<JDBCTable> createJDBCTable(JDBCTable jdbcTable) {
+        return new JAXBElement<>(_JDBCTable_QNAME, JDBCTable.class, jdbcTable);
     }
 
     /**
      * Create an instance of {@link JDBCColumn }
      *
-     * @return 
+     * @return New instance.
      */
     public JDBCColumn createJDBCColumn() { return new JDBCColumn(); }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link JDBCColumn }{@code >}}
      *
-     * @param jdbcColumn
-     * @return 
+     * @param jdbcColumn Class to package inside a JAXBElement.
+     * @return The JAXBElement.
      */
     @XmlElementDecl(namespace="http://orbisgis.org",
             name="JDBCColumn",
@@ -118,15 +117,15 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link JDBCValue }
      *
-     * @return 
+     * @return New instance.
      */
     public JDBCValue createJDBCValue() { return new JDBCValue(); }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link JDBCValue }{@code >}}
      *
-     * @param jdbcValue
-     * @return 
+     * @param jdbcValue Class to package inside a JAXBElement.
+     * @return The JAXBElement.
      */
     @XmlElementDecl(namespace="http://orbisgis.org",
             name="JDBCValue",
@@ -139,15 +138,15 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link Enumeration }
      *
-     * @return 
+     * @return New instance.
      */
     public Enumeration createEnumeration() { return new Enumeration(); }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Enumeration }{@code >}}
      *
-     * @param enumeration
-     * @return 
+     * @param enumeration Class to package inside a JAXBElement.
+     * @return The JAXBElement.
      */
     @XmlElementDecl(namespace="http://orbisgis.org",
             name="Enumeration",
@@ -160,15 +159,15 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link GeometryData }
      *
-     * @return 
+     * @return New instance.
      */
     public GeometryData createGeometryData() { return new GeometryData(); }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link GeometryData }{@code >}}
      *
-     * @param geometryData
-     * @return 
+     * @param geometryData Class to package inside a JAXBElement.
+     * @return The JAXBElement.
      */
     @XmlElementDecl(namespace="http://orbisgis.org",
             name="Geometry",
@@ -181,15 +180,15 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link RawData }
      *
-     * @return 
+     * @return New instance.
      */
     public RawData createRawData() { return new RawData(); }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link RawData }{@code >}}
      *
-     * @param rawData
-     * @return 
+     * @param rawData Class to package inside a JAXBElement.
+     * @return The JAXBElement.
      */
     @XmlElementDecl(namespace="http://orbisgis.org",
             name="RawData",
@@ -202,15 +201,15 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link Password }
      *
-     * @return 
+     * @return New instance.
      */
     public Password createPassword() { return new Password(); }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link Password }{@code >}}
      *
-     * @param password
-     * @return 
+     * @param password Class to package inside a JAXBElement.
+     * @return The JAXBElement.
      */
     @XmlElementDecl(namespace="http://orbisgis.org",
             name="Password",
@@ -223,15 +222,15 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link BoundingBoxData }
      *
-     * @return 
+     * @return New instance.
      */
     public BoundingBoxData createBoundingBoxData() { return new BoundingBoxData(); }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link BoundingBoxData }{@code >}}
      *
-     * @param boundingBoxData
-     * @return 
+     * @param boundingBoxData Class to package inside a JAXBElement.
+     * @return The JAXBElement.
      */
     @XmlElementDecl(namespace="http://orbisgis.org",
             name="BoundingBoxData",
@@ -244,15 +243,15 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link TranslatableString }
      *
-     * @return 
+     * @return New instance.
      */
     public TranslatableString createTranslatableString() { return new TranslatableString(); }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link TranslatableString }{@code >}}
      *
-     * @param translatableString
-     * @return 
+     * @param translatableString Class to package inside a JAXBElement.
+     * @return The JAXBElement.
      */
     @XmlElementDecl(namespace="http://orbisgis.org",
             name="TranslatableString")

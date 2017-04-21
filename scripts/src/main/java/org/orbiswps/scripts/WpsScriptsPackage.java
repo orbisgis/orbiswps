@@ -194,6 +194,7 @@ public class WpsScriptsPackage {
             for (ProcessIdentifier pi : piList) {
                 if (pi == null || pi.getProcessDescriptionType() == null || pi.getProcessDescriptionType().getInput() == null) {
                     LOGGER.error(I18N.tr("Error, the ProcessIdentifier get is malformed."));
+                    return;
                 }
                 URI uri = URI.create(pi.getProcessDescriptionType().getIdentifier().getValue());
                 if (wpsClient != null) {

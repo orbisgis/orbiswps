@@ -53,6 +53,12 @@ public class ProcessIdentifier {
     /** File path of the process. */
     private String filePath;
 
+    /**
+     * Main constructor.
+     *
+     * @param processOffering ProcessOffering containing all the information about a process.
+     * @param filePath String representation of the file path.
+     */
     public ProcessIdentifier(ProcessOffering processOffering, String filePath){
         this.processOffering = processOffering;
         this.filePath = filePath;

@@ -49,11 +49,20 @@ import java.lang.reflect.Method;
 import java.net.URI;
 
 /**
+ * Parser for the process.
+ *
  * @author Sylvain PALOMINOS
  **/
 
 public class ProcessParser {
 
+    /**
+     * Parse the annotation associated to the given Method in order to create a ProcessOffering object.
+     * @param processingMethod Method containing the annotations to parse.
+     * @param processURI URI of the process.
+     * @return A ProcessOffering object.
+     * @throws MalformedScriptException Exception thrown because of a malformed script.
+     */
     public ProcessOffering parseProcess(Method processingMethod, URI processURI) throws MalformedScriptException {
         ProcessDescriptionType process = new ProcessDescriptionType();
         ObjectAnnotationConverter.annotationToObject(processingMethod.getAnnotation(DescriptionTypeAttribute.class),

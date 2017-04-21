@@ -196,6 +196,11 @@ public enum DataType {
                 dataType.equals(LINESTRINGZM);
     }
 
+    /**
+     * Returns true is the DataType is a number, false otherwise.
+     * @param dataType DataType to test.
+     * @return True is the DataType is a number, false otherwise.
+     */
     public static boolean isNumber(DataType dataType){
         return dataType.equals(INTEGER) ||
                 dataType.equals(DOUBLE) ||
@@ -206,8 +211,13 @@ public enum DataType {
                 dataType.equals(LONG);
     }
 
+    /**
+     * Return the DataType corresponding to the string representation of the field type, no matter the case.
+     * @param fieldType String representation of the field type.
+     * @return The DataType corresponding to the field type.
+     */
     public static DataType getDataTypeFromFieldType(String fieldType){
-        return DataType.valueOf(fieldType);
+        return DataType.valueOf(fieldType.toUpperCase());
     }
 
     /**
@@ -218,6 +228,11 @@ public enum DataType {
         return uri;
     }
 
+    /**
+     * Returns the DataType corresponding to the given database type name.
+     * @param dbTypeName Name of the data type from the database.
+     * @return The DataType corresponding to the given database type name.
+     */
     public static DataType getDataType(String dbTypeName){
         dbTypeName = dbTypeName.toUpperCase();
         switch(dbTypeName) {
@@ -298,6 +313,12 @@ public enum DataType {
         }
     }
 
+    /**
+     * Returns the DataType corresponding to the given integer database geometric type.
+     * It only take into account the geometric types.
+     * @param geometryType Integer geometric type from the database.
+     * @return The DataType corresponding to the given integer database geometric type.
+     */
     public static DataType getGeometryType(int geometryType){
         switch(geometryType) {
             case GeometryTypeCodes.GEOMETRY: return GEOMETRY;
@@ -331,6 +352,12 @@ public enum DataType {
         }
     }
 
+    /**
+     * Returns the DataType corresponding to the given integer database data type.
+     * It doesn't take into account the geometric types.
+     * @param sqlTypeId Integer data type from the database.
+     * @return The DataType corresponding to the given integer database data type.
+     */
     public static DataType getDataType(int sqlTypeId) {
         switch (sqlTypeId) {
             case Types.BOOLEAN:
@@ -395,7 +422,7 @@ public enum DataType {
     }
 
     /**
-     * Copy of the GeometryTypeCodes interface from the H2GIS project.
+     * Geometry type codes as defined in SFS 1.2.1 from the OGC.
      */
     private interface GeometryTypeCodes{
         int GEOMETRY = 0;

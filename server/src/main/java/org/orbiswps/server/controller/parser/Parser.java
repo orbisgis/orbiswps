@@ -60,7 +60,7 @@ public interface Parser {
      * @param defaultValue Default value.
      * @param processId The process identifier.
      * @return Parsed DataDescription.
-     * @throws org.orbiswps.server.model.MalformedScriptException
+     * @throws MalformedScriptException Exception thrown because of a malformed script.
      */
     InputDescriptionType parseInput(Field f, Object defaultValue, URI processId) throws MalformedScriptException;
 
@@ -69,7 +69,7 @@ public interface Parser {
      * @param f Field to parse.
      * @param processId The process identifier.
      * @return Parsed DataDescription.
-     * @throws org.orbiswps.server.model.MalformedScriptException
+     * @throws MalformedScriptException Exception thrown because of a malformed script.
      */
     OutputDescriptionType parseOutput(Field f, Object defaultValue, URI processId) throws MalformedScriptException;
 

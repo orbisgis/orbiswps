@@ -90,7 +90,7 @@ public class WpsScriptPlugin extends WpsScriptsPackage {
 
     /**
      * OSGI method used to give to the plugin the WpsService. (Be careful before any modification)
-     * @param wpsServer
+     * @param wpsServer WpsServer to used to load scripts.
      */
     @Reference
     public void setWpsServer(WpsServer wpsServer) {
@@ -99,7 +99,7 @@ public class WpsScriptPlugin extends WpsScriptsPackage {
 
     /**
      * OSGI method used to remove from the plugin the WpsService. (Be careful before any modification)
-     * @param wpsServer
+     * @param wpsServer WpsServer to used to load scripts.
      */
     public void unsetWpsServer(WpsServer wpsServer) {
         this.wpsServer = null;
@@ -107,7 +107,7 @@ public class WpsScriptPlugin extends WpsScriptsPackage {
 
     /**
      * OSGI method used to give to the plugin the WpsClient. (Be careful before any modification)
-     * @param wpsClient
+     * @param wpsClient WpsClient to use to add script metadata.
      */
     @Reference
     public void setWpsClient(WpsClient wpsClient) {
@@ -116,7 +116,7 @@ public class WpsScriptPlugin extends WpsScriptsPackage {
 
     /**
      * OSGI method used to remove from the plugin the WpsClient. (Be careful before any modification)
-     * @param wpsClient
+     * @param wpsClient WpsClient to use to add script metadata.
      */
     public void unsetWpsClient(WpsClient wpsClient) {
         this.wpsClient = null;

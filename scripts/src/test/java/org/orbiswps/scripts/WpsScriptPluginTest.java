@@ -41,17 +41,16 @@ import net.opengis.ows._2.CodeType;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.junit.Test;
+import org.orbiswps.client.api.WpsClient;
 import org.orbiswps.server.WpsServer;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
+import org.orbiswps.server.utils.ProcessMetadata;
 import org.orbiswps.server.utils.WpsServerListener;
 
 import javax.sql.DataSource;
 import java.io.*;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -70,16 +69,18 @@ public class WpsScriptPluginTest {
      * Test the life cycle of the plugin.
      */
     @Test
-    public void testPluginLifeCycle(){
-        //Initialize an instance of OrbisGISWpsScriptPlugin, CustomWpsService and CustomCoreWorkspace
-        CustomWpsService localWpsServer = new CustomWpsService();
-        localWpsServer.setScriptFolder(System.getProperty("java.io.tmpdir"));
+    public void testPlugin(){
+        //Initialize an instance of OrbisGISWpsScriptPlugin, CustomWpsService, CustomWpsClient and CustomCoreWorkspace
+        CustomWpsServer customWpsServer = new CustomWpsServer();
+        customWpsServer.setScriptFolder(System.getProperty("java.io.tmpdir"));
+        CustomWpsClient customWpsClient = new CustomWpsClient();
         WpsScriptPlugin plugin = new WpsScriptPlugin();
-        //Give to the OrbisGISWpsScriptPlugin the LocalWpsServer and the CoreWorkspace
-        plugin.setWpsServer(localWpsServer);
+        //Give to the OrbisGISWpsScriptPlugin the WpsServer and the WpsClient
+        plugin.setWpsServer(customWpsServer);
+        plugin.setWpsClient(customWpsClient);
         //Simulate the activation of the plugin and get back the list of script file add
         plugin.activate();
-        List<File> addScriptList = localWpsServer.getAddScriptList();
+        List<File> addScriptList = customWpsServer.getAddScriptList();
         //Gets the list of the script files contained in the resource folder of the plugin
         File folder = new File(this.getClass().getResource("scripts").getFile());
         List<File> resourceGroovyScriptList = getAllGroovyScripts(folder);
@@ -91,15 +92,54 @@ public class WpsScriptPluginTest {
                     isResourceScriptAdd = true;
                 }
             }
-            Assert.assertTrue("The resource file '"+resourceScript.getName()+"' should be add by the plugin.", isResourceScriptAdd);
+            Assert.assertTrue("The resource file '"+resourceScript.getName()+"' should be add by the plugin.",
+                    isResourceScriptAdd);
         }
+        Assert.assertEquals("There must be a metadata map in the client for each loaded script in the server.",
+                addScriptList.size(), customWpsClient.getMetadataMap().size());
         //Simulate the deactivation of the plugin
         plugin.deactivate();
         //Test if all the script have been removed
         Assert.assertTrue("All the scripts should have been removed from the server.",
-                localWpsServer.getAddScriptList().isEmpty());
-        //Unset the CoreWorkspace and the LocalWpsService
+                customWpsServer.getAddScriptList().isEmpty());
+        //Unset the CoreWorkspace and the WpsServer and the WpsClient
         plugin.unsetWpsServer(null);
+        plugin.unsetWpsClient(null);
+    }
+
+    /**
+     * Test the plugin life cycle without
+     */
+    @Test
+    public void testPluginNoServerClient(){
+        //Initialize an instance of OrbisGISWpsScriptPlugin, d CustomCoreWorkspace
+        WpsScriptPlugin plugin = new WpsScriptPlugin();
+        //Simulate the activation of the plugin and get back the list of script file add
+        plugin.activate();
+        Assert.assertNotNull("The plugin process id list should be initialized", plugin.listIdProcess);
+        plugin.deactivate();
+    }
+
+    /**
+     * Tests the method loadIcons() from the class WpsScriptsPackage.
+     */
+    @Test
+    public void testLoadIconMethod(){
+        String tmpFolderPath = System.getProperty("java.io.tmpdir") + File.separator;
+        WpsScriptsPackage wpsScriptsPackage = new WpsScriptsPackage();
+        //Test with a bad icon
+        Object result = wpsScriptsPackage.loadIcon("UnExistingIcon.notAnExtension");
+        Assert.assertNull("The loadIcon() method should return null if the given icon name is bad.", result);
+        //Test with a bad script folder
+        CustomWpsServer customWpsServer = new CustomWpsServer();
+        customWpsServer.setScriptFolder(tmpFolderPath + "InvalidName"+'\0');
+        wpsScriptsPackage.wpsServer = customWpsServer;
+        result = wpsScriptsPackage.loadIcon("orbisgis.png");
+        Assert.assertNull("The loadIcon() method should return null if the given script folder name is bad.", result);
+
+        customWpsServer.setScriptFolder(tmpFolderPath + "ValidName"+UUID.randomUUID());
+        result = wpsScriptsPackage.loadIcon("orbisgis.png");
+        Assert.assertNotNull("The loadIcon() method should return a valid String file path.", result);
     }
 
     /**
@@ -109,23 +149,26 @@ public class WpsScriptPluginTest {
      */
     private List<File> getAllGroovyScripts(File directory){
         List<File> scriptList = new ArrayList<>();
-        for(File f : directory.listFiles()) {
-            if (f.isDirectory()) {
-                scriptList.addAll(getAllGroovyScripts(f));
-            }
-            else {
-                scriptList.add(f);
+        File[] files = directory.listFiles();
+        if(files != null){
+            for(File f : files) {
+                if (f.isDirectory()) {
+                    scriptList.addAll(getAllGroovyScripts(f));
+                }
+                else {
+                    scriptList.add(f);
+                }
             }
         }
         return scriptList;
     }
 
     /**
-     * A fake LocalWpsServer implementation. Only addLocalSource(File,String[],boolean,String) and removeProcess(URI)
+     * A fake WpsServer implementation. Only addLocalSource(File,String[],boolean,String) and removeProcess(URI)
      * methods are implemented. It is used to simulate a WpsServer but it only store in a list the loaded script.
      * This list is accessible throw the methods getAddScriptList().
      */
-    private class CustomWpsService implements WpsServer {
+    private class CustomWpsServer implements WpsServer {
         private List<File> addScriptList = new ArrayList<>();
         private String scriptFolder;
 
@@ -181,5 +224,38 @@ public class WpsScriptPluginTest {
         @Override public void setDatabase(Database database) {}
         @Override public void addWpsServerListener(WpsServerListener wpsServerListener) {}
         @Override public void removeWpsServerListener(WpsServerListener wpsServerListener) {}
+    }
+
+
+    /**
+     * A fake WpsClient implementation. Only addLocalSource(File,String[],boolean,String) and removeProcess(URI)
+     * methods are implemented. It is used to simulate a WpsServer but it only store in a list the loaded script.
+     * This list is accessible throw the methods getAddScriptList().
+     */
+    private class CustomWpsClient implements WpsClient{
+
+        private Map<URI, Map<ProcessMetadata.INTERNAL_METADATA, Object>> metadataMap = new HashMap<>();
+
+        @Override
+        public void addProcessMetadata(URI processIdentifier, Map<ProcessMetadata.INTERNAL_METADATA,
+                Object> metadataMap) {
+            this.metadataMap.put(processIdentifier, metadataMap);
+        }
+        @Override
+        public void removeProcessMetadata(URI processIdentifier) {
+            this.metadataMap.remove(processIdentifier);
+        }
+
+        /**
+         * Returns the metadata map.
+         * @return The metadata map.
+         */
+        public Map<URI, Map<ProcessMetadata.INTERNAL_METADATA, Object>> getMetadataMap(){return metadataMap;}
+
+        //Methods not used in the tests
+        @Override public StatusInfo getJobStatus(UUID jobID) {return null;}
+        @Override public Result getJobResult(UUID jobID) {return null;}
+        @Override public StatusInfo dismissJob(UUID jobID) {return null;}
+        @Override public StatusInfo executeProcess(URI processIdentifier, Map<URI, Object> dataMap) {return null;}
     }
 }

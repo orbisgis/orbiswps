@@ -79,6 +79,8 @@ import java.util.concurrent.ExecutorService;
 @Component(immediate = true, service = WpsServer.class)
 public class WpsServerImpl implements WpsServer {
 
+    /** Name of the folder containing the cached scripts. */
+    private static final String SCRIPT_CACHE_FOLDER_NAME = "wpsscripts";
     /** Logger */
     private static final Logger LOGGER = LoggerFactory.getLogger(WpsServerImpl.class);
     /** I18N object */
@@ -125,7 +127,7 @@ public class WpsServerImpl implements WpsServer {
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(null, this);
         workerFIFO = new LinkedList<>();
-        this.setScriptFolder(System.getProperty("java.io.tmpdir"));
+        this.setScriptFolder(System.getProperty("java.io.tmpdir") + File.separator + SCRIPT_CACHE_FOLDER_NAME);
     }
 
     /**

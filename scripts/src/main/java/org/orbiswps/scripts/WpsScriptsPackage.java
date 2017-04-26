@@ -59,76 +59,63 @@ import java.util.*;
 /**
  * In the WpsService, the script are organized in a tree, which has the WpsService as root.
  *
- * Scripts can be add to the tree under a specific node path with custom icon with the following method :
- *      localWpsService.addLocalScript('processFile', 'icon', 'boolean', 'nodePath');
- * with the following parameter :
- *      processFile : The File object corresponding to the script. Be careful, the plugin resource files can't be
- *              accessed from the outside of the plugin. So you have to copy it (in a temporary file as example) before
- *              adding it to the WpsService.
- *      icon : Array of Icon object to use for the WpsClient tree containing the processes. The first icon will be used
- *              for the first node of the path, the second icon for the second node ... If the node already exists,
- *              its icon won't be changed. If there is less icon than node, the last icon will be used for the others.
- *              If no icon are specified, the default one from the WpsClient will be used.
- *      boolean : it SHOULD be true. Else the used will be able to remove the process from the WpsClient without
- *              deactivating the plugin.
- *      nodePath : Path to the node where the process should be add. If nodes of the path doesn't exists, they will be
- *              created.
- * This add method return a ProcessIdentifier object which give all the information needed to identify a process. It
- * should be kept to be able to remove it later.
+ * Scripts can be add to the tree under a specific node path with custom icon.
+ * The 'loadAllScripts()' method load all the scripts in the folder 'SCRIPTS_RESOURCE_FOLDER_PATH' keeping the folder
+ * hierarchy and uses the icons in the folder 'ICONS_RESOURCE_FOLDER_PATH'
  *
- *
- * The 'customLoadScript()' method load the scripts one by one under different file path with  different icons.
- *
- *
- * When the plugin is launched , the 'activate()' method is call. This method load the scripts in the
- * WpsService and refresh the WpsClient.
+ * When the plugin is launched , the 'activate()' method is call. This method load the scripts in the WpsService and
+ * refresh the WpsClient.
  * When the plugin is stopped or uninstalled, the 'deactivate()' method is called. This method removes the loaded script
  * from the WpsService and refreshes the WpsClient.
  *
  */
 public class WpsScriptsPackage {
 
+    /** String parameters for the plugin. */
+    /** Resource path to the folder containing the scripts. */
+    public static String SCRIPTS_RESOURCE_FOLDER_PATH = "scripts";
+    /** Resource path to the folder containing the icons. */
+    public static String ICONS_RESOURCE_FOLDER_PATH = "icons";
+    /** Name of the icon to use. */
+    public static String ICON_NAME = "orbisgis.png";
+
+    /** Class attributes. */
+     /** Groovy extension. */
+    private static final String GROOVY_EXTENSION = ".groovy";
+
+    /** File protocol. */
+    private static final String FILE_PROTOCOL = "file";
+
+    /** bundle protocol. */
+    private static final String BUNDLE_PROTOCOL = "bundle";
+
     /** I18N object */
     private static final I18n I18N = I18nFactory.getI18n(WpsScriptsPackage.class);
 
-    /**
-     * Logger instance.
-     */
+    /** Logger instance. */
     protected static final Logger LOGGER = LoggerFactory.getLogger(WpsScriptsPackage.class);
 
-    /**
-     * The WPS service.
-     * The WPS service contains all the declared processes available for the client.
-     */
+    /** The WPS service. The WPS service contains all the declared processes available for the client. */
     protected WpsServer wpsServer;
 
-    /**
-     * The WPS client.
-     */
+    /** The WPS client. */
     protected WpsClient wpsClient;
 
-    /**
-     * List of identifier of the processes loaded by this plusgin.
-     */
+    /** List of identifier of the processes loaded by this plugin. */
     protected List<URI> listIdProcess;
 
     /**
      * Adds to the WpsServer all the script contained in the 'scripts' resource folder.
      */
     protected void loadAllScripts(){
-        String[] icons = new String[]{loadIcon("orbisgis.png")};
-        String resourceName = "scripts";
+        String[] icons = new String[]{loadIcon(ICON_NAME)};
         String nodePath = I18N.tr("OrbisGIS");
-        URL resourceUrl = this.getClass().getResource(resourceName);
-        List<URL> urls = new ArrayList<>();
-        if(resourceUrl.getProtocol().equalsIgnoreCase("bundle")){
-            addAllGroovyUrls(resourceUrl, icons, resourceName);
+        URL resourceUrl = this.getClass().getResource(SCRIPTS_RESOURCE_FOLDER_PATH);
+        if(resourceUrl.getProtocol().equalsIgnoreCase(BUNDLE_PROTOCOL)){
+            addAllGroovyScripts(resourceUrl, icons, nodePath);
         }
-        else if(resourceUrl.getProtocol().equalsIgnoreCase("file")){
-            addAllGroovyUrls(new File(resourceUrl.getFile()), icons, resourceName);
-        }
-        for(URL url : urls){
-            loadScript(url, icons, nodePath);
+        else if(resourceUrl.getProtocol().equalsIgnoreCase(FILE_PROTOCOL)){
+            addAllGroovyScripts(new File(resourceUrl.getFile()), icons, nodePath);
         }
     }
 
@@ -136,20 +123,21 @@ public class WpsScriptsPackage {
      * Adds recursively all the script contained in a folder.
      * @param resourceUrl Url of the directory to explore.
      */
-    private void addAllGroovyUrls(URL resourceUrl, String[] icons, String nodePath){
+    private void addAllGroovyScripts(URL resourceUrl, String[] icons, String nodePath){
         //Get the URL of all the files contained in the 'script' folder.
         Enumeration<URL> enumUrl = FrameworkUtil.getBundle(this.getClass()).findEntries(resourceUrl.getFile(), "*", false);
         //For each url, if it is a file, load it, if it is a directory, check its content.
         while(enumUrl.hasMoreElements()) {
             URL scriptUrl = enumUrl.nextElement();
             //If the url if a groovy file,
-            if(scriptUrl.getFile().endsWith(".groovy")) {
+            if(scriptUrl.getFile().endsWith(GROOVY_EXTENSION)) {
                 loadScript(scriptUrl, icons, nodePath);
             }
             //If the url is a folder,
             else {
                 //Recursively add the scripts.
-                addAllGroovyUrls(scriptUrl, icons, nodePath+"/"+ I18N.tr(new File(scriptUrl.getFile()).getName()));
+                addAllGroovyScripts(scriptUrl, icons, nodePath+File.separator+
+                        I18N.tr(new File(scriptUrl.getFile()).getName()));
             }
         }
     }
@@ -158,16 +146,18 @@ public class WpsScriptsPackage {
      * Adds recursively all the script contained in a folder.
      * @param directory Directory to explore.
      */
-    private void addAllGroovyUrls(File directory, String[] icons, String nodePath){
-        for(File f : directory.listFiles()) {
-            if (f.isDirectory()) {
-                addAllGroovyUrls(f, icons, nodePath+"/"+ I18N.tr(f.getName()));
-            }
-            else {
-                try {
-                    loadScript(f.toURI().toURL(), icons, nodePath);
-                } catch (MalformedURLException e) {
-                    LOGGER.warn("Unable to get the URL of the script : {0}", directory.getName());
+    private void addAllGroovyScripts(File directory, String[] icons, String nodePath){
+        File[] files = directory.listFiles();
+        if(files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    addAllGroovyScripts(f, icons, nodePath + File.separator + I18N.tr(f.getName()));
+                } else {
+                    try {
+                        loadScript(f.toURI().toURL(), icons, nodePath);
+                    } catch (MalformedURLException e) {
+                        LOGGER.warn("Unable to get the URL of the script : {0}", directory.getName());
+                    }
                 }
             }
         }
@@ -181,7 +171,7 @@ public class WpsScriptsPackage {
      */
     private void loadScript(URL scriptUrl, String[] icons, String path) {
         String tempFolderPath = wpsServer.getScriptFolder();
-        File tempFolder = new File(tempFolderPath, "wpsscripts");
+        File tempFolder = new File(tempFolderPath);
         if (!tempFolder.exists()) {
             if (!tempFolder.mkdirs()) {
                 LOGGER.error(I18N.tr("Unable to create the OrbisGIS temporary folder."));
@@ -220,17 +210,17 @@ public class WpsScriptsPackage {
 
     /**
      * This method copy the an icon into the temporary system folder to make it accessible by the WpsClient
-     * @param iconName
-     * @return 
+     * @param iconPath Path to the icon from the resource folder name.
+     * @return Path to the copied icon.
      */
-    protected String loadIcon(String iconName){
-        URL iconUrl = this.getClass().getResource("icons/"+iconName);
+    protected String loadIcon(String iconPath){
+        URL iconUrl = this.getClass().getResource(ICONS_RESOURCE_FOLDER_PATH + File.separator + iconPath);
         if(iconUrl == null){
-            LOGGER.error(I18N.tr("Unable to get the URL of the icon {0}", iconName));
+            LOGGER.error(I18N.tr("Unable to get the URL of the icon {0}", iconPath));
             return null;
         }
         String tempFolderPath = wpsServer.getScriptFolder();
-        File tempFolder = new File(tempFolderPath, "wpsscripts");
+        File tempFolder = new File(tempFolderPath);
         if(!tempFolder.exists()) {
             if(!tempFolder.mkdirs()){
                 LOGGER.error(I18N.tr("Unable to create the OrbisGIS temporary folder."));
@@ -238,7 +228,7 @@ public class WpsScriptsPackage {
             }
         }
         //Create a temporary File object
-        final File tempFile = new File(tempFolder.getAbsolutePath(), iconName);
+        final File tempFile = new File(tempFolder.getAbsolutePath(), iconPath);
         if(!tempFile.exists()) {
             try{
                 if(!tempFile.createNewFile()){

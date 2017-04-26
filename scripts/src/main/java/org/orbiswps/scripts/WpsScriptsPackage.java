@@ -63,21 +63,16 @@ import java.util.*;
  * The 'loadAllScripts()' method load all the scripts in the folder 'SCRIPTS_RESOURCE_FOLDER_PATH' keeping the folder
  * hierarchy and uses the icons in the folder 'ICONS_RESOURCE_FOLDER_PATH'
  *
- * When the plugin is launched , the 'activate()' method is call. This method load the scripts in the WpsService and
- * refresh the WpsClient.
- * When the plugin is stopped or uninstalled, the 'deactivate()' method is called. This method removes the loaded script
- * from the WpsService and refreshes the WpsClient.
- *
  */
 public class WpsScriptsPackage {
 
     /** String parameters for the plugin. */
     /** Resource path to the folder containing the scripts. */
-    public static String SCRIPTS_RESOURCE_FOLDER_PATH = "scripts";
+    private static final String SCRIPTS_RESOURCE_FOLDER_PATH = "scripts";
     /** Resource path to the folder containing the icons. */
-    public static String ICONS_RESOURCE_FOLDER_PATH = "icons";
+    private static final String ICONS_RESOURCE_FOLDER_PATH = "icons";
     /** Name of the icon to use. */
-    public static String ICON_NAME = "orbisgis.png";
+    private static final String ICON_NAME = "orbisgis.png";
 
     /** Class attributes. */
      /** Groovy extension. */
@@ -149,6 +144,7 @@ public class WpsScriptsPackage {
     private void addAllGroovyScripts(File directory, String[] icons, String nodePath){
         File[] files = directory.listFiles();
         if(files != null) {
+            //For each file, if it is a directory, recursively call the method, else, load the script.
             for (File f : files) {
                 if (f.isDirectory()) {
                     addAllGroovyScripts(f, icons, nodePath + File.separator + I18N.tr(f.getName()));
@@ -172,20 +168,25 @@ public class WpsScriptsPackage {
     private void loadScript(URL scriptUrl, String[] icons, String path) {
         String tempFolderPath = wpsServer.getScriptFolder();
         File tempFolder = new File(tempFolderPath);
+        //First check the existence of the tempFolder
         if (!tempFolder.exists()) {
             if (!tempFolder.mkdirs()) {
                 LOGGER.error(I18N.tr("Unable to create the OrbisGIS temporary folder."));
                 return;
             }
         }
+        //Copy the script file
         File tempFile = WpsScriptUtils.copyResourceFile(scriptUrl, tempFolder);
+        //Add the script
         List<ProcessIdentifier> piList = wpsServer.addProcess(tempFile);
         if (piList != null) {
             for (ProcessIdentifier pi : piList) {
+                //Check if the ProcessIdentifier is valid.
                 if (pi == null || pi.getProcessDescriptionType() == null || pi.getProcessDescriptionType().getInput() == null) {
                     LOGGER.error(I18N.tr("Error, the ProcessIdentifier get is malformed."));
-                    return;
+                    continue;
                 }
+                //Try to add the script metadata to the client
                 URI uri = URI.create(pi.getProcessDescriptionType().getIdentifier().getValue());
                 if (wpsClient != null) {
                     Map<ProcessMetadata.INTERNAL_METADATA, Object> metadataMap = new HashMap<>();

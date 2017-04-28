@@ -137,9 +137,14 @@ public class WpsServerImpl implements WpsServer {
      * @param dataSource DataSource to be used by the server.
      */
     public WpsServerImpl(String scriptFolder, DataSource dataSource){
-        super();
+        jobMap = new HashMap<>();
+        propertiesMap = new HashMap<>();
+        //Initialisation of the wps service itself
+        wpsProp = new WpsServerProperties(null);
+        //Creates the attribute for the processes execution
+        processManager = new ProcessManager(dataSource, this);
+        workerFIFO = new LinkedList<>();
         this.setScriptFolder(scriptFolder);
-        this.setDataSource(dataSource);
     }
 
     /**
@@ -516,7 +521,12 @@ public class WpsServerImpl implements WpsServer {
                 data.setEncoding("simple");
                 data.setMimeType("");
                 List<Serializable> serializableList = new ArrayList<>();
-                serializableList.add(entry.getValue().toString());
+                if(entry.getValue() == null) {
+                    serializableList.add("");
+                }
+                else {
+                    serializableList.add(entry.getValue().toString());
+                }
                 data.getContent().clear();
                 data.getContent().addAll(serializableList);
                 output.setData(data);

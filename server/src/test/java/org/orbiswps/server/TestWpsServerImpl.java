@@ -43,6 +43,7 @@ import net.opengis.wps._2_0.GetCapabilitiesType;
 import net.opengis.wps._2_0.ObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.model.JaxbContainer;
 import org.orbiswps.server.utils.WpsServerListener;
 
@@ -51,10 +52,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -1128,23 +1131,34 @@ public class TestWpsServerImpl {
         wpsServer.addWpsServerListener(listener1);
         wpsServer.addWpsServerListener(listener2);
 
-        wpsServer.addProcess(new File(this.getClass().getResource(".").toURI()));
+        wpsServer.addProcess(new File(this.getClass().getResource("ascriptfolder").toURI()));
 
-        Assert.assertTrue("The listener should hve detect the addition", listener1.isScriptAdd());
-        Assert.assertTrue("The listener should hve detect the addition", listener2.isScriptAdd());
+        Assert.assertEquals("The listener should have detect the addition", 1, listener1.getScriptAddCount());
+        Assert.assertEquals("The listener should have detect the addition", 1, listener2.getScriptAddCount());
 
-        //wpsServer.removeProcess(new File(this.getClass().getResource(".").toURI()));
+        wpsServer.removeProcess(URI.create("script1ID"));
+        wpsServer.removeProcess(URI.create("script2ID"));
+        wpsServer.removeProcess(URI.create("script3ID"));
 
-        //Assert.assertTrue("The listener should hve detect the addition", listener1.isScriptAdd());
-        //Assert.assertTrue("The listener should hve detect the addition", listener2.isScriptAdd());
+        Assert.assertEquals("The listener should hve detect the addition", 3, listener1.getScriptRemovedCount());
+        Assert.assertEquals("The listener should hve detect the addition", 3, listener2.getScriptRemovedCount());
     }
 
     private class CustomWpsServerListener implements WpsServerListener{
-        boolean isScriptAdd = false;
-        public boolean isScriptAdd(){return isScriptAdd;}
-        boolean isScriptRemoved = false;
-        public boolean isScriptRemoved(){return isScriptAdd;}
-        @Override public void onScriptAdd() {isScriptAdd=true;}
-        @Override public void onScriptRemoved() {isScriptRemoved=true;}
+        int scriptAddCount = 0;
+        public int getScriptAddCount(){return scriptAddCount;}
+        int scriptRemovedCount = 0;
+        public int getScriptRemovedCount(){return scriptRemovedCount;}
+        @Override public void onScriptAdd() {scriptAddCount++;}
+        @Override public void onScriptRemoved() {scriptRemovedCount++;}
+    }
+
+    @Test
+    public void testProperties(){
+        Map<String, Object> propertiesMap = new HashMap<>();
+        propertiesMap.put("logger", null);
+        propertiesMap.put("prop", null);
+        wpsServer.addGroovyProperties(propertiesMap);
+        wpsServer.removeGroovyProperties(propertiesMap);
     }
 }

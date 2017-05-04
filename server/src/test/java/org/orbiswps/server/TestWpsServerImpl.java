@@ -43,7 +43,6 @@ import net.opengis.wps._2_0.GetCapabilitiesType;
 import net.opengis.wps._2_0.ObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.model.JaxbContainer;
 import org.orbiswps.server.utils.WpsServerListener;
 
@@ -405,8 +404,9 @@ public class TestWpsServerImpl {
 
     /**
      * Test< the GetCapabilities operation.
-     * @throws JAXBException
-     * @throws IOException
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testGetCapabilities() throws JAXBException, IOException {
@@ -448,8 +448,9 @@ public class TestWpsServerImpl {
 
     /**
      * Tests the DescribeProcess operation.
-     * @throws JAXBException
-     * @throws IOException
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testJDBCTableScript() throws JAXBException, IOException {
@@ -517,6 +518,9 @@ public class TestWpsServerImpl {
 
     /**
      * Test the Execute, GetStatus and GetResult requests.
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testExecuteStatusResultRequest() throws JAXBException, IOException {
@@ -537,7 +541,7 @@ public class TestWpsServerImpl {
         //Unmarshall the result and check that the object is the same as the resource unmashalled xml.
         Object resultObject = unmarshaller.unmarshal(resultExecXml);
 
-        try {sleep(100);} catch (InterruptedException e) {}
+        try {sleep(100);} catch (InterruptedException ignored) {}
 
         Assert.assertTrue("Error on unmarshalling the WpsService answer, the object should not be null",
                 resultObject != null);
@@ -692,6 +696,9 @@ public class TestWpsServerImpl {
 
     /**
      * Test the Execute, GetStatus and GetResult requests.
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testDismissRequest() throws JAXBException, IOException {
@@ -721,7 +728,7 @@ public class TestWpsServerImpl {
 
 
         //Wait to be sure that the process has started. If it is not possible, raise a flag
-        try {sleep(200);} catch (InterruptedException e) {}
+        try {sleep(200);} catch (InterruptedException ignored) {}
 
 
         UUID jobId = UUID.fromString(((StatusInfo)resultObject).getJobID());
@@ -749,7 +756,7 @@ public class TestWpsServerImpl {
 
 
         //Wait to be sure that the process has started. If it is not possible, raise a flag
-        try {sleep(200);} catch (InterruptedException e) {}
+        try {sleep(200);} catch (InterruptedException ignored) {}
 
 
         //Now test the getResult request
@@ -784,8 +791,9 @@ public class TestWpsServerImpl {
 
     /**
      * Tests the GetCapabilities operation with a bad formed GetCapabilities.
-     * @throws JAXBException
-     * @throws IOException
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testBadGetCapabilities() throws JAXBException, IOException {
@@ -888,8 +896,9 @@ public class TestWpsServerImpl {
 
     /**
      * Tests the GetCapabilities operation with a bad formed GetCapabilities.
-     * @throws JAXBException
-     * @throws IOException
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testGetCapabilitiesLanguages() throws JAXBException, IOException {
@@ -986,6 +995,10 @@ public class TestWpsServerImpl {
 
     /**
      * Tests the execution of 3 processes at the same time.
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
+     * @throws InterruptedException Exception get if the sleep method fails.
      */
     @Test
     public void testMultiProcessExecution() throws JAXBException, IOException, InterruptedException {
@@ -1051,6 +1064,8 @@ public class TestWpsServerImpl {
 
     /**
      * Test process execution with bad ExecuteRequestType object.
+     *
+     * @throws InterruptedException Exception get if the sleep method fails.
      */
     @Test
     public void testBadExecution() throws InterruptedException {
@@ -1081,8 +1096,12 @@ public class TestWpsServerImpl {
     }
 
     /**
-    * Test the execution on a WpsServerImpl without executionService.
-    */
+     * Test the execution on a WpsServerImpl without executionService.
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
+     * @throws InterruptedException Exception get if the sleep method fails.
+     */
     @Test
     public void testExecuteWithoutExecutionService() throws JAXBException, IOException, InterruptedException {
         wpsServer.setExecutorService(null);
@@ -1124,6 +1143,10 @@ public class TestWpsServerImpl {
                 wpsServer.getDatabase(), WpsServer.Database.H2GIS);
     }
 
+    /**
+     * Test the listening of adding and removing of processes.
+     * @throws URISyntaxException Exception get if the creation of the process identifier fails.
+     */
     @Test
     public void testAddRemoveProcess() throws URISyntaxException {
         CustomWpsServerListener listener1 = new CustomWpsServerListener();
@@ -1142,23 +1165,38 @@ public class TestWpsServerImpl {
 
         Assert.assertEquals("The listener should hve detect the addition", 3, listener1.getScriptRemovedCount());
         Assert.assertEquals("The listener should hve detect the addition", 3, listener2.getScriptRemovedCount());
+
+        wpsServer.removeWpsServerListener(listener1);
+        wpsServer.removeWpsServerListener(listener2);
     }
 
+    /**
+     * Class implementing the interface WpsServerListener used for the tests.
+     */
     private class CustomWpsServerListener implements WpsServerListener{
         int scriptAddCount = 0;
-        public int getScriptAddCount(){return scriptAddCount;}
+        int getScriptAddCount(){return scriptAddCount;}
         int scriptRemovedCount = 0;
-        public int getScriptRemovedCount(){return scriptRemovedCount;}
+        int getScriptRemovedCount(){return scriptRemovedCount;}
         @Override public void onScriptAdd() {scriptAddCount++;}
         @Override public void onScriptRemoved() {scriptRemovedCount++;}
     }
 
+    /**
+     * Test the adding and removing of groovy properties.
+     */
     @Test
     public void testProperties(){
         Map<String, Object> propertiesMap = new HashMap<>();
-        propertiesMap.put("logger", null);
+        propertiesMap.put("logger", "invalidProperty");
         propertiesMap.put("prop", null);
         wpsServer.addGroovyProperties(propertiesMap);
+        Map<String, Object> map = wpsServer.getGroovyPropertiesMap();
+        Assert.assertTrue("The property map should contains the property 'prop'.", map.containsKey("prop"));
+        Assert.assertNull("The property 'logger' should be null", map.get("logger"));
         wpsServer.removeGroovyProperties(propertiesMap);
+        map = wpsServer.getGroovyPropertiesMap();
+        Assert.assertFalse("The property map not should contains the property 'prop'.", map.containsKey("prop"));
+        Assert.assertNull("The property 'logger' should be null", map.get("logger"));
     }
 }

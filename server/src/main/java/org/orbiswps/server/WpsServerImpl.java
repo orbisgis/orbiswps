@@ -425,7 +425,7 @@ public class WpsServerImpl implements WpsServer {
         statusInfo.setStatus(job.getState().name());
 
         //Process execution in new thread
-        ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, propertiesMap, this);
+        ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this);
 
         if(processRunning){
             workerFIFO.push(worker);
@@ -765,5 +765,13 @@ public class WpsServerImpl implements WpsServer {
                 workerFIFO.pollFirst().run();
             }
         }
+    }
+
+    /**
+     * Returns the Map containing all the properties which will be given to the Groovy engine.
+     * @return The Map of the groovy properties.
+     */
+    public Map<String, Object> getGroovyPropertiesMap(){
+        return propertiesMap;
     }
 }

@@ -40,11 +40,11 @@ import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import net.opengis.wps._2_0.ObjectFactory;
-import org.orbiswps.server.execution.ProcessExecutionListener;
-import org.orbiswps.server.execution.ProcessWorker;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.controller.process.ProcessManager;
 import org.orbiswps.server.controller.utils.Job;
+import org.orbiswps.server.execution.ProcessExecutionListener;
+import org.orbiswps.server.execution.ProcessWorker;
 import org.orbiswps.server.model.JaxbContainer;
 import org.orbiswps.server.utils.ProcessTranslator;
 import org.orbiswps.server.utils.WpsServerListener;
@@ -425,12 +425,7 @@ public class WpsServerImpl implements WpsServer {
         statusInfo.setStatus(job.getState().name());
 
         //Process execution in new thread
-        ProcessWorker worker = new ProcessWorker(job,
-                processIdentifier,
-                processManager,
-                dataMap,
-                propertiesMap);
-
+        ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this);
 
         if(processRunning){
             workerFIFO.push(worker);
@@ -471,23 +466,6 @@ public class WpsServerImpl implements WpsServer {
                 !job.getState().equals(ProcessExecutionListener.ProcessState.SUCCEEDED)) {
             XMLGregorianCalendar date = getXMLGregorianCalendar(job.getProcessPollingTime());
             statusInfo.setNextPoll(date);
-        }
-        if(job.getState().equals(ProcessExecutionListener.ProcessState.FAILED) ||
-                job.getState().equals(ProcessExecutionListener.ProcessState.SUCCEEDED)) {
-            processRunning = false;
-        }
-
-
-        //If other process are waiting and the actual process failed, run them
-        if(job.getState().equals(ProcessExecutionListener.ProcessState.FAILED) &&
-                !processRunning &&
-                workerFIFO.size()>0){
-            processRunning = true;
-            if (executorService != null) {
-                executorService.execute(workerFIFO.pollFirst());
-            } else {
-                workerFIFO.pollFirst().run();
-            }
         }
 
         return statusInfo;
@@ -541,15 +519,7 @@ public class WpsServerImpl implements WpsServer {
         result.getOutput().clear();
         result.getOutput().addAll(listOutput);
 
-        //If other process are waiting, run them
-        if(!processRunning && workerFIFO.size()>0){
-            processRunning = true;
-            if (executorService != null) {
-                executorService.execute(workerFIFO.pollFirst());
-            } else {
-                workerFIFO.pollFirst().run();
-            }
-        }
+        jobMap.remove(jobId);
 
         return result;
     }
@@ -779,5 +749,29 @@ public class WpsServerImpl implements WpsServer {
      */
     public void scheduleResultDestroying(URI resultUri, XMLGregorianCalendar date){
         //To be implemented
+    }
+
+    /**
+     * Action done when a ProcessWorker has finished.
+     */
+    public void onProcessWorkerFinished(){
+        processRunning = false;
+        //If other process are waiting, run them
+        if(!processRunning && workerFIFO.size()>0){
+            processRunning = true;
+            if (executorService != null) {
+                executorService.execute(workerFIFO.pollFirst());
+            } else {
+                workerFIFO.pollFirst().run();
+            }
+        }
+    }
+
+    /**
+     * Returns the Map containing all the properties which will be given to the Groovy engine.
+     * @return The Map of the groovy properties.
+     */
+    public Map<String, Object> getGroovyPropertiesMap(){
+        return propertiesMap;
     }
 }

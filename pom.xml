@@ -70,10 +70,6 @@
         </scm>
         <developers>
                 <developer>
-                        <name>Nicolas Fortin</name>
-                        <organization>IFSTTAR</organization>
-                </developer>
-                <developer>
                         <name>Erwan Bocher</name>
                         <organization>Lab-STICC - CNRS UMR 6285</organization>
                 </developer>

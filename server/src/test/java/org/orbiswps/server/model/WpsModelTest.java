@@ -206,13 +206,13 @@ public class WpsModelTest {
     public String[] enumerationInput = {"value1, value2"};
 
     /**
-     * Test if the decoding and convert of the Enumeration annotation into its java object is valid.
+     * Test if the decoding and convert of the script1 annotation into its java object is valid.
      */
     @Test
     public void testEnumerationAttributeConvert() throws MalformedScriptException {
         try {
             boolean annotationFound = false;
-            //Retrieve the Enumeration object
+            //Retrieve the script1 object
             Enumeration enumeration = null;
             //Inspect all the annotation of the field to get the EnumerationAttribute one
             Field enumerationField = this.getClass().getDeclaredField("enumerationInput");

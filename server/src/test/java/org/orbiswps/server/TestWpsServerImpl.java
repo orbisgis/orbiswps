@@ -44,16 +44,21 @@ import net.opengis.wps._2_0.ObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.orbiswps.server.model.JaxbContainer;
+import org.orbiswps.server.utils.WpsServerListener;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.lang.Thread.sleep;
@@ -67,57 +72,70 @@ public class TestWpsServerImpl {
 
     private WpsServerImpl wpsServer;
 
+    private ExecutorService executorService;
+
     /**
      * Initialize a wps server for processing all the tests.
      */
     @Before
     public void initialize(){
-        WpsServerImpl localWpsServer = new WpsServerImpl();
+        WpsServerImpl wpsServer = new WpsServerImpl();
 
         try {
             URL url = this.getClass().getResource("JDBCTable.groovy");
             Assert.assertNotNull("Unable to load the script 'JDBCTable.groovy'", url);
             File f = new File(url.toURI());
-            localWpsServer.addProcess(f);
+            wpsServer.addProcess(f);
 
             url = this.getClass().getResource("JDBCColumn.groovy");
             Assert.assertNotNull("Unable to load the script 'JDBCColumn.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f);
+            wpsServer.addProcess(f);
 
             url = this.getClass().getResource("JDBCValue.groovy");
             Assert.assertNotNull("Unable to load the script 'JDBCValue.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f);
+            wpsServer.addProcess(f);
 
             url = this.getClass().getResource("Enumeration.groovy");
             Assert.assertNotNull("Unable to load the script 'Enumeration.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f);
+            wpsServer.addProcess(f);
 
             url = this.getClass().getResource("EnumerationLongProcess.groovy");
             Assert.assertNotNull("Unable to load the script 'EnumerationLongProcess.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f);
+            wpsServer.addProcess(f);
 
             url = this.getClass().getResource("GeometryData.groovy");
             Assert.assertNotNull("Unable to load the script 'GeometryData.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f);
+            wpsServer.addProcess(f);
 
             url = this.getClass().getResource("RawData.groovy");
             Assert.assertNotNull("Unable to load the script 'RawData.groovy'", url);
             f = new File(url.toURI());
-            localWpsServer.addProcess(f);
+            wpsServer.addProcess(f);
 
         }
         catch (URISyntaxException e) {
             Assert.fail("Error on loading the scripts : "+e.getMessage());
         }
 
-        localWpsServer.setExecutorService(Executors.newFixedThreadPool(1));
+        executorService = Executors.newFixedThreadPool(1);
+        wpsServer.setExecutorService(executorService);
 
-        wpsServer = localWpsServer;
+        this.wpsServer = wpsServer;
+    }
+
+    @Test
+    public void testWpsServerImplActivation(){
+        WpsServerImpl wpsServerImpl = new WpsServerImpl();
+        wpsServerImpl.activate();
+        Assert.assertNotNull("The script folder should not be null.", wpsServerImpl.getScriptFolder());
+        wpsServerImpl = new WpsServerImpl(System.getProperty("java.io.tmpdir") + File.separator + "folder", null);
+        wpsServerImpl.activate();
+        Assert.assertNotNull("The script folder should not be null.", wpsServerImpl.getScriptFolder());
     }
 
     /**
@@ -139,18 +157,18 @@ public class TestWpsServerImpl {
         sectionsType.getSection().add("All");
         getCapabilitiesType.setSections(sectionsType);
         Object object = wpsServer.getCapabilities(getCapabilitiesType);
-        String reason = "";
+        StringBuilder reason = new StringBuilder();
         if(object instanceof ExceptionReport){
             for(ExceptionType exception : ((ExceptionReport)object).getException()){
-                reason += exception.getExceptionCode();
+                reason.append(exception.getExceptionCode());
                 if(exception.getLocator() != null && !exception.getLocator().isEmpty()){
-                    reason += " : " + exception.getLocator();
+                    reason.append(" : ").append(exception.getLocator());
                 }
-                reason += "\n";
+                reason.append("\n");
             }
         }
-        if(reason.isEmpty()){
-            reason = "Unknown reason";
+        if(reason.length() == 0){
+            reason = new StringBuilder("Unknown reason");
         }
         Assert.assertTrue("The wps server capabilities is invalid : " + reason ,
                 object instanceof WPSCapabilitiesType);
@@ -386,8 +404,9 @@ public class TestWpsServerImpl {
 
     /**
      * Test< the GetCapabilities operation.
-     * @throws JAXBException
-     * @throws IOException
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testGetCapabilities() throws JAXBException, IOException {
@@ -418,19 +437,20 @@ public class TestWpsServerImpl {
                 ((JAXBElement)resultObject).getValue() instanceof WPSCapabilitiesType);
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the WPSCapabilitiesType should not be null",
                 ((JAXBElement)resultObject).getValue());
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType) (((JAXBElement)resultObject).getValue());
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the contents should not be null",
-                ((JAXBElement<WPSCapabilitiesType>)resultObject).getValue().getContents());
+                capabilities.getContents());
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the process summary should not be null",
-                ((JAXBElement<WPSCapabilitiesType>)resultObject).getValue().getContents().getProcessSummary());
+                capabilities.getContents().getProcessSummary());
         Assert.assertEquals("Error on unmarshalling the WpsService answer, the process summary should have 6 elements",
-                ((JAXBElement<WPSCapabilitiesType>)resultObject).getValue().getContents().getProcessSummary().size(),
-                7);
+                capabilities.getContents().getProcessSummary().size(),7);
     }
 
     /**
      * Tests the DescribeProcess operation.
-     * @throws JAXBException
-     * @throws IOException
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testJDBCTableScript() throws JAXBException, IOException {
@@ -498,6 +518,9 @@ public class TestWpsServerImpl {
 
     /**
      * Test the Execute, GetStatus and GetResult requests.
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testExecuteStatusResultRequest() throws JAXBException, IOException {
@@ -518,7 +541,7 @@ public class TestWpsServerImpl {
         //Unmarshall the result and check that the object is the same as the resource unmashalled xml.
         Object resultObject = unmarshaller.unmarshal(resultExecXml);
 
-        try {sleep(100);} catch (InterruptedException e) {}
+        try {sleep(100);} catch (InterruptedException ignored) {}
 
         Assert.assertTrue("Error on unmarshalling the WpsService answer, the object should not be null",
                 resultObject != null);
@@ -673,6 +696,9 @@ public class TestWpsServerImpl {
 
     /**
      * Test the Execute, GetStatus and GetResult requests.
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testDismissRequest() throws JAXBException, IOException {
@@ -702,7 +728,7 @@ public class TestWpsServerImpl {
 
 
         //Wait to be sure that the process has started. If it is not possible, raise a flag
-        try {sleep(200);} catch (InterruptedException e) {}
+        try {sleep(200);} catch (InterruptedException ignored) {}
 
 
         UUID jobId = UUID.fromString(((StatusInfo)resultObject).getJobID());
@@ -730,7 +756,7 @@ public class TestWpsServerImpl {
 
 
         //Wait to be sure that the process has started. If it is not possible, raise a flag
-        try {sleep(200);} catch (InterruptedException e) {}
+        try {sleep(200);} catch (InterruptedException ignored) {}
 
 
         //Now test the getResult request
@@ -765,8 +791,9 @@ public class TestWpsServerImpl {
 
     /**
      * Tests the GetCapabilities operation with a bad formed GetCapabilities.
-     * @throws JAXBException
-     * @throws IOException
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testBadGetCapabilities() throws JAXBException, IOException {
@@ -869,8 +896,9 @@ public class TestWpsServerImpl {
 
     /**
      * Tests the GetCapabilities operation with a bad formed GetCapabilities.
-     * @throws JAXBException
-     * @throws IOException
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
     public void testGetCapabilitiesLanguages() throws JAXBException, IOException {
@@ -963,5 +991,212 @@ public class TestWpsServerImpl {
         Assert.assertTrue("Error on unmarshalling the WpsService answer, the Languages should contains 'en'",
                 ((WPSCapabilitiesType)((JAXBElement)resultObject).getValue()).getLanguages()
                         .getLanguage().contains("en"));
+    }
+
+    /**
+     * Tests the execution of 3 processes at the same time.
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
+     * @throws InterruptedException Exception get if the sleep method fails.
+     */
+    @Test
+    public void testMultiProcessExecution() throws JAXBException, IOException, InterruptedException {
+        Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
+        //Build the Execute object
+        File executeFile = new File(this.getClass().getResource("ExecuteRequestLongProcess.xml").getFile());
+        Object element = unmarshaller.unmarshal(executeFile);
+        //Marshall the Execute object into an OutputStream
+        Marshaller marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        ByteArrayOutputStream outExecute = new ByteArrayOutputStream();
+        marshaller.marshal(element, outExecute);
+        //Write the OutputStream content into an Input stream before sending it to the wpsService
+        InputStream in = new DataInputStream(new ByteArrayInputStream(outExecute.toByteArray()));
+        ByteArrayOutputStream xml1 = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        in.reset();
+        ByteArrayOutputStream xml2 = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        in.reset();
+        ByteArrayOutputStream xml3 = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        //Get back the result of the DescribeProcess request as a BufferReader
+        InputStream resultExecXml1 = new ByteArrayInputStream(xml1.toByteArray());
+        InputStream resultExecXml2 = new ByteArrayInputStream(xml2.toByteArray());
+        InputStream resultExecXml3 = new ByteArrayInputStream(xml3.toByteArray());
+        //Unmarshall the result and check that the object is the same as the resource unmashalled xml.
+        String jobId1 = ((StatusInfo) unmarshaller.unmarshal(resultExecXml1)).getJobID();
+        String jobId2 = ((StatusInfo) unmarshaller.unmarshal(resultExecXml2)).getJobID();
+        String jobId3 = ((StatusInfo) unmarshaller.unmarshal(resultExecXml3)).getJobID();
+        sleep(1200);
+
+        GetStatus getStatus1 = new GetStatus();
+        GetStatus getStatus2 = new GetStatus();
+        GetStatus getStatus3 = new GetStatus();
+        getStatus1.setJobID(jobId1);
+        getStatus2.setJobID(jobId2);
+        getStatus3.setJobID(jobId3);
+        //Marshall the GetResult object into an OutputStream
+        ByteArrayOutputStream outResult1 = new ByteArrayOutputStream();
+        ByteArrayOutputStream outResult2 = new ByteArrayOutputStream();
+        ByteArrayOutputStream outResult3 = new ByteArrayOutputStream();
+        marshaller.marshal(getStatus1, outResult1);
+        marshaller.marshal(getStatus2, outResult2);
+        marshaller.marshal(getStatus3, outResult3);
+        //Write the OutputStream content into an Input stream before sending it to the wpsService
+        sleep(1200);
+        in = new DataInputStream(new ByteArrayInputStream(outResult1.toByteArray()));
+        xml1 = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        sleep(1200);
+        in = new DataInputStream(new ByteArrayInputStream(outResult2.toByteArray()));
+        xml2 = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        sleep(1200);
+        in = new DataInputStream(new ByteArrayInputStream(outResult3.toByteArray()));
+        xml3 = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        resultExecXml1 = new ByteArrayInputStream(xml1.toByteArray());
+        resultExecXml2 = new ByteArrayInputStream(xml2.toByteArray());
+        resultExecXml3 = new ByteArrayInputStream(xml3.toByteArray());
+        String status1 = ((StatusInfo) unmarshaller.unmarshal(resultExecXml1)).getStatus();
+        Assert.assertEquals("The status of the process number 1 should be 'SUCCEEDED'.", "SUCCEEDED", status1);
+        String status2 = ((StatusInfo) unmarshaller.unmarshal(resultExecXml2)).getStatus();
+        Assert.assertEquals("The status of the process number 2 should be 'SUCCEEDED'.", "SUCCEEDED", status2);
+        String status3 = ((StatusInfo) unmarshaller.unmarshal(resultExecXml3)).getStatus();
+        Assert.assertEquals("The status of the process number 3 should be 'SUCCEEDED'.", "SUCCEEDED", status3);
+    }
+
+    /**
+     * Test process execution with bad ExecuteRequestType object.
+     *
+     * @throws InterruptedException Exception get if the sleep method fails.
+     */
+    @Test
+    public void testBadExecution() throws InterruptedException {
+        //Test process execution with an input data without any content
+        ExecuteRequestType executeRequestType = new ExecuteRequestType();
+        CodeType id = new CodeType();
+        id.setValue("orbisgis:test:enumeration");
+        executeRequestType.setIdentifier(id);
+        DataInputType dataInputType = new DataInputType();
+        dataInputType.setId("orbisgis:test:enumeration:input");
+        Data data = new Data();
+        dataInputType.setData(data);
+        executeRequestType.getInput().add(dataInputType);
+        StatusInfo statusInfo = (StatusInfo)wpsServer.execute(executeRequestType);
+        sleep(200);
+        GetResult getResult = new GetResult();
+        getResult.setJobID(statusInfo.getJobID());
+        Assert.assertNotNull("The Wps result should not be null.", wpsServer.getResult(getResult));
+
+        //Test process execution with an input data with more than one value as content
+        data.getContent().add("Value1");
+        data.getContent().add("Value2");
+        statusInfo = (StatusInfo)wpsServer.execute(executeRequestType);
+        sleep(200);
+        getResult = new GetResult();
+        getResult.setJobID(statusInfo.getJobID());
+        Assert.assertNotNull("The Wps result should not be null.", wpsServer.getResult(getResult));
+    }
+
+    /**
+     * Test the execution on a WpsServerImpl without executionService.
+     *
+     * @throws JAXBException Exception get if the marshaller fails.
+     * @throws IOException Exception get if the resource getting fails.
+     * @throws InterruptedException Exception get if the sleep method fails.
+     */
+    @Test
+    public void testExecuteWithoutExecutionService() throws JAXBException, IOException, InterruptedException {
+        wpsServer.setExecutorService(null);
+
+        Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
+        //Build the Execute object
+        File executeFile = new File(this.getClass().getResource("ExecuteRequest.xml").getFile());
+        ExecuteRequestType executeRequestType = (ExecuteRequestType)((JAXBElement)unmarshaller.unmarshal(executeFile)).getValue();
+        StatusInfo statusInfo = (StatusInfo)wpsServer.execute(executeRequestType);
+        sleep(200);
+
+        GetResult getResult = new GetResult();
+        getResult.setJobID(statusInfo.getJobID());
+        Result result = wpsServer.getResult(getResult);
+        Assert.assertFalse("The process result should contain outputs.", result.getOutput().isEmpty());
+
+        wpsServer.setExecutorService(executorService);
+    }
+
+    /**
+     * Test the calling of a wrong operation.
+     */
+    @Test
+    public void testCallWrongOperation(){
+        String wrongOperation = "<wps:WrongOp></wps:WrongOp>";
+        InputStream stream = new ByteArrayInputStream(wrongOperation.getBytes());
+        ByteArrayOutputStream result = (ByteArrayOutputStream) wpsServer.callOperation(stream);
+        Assert.assertEquals("The resulting stream should be empty.", 0, result.size());
+    }
+
+    /**
+     * Tests the getter and setter of the Database attribute.
+     */
+    @Test
+    public void testGetSetDatabase(){
+        wpsServer.setDataSource(null);
+        wpsServer.setDatabase(WpsServer.Database.H2GIS);
+        Assert.assertEquals("The database attribute should be 'H2GIS'",
+                wpsServer.getDatabase(), WpsServer.Database.H2GIS);
+    }
+
+    /**
+     * Test the listening of adding and removing of processes.
+     * @throws URISyntaxException Exception get if the creation of the process identifier fails.
+     */
+    @Test
+    public void testAddRemoveProcess() throws URISyntaxException {
+        CustomWpsServerListener listener1 = new CustomWpsServerListener();
+        CustomWpsServerListener listener2 = new CustomWpsServerListener();
+        wpsServer.addWpsServerListener(listener1);
+        wpsServer.addWpsServerListener(listener2);
+
+        wpsServer.addProcess(new File(this.getClass().getResource("ascriptfolder").toURI()));
+
+        Assert.assertEquals("The listener should have detect the addition", 1, listener1.getScriptAddCount());
+        Assert.assertEquals("The listener should have detect the addition", 1, listener2.getScriptAddCount());
+
+        wpsServer.removeProcess(URI.create("script1ID"));
+        wpsServer.removeProcess(URI.create("script2ID"));
+        wpsServer.removeProcess(URI.create("script3ID"));
+
+        Assert.assertEquals("The listener should hve detect the addition", 3, listener1.getScriptRemovedCount());
+        Assert.assertEquals("The listener should hve detect the addition", 3, listener2.getScriptRemovedCount());
+
+        wpsServer.removeWpsServerListener(listener1);
+        wpsServer.removeWpsServerListener(listener2);
+    }
+
+    /**
+     * Class implementing the interface WpsServerListener used for the tests.
+     */
+    private class CustomWpsServerListener implements WpsServerListener{
+        int scriptAddCount = 0;
+        int getScriptAddCount(){return scriptAddCount;}
+        int scriptRemovedCount = 0;
+        int getScriptRemovedCount(){return scriptRemovedCount;}
+        @Override public void onScriptAdd() {scriptAddCount++;}
+        @Override public void onScriptRemoved() {scriptRemovedCount++;}
+    }
+
+    /**
+     * Test the adding and removing of groovy properties.
+     */
+    @Test
+    public void testProperties(){
+        Map<String, Object> propertiesMap = new HashMap<>();
+        propertiesMap.put("logger", "invalidProperty");
+        propertiesMap.put("prop", null);
+        wpsServer.addGroovyProperties(propertiesMap);
+        Map<String, Object> map = wpsServer.getGroovyPropertiesMap();
+        Assert.assertTrue("The property map should contains the property 'prop'.", map.containsKey("prop"));
+        Assert.assertNull("The property 'logger' should be null", map.get("logger"));
+        wpsServer.removeGroovyProperties(propertiesMap);
+        map = wpsServer.getGroovyPropertiesMap();
+        Assert.assertFalse("The property map not should contains the property 'prop'.", map.containsKey("prop"));
+        Assert.assertNull("The property 'logger' should be null", map.get("logger"));
     }
 }

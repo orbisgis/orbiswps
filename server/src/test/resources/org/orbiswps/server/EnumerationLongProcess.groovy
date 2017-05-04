@@ -18,7 +18,7 @@ import org.orbiswps.groovyapi.process.Process
         metadata = ["website","metadata"]
 )
 def processing() {
-    sleep(50000)
+    sleep(1000)
     enumerationOutput = inputEnumeration;
 }
 

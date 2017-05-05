@@ -42,11 +42,11 @@ import net.opengis.wps._2_0.InputDescriptionType;
 import net.opengis.wps._2_0.OutputDescriptionType;
 import org.junit.Assert;
 import org.junit.Test;
-import org.orbiswps.groovyapi.attributes.BoundingBoxAttribute;
 import org.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
+import org.orbiswps.groovyapi.attributes.EnumerationAttribute;
 import org.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbiswps.groovyapi.attributes.OutputAttribute;
-import org.orbiswps.server.model.BoundingBoxData;
+import org.orbiswps.server.model.Enumeration;
 import org.orbiswps.server.model.MalformedScriptException;
 
 import java.lang.reflect.Field;
@@ -55,32 +55,37 @@ import java.net.URI;
 import java.util.UUID;
 
 /**
- * Test class for the BoundingBoxParser
+ * Test class for the EnumerationParser
  *
  * @author Sylvain PALOMINOS
  */
-public class BoundingBoxParserTest {
+public class EnumerationParserTest {
 
-    /**BoundingBox parser class */
-    private BoundingBoxParser boundingBoxParser = new BoundingBoxParser();
+    private EnumerationParser enumerationParser = new EnumerationParser();
+
+    @Test
+    public void testAnnotation(){
+        Assert.assertEquals("The EnumerationParser annotation class should be 'EnumerationAttribute'.",
+                EnumerationAttribute.class, enumerationParser.getAnnotation());
+    }
 
     /**
-     * Tests the parsing of the simplest BoundingBox input.
+     * Tests the parsing of the simplest input.
      */
     @Test
     public void testSimplestParseInput(){
         Field field = null;
         try {
-            field = FieldProvider.class.getDeclaredField("simplestBoundingBoxInput");
+            field = EnumerationParserTest.FieldProvider.class.getDeclaredField("simplestInput");
         } catch (NoSuchFieldException ignored) {}
-        Assert.assertNotNull("Unable to get the field to parse (field 'simplestBoundingBoxInput' from class FieldProvider).",
+        Assert.assertNotNull("Unable to get the field to parse (field 'simplestInput' from class FieldProvider).",
                 field);
         InputDescriptionType inputDescriptionType = null;
         String processId = UUID.randomUUID().toString();
         try {
-            inputDescriptionType = boundingBoxParser.parseInput(field, "0,0,1,1;EPSG:4326", URI.create(processId));
+            inputDescriptionType = enumerationParser.parseInput(field, new String[]{"value1"}, URI.create(processId));
         } catch (MalformedScriptException ignored) {}
-        Assert.assertNotNull("Unable to parse the field 'simplestBoundingBoxInput'.", inputDescriptionType);
+        Assert.assertNotNull("Unable to parse the field 'simplestInput'.", inputDescriptionType);
 
         //Tests the DataDescription from the InputDescriptionType
         Assert.assertNotNull("The JAXBElement from the InputDescriptionType should no be null",
@@ -89,15 +94,15 @@ public class BoundingBoxParserTest {
         Assert.assertNotNull("The DataDescription from the InputDescriptionType should no be null",
                 dataDescriptionType);
         Assert.assertTrue("The DataDescriptionType from the InputDescriptionType should be an instance of " +
-                "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
-        BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
-        Assert.assertEquals("The BoundingBoxData defaultCrs attribute should be 'EPSG:4326.", "EPSG:4326",
-                boundingBoxData.getDefaultCrs());
-        Assert.assertArrayEquals("The BoundingBoxData supportedCrs attribute should be empty.", new String[]{},
-                boundingBoxData.getSupportedCrs());
-        Assert.assertEquals("The BoundingBoxData dimension attribute should be 2.", 2, boundingBoxData.getDimension());
-        Assert.assertEquals("The BoundingBoxData defaultValue attribute is not the one expected.", "0,0,1,1",
-                boundingBoxData.getDefaultValue());
+                "Enumeration.", dataDescriptionType instanceof Enumeration);
+        Enumeration enumeration = (Enumeration) dataDescriptionType;
+        Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
+                new String[]{"value1"}, enumeration.getDefaultValues());
+        Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
+                new String[]{"value1", "value2"}, enumeration.getValues());
+        Assert.assertNull("The Enumeration valueNames attribute should be null.", enumeration.getValuesNames());
+        Assert.assertFalse("The Enumeration isEditable attribute should be false.", enumeration.isEditable());
+        Assert.assertFalse("The Enumeration multiSelection attribute should be false.", enumeration.isMultiSelection());
 
         //Tests the InputAttribute part of the InputDescriptionType
         Assert.assertEquals("The InputDescriptionType maxOccurs attribute should be 1", "1",
@@ -121,22 +126,22 @@ public class BoundingBoxParserTest {
     }
 
     /**
-     * Tests the parsing of a complex BoundingBox input.
+     * Tests the parsing of a complex input.
      */
     @Test
     public void testComplexParseInput(){
         Field field = null;
         try {
-            field = FieldProvider.class.getDeclaredField("complexBoundingBoxInput");
+            field = EnumerationParserTest.FieldProvider.class.getDeclaredField("complexInput");
         } catch (NoSuchFieldException ignored) {}
-        Assert.assertNotNull("Unable to get the field to parse (field 'complexBoundingBoxInput' from class FieldProvider).",
+        Assert.assertNotNull("Unable to get the field to parse (field 'complexInput' from class FieldProvider).",
                 field);
         InputDescriptionType inputDescriptionType = null;
         String processId = UUID.randomUUID().toString();
         try {
-            inputDescriptionType = boundingBoxParser.parseInput(field, "EPSG:4326;0,0,1,1", URI.create(processId));
+            inputDescriptionType = enumerationParser.parseInput(field, new String[]{"value1"}, URI.create(processId));
         } catch (MalformedScriptException ignored) {}
-        Assert.assertNotNull("Unable to parse the field 'complexBoundingBoxInput'.", inputDescriptionType);
+        Assert.assertNotNull("Unable to parse the field 'complexInput'.", inputDescriptionType);
 
         //Tests the DataDescription from the InputDescriptionType
         Assert.assertNotNull("The JAXBElement from the InputDescriptionType should no be null",
@@ -145,15 +150,28 @@ public class BoundingBoxParserTest {
         Assert.assertNotNull("The DataDescription from the InputDescriptionType should no be null",
                 dataDescriptionType);
         Assert.assertTrue("The DataDescriptionType from the InputDescriptionType should be an instance of " +
-                "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
-        BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
-        Assert.assertEquals("The BoundingBoxData defaultCrs attribute should be 'EPSG:4326.", "EPSG:4326",
-                boundingBoxData.getDefaultCrs());
-        Assert.assertArrayEquals("The BoundingBoxData supportedCrs attribute should be empty.",
-                new String[]{"EPSG:4326", "EPSG:2000", "EPSG:2001"}, boundingBoxData.getSupportedCrs());
-        Assert.assertEquals("The BoundingBoxData dimension attribute should be 2.", 2, boundingBoxData.getDimension());
-        Assert.assertEquals("The BoundingBoxData defaultValue attribute is not the one expected.", "0,0,1,1",
-                boundingBoxData.getDefaultValue());
+                "Enumeration.", dataDescriptionType instanceof Enumeration);
+        Enumeration enumeration = (Enumeration) dataDescriptionType;
+        Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
+                new String[]{"value1"}, enumeration.getDefaultValues());
+        Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
+                new String[]{"value1", "value2"}, enumeration.getValues());
+        Assert.assertEquals("The Enumeration valueNames attribute length should be 2.",
+                2, enumeration.getValuesNames().length);
+        Assert.assertEquals("The Enumeration first valueNames length should be 1.",
+                1, enumeration.getValuesNames()[0].getStrings().length);
+        Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",
+                "name1", enumeration.getValuesNames()[0].getStrings()[0].getValue());
+        Assert.assertEquals("The Enumeration first valueNames language should be 'en'.",
+                "en", enumeration.getValuesNames()[0].getStrings()[0].getLang());
+        Assert.assertEquals("The Enumeration second valueNames length should be 1.",
+                1, enumeration.getValuesNames()[1].getStrings().length);
+        Assert.assertEquals("The Enumeration second valueNames should be 'name2'.",
+                "name2", enumeration.getValuesNames()[1].getStrings()[0].getValue());
+        Assert.assertEquals("The Enumeration second valueNames language should be 'en'.",
+                "en", enumeration.getValuesNames()[1].getStrings()[0].getLang());
+        Assert.assertTrue("The Enumeration isEditable attribute should be true.", enumeration.isEditable());
+        Assert.assertTrue("The Enumeration multiSelection attribute should be true.", enumeration.isMultiSelection());
 
         //Tests the InputAttribute part of the InputDescriptionType
         Assert.assertEquals("The InputDescriptionType maxOccurs attribute should be 1", "2",
@@ -211,22 +229,22 @@ public class BoundingBoxParserTest {
 
 
     /**
-     * Tests the parsing of the simplest BoundingBox output.
+     * Tests the parsing of the simplest output.
      */
     @Test
     public void testSimplestParseOutput(){
         Field field = null;
         try {
-            field = FieldProvider.class.getDeclaredField("simplestBoundingBoxOutput");
+            field = EnumerationParserTest.FieldProvider.class.getDeclaredField("simplestOutput");
         } catch (NoSuchFieldException ignored) {}
-        Assert.assertNotNull("Unable to get the field to parse (field 'simplestBoundingBoxOutput' from class FieldProvider).",
+        Assert.assertNotNull("Unable to get the field to parse (field 'simplestOutput' from class FieldProvider).",
                 field);
         OutputDescriptionType outputDescriptionType = null;
         String processId = UUID.randomUUID().toString();
         try {
-            outputDescriptionType = boundingBoxParser.parseOutput(field, "0,0,1,1;EPSG:4326", URI.create(processId));
+            outputDescriptionType = enumerationParser.parseOutput(field, new String[]{"value1"}, URI.create(processId));
         } catch (MalformedScriptException ignored) {}
-        Assert.assertNotNull("Unable to parse the field 'simplestBoundingBoxOutput'.", outputDescriptionType);
+        Assert.assertNotNull("Unable to parse the field 'simplestOutput'.", outputDescriptionType);
 
         //Tests the DataDescription from the OutputDescriptionType
         Assert.assertNotNull("The JAXBElement from the OutputDescriptionType should no be null",
@@ -235,13 +253,15 @@ public class BoundingBoxParserTest {
         Assert.assertNotNull("The DataDescription from the OutputDescriptionType should no be null",
                 dataDescriptionType);
         Assert.assertTrue("The DataDescriptionType from the OutputDescriptionType should be an instance of " +
-                "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
-        BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
-        Assert.assertEquals("The BoundingBoxData defaultCrs attribute should be 'EPSG:4326.", "EPSG:4326",
-                boundingBoxData.getDefaultCrs());
-        Assert.assertArrayEquals("The BoundingBoxData supportedCrs attribute should be empty.", new String[]{},
-                boundingBoxData.getSupportedCrs());
-        Assert.assertEquals("The BoundingBoxData dimension attribute should be 2.", 2, boundingBoxData.getDimension());
+                "Enumeration.", dataDescriptionType instanceof Enumeration);
+        Enumeration enumeration = (Enumeration) dataDescriptionType;
+        Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
+                new String[]{"value1"}, enumeration.getDefaultValues());
+        Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
+                new String[]{"value1", "value2"}, enumeration.getValues());
+        Assert.assertNull("The Enumeration valueNames attribute should be null.", enumeration.getValuesNames());
+        Assert.assertFalse("The Enumeration isEditable attribute should be false.", enumeration.isEditable());
+        Assert.assertFalse("The Enumeration multiSelection attribute should be false.", enumeration.isMultiSelection());
 
         //Tests the DescriptionTypeAttribute part of the OutputDescriptionType
         Assert.assertFalse("The OutputDescriptionType title attribute should not be empty",
@@ -259,22 +279,22 @@ public class BoundingBoxParserTest {
     }
 
     /**
-     * Tests the parsing of a complex BoundingBox output.
+     * Tests the parsing of a complex output.
      */
     @Test
     public void testComplexParseOutput(){
         Field field = null;
         try {
-            field = FieldProvider.class.getDeclaredField("complexBoundingBoxInput");
+            field = EnumerationParserTest.FieldProvider.class.getDeclaredField("complexInput");
         } catch (NoSuchFieldException ignored) {}
-        Assert.assertNotNull("Unable to get the field to parse (field 'complexBoundingBoxInput' from class FieldProvider).",
+        Assert.assertNotNull("Unable to get the field to parse (field 'complexInput' from class FieldProvider).",
                 field);
         OutputDescriptionType outputDescriptionType = null;
         String processId = UUID.randomUUID().toString();
         try {
-            outputDescriptionType = boundingBoxParser.parseOutput(field, "EPSG:4326;0,0,1,1", URI.create(processId));
+            outputDescriptionType = enumerationParser.parseOutput(field, new String[]{"value1"}, URI.create(processId));
         } catch (MalformedScriptException ignored) {}
-        Assert.assertNotNull("Unable to parse the field 'complexBoundingBoxInput'.", outputDescriptionType);
+        Assert.assertNotNull("Unable to parse the field 'complexInput'.", outputDescriptionType);
 
         //Tests the DataDescription from the OutputDescriptionType
         Assert.assertNotNull("The JAXBElement from the OutputDescriptionType should no be null",
@@ -283,13 +303,28 @@ public class BoundingBoxParserTest {
         Assert.assertNotNull("The DataDescription from the OutputDescriptionType should no be null",
                 dataDescriptionType);
         Assert.assertTrue("The DataDescriptionType from the OutputDescriptionType should be an instance of " +
-                "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
-        BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
-        Assert.assertEquals("The BoundingBoxData defaultCrs attribute should be 'EPSG:4326.", "EPSG:4326",
-                boundingBoxData.getDefaultCrs());
-        Assert.assertArrayEquals("The BoundingBoxData supportedCrs attribute should be empty.",
-                new String[]{"EPSG:4326", "EPSG:2000", "EPSG:2001"}, boundingBoxData.getSupportedCrs());
-        Assert.assertEquals("The BoundingBoxData dimension attribute should be 2.", 2, boundingBoxData.getDimension());
+                "Enumeration.", dataDescriptionType instanceof Enumeration);
+        Enumeration enumeration = (Enumeration) dataDescriptionType;
+        Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
+                new String[]{"value1"}, enumeration.getDefaultValues());
+        Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
+                new String[]{"value1", "value2"}, enumeration.getValues());
+        Assert.assertEquals("The Enumeration valueNames attribute length should be 2.",
+                2, enumeration.getValuesNames().length);
+        Assert.assertEquals("The Enumeration first valueNames length should be 1.",
+                1, enumeration.getValuesNames()[0].getStrings().length);
+        Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",
+                "name1", enumeration.getValuesNames()[0].getStrings()[0].getValue());
+        Assert.assertEquals("The Enumeration first valueNames language should be 'en'.",
+                "en", enumeration.getValuesNames()[0].getStrings()[0].getLang());
+        Assert.assertEquals("The Enumeration second valueNames length should be 1.",
+                1, enumeration.getValuesNames()[1].getStrings().length);
+        Assert.assertEquals("The Enumeration second valueNames should be 'name2'.",
+                "name2", enumeration.getValuesNames()[1].getStrings()[0].getValue());
+        Assert.assertEquals("The Enumeration second valueNames language should be 'en'.",
+                "en", enumeration.getValuesNames()[1].getStrings()[0].getLang());
+        Assert.assertTrue("The Enumeration isEditable attribute should be true.", enumeration.isEditable());
+        Assert.assertTrue("The Enumeration multiSelection attribute should be true.", enumeration.isMultiSelection());
 
         //Tests the DescriptionTypeAttribute part of the OutputDescriptionType
         Assert.assertEquals("The OutputDescriptionType title attribute should have a size of 2", 2,
@@ -342,14 +377,19 @@ public class BoundingBoxParserTest {
      * Class used to declare and get fields with the annotation to parse.
      */
     private class FieldProvider{
-        /** The simplest BoundingBox input declaration */
-        @BoundingBoxAttribute
+        /** The simplest input declaration */
+        @EnumerationAttribute(values = {"value1", "value2"})
         @InputAttribute
         @DescriptionTypeAttribute(title = {"title"})
-        private String simplestBoundingBoxInput = "0,0,1,1;EPSG:4326";
+        private String[] simplestInput = {"value1"};
 
-        /** A complex BoundingBox input declaration */
-        @BoundingBoxAttribute(supportedCRS = {"EPSG:4326", "EPSG:2000", "EPSG:2001"}, dimension = 2)
+        /** A complex input declaration */
+        @EnumerationAttribute(
+                isEditable = true,
+                multiSelection = true,
+                values = {"value1", "value2"},
+                names = {"name1,name2","en"}
+        )
         @InputAttribute(maxOccurs = 2, minOccurs = 0)
         @DescriptionTypeAttribute(
                 title = {"title", "en", "titre", "fr"},
@@ -358,16 +398,21 @@ public class BoundingBoxParserTest {
                 identifier = "identifier",
                 metadata = {"role","title"}
         )
-        private String complexBoundingBoxInput = "EPSG:4326;0, 0, 1 ,1";
+        private String[] complexInput = {"value1"};
 
-        /** The simplest BoundingBox output declaration */
-        @BoundingBoxAttribute
+        /** The simplest output declaration */
+        @EnumerationAttribute(values = {"value1", "value2"})
         @OutputAttribute
         @DescriptionTypeAttribute(title = {"title"})
-        private String simplestBoundingBoxOutput;
+        private String[] simplestOutput = {"value1"};
 
-        /** A complex BoundingBox output declaration */
-        @BoundingBoxAttribute(supportedCRS = {"EPSG:4326", "EPSG:2000", "EPSG:2001"}, dimension = 2)
+        /** A complex output declaration */
+        @EnumerationAttribute(
+                isEditable = true,
+                multiSelection = true,
+                values = {"value1", "value2"},
+                names = {"name1,name2","en"}
+        )
         @OutputAttribute
         @DescriptionTypeAttribute(
                 title = {"title", "en", "titre", "fr"},
@@ -376,6 +421,6 @@ public class BoundingBoxParserTest {
                 identifier = "identifier",
                 metadata = {"role","title"}
         )
-        private String complexBoundingBoxOutput = "EPSG:4326";
+        private String[] complexOutput = {"value1"};
     }
 }

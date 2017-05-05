@@ -66,7 +66,8 @@ public class GeometryParser implements Parser {
     public InputDescriptionType parseInput(Field f, Object defaultValue, URI processId) throws MalformedScriptException {
         //Instantiate the RawData
         Format format = FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION);
-        GeometryData geometryData = ObjectAnnotationConverter.annotationToObject(f.getAnnotation(GeometryAttribute.class), format);
+        GeometryData geometryData = ObjectAnnotationConverter.annotationToObject(
+                f.getAnnotation(GeometryAttribute.class), format);
         if(defaultValue != null) {
             geometryData.setDefaultValue(defaultValue.toString());
         }
@@ -92,7 +93,11 @@ public class GeometryParser implements Parser {
     public OutputDescriptionType parseOutput(Field f, Object defaultValue, URI processId) throws MalformedScriptException {
         //Instantiate the RawData
         Format format = FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION);
-        GeometryData geometryData = ObjectAnnotationConverter.annotationToObject(f.getAnnotation(GeometryAttribute.class), format);
+        GeometryData geometryData = ObjectAnnotationConverter.annotationToObject(f.getAnnotation(
+                GeometryAttribute.class), format);
+        if(defaultValue != null) {
+            geometryData.setDefaultValue(defaultValue.toString());
+        }
 
         OutputDescriptionType output = new OutputDescriptionType();
         JAXBElement<GeometryData> jaxbElement = new ObjectFactory().createGeometryData(geometryData);

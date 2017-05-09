@@ -104,6 +104,9 @@ public class JDBCColumnParser implements Parser {
         jdbcTableUri = URI.create(processId+":"+jdbcColumnAttribute.jdbcTableReference());
         JDBCColumn jdbcColumn = ObjectAnnotationConverter.annotationToObject(jdbcColumnAttribute, format,
                 jdbcTableUri);
+        if(defaultValue != null && defaultValue instanceof String[]) {
+            jdbcColumn.setDefaultValues((String[])defaultValue);
+        }
 
         //Instantiate the returned output
         OutputDescriptionType output = new OutputDescriptionType();

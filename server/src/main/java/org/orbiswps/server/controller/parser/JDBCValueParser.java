@@ -103,6 +103,9 @@ public class JDBCValueParser implements Parser {
         //If the jdbcTable attribute is not an URI, autoGenerate one.
         jdbcColumnUri = URI.create(processId+":"+jdbcValueAttribute.jdbcColumnReference());
         JDBCValue jdbcValue = ObjectAnnotationConverter.annotationToObject(jdbcValueAttribute, format, jdbcColumnUri);
+        if(defaultValue != null && defaultValue instanceof String[]) {
+            jdbcValue.setDefaultValues((String[])defaultValue);
+        }
 
         //Instantiate the returned output
         OutputDescriptionType output = new OutputDescriptionType();

@@ -417,13 +417,13 @@ public class JDBCValueParserTest {
                 identifier = "identifier",
                 metadata = {"role","title"}
         )
-        private String complexInput = "tableName";
+        private String[] complexInput = {"field1", "field2"};
 
         /** The simplest output declaration */
         @JDBCValueAttribute(jdbcColumnReference = "reference")
         @OutputAttribute
         @DescriptionTypeAttribute(title = {"title"})
-        private String simplestOutput = "tableName";
+        private String[] simplestOutput = {"field1", "field2"};
 
         /** A complex output declaration */
         @JDBCValueAttribute(
@@ -438,6 +438,6 @@ public class JDBCValueParserTest {
                 identifier = "identifier",
                 metadata = {"role","title"}
         )
-        private String complexOutput = "tableName";
+        private String[] complexOutput = {"field1", "field2"};
     }
 }

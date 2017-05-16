@@ -69,7 +69,7 @@ public class JDBCValueParser implements Parser {
         JDBCValueAttribute jdbcValueAttribute = f.getAnnotation(JDBCValueAttribute.class);
         Format format = FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION);
         URI jdbcColumnUri;
-        //If the jdbcTable attribute is not an URI, autoGenerate one.
+        //If the jdbcValue attribute is not an URI, autoGenerate one.
         jdbcColumnUri = URI.create(processId+":"+jdbcValueAttribute.jdbcColumnReference());
         JDBCValue jdbcValue = ObjectAnnotationConverter.annotationToObject(jdbcValueAttribute, format, jdbcColumnUri);
         if(defaultValue != null && defaultValue instanceof String[]) {
@@ -100,7 +100,7 @@ public class JDBCValueParser implements Parser {
         JDBCValueAttribute jdbcValueAttribute = f.getAnnotation(JDBCValueAttribute.class);
         Format format = FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION);
         URI jdbcColumnUri;
-        //If the jdbcTable attribute is not an URI, autoGenerate one.
+        //If the jdbcValue attribute is not an URI, autoGenerate one.
         jdbcColumnUri = URI.create(processId+":"+jdbcValueAttribute.jdbcColumnReference());
         JDBCValue jdbcValue = ObjectAnnotationConverter.annotationToObject(jdbcValueAttribute, format, jdbcColumnUri);
         if(defaultValue != null && defaultValue instanceof String[]) {

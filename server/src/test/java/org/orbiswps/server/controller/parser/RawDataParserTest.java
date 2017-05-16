@@ -46,9 +46,9 @@ import org.junit.Test;
 import org.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
 import org.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbiswps.groovyapi.attributes.OutputAttribute;
-import org.orbiswps.groovyapi.attributes.PasswordAttribute;
+import org.orbiswps.groovyapi.attributes.RawDataAttribute;
 import org.orbiswps.server.model.MalformedScriptException;
-import org.orbiswps.server.model.Password;
+import org.orbiswps.server.model.RawData;
 
 import java.lang.reflect.Field;
 import java.math.BigInteger;
@@ -56,18 +56,18 @@ import java.net.URI;
 import java.util.UUID;
 
 /**
- * Test class for the PasswordParser
+ * Test class for the RawDataParser
  *
  * @author Sylvain PALOMINOS
  */
-public class PasswordParserTest {
+public class RawDataParserTest {
 
-    /** Password parser. */
-    private PasswordParser passwordParser;
+    /** RawData parser. */
+    private RawDataParser rawDataParser;
 
     @Before
     public void initialization(){
-        passwordParser = new PasswordParser();
+        rawDataParser = new RawDataParser();
     }
 
     /**
@@ -75,8 +75,8 @@ public class PasswordParserTest {
      */
     @Test
     public void testAnnotation(){
-        Assert.assertEquals("The passwordParser annotation class should be 'PasswordAttribute'.",
-                PasswordAttribute.class, passwordParser.getAnnotation());
+        Assert.assertEquals("The rawDataParser annotation class should be 'RawDataAttribute'.",
+                RawDataAttribute.class, rawDataParser.getAnnotation());
     }
 
     /**
@@ -86,14 +86,14 @@ public class PasswordParserTest {
     public void testSimplestParseInput(){
         Field field = null;
         try {
-            field = PasswordParserTest.FieldProvider.class.getDeclaredField("simplestInput");
+            field = RawDataParserTest.FieldProvider.class.getDeclaredField("simplestInput");
         } catch (NoSuchFieldException ignored) {}
         Assert.assertNotNull("Unable to get the field to parse (field 'simplestInput' from class FieldProvider).",
                 field);
         InputDescriptionType inputDescriptionType = null;
         String processId = "processid:"+UUID.randomUUID().toString();
         try {
-            inputDescriptionType = passwordParser.parseInput(field, null,
+            inputDescriptionType = rawDataParser.parseInput(field, new String[]{"file1.txt", "file2.txt"},
                     URI.create(processId));
         } catch (MalformedScriptException ignored) {}
         Assert.assertNotNull("Unable to parse the field 'simplestInput'.", inputDescriptionType);
@@ -105,7 +105,20 @@ public class PasswordParserTest {
         Assert.assertNotNull("The DataDescription from the InputDescriptionType should no be null",
                 dataDescriptionType);
         Assert.assertTrue("The DataDescriptionType from the InputDescriptionType should be an instance of " +
-                "Password.", dataDescriptionType instanceof Password);
+                "RawData.", dataDescriptionType instanceof RawData);
+        RawData rawData = (RawData) dataDescriptionType;
+        Assert.assertArrayEquals("The RawData defaultValues attribute size should be [file1.txt, file2.txt]",
+                new String[]{"file1.txt", "file2.txt"}, rawData.getDefaultValues());
+        Assert.assertArrayEquals("The RawData excludedTypes attribute size should be []",
+                new String[]{}, rawData.getExcludedTypes());
+        Assert.assertArrayEquals("The RawData fileTypes attribute size should be []",
+                new String[]{}, rawData.getFileTypes());
+        Assert.assertTrue("The RawData isDirectory attribute should be true.",
+                rawData.isDirectory());
+        Assert.assertTrue("The RawData isFile attribute should be true.",
+                rawData.isFile());
+        Assert.assertFalse("The RawData multiSelection attribute should be false.",
+                rawData.multiSelection());
 
         //Tests the InputAttribute part of the InputDescriptionType
         Assert.assertEquals("The InputDescriptionType maxOccurs attribute should be 1", "1",
@@ -135,14 +148,14 @@ public class PasswordParserTest {
     public void testComplexParseInput(){
         Field field = null;
         try {
-            field = PasswordParserTest.FieldProvider.class.getDeclaredField("complexInput");
+            field = RawDataParserTest.FieldProvider.class.getDeclaredField("complexInput");
         } catch (NoSuchFieldException ignored) {}
         Assert.assertNotNull("Unable to get the field to parse (field 'complexInput' from class FieldProvider).",
                 field);
         InputDescriptionType inputDescriptionType = null;
         String processId = "processid:"+UUID.randomUUID().toString();
         try {
-            inputDescriptionType = passwordParser.parseInput(field, null,
+            inputDescriptionType = rawDataParser.parseInput(field, new String[]{"file1.txt", "file2.txt"},
                     URI.create(processId));
         } catch (MalformedScriptException ignored) {}
         Assert.assertNotNull("Unable to parse the field 'complexInput'.", inputDescriptionType);
@@ -154,7 +167,20 @@ public class PasswordParserTest {
         Assert.assertNotNull("The DataDescription from the InputDescriptionType should no be null",
                 dataDescriptionType);
         Assert.assertTrue("The DataDescriptionType from the InputDescriptionType should be an instance of " +
-                "Password.", dataDescriptionType instanceof Password);
+                "RawData.", dataDescriptionType instanceof RawData);
+        RawData rawData = (RawData) dataDescriptionType;
+        Assert.assertArrayEquals("The RawData defaultValues attribute size should be [file1.txt, file2.txt]",
+                new String[]{"file1.txt", "file2.txt"}, rawData.getDefaultValues());
+        Assert.assertArrayEquals("The RawData excludedTypes attribute size should be []",
+                new String[]{".sql", ".shp"}, rawData.getExcludedTypes());
+        Assert.assertArrayEquals("The RawData fileTypes attribute size should be []",
+                new String[]{".dbf", ".txt"}, rawData.getFileTypes());
+        Assert.assertFalse("The RawData isDirectory attribute should be true.",
+                rawData.isDirectory());
+        Assert.assertFalse("The RawData isFile attribute should be true.",
+                rawData.isFile());
+        Assert.assertTrue("The RawData multiSelection attribute should be false.",
+                rawData.multiSelection());
 
 
         //Tests the InputAttribute part of the InputDescriptionType
@@ -219,14 +245,14 @@ public class PasswordParserTest {
     public void testSimplestParseOutput(){
         Field field = null;
         try {
-            field = PasswordParserTest.FieldProvider.class.getDeclaredField("simplestOutput");
+            field = RawDataParserTest.FieldProvider.class.getDeclaredField("simplestOutput");
         } catch (NoSuchFieldException ignored) {}
         Assert.assertNotNull("Unable to get the field to parse (field 'simplestOutput' from class FieldProvider).",
                 field);
         OutputDescriptionType outputDescriptionType = null;
         String processId = "processid:"+UUID.randomUUID().toString();
         try {
-            outputDescriptionType = passwordParser.parseOutput(field, null,
+            outputDescriptionType = rawDataParser.parseOutput(field, new String[]{"file1.txt", "file2.txt"},
                     URI.create(processId));
         } catch (MalformedScriptException ignored) {}
         Assert.assertNotNull("Unable to parse the field 'simplestOutput'.", outputDescriptionType);
@@ -238,7 +264,20 @@ public class PasswordParserTest {
         Assert.assertNotNull("The DataDescription from the OutputDescriptionType should no be null",
                 dataDescriptionType);
         Assert.assertTrue("The DataDescriptionType from the InputDescriptionType should be an instance of " +
-                "password.", dataDescriptionType instanceof Password);
+                "RawData.", dataDescriptionType instanceof RawData);
+        RawData rawData = (RawData) dataDescriptionType;
+        Assert.assertArrayEquals("The RawData defaultValues attribute size should be [file1.txt, file2.txt]",
+                new String[]{"file1.txt", "file2.txt"}, rawData.getDefaultValues());
+        Assert.assertArrayEquals("The RawData excludedTypes attribute size should be []",
+                new String[]{}, rawData.getExcludedTypes());
+        Assert.assertArrayEquals("The RawData fileTypes attribute size should be []",
+                new String[]{}, rawData.getFileTypes());
+        Assert.assertTrue("The RawData isDirectory attribute should be true.",
+                rawData.isDirectory());
+        Assert.assertTrue("The RawData isFile attribute should be true.",
+                rawData.isFile());
+        Assert.assertFalse("The RawData multiSelection attribute should be false.",
+                rawData.multiSelection());
 
         //Tests the DescriptionTypeAttribute part of the OutputDescriptionType
         Assert.assertFalse("The OutputDescriptionType title attribute should not be empty",
@@ -262,14 +301,14 @@ public class PasswordParserTest {
     public void testComplexParseOutput(){
         Field field = null;
         try {
-            field = PasswordParserTest.FieldProvider.class.getDeclaredField("complexInput");
+            field = RawDataParserTest.FieldProvider.class.getDeclaredField("complexInput");
         } catch (NoSuchFieldException ignored) {}
         Assert.assertNotNull("Unable to get the field to parse (field 'complexInput' from class FieldProvider).",
                 field);
         OutputDescriptionType outputDescriptionType = null;
         String processId = "processid:"+UUID.randomUUID().toString();
         try {
-            outputDescriptionType = passwordParser.parseOutput(field, null,
+            outputDescriptionType = rawDataParser.parseOutput(field, new String[]{"file1.txt", "file2.txt"},
                     URI.create(processId));
         } catch (MalformedScriptException ignored) {}
         Assert.assertNotNull("Unable to parse the field 'complexInput'.", outputDescriptionType);
@@ -281,7 +320,20 @@ public class PasswordParserTest {
         Assert.assertNotNull("The DataDescription from the OutputDescriptionType should no be null",
                 dataDescriptionType);
         Assert.assertTrue("The DataDescriptionType from the OutputDescriptionType should be an instance of " +
-                "Password.", dataDescriptionType instanceof Password);
+                "RawData.", dataDescriptionType instanceof RawData);
+        RawData rawData = (RawData) dataDescriptionType;
+        Assert.assertArrayEquals("The RawData defaultValues attribute size should be [file1.txt, file2.txt]",
+                new String[]{"file1.txt", "file2.txt"}, rawData.getDefaultValues());
+        Assert.assertArrayEquals("The RawData excludedTypes attribute size should be []",
+                new String[]{".sql", ".shp"}, rawData.getExcludedTypes());
+        Assert.assertArrayEquals("The RawData fileTypes attribute size should be []",
+                new String[]{".dbf", ".txt"}, rawData.getFileTypes());
+        Assert.assertFalse("The RawData isDirectory attribute should be true.",
+                rawData.isDirectory());
+        Assert.assertFalse("The RawData isFile attribute should be true.",
+                rawData.isFile());
+        Assert.assertTrue("The RawData multiSelection attribute should be false.",
+                rawData.multiSelection());
 
         //Tests the DescriptionTypeAttribute part of the OutputDescriptionType
         Assert.assertEquals("The OutputDescriptionType title attribute should have a size of 2", 2,
@@ -335,13 +387,19 @@ public class PasswordParserTest {
      */
     private class FieldProvider{
         /** The simplest input declaration */
-        @PasswordAttribute()
+        @RawDataAttribute()
         @InputAttribute
         @DescriptionTypeAttribute(title = {"title"})
-        private String simplestInput;
+        private String[] simplestInput = {"file1.txt", "file2.txt"};
 
         /** A complex input declaration */
-        @PasswordAttribute()
+        @RawDataAttribute(
+                multiSelection = true,
+                isDirectory = false,
+                isFile = false,
+                excludedTypes = {".sql", ".shp"},
+                fileTypes = {".dbf", ".txt"}
+        )
         @InputAttribute(maxOccurs = 2, minOccurs = 0)
         @DescriptionTypeAttribute(
                 title = {"title", "en", "titre", "fr"},
@@ -350,16 +408,22 @@ public class PasswordParserTest {
                 identifier = "identifier",
                 metadata = {"role","title"}
         )
-        private String complexInput;
+        private String[] complexInput = {"file1.txt", "file2.txt"};
 
         /** The simplest output declaration */
-        @PasswordAttribute()
+        @RawDataAttribute()
         @OutputAttribute
         @DescriptionTypeAttribute(title = {"title"})
-        private String simplestOutput;
+        private String[] simplestOutput = {"file1.txt", "file2.txt"};
 
         /** A complex output declaration */
-        @PasswordAttribute()
+        @RawDataAttribute(
+                multiSelection = true,
+                isDirectory = false,
+                isFile = false,
+                excludedTypes = {".sql", ".shp"},
+                fileTypes = {".dbf", ".txt"}
+        )
         @OutputAttribute
         @DescriptionTypeAttribute(
                 title = {"title", "en", "titre", "fr"},
@@ -368,6 +432,6 @@ public class PasswordParserTest {
                 identifier = "identifier",
                 metadata = {"role","title"}
         )
-        private String complexOutput;
+        private String[] complexOutput = {"file1.txt", "file2.txt"};
     }
 }

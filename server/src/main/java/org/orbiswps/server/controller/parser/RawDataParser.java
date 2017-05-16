@@ -13,7 +13,6 @@
  * 
  * OrbisGIS is distributed under GPL 3 license.
  *
- * Copyright (C) 2007-2014 CNRS (IRSTV FR CNRS 2488)
  * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
  *
  * This file is part of OrbisGIS.
@@ -93,6 +92,9 @@ public class RawDataParser implements Parser {
         //Instantiate the RawData
         Format format = FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION);
         RawData rawData = ObjectAnnotationConverter.annotationToObject(f.getAnnotation(RawDataAttribute.class), format);
+        if(defaultValue != null && defaultValue instanceof String[]) {
+            rawData.setDefaultValues((String[])defaultValue);
+        }
 
         OutputDescriptionType output = new OutputDescriptionType();
         JAXBElement<RawData> jaxbElement = new ObjectFactory().createRawData(rawData);

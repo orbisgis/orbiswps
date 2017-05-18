@@ -123,7 +123,6 @@ public class ParserController {
         ProcessOffering processOffering;
         try {
             processOffering = processParser.parseProcess(clazz.getDeclaredMethod("processing"), processFile.toURI());
-            link(processOffering.getProcess());
         } catch (NoSuchMethodException e) {
             return null;
         }
@@ -214,6 +213,8 @@ public class ParserController {
         process.getOutput().addAll(outputList);
         process.getInput().clear();
         process.getInput().addAll(inputList);
+
+        link(processOffering.getProcess());
 
         return processOffering;
     }

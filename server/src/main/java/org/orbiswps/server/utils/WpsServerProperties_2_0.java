@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -60,11 +59,11 @@ import java.util.Properties;
  *
  * @author Sylvain PALOMINOS
  */
-public class WpsServerProperties {
+public class WpsServerProperties_2_0 {
 
     /** CoreWorkspace of OrbisGIS */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WpsServerProperties.class);
-    private static final I18n I18N = I18nFactory.getI18n(WpsServerProperties.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WpsServerProperties_2_0.class);
+    private static final I18n I18N = I18nFactory.getI18n(WpsServerProperties_2_0.class);
     private static final String SERVER_PROPERTIES = "wpsServer.properties";
     private static final String BASIC_SERVER_PROPERTIES = "basicWpsServer.properties";
 
@@ -76,10 +75,10 @@ public class WpsServerProperties {
     public CustomProperties CUSTOM_PROPERTIES;
 
     /**
-     * Creates a WpsServerProperties object which contains all the properties used in a WpsServer.
+     * Creates a WpsServerProperties_2_0 object which contains all the properties used in a WpsServer.
      * @param propertyFileLocation Location of the properties file. If null, it uses the default properties file.
      */
-    public WpsServerProperties(String propertyFileLocation){
+    public WpsServerProperties_2_0(String propertyFileLocation){
         Properties wpsProperties = null;
         if(propertyFileLocation != null) {
             //Load the property file

@@ -89,8 +89,8 @@ public interface WPS_2_0_Operations {
      *                identify the process that shall be executed, the data inputs and outputs, and the response type
      *                of the service.
      * @return Depending on the desired execution mode and the response type declared in the execute request,
-     * the execute response may take one of three different forms:
-     * A response document, a StatusInfo document, or raw data.
+     *         the execute response may take one of three different forms:
+     *         A response document, a StatusInfo document, or raw data.
      */
     Object execute(ExecuteRequestType execute);
 

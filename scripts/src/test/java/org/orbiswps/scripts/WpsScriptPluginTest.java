@@ -215,12 +215,6 @@ public class WpsScriptPluginTest {
         @Override public void setExecutorService(ExecutorService executorService) {}
         @Override public void addGroovyProperties(Map<String, Object> propertiesMap) {}
         @Override public void removeGroovyProperties(Map<String, Object> propertiesMap) {}
-        @Override public Object getCapabilities(GetCapabilitiesType getCapabilities) {return null;}
-        @Override public ProcessOfferings describeProcess(DescribeProcess describeProcess) {return null;}
-        @Override public Object execute(ExecuteRequestType execute) {return null;}
-        @Override public StatusInfo getStatus(GetStatus getStatus) {return null;}
-        @Override public Result getResult(GetResult getResult) {return null;}
-        @Override public StatusInfo dismiss(Dismiss dismiss) {return null;}
         @Override public OutputStream callOperation(InputStream xml) {return null;}
         @Override public void cancelProcess(UUID jobId) {}
         @Override public Database getDatabase() {return null;}

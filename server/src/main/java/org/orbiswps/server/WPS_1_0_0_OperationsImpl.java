@@ -240,7 +240,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
         wpsCapabilitiesType.setUpdateSequence(wpsProp.GLOBAL_PROPERTIES.SERVER_VERSION);
 
-        return null;
+        return wpsCapabilitiesType;
     }
 
     @Override

@@ -54,7 +54,9 @@ public class JaxbContainer {
     public static final JAXBContext JAXBCONTEXT;
     static {
         try {
-            JAXBCONTEXT = JAXBContext.newInstance(net.opengis.wps._2_0.ObjectFactory.class,
+            JAXBCONTEXT = JAXBContext.newInstance(
+                    net.opengis.wps._1_0_0.ObjectFactory.class,
+                    net.opengis.wps._2_0.ObjectFactory.class,
                     net.opengis.wms.ObjectFactory.class,
                     net.opengis.ows._2.ObjectFactory.class,
                     net.opengis.se._2_0.core.ObjectFactory.class,

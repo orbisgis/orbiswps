@@ -40,23 +40,7 @@
 package org.orbiswps.server;
 
 import net.opengis.ows._1.*;
-import net.opengis.ows._1.CodeType;
-import net.opengis.ows._1.ExceptionReport;
-import net.opengis.ows._1.ExceptionType;
-import net.opengis.ows._1.KeywordsType;
-import net.opengis.ows._1.LanguageStringType;
-import net.opengis.ows._1.MetadataType;
-import net.opengis.ows._1.Operation;
-import net.opengis.ows._1.OperationsMetadata;
-import net.opengis.ows._1.ServiceIdentification;
-import net.opengis.ows._1.ServiceProvider;
-import net.opengis.ows._2.*;
 import net.opengis.wps._1_0_0.*;
-import net.opengis.wps._1_0_0.DescribeProcess;
-import net.opengis.wps._1_0_0.ProcessDescriptionType;
-import net.opengis.wps._1_0_0.ProcessOfferings;
-import net.opengis.wps._1_0_0.WPSCapabilitiesType;
-import net.opengis.wps._2_0.*;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.controller.utils.Job;
 import org.orbiswps.server.utils.ProcessTranslator;
@@ -253,12 +237,23 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         return null;
     }
 
+    /**
+     * Convert the OWS 2 LanguageStingType to version 1
+     * @param languageStringType2 OWS 2 LanguageStingType
+     * @return OWS 1 LanguageStingType
+     */
     private static LanguageStringType convertLanguageStringType2to1(net.opengis.ows._2.LanguageStringType languageStringType2){
         LanguageStringType languageStringType1 = new LanguageStringType();
         languageStringType1.setValue(languageStringType2.getValue());
         languageStringType1.setLang(languageStringType2.getLang());
         return languageStringType1;
     }
+
+    /**
+     * Convert the OWS 2 LanguageStingType list to version 1 list
+     * @param languageStringType2List OWS 2 LanguageStingType list
+     * @return OWS 1 LanguageStingType list
+     */
     private static List<LanguageStringType> convertLanguageStringTypeList2to1(
             List<net.opengis.ows._2.LanguageStringType> languageStringType2List){
         List<LanguageStringType> languageStringType1List = new ArrayList<>();
@@ -268,6 +263,11 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         return languageStringType1List;
     }
 
+    /**
+     * Convert the OWS 2 CodeType to version 1
+     * @param codeType2 OWS 2 CodeType
+     * @return OWS 1 CodeType
+     */
     private static CodeType convertCodeType2to1(net.opengis.ows._2.CodeType codeType2){
         CodeType codeType1 = new CodeType();
         codeType1.setValue(codeType2.getValue());
@@ -275,6 +275,11 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         return codeType1;
     }
 
+    /**
+     * Convert the OWS 2 MetadataType to version 1
+     * @param metadataType2 OWS 2 MetadataType
+     * @return OWS 1 MetadataType
+     */
     private static MetadataType convertMetadataType2to1(net.opengis.ows._2.MetadataType metadataType2){
         MetadataType metadataType1 = new MetadataType();
         metadataType1.setAbout(metadataType2.getAbout());

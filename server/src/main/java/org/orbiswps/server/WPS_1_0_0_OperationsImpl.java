@@ -66,8 +66,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
     /** Main constructor */
     public WPS_1_0_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_1_0_0 wpsProp){
-        this.wpsServer = wpsServer;
         this.wpsProp = wpsProp;
+        this.wpsServer = wpsServer;
         jobMap = new HashMap<>();
     }
 

@@ -41,14 +41,13 @@ package org.orbiswps.server;
 
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
-import net.opengis.wps._2_0.GetCapabilitiesType;
-import net.opengis.wps._2_0.ObjectFactory;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.controller.process.ProcessManager;
 import org.orbiswps.server.controller.utils.Job;
 import org.orbiswps.server.execution.ProcessWorker;
 import org.orbiswps.server.model.JaxbContainer;
 import org.orbiswps.server.utils.WpsServerListener;
+import org.orbiswps.server.utils.WpsServerProperties_1_0_0;
 import org.orbiswps.server.utils.WpsServerProperties_2_0;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -98,14 +97,14 @@ public class WpsServerImpl implements WpsServer {
     private boolean processRunning = false;
     /** FIFO list of ProcessWorker, it is used to run the processes one by one in the good order. */
     private LinkedList<ProcessWorker> workerFIFO;
-    /** Properties of the wps server */
-    private WpsServerProperties_2_0 wpsProp;
     /** String path to the script folder. */
     private String scriptFolder;
     /** List of OrbisGISWpsServerListener. */
     private List<WpsServerListener> wpsServerListenerList = new ArrayList<>();
     /** Class execution the WPS 2.0 operations. */
     private WPS_2_0_Operations wps20Operations;
+    /** Class execution the WPS 2.0 operations. */
+    private WPS_1_0_0_Operations wps100Operations;
 
 
     /**********************************************/
@@ -122,6 +121,7 @@ public class WpsServerImpl implements WpsServer {
         workerFIFO = new LinkedList<>();
         this.setScriptFolder(System.getProperty("java.io.tmpdir") + File.separator + SCRIPT_CACHE_FOLDER_NAME);
         wps20Operations = new WPS_2_0_OperationsImpl(this, new WpsServerProperties_2_0(null));
+        wps100Operations = new WPS_1_0_0_OperationsImpl(this, new WpsServerProperties_1_0_0(null));
     }
 
     /**
@@ -137,6 +137,7 @@ public class WpsServerImpl implements WpsServer {
         workerFIFO = new LinkedList<>();
         this.setScriptFolder(scriptFolder);
         wps20Operations = new WPS_2_0_OperationsImpl(this, new WpsServerProperties_2_0(null));
+        wps100Operations = new WPS_1_0_0_OperationsImpl(this, new WpsServerProperties_1_0_0(null));
     }
 
     /**
@@ -152,7 +153,8 @@ public class WpsServerImpl implements WpsServer {
     @Override
     public OutputStream callOperation(InputStream xml) {
         Object result = null;
-        ObjectFactory factory = new ObjectFactory();
+        net.opengis.wps._2_0.ObjectFactory factory20 = new net.opengis.wps._2_0.ObjectFactory();
+        net.opengis.wps._1_0_0.ObjectFactory factory100 = new net.opengis.wps._1_0_0.ObjectFactory();
         try {
             Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
             Object o = unmarshaller.unmarshal(xml);
@@ -160,29 +162,44 @@ public class WpsServerImpl implements WpsServer {
                 o = ((JAXBElement) o).getValue();
             }
             //Call the WPS method associated to the unmarshalled object
-            if(o instanceof GetCapabilitiesType){
-                Object answer = wps20Operations.getCapabilities((GetCapabilitiesType)o);
-                if(answer instanceof WPSCapabilitiesType) {
-                    result = factory.createCapabilities((WPSCapabilitiesType)answer);
+            if(o instanceof net.opengis.wps._1_0_0.GetCapabilities){
+                Object answer = wps100Operations.getCapabilities((net.opengis.wps._1_0_0.GetCapabilities)o);
+                if(answer instanceof net.opengis.wps._1_0_0.WPSCapabilitiesType) {
+                    result = factory100.createCapabilities((net.opengis.wps._1_0_0.WPSCapabilitiesType)answer);
                 }
                 else{
                     result = answer;
                 }
             }
-            else if(o instanceof DescribeProcess){
-                result = wps20Operations.describeProcess((DescribeProcess)o);
+            else if(o instanceof net.opengis.wps._2_0.GetCapabilitiesType){
+                Object answer = wps20Operations.getCapabilities((net.opengis.wps._2_0.GetCapabilitiesType)o);
+                if(answer instanceof net.opengis.wps._2_0.WPSCapabilitiesType) {
+                    result = factory20.createCapabilities((net.opengis.wps._2_0.WPSCapabilitiesType)answer);
+                }
+                else{
+                    result = answer;
+                }
             }
-            else if(o instanceof ExecuteRequestType){
-                result = wps20Operations.execute((ExecuteRequestType)o);
+            else if(o instanceof net.opengis.wps._1_0_0.DescribeProcess){
+                result = wps100Operations.describeProcess((net.opengis.wps._1_0_0.DescribeProcess)o);
             }
-            else if(o instanceof GetStatus){
-                result = wps20Operations.getStatus((GetStatus)o);
+            else if(o instanceof net.opengis.wps._2_0.DescribeProcess){
+                result = wps20Operations.describeProcess((net.opengis.wps._2_0.DescribeProcess)o);
             }
-            else if(o instanceof GetResult){
-                result = wps20Operations.getResult((GetResult)o);
+            else if(o instanceof net.opengis.wps._1_0_0.Execute){
+                result = wps100Operations.execute((net.opengis.wps._1_0_0.Execute)o);
             }
-            else if(o instanceof Dismiss){
-                result = wps20Operations.dismiss((Dismiss)o);
+            else if(o instanceof net.opengis.wps._2_0.ExecuteRequestType){
+                result = wps20Operations.execute((net.opengis.wps._2_0.ExecuteRequestType)o);
+            }
+            else if(o instanceof net.opengis.wps._2_0.GetStatus){
+                result = wps20Operations.getStatus((net.opengis.wps._2_0.GetStatus)o);
+            }
+            else if(o instanceof net.opengis.wps._2_0.GetResult){
+                result = wps20Operations.getResult((net.opengis.wps._2_0.GetResult)o);
+            }
+            else if(o instanceof net.opengis.wps._2_0.Dismiss){
+                result = wps20Operations.dismiss((net.opengis.wps._2_0.Dismiss)o);
             }
         } catch (JAXBException e) {
             LOGGER.error(I18N.tr("Unable to parse the incoming xml.\nCause : {0}.", e.getMessage()));

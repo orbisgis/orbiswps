@@ -255,13 +255,8 @@ public class WpsServerImpl implements WpsServer {
      * Returns the list of processes managed by the wpsService.
      * @return The list of processes managed by the wpsService.
      */
-    protected List<ProcessDescriptionType> getProcessList(){
-        List<ProcessDescriptionType> processList = new ArrayList<>();
-        List<ProcessIdentifier> piList = processManager.getAllProcessIdentifier();
-        for(ProcessIdentifier pi : piList){
-            processList.add(pi.getProcessDescriptionType());
-        }
-        return processList;
+    protected List<ProcessIdentifier> getProcessList(){
+        return processManager.getAllProcessIdentifier();
     }
 
     @Override

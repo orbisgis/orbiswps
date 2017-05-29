@@ -68,12 +68,12 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
     private WpsServerImpl wpsServer;
 
     /** WPS 2.0 properties of the server */
-    private WpsServerProperties_2_0 wpsProp;
+    private static WpsServerProperties_2_0 wpsProp;
 
     /** Main constructor */
     public WPS_2_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_2_0 wpsProp){
         this.wpsServer = wpsServer;
-        this.wpsProp = wpsProp;
+        WPS_2_0_OperationsImpl.wpsProp = wpsProp;
         jobMap = new HashMap<>();
     }
 
@@ -244,8 +244,9 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         if(requestedSections.contains(SectionName.All) || requestedSections.contains(SectionName.Contents)) {
             Contents contents = new Contents();
             List<ProcessSummaryType> processSummaryTypeList = new ArrayList<>();
-            List<ProcessDescriptionType> processList = wpsServer.getProcessList();
-            for (ProcessDescriptionType process : processList) {
+            List<ProcessIdentifier> processIdList = wpsServer.getProcessList();
+            for (ProcessIdentifier pId : processIdList) {
+                ProcessDescriptionType process = pId.getProcessDescriptionType();
                 ProcessDescriptionType translatedProcess = ProcessTranslator.getTranslatedProcess(
                         process, requestLanguage, wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
                 ProcessSummaryType processSummaryType = new ProcessSummaryType();
@@ -260,6 +261,8 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
                 processSummaryType.getTitle().addAll(translatedProcess.getTitle());
                 processSummaryType.getKeywords().clear();
                 processSummaryType.getKeywords().addAll(translatedProcess.getKeywords());
+                processSummaryType.setProcessVersion(pId.getProcessOffering().getProcessVersion());
+                processSummaryType.setProcessModel(pId.getProcessOffering().getProcessModel());
 
                 processSummaryTypeList.add(processSummaryType);
             }

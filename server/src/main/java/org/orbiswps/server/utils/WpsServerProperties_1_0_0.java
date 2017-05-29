@@ -463,6 +463,9 @@ public class WpsServerProperties_1_0_0 {
 
         public final long BASE_PROCESS_POLLING_DELAY;
         public final long MAX_PROCESS_POLLING_DELAY;
+        public final boolean IS_STATUS_SUPPORTED;
+        public final boolean IS_STORE_SUPPORTED;
+        public final String MAXIMUM_MEGABYTES;
 
         /**
          * Properties which are not defined in the WPS standard.
@@ -472,6 +475,9 @@ public class WpsServerProperties_1_0_0 {
             destroyDelay = properties.getProperty("DESTROY_DURATION");
             BASE_PROCESS_POLLING_DELAY = Long.decode(properties.getProperty("BASE_PROCESS_POLLING_DELAY"));
             MAX_PROCESS_POLLING_DELAY = Long.decode(properties.getProperty("MAX_PROCESS_POLLING_DELAY"));
+            IS_STATUS_SUPPORTED = Boolean.valueOf(properties.getProperty("IS_STATUS_SUPPORTED"));
+            IS_STORE_SUPPORTED = Boolean.valueOf(properties.getProperty("MAX_PROCESS_POLLING_DELAY"));
+            MAXIMUM_MEGABYTES = properties.getProperty("MAXIMUM_MEGABYTES");
         }
 
         /**

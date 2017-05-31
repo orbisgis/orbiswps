@@ -71,6 +71,8 @@ public class JDBCTableParser implements Parser{
         //Instantiate the JDBCTable and its formats
         JDBCTableAttribute jdbcTableAttribute = f.getAnnotation(JDBCTableAttribute.class);
         List<Format> formatList = new ArrayList<>();
+        formatList.add(FormatFactory.getFormatFromExtension(FormatFactory.GEOJSON_EXTENSION));
+        formatList.add(FormatFactory.getFormatFromExtension(FormatFactory.GML_EXTENSION));
         formatList.add(FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION));
         formatList.get(0).setDefault(true);
 

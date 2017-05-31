@@ -341,10 +341,16 @@ public class TestWPS_1_0_0_OperationsImpl {
                 dataInputs.getInput().get(0).getComplexData().isSetDefault());
         Assert.assertTrue("The ProcessDescriptions Input 0 Default Format should be set",
                 dataInputs.getInput().get(0).getComplexData().getDefault().isSetFormat());
-        Assert.assertEquals("The ProcessDescriptions Input 0 Default Format should be 'text/plain'",
-                "text/plain", dataInputs.getInput().get(0).getComplexData().getDefault().getFormat().getMimeType());
-        Assert.assertFalse("The ProcessDescriptions Input 0 Supported Format should not be set",
+        Assert.assertEquals("The ProcessDescriptions Input 0 Default Format should be 'application/geojson'",
+                "application/geojson", dataInputs.getInput().get(0).getComplexData().getDefault().getFormat().getMimeType());
+        Assert.assertTrue("The ProcessDescriptions Input 0 Supported Format should be set",
                 dataInputs.getInput().get(0).getComplexData().getSupported().isSetFormat());
+        Assert.assertEquals("The ProcessDescriptions Input 0 Supported Format 1 should be 'application/geojson'",
+                "application/geojson", dataInputs.getInput().get(0).getComplexData().getSupported().getFormat().get(0).getMimeType());
+        Assert.assertEquals("The ProcessDescriptions Input 0 Supported Format 0 should be 'text/xml'",
+                "text/xml", dataInputs.getInput().get(0).getComplexData().getSupported().getFormat().get(1).getMimeType());
+        Assert.assertEquals("The ProcessDescriptions Input 0 Supported Format 1 should be 'text/plain'",
+                "text/plain", dataInputs.getInput().get(0).getComplexData().getSupported().getFormat().get(2).getMimeType());
         Assert.assertFalse("The ProcessDescriptions Input 0 should not be a LiteralData",
                 dataInputs.getInput().get(0).isSetLiteralData());
         Assert.assertTrue("The ProcessDescriptions Input 0 maxOccurs should be set",
@@ -390,7 +396,7 @@ public class TestWPS_1_0_0_OperationsImpl {
                 processOutputs.getOutput().get(0).getComplexOutput().getDefault().isSetFormat());
         Assert.assertEquals("The ProcessDescriptions ProcessOutputs 0 Default Format should be 'text/plain'",
                 "text/plain", processOutputs.getOutput().get(0).getComplexOutput().getDefault().getFormat().getMimeType());
-        Assert.assertFalse("The ProcessDescriptions ProcessOutputs 0 Supported Format should not be set",
+        Assert.assertTrue("The ProcessDescriptions ProcessOutputs 0 Supported Format should be set",
                 processOutputs.getOutput().get(0).getComplexOutput().getSupported().isSetFormat());
         Assert.assertFalse("The ProcessDescriptions ProcessOutputs 0 should not be a LiteralData",
                 processOutputs.getOutput().get(0).isSetLiteralOutput());

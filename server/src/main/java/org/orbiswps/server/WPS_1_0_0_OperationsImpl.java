@@ -48,10 +48,13 @@ import net.opengis.wps._1_0_0.ProcessDescriptionType;
 import net.opengis.wps._1_0_0.ProcessOfferings;
 import net.opengis.wps._1_0_0.WPSCapabilitiesType;
 import net.opengis.wps._2_0.*;
+import net.opengis.wps._2_0.BoundingBoxData;
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.LiteralDataType;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.controller.utils.Job;
+import org.orbiswps.server.model.*;
+import org.orbiswps.server.model.Enumeration;
 import org.orbiswps.server.utils.ProcessTranslator;
 import org.orbiswps.server.utils.WpsServerProperties_1_0_0;
 
@@ -83,7 +86,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
     @Override
     public Object getCapabilities(GetCapabilities getCapabilities) {
-        /** First check the getCapabilities for exceptions **/
+        // First check the getCapabilities for exceptions
         ExceptionReport exceptionReport = new ExceptionReport();
         if(getCapabilities == null){
             ExceptionType exceptionType = new ExceptionType();
@@ -384,17 +387,31 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             net.opengis.wps._2_0.InputDescriptionType inputDescriptionType2,
             String defaultLanguage, String requestedLanguage){
         InputDescriptionType inputDescriptionType1 = new InputDescriptionType();
-        if(inputDescriptionType2.getDataDescription().getValue() instanceof LiteralDataType){
-            LiteralDataType literalDataType = (LiteralDataType) inputDescriptionType2.getDataDescription().getValue();
+        DataDescriptionType dataDescriptionType = inputDescriptionType2.getDataDescription().getValue();
+        if(dataDescriptionType instanceof LiteralDataType){
+            LiteralDataType literalDataType = (LiteralDataType) dataDescriptionType;
             inputDescriptionType1.setLiteralData(convertLiteralDataTypeToLiteralInputType(literalDataType));
         }
-        else if(inputDescriptionType2.getDataDescription().getValue() instanceof BoundingBoxData){
-            BoundingBoxData bBox = (BoundingBoxData)inputDescriptionType2.getDataDescription().getValue();
-            inputDescriptionType1.setBoundingBoxData(convertBoundingBoxDataToSupportedCRSsType(bBox));
+        else if(dataDescriptionType instanceof BoundingBoxData){
+            BoundingBoxData bBox = (BoundingBoxData)dataDescriptionType;
+            inputDescriptionType1.setBoundingBoxData(convertComplexDataTypeToSupportedCrssType(bBox));
         }
-        else if(inputDescriptionType2.getDataDescription().getValue() instanceof ComplexDataType){
-            ComplexDataType complexData = (ComplexDataType) inputDescriptionType2.getDataDescription().getValue();
-            inputDescriptionType1.setComplexData(convertBoundingBoxDataToSupportedCRSsType(complexData));
+        else if(dataDescriptionType instanceof JDBCTable){
+            ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
+            inputDescriptionType1.setComplexData(convertComplexDataTypeToSupportedComplexDataInputType(complexData));
+        }
+        else if(dataDescriptionType instanceof Enumeration ||
+                dataDescriptionType instanceof GeometryData ||
+                dataDescriptionType instanceof JDBCColumn ||
+                dataDescriptionType instanceof JDBCValue ||
+                dataDescriptionType instanceof Password ||
+                dataDescriptionType instanceof RawData){
+            ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
+            inputDescriptionType1.setLiteralData(convertComplexDataTypeToLiteralData(complexData));
+        }
+        else {
+            ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
+            inputDescriptionType1.setComplexData(convertComplexDataTypeToSupportedComplexDataInputType(complexData));
         }
         inputDescriptionType1.setMaxOccurs(BigInteger.valueOf(Long.decode(inputDescriptionType2.getMaxOccurs())));
         inputDescriptionType1.setMinOccurs(inputDescriptionType2.getMinOccurs());
@@ -453,25 +470,44 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
     private static LiteralInputType convertLiteralDataTypeToLiteralInputType(LiteralDataType literalDataType){
         LiteralInputType literalInputType = new LiteralInputType();
         LiteralDataType.LiteralDataDomain domain = literalDataType.getLiteralDataDomain().get(0);
-        if(domain.getAllowedValues() != null) {
-            literalInputType.setAllowedValues(convertAllowedValues2to1(domain.getAllowedValues()));
+        //Particular case of boolean
+        if(domain.getDataType().getValue().equalsIgnoreCase("boolean")) {
+            AllowedValues allowedValues = new AllowedValues();
+            ValueType valueTrue = new ValueType();
+            valueTrue.setValue("true");
+            ValueType valueFalse = new ValueType();
+            valueFalse.setValue("false");
+            allowedValues.getValueOrRange().add(valueTrue);
+            allowedValues.getValueOrRange().add(valueFalse);
+            literalInputType.setAllowedValues(allowedValues);
+            DomainMetadataType domainMetadataType = new DomainMetadataType();
+            domainMetadataType.setValue("string");
+            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            literalInputType.setDataType(domainMetadataType);
+            return literalInputType;
         }
-        if(domain.getAnyValue() != null) {
-            literalInputType.setAnyValue(convertAnyValue2to1(domain.getAnyValue()));
+        //General case
+        else {
+            if (domain.getAllowedValues() != null) {
+                literalInputType.setAllowedValues(convertAllowedValues2to1(domain.getAllowedValues()));
+            }
+            if (domain.getAnyValue() != null) {
+                literalInputType.setAnyValue(convertAnyValue2to1(domain.getAnyValue()));
+            }
+            if (domain.getDefaultValue() != null && domain.getDefaultValue().getValue() != null) {
+                literalInputType.setDefaultValue(domain.getDefaultValue().getValue());
+            }
+            if (domain.getValuesReference() != null) {
+                literalInputType.setValuesReference(convertValuesReference2to1(domain.getValuesReference()));
+            }
+            if (domain.getDataType() != null) {
+                literalInputType.setDataType(convertDomainMetadataType2to1(domain.getDataType()));
+            }
+            if (domain.getUOM() != null) {
+                literalInputType.setUOMs(convertUOM2to1(domain.getUOM()));
+            }
+            return literalInputType;
         }
-        if(domain.getDefaultValue() != null && domain.getDefaultValue().getValue() != null) {
-            literalInputType.setDefaultValue(domain.getDefaultValue().getValue());
-        }
-        if(domain.getValuesReference() != null) {
-            literalInputType.setValuesReference(convertValuesReference2to1(domain.getValuesReference()));
-        }
-        if(domain.getDataType() != null) {
-            literalInputType.setDataType(convertDomainMetadataType2to1(domain.getDataType()));
-        }
-        if(domain.getUOM() != null) {
-            literalInputType.setUOMs(convertUOM2to1(domain.getUOM()));
-        }
-        return literalInputType;
     }
 
     /**
@@ -513,8 +549,10 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
      */
     private static DomainMetadataType convertDomainMetadataType2to1(net.opengis.ows._2.DomainMetadataType domainMetadataType2){
         DomainMetadataType domainMetadataType1 = new DomainMetadataType();
-        domainMetadataType1.setReference(domainMetadataType2.getReference());
-        domainMetadataType1.setValue(domainMetadataType2.getValue());
+        domainMetadataType1.setReference(domainMetadataType2.getReference().replace(
+                "http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#",
+                "https://www.w3.org/TR/xmlschema-2/#"));
+        domainMetadataType1.setValue(domainMetadataType2.getValue().toLowerCase());
         return domainMetadataType1;
     }
 
@@ -539,7 +577,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
      * @param boundingBoxData WPS 2.0 BoundingBoxData
      * @return WPS 1.0.0 SupportedCRSsType
      */
-    private static SupportedCRSsType convertBoundingBoxDataToSupportedCRSsType(BoundingBoxData boundingBoxData){
+    private static SupportedCRSsType convertComplexDataTypeToSupportedCrssType(BoundingBoxData boundingBoxData){
         SupportedCRSsType supportedCRSsType = new SupportedCRSsType();
         CRSsType crSsType = new CRSsType();
         for(SupportedCRS supportedCRS : boundingBoxData.getSupportedCRS()){
@@ -561,12 +599,12 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
      * @param complexData WPS 2.0 ComplexDataType
      * @return WPS 1.0.0 SupportedComplexDataInputType
      */
-    private static SupportedComplexDataInputType convertBoundingBoxDataToSupportedCRSsType(ComplexDataType complexData){
+    private static SupportedComplexDataInputType convertComplexDataTypeToSupportedComplexDataInputType(ComplexDataType complexData){
         SupportedComplexDataInputType complexDataInput = new SupportedComplexDataInputType();
         complexDataInput.setMaximumMegabytes(new BigInteger(wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES));
         ComplexDataCombinationsType combinations = new ComplexDataCombinationsType();
         for(Format format : complexData.getFormat()) {
-            if(format.isDefault()) {
+            if(format.isSetDefault() && format.isDefault()) {
                 ComplexDataCombinationType combination = new ComplexDataCombinationType();
                 ComplexDataDescriptionType descriptionType = new ComplexDataDescriptionType();
                 descriptionType.setEncoding(format.getEncoding());
@@ -574,6 +612,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 descriptionType.setSchema(format.getSchema());
                 combination.setFormat(descriptionType);
                 complexDataInput.setDefault(combination);
+                combinations.getFormat().add(descriptionType);
             }
             else {
                 ComplexDataDescriptionType descriptionType = new ComplexDataDescriptionType();
@@ -588,6 +627,95 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
     }
 
     /**
+     * Convert the WPS 2.0 ComplexDataType to version 1.0.0 Object. The object can be a complex daa or a literal data.
+     * @param complexData WPS 2.0 ComplexDataType
+     * @return WPS 1.0.0 object, complex or literal data.
+     */
+    private static LiteralInputType convertComplexDataTypeToLiteralData(ComplexDataType complexData){
+        if(complexData instanceof Enumeration){
+            Enumeration enumeration = (Enumeration)complexData;
+            LiteralInputType literalInputType = new LiteralInputType();
+            AllowedValues allowedValues = new AllowedValues();
+            for(String value : enumeration.getValues()) {
+                ValueType valueType = new ValueType();
+                valueType.setValue(value);
+                allowedValues.getValueOrRange().add(valueType);
+            }
+            literalInputType.setAllowedValues(allowedValues);
+            if(enumeration.getDefaultValues() != null && enumeration.getDefaultValues().length != 0) {
+                literalInputType.setDefaultValue(enumeration.getDefaultValues()[0]);
+            }
+            DomainMetadataType domainMetadataType = new DomainMetadataType();
+            domainMetadataType.setValue("string");
+            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            literalInputType.setDataType(domainMetadataType);
+            return literalInputType;
+        }
+        else if(complexData instanceof GeometryData){
+            GeometryData geometryData = (GeometryData)complexData;
+            LiteralInputType literalInputType = new LiteralInputType();
+            literalInputType.setAnyValue(new AnyValue());
+            if(geometryData.getDefaultValue() != null) {
+                literalInputType.setDefaultValue(geometryData.getDefaultValue());
+            }
+            DomainMetadataType domainMetadataType = new DomainMetadataType();
+            domainMetadataType.setValue("string");
+            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            literalInputType.setDataType(domainMetadataType);
+            return literalInputType;
+        }
+        else if(complexData instanceof JDBCColumn){
+            JDBCColumn jdbcColumn = (JDBCColumn)complexData;
+            LiteralInputType literalInputType = new LiteralInputType();
+            literalInputType.setAnyValue(new AnyValue());
+            if(jdbcColumn.getDefaultValues() != null && jdbcColumn.getDefaultValues().length != 0) {
+                literalInputType.setDefaultValue(jdbcColumn.getDefaultValues()[0]);
+            }
+            DomainMetadataType domainMetadataType = new DomainMetadataType();
+            domainMetadataType.setValue("string");
+            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            literalInputType.setDataType(domainMetadataType);
+            return literalInputType;
+        }
+        else if(complexData instanceof JDBCValue){
+            JDBCValue jdbcValue = (JDBCValue)complexData;
+            LiteralInputType literalInputType = new LiteralInputType();
+            literalInputType.setAnyValue(new AnyValue());
+            if(jdbcValue.getDefaultValues() != null && jdbcValue.getDefaultValues().length != 0) {
+                literalInputType.setDefaultValue(jdbcValue.getDefaultValues()[0]);
+            }
+            DomainMetadataType domainMetadataType = new DomainMetadataType();
+            domainMetadataType.setValue("string");
+            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            literalInputType.setDataType(domainMetadataType);
+            return literalInputType;
+        }
+        else if(complexData instanceof Password){
+            LiteralInputType literalInputType = new LiteralInputType();
+            literalInputType.setAnyValue(new AnyValue());
+            DomainMetadataType domainMetadataType = new DomainMetadataType();
+            domainMetadataType.setValue("string");
+            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            literalInputType.setDataType(domainMetadataType);
+            return literalInputType;
+        }
+        else if(complexData instanceof RawData){
+            RawData rawData = (RawData)complexData;
+            LiteralInputType literalInputType = new LiteralInputType();
+            literalInputType.setAnyValue(new AnyValue());
+            if(rawData.getDefaultValues() != null && rawData.getDefaultValues().length != 0) {
+                literalInputType.setDefaultValue(rawData.getDefaultValues()[0]);
+            }
+            DomainMetadataType domainMetadataType = new DomainMetadataType();
+            domainMetadataType.setValue("string");
+            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            literalInputType.setDataType(domainMetadataType);
+            return literalInputType;
+        }
+        return null;
+    }
+
+    /**
      * Convert the WPS 2.0 OutputDescriptionType list to version 1.0.0 ProcessOutputs
      * @param outputDescriptionTypeList WPS 2.0 OutputDescriptionType list
      * @return WPS 1.0.0 ProcessOutputs
@@ -598,17 +726,18 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         ProcessDescriptionType.ProcessOutputs processOutputs = new ProcessDescriptionType.ProcessOutputs();
         for(net.opengis.wps._2_0.OutputDescriptionType outputDescriptionType : outputDescriptionTypeList) {
             OutputDescriptionType descriptionType = new OutputDescriptionType();
-            if(outputDescriptionType.getDataDescription().getValue() instanceof LiteralDataType){
+            DataDescriptionType dataDescriptionType = outputDescriptionType.getDataDescription().getValue();
+            if(dataDescriptionType instanceof LiteralDataType){
                 LiteralDataType literalDataType = (LiteralDataType) outputDescriptionType.getDataDescription().getValue();
                 descriptionType.setLiteralOutput(convertLiteralDataTypeToLiteralInputType(literalDataType));
             }
-            else if(outputDescriptionType.getDataDescription().getValue() instanceof BoundingBoxData){
+            else if(dataDescriptionType instanceof BoundingBoxData){
                 BoundingBoxData bBox = (BoundingBoxData)outputDescriptionType.getDataDescription().getValue();
-                descriptionType.setBoundingBoxOutput(convertBoundingBoxDataToSupportedCRSsType(bBox));
+                descriptionType.setBoundingBoxOutput(convertComplexDataTypeToSupportedCrssType(bBox));
             }
-            else if(outputDescriptionType.getDataDescription().getValue() instanceof ComplexDataType){
+            else if(dataDescriptionType instanceof ComplexDataType){
                 ComplexDataType complexData = (ComplexDataType) outputDescriptionType.getDataDescription().getValue();
-                descriptionType.setComplexOutput(convertBoundingBoxDataToSupportedCRSsType(complexData));
+                descriptionType.setComplexOutput(convertComplexDataTypeToSupportedComplexDataInputType(complexData));
             }
             descriptionType.setIdentifier(convertCodeType2to1(outputDescriptionType.getIdentifier()));
             boolean isLangSet = false;

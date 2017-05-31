@@ -57,12 +57,14 @@ public class FormatFactory {
     public static final String WKT_EXTENSION = "wkt";
     public static final String GEOMETRY_EXTENSION = "geometry";
     public static final String TEXT_EXTENSION = ".txt";
+    public static final String GML_EXTENSION = ".xml";
 
     public static final String SHAPEFILE_MIMETYPE = "application/octet-stream";
-    public static final String GEOJSON_MIMETYPE = "application/json";
+    public static final String GEOJSON_MIMETYPE = "application/geojson";
     public static final String SQL_MIMETYPE = "custom/sql";
     public static final String WKT_MIMETYPE = "custom/wkt";
     public static final String TEXT_MIMETYPE = "text/plain";
+    public static final String GML_MIMETYPE = "text/xml";
 
     public static final String SHAPEFILE_URI = "https://tools.ietf.org/html/rfc2046";
     public static final String GEOJSON_URI = "https://tools.ietf.org/html/rfc4627";
@@ -97,6 +99,10 @@ public class FormatFactory {
             case WKT_EXTENSION:
                 format.setMimeType(WKT_MIMETYPE);
                 format.setSchema(WKT_URI);
+                break;
+            case GML_EXTENSION:
+                format.setMimeType(GML_MIMETYPE);
+                format.setSchema(OTHER_URI);
                 break;
             default:
                 format.setMimeType(TEXT_MIMETYPE);
@@ -149,6 +155,8 @@ public class FormatFactory {
                 return WKT_DESCRIPTION;
             case TEXT_MIMETYPE:
                 return TEXT_EXTENSION;
+            case GML_MIMETYPE:
+                return GML_EXTENSION;
             default:
                 return format.getMimeType();
         }

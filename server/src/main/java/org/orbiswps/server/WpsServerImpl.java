@@ -85,7 +85,6 @@ public class WpsServerImpl implements WpsServer {
 
     /** Process manager which contains all the loaded scripts. */
     private ProcessManager processManager;
-    /** Map containing the WPS Jobs and their UUID */
     /** ExecutorService of OrbisGIS */
     private ExecutorService executorService;
     /** Database connected to the WPS server */

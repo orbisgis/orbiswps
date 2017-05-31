@@ -40,21 +40,6 @@
 package org.orbiswps.server;
 
 import net.opengis.ows._1.*;
-import net.opengis.ows._1.AllowedValues;
-import net.opengis.ows._1.AnyValue;
-import net.opengis.ows._1.CodeType;
-import net.opengis.ows._1.DomainMetadataType;
-import net.opengis.ows._1.ExceptionReport;
-import net.opengis.ows._1.ExceptionType;
-import net.opengis.ows._1.KeywordsType;
-import net.opengis.ows._1.LanguageStringType;
-import net.opengis.ows._1.MetadataType;
-import net.opengis.ows._1.Operation;
-import net.opengis.ows._1.OperationsMetadata;
-import net.opengis.ows._1.ServiceIdentification;
-import net.opengis.ows._1.ServiceProvider;
-import net.opengis.ows._1.ValuesReference;
-import net.opengis.ows._2.*;
 import net.opengis.wps._1_0_0.*;
 import net.opengis.wps._1_0_0.DescribeProcess;
 import net.opengis.wps._1_0_0.InputDescriptionType;
@@ -65,7 +50,6 @@ import net.opengis.wps._1_0_0.WPSCapabilitiesType;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.LiteralDataType;
-import org.codehaus.groovy.reflection.stdclasses.BigIntegerCachedClass;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.controller.utils.Job;
 import org.orbiswps.server.utils.ProcessTranslator;
@@ -139,6 +123,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             //First try to find the first languages requested by the client which is supported by the server
             for (String language2 : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
                 if (language2.equals(requestedLanguage)) {
+                    requestLanguage = language2;
                     languageFound = true;
                     break;
                 }
@@ -146,11 +131,12 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             //If not language was found, try to get one with best-effort semantic
             if(!languageFound){
                 //avoid to test "*" language
-                if(!requestLanguage.equals("*")) {
-                    String baseLanguage = requestLanguage.substring(0, 2);
+                if(!requestedLanguage.equals("*")) {
+                    String baseLanguage = requestedLanguage.substring(0, 2);
                     for (String serverLanguage : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
                         if (serverLanguage.substring(0, 2).equals(baseLanguage)) {
                             languageFound = true;
+                            requestLanguage = baseLanguage;
                             break;
                         }
                     }

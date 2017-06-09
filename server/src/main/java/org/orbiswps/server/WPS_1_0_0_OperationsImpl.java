@@ -460,6 +460,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             else{
                 response.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
             }
+            return response;
         }
         return null;
     }

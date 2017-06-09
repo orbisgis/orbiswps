@@ -275,7 +275,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
     }
 
     @Override
-    public ProcessOfferings describeProcess(DescribeProcess describeProcess) {
+    public Object describeProcess(DescribeProcess describeProcess) {
         //Get the list of the ids of the process to describe
         List<CodeType> idList = describeProcess.getIdentifier();
 
@@ -309,9 +309,20 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
                 processOfferingList.add(po);
             }
         }
-        processOfferings.getProcessOffering().clear();
-        processOfferings.getProcessOffering().addAll(processOfferingList);
-        return processOfferings;
+        if(processOfferingList.isEmpty()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("NoSuchProcess ");
+            exceptionType.getExceptionText().add("One of the identifiers passed does not match with any of the " +
+                    "processes offered by this server.");
+            ExceptionReport exceptionReport = new ExceptionReport();
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+        else {
+            processOfferings.getProcessOffering().clear();
+            processOfferings.getProcessOffering().addAll(processOfferingList);
+            return processOfferings;
+        }
     }
 
     @Override

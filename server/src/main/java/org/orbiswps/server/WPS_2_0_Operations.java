@@ -72,7 +72,7 @@ public interface WPS_2_0_Operations {
      * @return List structure that is returned by the WPS DescribeProcess operation.
      *         Contains XML descriptions for the queried process identifiers.
      */
-    ProcessOfferings describeProcess(DescribeProcess describeProcess);
+    Object describeProcess(DescribeProcess describeProcess);
 
     /**
      * The Execute operation allows WPS clients to run a specified process implemented by a server,

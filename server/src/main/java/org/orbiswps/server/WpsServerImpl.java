@@ -66,6 +66,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * This class is an implementation of a WPS server.
@@ -104,6 +105,7 @@ public class WpsServerImpl implements WpsServer {
     private WPS_2_0_Operations wps20Operations;
     /** Class execution the WPS 2.0 operations. */
     private WPS_1_0_0_Operations wps100Operations;
+    private Map<UUID, Future> workerMap = new HashMap<>();
 
 
     /**********************************************/
@@ -222,6 +224,7 @@ public class WpsServerImpl implements WpsServer {
     @Override
     public void cancelProcess(UUID jobId){
         processManager.cancelProcess(jobId);
+        workerMap.get(jobId).cancel(true);
     }
 
     /*************************/
@@ -354,7 +357,7 @@ public class WpsServerImpl implements WpsServer {
      * Indicates if a process is actually running.
      * @return True if a process is running, false otherwise.
      */
-    protected void executeNewProcessWorker(Job job, ProcessIdentifier processIdentifier, Map<URI, Object> dataMap){
+    protected Future executeNewProcessWorker(Job job, ProcessIdentifier processIdentifier, Map<URI, Object> dataMap){
         ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this);
 
         if(processRunning){
@@ -364,23 +367,38 @@ public class WpsServerImpl implements WpsServer {
             //Run the worker
             processRunning = true;
             if (executorService != null) {
-                executorService.execute(worker);
+                Future future = executorService.submit(worker);
+                workerMap.put(worker.getJobId(), future);
+                return future;
             } else {
                 worker.run();
             }
         }
+        return null;
     }
 
     /**
      * Action done when a ProcessWorker has finished.
      */
     public void onProcessWorkerFinished(){
+        //clear the workerMap
+        List<UUID> toRemove = new ArrayList<>();
+        for(Map.Entry<UUID, Future> entry : workerMap.entrySet()){
+            if(entry.getValue().isDone()){
+                toRemove.add(entry.getKey());
+            }
+        }
+        for(UUID uuid : toRemove){
+            workerMap.remove(uuid);
+        }
         processRunning = false;
         //If other process are waiting, run them
         if(!processRunning && workerFIFO.size()>0){
             processRunning = true;
             if (executorService != null) {
-                executorService.execute(workerFIFO.pollFirst());
+                ProcessWorker processWorker = workerFIFO.pollFirst();
+                Future future = executorService.submit(processWorker);
+                workerMap.put(processWorker.getJobId(), future);
             } else {
                 workerFIFO.pollFirst().run();
             }

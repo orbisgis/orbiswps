@@ -83,7 +83,7 @@ public interface WPS_1_0_0_Operations {
      * being wrapped in an XML reponse document.
      *
      * @param execute The Execute request is a common structure for execution.
-     * @return  A response document.
+     * @return  A response object.
      */
-    ExecuteResponse execute(Execute execute);
+    Object execute(Execute execute);
 }

@@ -41,20 +41,20 @@ package org.orbiswps.server.execution;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import org.orbiswps.server.WpsServerImpl;
-import org.orbiswps.server.controller.utils.Job;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.controller.process.ProcessManager;
+import org.orbiswps.server.controller.utils.Job;
 import org.orbiswps.server.utils.ProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
-import java.beans.EventHandler;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Class extending the SwingWorkerPM class dedicated to the WPS process execution.
@@ -156,5 +156,9 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
         if(propertyChangeEvent.getPropertyName().equals(ProgressMonitor.PROPERTY_CANCEL)){
             processManager.cancelProcess(job.getId());
         }
+    }
+
+    public UUID getJobId(){
+        return job.getId();
     }
 }

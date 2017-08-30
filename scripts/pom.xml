@@ -91,12 +91,6 @@
             <version>${h2gis-version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.orbisgis</groupId>
-            <artifactId>h2gis-functions</artifactId>
-            <version>${h2gis-version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
 </project>

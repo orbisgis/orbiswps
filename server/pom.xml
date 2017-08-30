@@ -144,6 +144,7 @@
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts-core</artifactId>
             <version>${jts-core-version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.googlecode.gettext-commons</groupId>

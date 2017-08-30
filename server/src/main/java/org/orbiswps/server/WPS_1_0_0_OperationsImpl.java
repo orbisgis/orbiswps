@@ -41,25 +41,35 @@ package org.orbiswps.server;
 
 import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
+import net.opengis.wps._1_0_0.DataType;
 import net.opengis.wps._1_0_0.DescribeProcess;
 import net.opengis.wps._1_0_0.InputDescriptionType;
+import net.opengis.wps._1_0_0.LiteralDataType;
 import net.opengis.wps._1_0_0.OutputDescriptionType;
 import net.opengis.wps._1_0_0.ProcessDescriptionType;
 import net.opengis.wps._1_0_0.ProcessOfferings;
 import net.opengis.wps._1_0_0.WPSCapabilitiesType;
-import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.BoundingBoxData;
 import net.opengis.wps._2_0.ComplexDataType;
-import net.opengis.wps._2_0.LiteralDataType;
+import net.opengis.wps._2_0.*;
 import org.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbiswps.server.controller.utils.Job;
-import org.orbiswps.server.model.*;
 import org.orbiswps.server.model.Enumeration;
+import org.orbiswps.server.model.*;
 import org.orbiswps.server.utils.ProcessTranslator;
 import org.orbiswps.server.utils.WpsServerProperties_1_0_0;
+import org.orbiswps.server.utils.WpsServerUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigInteger;
+import java.net.URI;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Implementations of the WPS 1.0.0 operations.
@@ -76,6 +86,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
     /** WPS 2.0 properties of the server */
     private static WpsServerProperties_1_0_0 wpsProp;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_1_0_0_OperationsImpl.class);
 
     /** Main constructor */
     public WPS_1_0_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_1_0_0 wpsProp){
@@ -289,7 +301,167 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
     }
 
     @Override
-    public ExecuteResponse execute(Execute execute) {
+    public Object execute(Execute execute) {
+        //Generate the DataMap
+        Map<URI, Object> dataMap = new HashMap<>();
+        for(InputType input : execute.getDataInputs().getInput()){
+            URI id = URI.create(input.getIdentifier().getValue());
+            Object data = null;
+            if(input.getData().isSetBoundingBoxData()){
+                data = input.getData().getBoundingBoxData();
+            }
+            else if(input.getData().isSetComplexData()){
+                data = input.getData().getComplexData();
+            }
+            else if(input.getData().isSetLiteralData()){
+                data = input.getData().getLiteralData().getValue();
+            }
+            dataMap.put(id, data);
+        }
+        //Generation of the Job unique ID
+        UUID jobId = UUID.randomUUID();
+        //Get the Process
+        net.opengis.ows._2.CodeType codeType = new net.opengis.ows._2.CodeType();
+        codeType.setValue(execute.getIdentifier().getValue());
+        codeType.setCodeSpace(execute.getIdentifier().getCodeSpace());
+        ProcessIdentifier processIdentifier = wpsServer.getProcessManager().getProcessIdentifier(codeType);
+
+        //Generate the processInstance
+        Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
+                wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
+                wpsProp.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
+        jobMap.put(jobId, job);
+
+        //Process execution in new thread
+        Future future = wpsServer.executeNewProcessWorker(job, processIdentifier, dataMap);
+
+        Object object = null;
+
+        //If the required output is a raw data
+        if(execute.getResponseForm().isSetRawDataOutput()){
+            try {
+                future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.error("Error while waiting thread to be finished : "+e.getMessage());
+            }
+            for(Map.Entry<URI, Object> entry : job.getDataMap().entrySet()){
+                //Test if the URI is an Output URI.
+                boolean contained = false;
+                for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()){
+                    if(output.getIdentifier().getValue().equals(entry.getKey().toString())){
+                        contained = true;
+                    }
+                }
+                if(contained) {
+                    object = entry.getValue();
+                    //Sets and schedule the destroy date
+                    long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
+                    if(destructionDelay != 0) {
+                        wpsServer.scheduleResultDestroying(entry.getKey(),
+                                WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
+                    }
+                }
+            }
+
+            jobMap.remove(jobId);
+
+            return object;
+        }
+        else if(execute.getResponseForm().isSetResponseDocument()){
+            ExecuteResponse response = new ExecuteResponse();
+            if(execute.getResponseForm().getResponseDocument().isLineage()){
+                response.setDataInputs(execute.getDataInputs());
+                OutputDefinitionsType outputDefinitionsType = new OutputDefinitionsType();
+                for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()) {
+                    DocumentOutputDefinitionType document = new DocumentOutputDefinitionType();
+                    document.setTitle(convertLanguageStringType2to1(output.getTitle().get(0)));
+                    if(output.getAbstract()==null && !output.getAbstract().isEmpty()) {
+                        document.setAbstract(convertLanguageStringType2to1(output.getAbstract().get(0)));
+                    }
+                    outputDefinitionsType.getOutput().add(document);
+                }
+                response.setOutputDefinitions(outputDefinitionsType);
+            }
+            if(execute.getResponseForm().getResponseDocument().isStatus()){
+                //NotSupportedYet
+            }
+            if(execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()){
+                //NotSupportedYet
+            }
+            response.setProcess(convertProcessDescriptionType2to1(job.getProcess()));
+            StatusType status = new StatusType();
+            XMLGregorianCalendar xmlCalendar = null;
+            try {
+                GregorianCalendar gCalendar = new GregorianCalendar();
+                gCalendar.setTime(new Date(System.currentTimeMillis()));
+                xmlCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gCalendar);
+            } catch (DatatypeConfigurationException e) {
+                LOGGER.warn("Unable to get the current date into XMLGregorianCalendar : "+e.getMessage());
+            }
+            status.setCreationTime(xmlCalendar);
+            switch(job.getState()){
+                case IDLE:
+                    ProcessStartedType pst = new ProcessStartedType();
+                    pst.setPercentCompleted(job.getProgress());
+                    pst.setValue("idle");
+                    status.setProcessPaused(pst);
+                    break;
+                case ACCEPTED:
+                    status.setProcessAccepted("accepted");
+                    break;
+                case RUNNING:
+                    pst = new ProcessStartedType();
+                    pst.setPercentCompleted(job.getProgress());
+                    pst.setValue("running");
+                    status.setProcessStarted(pst);
+                    break;
+                case FAILED:
+                    ProcessFailedType pft = new ProcessFailedType();
+                    ExceptionReport exceptionReport = new ExceptionReport();
+                    exceptionReport.setVersion("1.0.0");
+                    exceptionReport.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+                    pft.setExceptionReport(exceptionReport);
+                    status.setProcessFailed(pft);
+                    break;
+                case SUCCEEDED:
+                    status.setProcessSucceeded("succeeded");
+                    ExecuteResponse.ProcessOutputs processOutputs = new ExecuteResponse.ProcessOutputs();
+                    for(Map.Entry<URI, Object> entry : job.getDataMap().entrySet()){
+                        //Test if the URI is an Output URI.
+                        boolean contained = false;
+                        for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()){
+                            if(output.getIdentifier().getValue().equals(entry.getKey().toString())){
+                                contained = true;
+                            }
+                        }
+                        if(contained) {
+                            OutputDataType outputDataType = new OutputDataType();
+                            DataType dataType = new DataType();
+                            LiteralDataType literalDataType = new LiteralDataType();
+                            literalDataType.setValue(entry.getValue().toString());
+                            literalDataType.setDataType("string");
+                            dataType.setLiteralData(literalDataType);
+                            outputDataType.setData(dataType);
+                            //Sets and schedule the destroy date
+                            long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
+                            if(destructionDelay != 0) {
+                                wpsServer.scheduleResultDestroying(entry.getKey(),
+                                        WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
+                            }
+                        }
+                    }
+                    response.setProcessOutputs(processOutputs);
+                    break;
+            }
+            response.setStatus(status);
+            if(execute.getLanguage()!=null) {
+                response.setLang(execute.getLanguage());
+            }
+            else{
+                response.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+            }
+            return response;
+        }
         return null;
     }
 
@@ -388,8 +560,9 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             String defaultLanguage, String requestedLanguage){
         InputDescriptionType inputDescriptionType1 = new InputDescriptionType();
         DataDescriptionType dataDescriptionType = inputDescriptionType2.getDataDescription().getValue();
-        if(dataDescriptionType instanceof LiteralDataType){
-            LiteralDataType literalDataType = (LiteralDataType) dataDescriptionType;
+        if(dataDescriptionType instanceof net.opengis.wps._2_0.LiteralDataType){
+            net.opengis.wps._2_0.LiteralDataType literalDataType =
+                    (net.opengis.wps._2_0.LiteralDataType) dataDescriptionType;
             inputDescriptionType1.setLiteralData(convertLiteralDataTypeToLiteralInputType(literalDataType));
         }
         else if(dataDescriptionType instanceof BoundingBoxData){
@@ -467,9 +640,11 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
      * @param literalDataType WPS 2.0 LiteralDataType
      * @return WPS 1.0.0 LiteralInputType
      */
-    private static LiteralInputType convertLiteralDataTypeToLiteralInputType(LiteralDataType literalDataType){
+    private static LiteralInputType convertLiteralDataTypeToLiteralInputType(
+            net.opengis.wps._2_0.LiteralDataType literalDataType){
         LiteralInputType literalInputType = new LiteralInputType();
-        LiteralDataType.LiteralDataDomain domain = literalDataType.getLiteralDataDomain().get(0);
+        net.opengis.wps._2_0.LiteralDataType.LiteralDataDomain domain =
+                literalDataType.getLiteralDataDomain().get(0);
         //Particular case of boolean
         if(domain.getDataType().getValue().equalsIgnoreCase("boolean")) {
             AllowedValues allowedValues = new AllowedValues();
@@ -727,8 +902,9 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         for(net.opengis.wps._2_0.OutputDescriptionType outputDescriptionType : outputDescriptionTypeList) {
             OutputDescriptionType descriptionType = new OutputDescriptionType();
             DataDescriptionType dataDescriptionType = outputDescriptionType.getDataDescription().getValue();
-            if(dataDescriptionType instanceof LiteralDataType){
-                LiteralDataType literalDataType = (LiteralDataType) outputDescriptionType.getDataDescription().getValue();
+            if(dataDescriptionType instanceof net.opengis.wps._2_0.LiteralDataType){
+                net.opengis.wps._2_0.LiteralDataType literalDataType =
+                        (net.opengis.wps._2_0.LiteralDataType) outputDescriptionType.getDataDescription().getValue();
                 descriptionType.setLiteralOutput(convertLiteralDataTypeToLiteralInputType(literalDataType));
             }
             else if(dataDescriptionType instanceof BoundingBoxData){

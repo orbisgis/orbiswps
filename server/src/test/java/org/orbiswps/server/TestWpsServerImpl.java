@@ -426,9 +426,6 @@ public class TestWpsServerImpl {
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the result output 0 data should not be" +
                 " null",
                 ((Result)resultObject).getOutput().get(0).getData());
-        Assert.assertEquals("Error on unmarshalling the WpsService answer, the result output 0 id should be " +
-                        "'orbisgis:test:enumeration:output'",
-                ((Result)resultObject).getOutput().get(0).getId(), "orbisgis:test:enumeration:output");
     }
 
     /**
@@ -522,8 +519,8 @@ public class TestWpsServerImpl {
                 ((Result)resultObject).getExpirationDate() != null);
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the result outputs should not be null",
                 ((Result)resultObject).getOutput());
-        Assert.assertTrue("Error on unmarshalling the WpsService answer, the result outputs should be empty",
-                ((Result)resultObject).getOutput().isEmpty());
+        Assert.assertTrue("Error on unmarshalling the WpsService answer, the result outputs should not be empty",
+                !((Result)resultObject).getOutput().isEmpty());
     }
 
     /**

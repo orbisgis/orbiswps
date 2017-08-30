@@ -39,6 +39,8 @@
  */
 package org.orbiswps.scripts.scripts.Import
 
+import org.h2gis.api.DriverFunction
+import org.h2gis.functions.io.shp.SHPDriverFunction
 import org.orbiswps.groovyapi.input.*
 import org.orbiswps.groovyapi.output.*
 import org.orbiswps.groovyapi.process.*
@@ -57,21 +59,21 @@ def processing() {
     File shpFile = new File(shpDataInput[0])
     name = shpFile.getName()
     tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
-    query = "CALL SHPREAD('"+ shpFile.absolutePath+"','"
     if(jdbcTableOutputName != null){
-	tableName = jdbcTableOutputName
+        tableName = jdbcTableOutputName
     }
     if(dropTable){
-	sql.execute "drop table if exists " + tableName
+        sql.execute "drop table if exists " + tableName
     }
 
+    DriverFunction driverFunction = new SHPDriverFunction()
     if(encoding!=null && !encoding[0].equals("System")){
-	query+= tableName+ "','"+ encoding[0] + "')"
-    }else{
-	query += tableName+"')"	
+        driverFunction.importFile(sql.getDataSource().getConnection(), tableName,shpFile,progressMonitor,encoding[0])
     }
-
-    sql.execute query
+    else{
+        driverFunction.importFile(sql.getDataSource().getConnection(), tableName,shpFile,progressMonitor)
+    }
+    literalDataOutput = "The ShapeFile has been created."
 
     if(createIndex){
         sql.execute "create spatial index on "+ tableName + " (the_geom)"

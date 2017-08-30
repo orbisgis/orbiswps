@@ -396,8 +396,8 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
     public Result getResult(GetResult getResult) {
         Result result = new Result();
         //generate the XMLGregorianCalendar Object to put in the Result Object
-        XMLGregorianCalendar date = WpsServerUtils.getXMLGregorianCalendar(0);
-        result.setExpirationDate(date);
+        long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
+        result.setExpirationDate(WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
         //Get the concerned Job
         UUID jobId = UUID.fromString(getResult.getJobID());
         Job job = jobMap.get(jobId);
@@ -406,36 +406,26 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         List<DataOutputType> listOutput = new ArrayList<>();
         for(Map.Entry<URI, Object> entry : job.getDataMap().entrySet()){
             //Test if the URI is an Output URI.
-            boolean contained = false;
-            for(OutputDescriptionType output : job.getProcess().getOutput()){
-                if(output.getIdentifier().getValue().equals(entry.getKey().toString())){
-                    contained = true;
-                }
+            DataOutputType output = new DataOutputType();
+            output.setId(entry.getKey().toString());
+            Data data = new Data();
+            data.setEncoding("simple");
+            data.setMimeType("");
+            List<Serializable> serializableList = new ArrayList<>();
+            if(entry.getValue() == null) {
+                serializableList.add("");
             }
-            if(contained) {
-                //Create the DataOutputType object, set it and add it to the output list.
-                DataOutputType output = new DataOutputType();
-                output.setId(entry.getKey().toString());
-                Data data = new Data();
-                data.setEncoding("simple");
-                data.setMimeType("");
-                List<Serializable> serializableList = new ArrayList<>();
-                if(entry.getValue() == null) {
-                    serializableList.add("");
-                }
-                else {
-                    serializableList.add(entry.getValue().toString());
-                }
-                data.getContent().clear();
-                data.getContent().addAll(serializableList);
-                output.setData(data);
-                listOutput.add(output);
-                //Sets and schedule the destroy date
-                long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
-                if(destructionDelay != 0) {
-                    wpsServer.scheduleResultDestroying(entry.getKey(),
-                            WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
-                }
+            else {
+                serializableList.add(entry.getValue().toString());
+            }
+            data.getContent().clear();
+            data.getContent().addAll(serializableList);
+            output.setData(data);
+            listOutput.add(output);
+            //Sets and schedule the destroy date
+            if(destructionDelay != 0) {
+                wpsServer.scheduleResultDestroying(entry.getKey(),
+                        WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
             }
         }
         result.getOutput().clear();

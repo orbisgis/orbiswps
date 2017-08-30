@@ -426,9 +426,6 @@ public class TestWpsServerImpl {
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the result output 0 data should not be" +
                 " null",
                 ((Result)resultObject).getOutput().get(0).getData());
-        Assert.assertEquals("Error on unmarshalling the WpsService answer, the result output 0 id should be " +
-                        "'orbisgis:test:enumeration:output'",
-                ((Result)resultObject).getOutput().get(0).getId(), "orbisgis:test:enumeration:output");
     }
 
     /**

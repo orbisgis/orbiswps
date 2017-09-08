@@ -519,8 +519,8 @@ public class TestWpsServerImpl {
                 ((Result)resultObject).getExpirationDate() != null);
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the result outputs should not be null",
                 ((Result)resultObject).getOutput());
-        Assert.assertTrue("Error on unmarshalling the WpsService answer, the result outputs should not be empty",
-                !((Result)resultObject).getOutput().isEmpty());
+        Assert.assertTrue("Error on unmarshalling the WpsService answer, the result outputs should be empty",
+                ((Result)resultObject).getOutput().isEmpty());
     }
 
     /**

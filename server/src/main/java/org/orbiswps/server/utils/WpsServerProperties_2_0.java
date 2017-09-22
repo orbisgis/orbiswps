@@ -82,9 +82,10 @@ public class WpsServerProperties_2_0 {
         Properties wpsProperties = null;
         if(propertyFileLocation != null) {
             //Load the property file
-            File propertiesFile = new File(propertyFileLocation + File.separator + SERVER_PROPERTIES);
+            File propertiesFile = new File(propertyFileLocation);
             if (propertiesFile.exists()) {
                 try {
+                    wpsProperties = new Properties();
                     wpsProperties.load(new FileInputStream(propertiesFile));
                 } catch (IOException e) {
                     LOGGER.warn(I18N.tr("Unable to restore the wps properties."));

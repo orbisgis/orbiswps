@@ -142,6 +142,23 @@ public class WpsServerImpl implements WpsServer {
     }
 
     /**
+     * Initialization of the WpsServer with the given properties.
+     *
+     * @param scriptFolder String path to the OrbisGIS script folder.
+     * @param dataSource DataSource to be used by the server.
+     * @param propertyFileLocation Location of the property file of the Server.
+     */
+    public WpsServerImpl(String scriptFolder, DataSource dataSource, String propertyFileLocation){
+        propertiesMap = new HashMap<>();
+        //Creates the attribute for the processes execution
+        processManager = new ProcessManager(dataSource, this);
+        workerFIFO = new LinkedList<>();
+        this.setScriptFolder(scriptFolder);
+        wps20Operations = new WPS_2_0_OperationsImpl(this, new WpsServerProperties_2_0(propertyFileLocation));
+        wps100Operations = new WPS_1_0_0_OperationsImpl(this, new WpsServerProperties_1_0_0(propertyFileLocation));
+    }
+
+    /**
      * Method called on bundle activation.
      */
     @Activate

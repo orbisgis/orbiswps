@@ -54,6 +54,10 @@ public class WPSScriptExecute {
             scriptClass = groovyClassLoader.parseClass(groovyFile);
         } catch (IOException | CompilationFailedException e) {
             throw new Exception("Can not parse the script '"+scriptPath+"'\n Cause : "+e.getLocalizedMessage());
+        }        
+        
+        if(scriptClass==null){
+            throw new Exception("The groovy object of '"+scriptPath+"' can not be null.");
         }
         
         //Step 2 : Create the groovy object
@@ -64,9 +68,6 @@ public class WPSScriptExecute {
             throw new Exception("Can not create the groovy object of '"+scriptPath+"'\n Cause : "+e.getLocalizedMessage());
         }
         
-        if(scriptClass==null){
-            throw new Exception("The groovy object of '"+scriptPath+"' can not be null.");
-        }
 
         //Step 3 : Sets the groovy object
         for(Map.Entry<String, Object> entry : inputMap.entrySet()){
@@ -102,9 +103,7 @@ public class WPSScriptExecute {
                 f = scriptClass.getDeclaredField(entry.getKey());
                 if(f != null){
                     f.setAccessible(true);
-                    if(!entry.getValue().equals(f.get(groovyObject))){
-                     throw new Exception("The field '"+f.getName()+"' hasn't the expected value.");
-                    }
+                    outputMap.put(entry.getKey(), f.get(groovyObject));
                 }
                 else{    
                     throw new Exception("Unable to get the field '" + entry.getKey() + "' from the script '"

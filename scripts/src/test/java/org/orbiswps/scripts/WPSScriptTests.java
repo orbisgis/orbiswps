@@ -61,15 +61,15 @@ public class WPSScriptTests {
 
     @Test
     public void testBasicScript() throws Exception {
-        String scriptPath = "/home/sylvain/Bureau/testScript.groovy";
+        String scriptPath = WPSScriptTests.class.getResource("basicWPSScript.groovy").getPath();
         Map<String, Object> inputMap = new HashMap<>();
-        inputMap.put("inStr", "good ");
+        inputMap.put("inputValue", "good ");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("str", "value");
         Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("outStr", "good value");
+        outputMap.put("outputValue", "Not executed");
         WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
-
+        System.out.println(outputMap.get("outputValue"));
     }
 
 }

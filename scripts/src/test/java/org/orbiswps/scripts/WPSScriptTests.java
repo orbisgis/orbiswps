@@ -75,6 +75,28 @@ public class WPSScriptTests {
         Assert.assertEquals("The script has been executed.",outputMap.get("outputValue"));
     }
     
+     @Test
+    public void testBasicScriptNullProperties() throws Exception {
+        String scriptPath = WPSScriptTests.class.getResource("basicWPSScript.groovy").getPath();
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputValue", "good ");
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("outputValue", "Not executed");
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, null, inputMap, outputMap);
+        Assert.assertEquals("The script has been executed.",outputMap.get("outputValue"));
+    }
+    
+    @Test
+    public void testScriptWithoutInput() throws Exception {
+        String scriptPath = WPSScriptTests.class.getResource("wpsScriptWithoutInput.groovy").getPath();
+        Map<String, Object> inputMap = new HashMap<>();
+        Map<String, Object> propertyMap = new HashMap<>();
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("outputValue", "Not executed");
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("The script has been executed.",outputMap.get("outputValue"));
+    }
+    
     @Test
     public void testFixedDistanceBuffer() throws Exception {
         String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Buffer/fixedDistanceBuffer.groovy").getPath();

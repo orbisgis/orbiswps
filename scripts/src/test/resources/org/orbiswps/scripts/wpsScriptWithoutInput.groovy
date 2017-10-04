@@ -51,17 +51,11 @@ import org.orbiswps.groovyapi.process.*
     version = "1.0")
 def processing() {
 
-	println("The input value is "+ inputValue)  
+	println("There is not input value")   
+    
     	outputValue = "The script has been executed."
 }
 
-
-@LiteralDataInput(
-    title = [
-				"A value","en"],
-    description = [
-				"A value to set.","en"])
-String inputValue 
 
 
 @LiteralDataOutput(

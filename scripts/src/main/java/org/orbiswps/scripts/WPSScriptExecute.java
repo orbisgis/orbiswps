@@ -48,6 +48,22 @@ public class WPSScriptExecute {
                                     Map<String, Object> propertyMap,
                                     Map<String, Object> inputMap,
                                     Map<String, Object> outputMap) throws Exception{
+        if(groovyClassLoader==null){
+            throw new Exception("The GroovyClassLoader cannot be null"); 
+        }
+        
+        if(scriptPath==null){
+             throw new Exception("The script '"+scriptPath+"'\n cannot be null");    
+        }  
+        
+        if(outputMap==null){
+            throw new Exception("The outputMap cannot be null"); 
+        }
+         
+        if(outputMap.isEmpty()){
+            throw new Exception("The outputMap must contains at leat one key - value");
+        }
+        
         //Step 1 : Parse the script
         Class scriptClass = null;
         try {
@@ -55,7 +71,7 @@ public class WPSScriptExecute {
             groovyClassLoader.clearCache();
             scriptClass = groovyClassLoader.parseClass(groovyFile);
         } catch (IOException | CompilationFailedException e) {
-            throw new Exception("Can not parse the script '"+scriptPath+"'\n Cause : "+e.getLocalizedMessage());
+            throw new Exception("Cannot parse the script '"+scriptPath+"'\n Cause : "+e.getLocalizedMessage());
         }        
         
         if(scriptClass==null){
@@ -67,10 +83,10 @@ public class WPSScriptExecute {
         try {
             groovyObject = (GroovyObject) scriptClass.newInstance();
         } catch (InstantiationException|IllegalAccessException e) {
-            throw new Exception("Can not create the groovy object of '"+scriptPath+"'\n Cause : "+e.getLocalizedMessage());
+            throw new Exception("Cannot create the groovy object of '"+scriptPath+"'\n Cause : "+e.getLocalizedMessage());
         }
         
-
+        if(inputMap!=null){
         //Step 3 : Sets the groovy object
         for(Map.Entry<String, Object> entry : inputMap.entrySet()){
             Field f = null;
@@ -91,8 +107,12 @@ public class WPSScriptExecute {
                         e.getLocalizedMessage());
             }
         }
-        for(Map.Entry<String, Object> entry : propertyMap.entrySet()) {
-            groovyObject.setProperty(entry.getKey(), entry.getValue());
+        }
+        
+        if (propertyMap != null) {
+            for (Map.Entry<String, Object> entry : propertyMap.entrySet()) {
+                groovyObject.setProperty(entry.getKey(), entry.getValue());
+            }
         }
 
         //Step 4 : Run the processing method

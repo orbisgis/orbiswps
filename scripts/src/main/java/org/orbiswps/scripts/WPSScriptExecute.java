@@ -25,6 +25,8 @@ import java.util.Map;
 import org.codehaus.groovy.control.CompilationFailedException;
 
 /**
+ * An utility method to execute a WPS groovy script
+ * 
  * @author Sylvain Palominos
  * @author Erwan Bocher
  */
@@ -33,7 +35,7 @@ public class WPSScriptExecute {
       /**
      * This method is used to test the groovy script execution. The given script is parsed ans the configured with the
      * given inputs and properties. Ons the method processing is run, the script output are tested with the given one.
-     * @param groovyClassLoader 
+     * @param groovyClassLoader the groovy class loader
      * @param scriptPath Path to the script to run.
      * @param inputMap Map containing the inputs. The keys are the script attribute name and the values are the attribute data.
      * @param propertyMap Map containing the groovy properties. The keys are the property attribute name and the values

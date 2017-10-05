@@ -111,7 +111,7 @@ def processing() {
         }
     }
 
-	query+=" FROM "+inputJDBCTable+";"
+    query+=" FROM "+inputJDBCTable+";"
 
     if(dropOutputTable){
 	sql.execute "drop table if exists " + outputTableName

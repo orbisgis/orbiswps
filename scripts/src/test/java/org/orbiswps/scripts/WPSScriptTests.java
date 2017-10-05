@@ -18,19 +18,24 @@ package org.orbiswps.scripts;
 
 import groovy.lang.GroovyClassLoader;
 import groovy.sql.Sql;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Assert;
 import static junit.framework.Assert.assertTrue;
+import org.h2.tools.RunScript;
 import org.h2gis.functions.factory.H2GISDBFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.h2gis.unitTest.GeometryAsserts.assertGeometryEquals;
 
 /**
  *
@@ -39,12 +44,17 @@ import org.junit.Test;
 public class WPSScriptTests {
 
     private static Connection connection;
+    private static Sql sql;
     private GroovyClassLoader groovyClassLoader = new GroovyClassLoader(this.getClass().getClassLoader());
 
     @BeforeClass
     public static void tearUp() throws Exception {
         // Keep a connection alive to not close the DataBase on each unit test
         connection = H2GISDBFactory.createSpatialDataBase(WPSScriptTests.class.getSimpleName());
+        sql = new Sql(connection);        
+        // Set up test data
+        executeScript(connection, "wps_scripts_test.sql");
+        
     }
 
     @AfterClass
@@ -61,6 +71,19 @@ public class WPSScriptTests {
     @After
     public void tearDownStatement() throws Exception {
         st.close();
+    }
+    
+     static void executeScript(Connection connection, String fileName) throws SQLException
+    {
+    	 InputStreamReader reader = new InputStreamReader(
+ 				WPSScriptTests.class.getResourceAsStream(fileName));
+ 		RunScript.execute(connection, reader);
+
+ 		try {
+ 			reader.close();
+ 		} catch (IOException e) {
+ 			e.printStackTrace();
+ 		}
     }
 
     @Test
@@ -102,21 +125,43 @@ public class WPSScriptTests {
         String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Buffer/fixedDistanceBuffer.groovy").getPath();
         //Prepare input and output values
         Map<String, Object> inputMap = new HashMap<>();
-        inputMap.put("inputJDBCTable", "input_table ");
+        inputMap.put("inputJDBCTable", "input_table_a ");
         inputMap.put("geometricField", new String[]{"the_geom"});
         inputMap.put("bufferSize", 12.0d);
         inputMap.put("fieldList", new String[]{"id"});
         inputMap.put("outputTableName", "buffer_table");        
         Map<String, Object> propertyMap = new HashMap<>();
-        Sql sql = new Sql(connection);
         propertyMap.put("sql", sql);
         Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");        
+         //Drop the output table(s)
+        st.execute("DROP TABLE if exists buffer_table");  
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT * FROM buffer_table;");
+        assertTrue(rs.next());
+        Assert.assertEquals(2,rs.getInt(2));
+        assertGeometryEquals
+        rs.close();
+    }
+    
+    @Test
+    public void testVariableDistanceBuffer() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "input_table_a ");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("bufferSize", new String[]{"id"});
+        inputMap.put("fieldList", new String[]{"id"});
+        inputMap.put("outputTableName", "buffer_table");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        Map<String, Object> outputMap = new HashMap<>();
         outputMap.put("literalOutput", "Not executed");
-        //Prepare data
-        st.execute("DROP TABLE IF EXISTS input_table, buffer_table;"
-                + "CREATE TABLE input_table(the_geom Geometry, id integer);"
-                + "INSERT INTO input_table VALUES"
-                + "((ST_GeomFromText('LINESTRING (113 155, 220 160)',0)), 2);");
+         //Drop the output table(s)
+        st.execute("DROP TABLE if exists buffer_table");       
         //Execute
         WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
@@ -126,5 +171,30 @@ public class WPSScriptTests {
         Assert.assertEquals(2,rs.getInt(2));
         rs.close();
     }
+    
+    @Test
+    public void testExtractCenter1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Convert/extractCenter.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "input_table_a ");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("fieldList", new String[]{"id"});
+        inputMap.put("outputTableName", "center_table");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Drop the output table(s)
+        st.execute("DROP TABLE if exists center_table");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT * FROM buffer_table;");
+        assertTrue(rs.next());
+        Assert.assertEquals(2,rs.getInt(2));
+        rs.close();
+    }
+
 
 }

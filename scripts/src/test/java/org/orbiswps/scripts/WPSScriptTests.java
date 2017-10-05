@@ -127,7 +127,7 @@ public class WPSScriptTests {
         Map<String, Object> inputMap = new HashMap<>();
         inputMap.put("inputJDBCTable", "input_table_a ");
         inputMap.put("geometricField", new String[]{"the_geom"});
-        inputMap.put("bufferSize", 12.0d);
+        inputMap.put("bufferSize", 2.0d);
         inputMap.put("fieldList", new String[]{"id"});
         inputMap.put("outputTableName", "buffer_table");        
         Map<String, Object> propertyMap = new HashMap<>();
@@ -143,7 +143,7 @@ public class WPSScriptTests {
                 "SELECT * FROM buffer_table;");
         assertTrue(rs.next());
         Assert.assertEquals(2,rs.getInt(2));
-        assertGeometryEquals
+        assertGeometryEquals("POLYGON ((219.90664392650675 161.9978199727558, 220.29819307909673 161.9776452886144, 220.67828283888568 161.88147080510785, 221.03230656956163 161.712992453702, 221.3466593376935 161.47868476295758, 221.6092607426931 161.18755204602869, 221.8100191598348 160.85078236995776, 221.9412195557345 160.48131760453361, 221.9978199727558 160.09335607349325, 221.9776452886144 159.70180692090327, 221.88147080510785 159.32171716111432, 221.712992453702 158.96769343043837, 221.47868476295758 158.6533406623065, 221.18755204602869 158.3907392573069, 220.85078236995776 158.1899808401652, 220.48131760453361 158.0587804442655, 220.09335607349325 158.0021800272442, 113.09335607349325 153.0021800272442, 112.70180692090325 153.0223547113856, 112.32171716111434 153.11852919489215, 111.96769343043839 153.287007546298, 111.65334066230649 153.52131523704242, 111.39073925730692 153.81244795397131, 111.1899808401652 154.14921763004224, 111.05878044426551 154.51868239546639, 111.00218002724422 154.90664392650675, 111.02235471138559 155.29819307909673, 111.11852919489215 155.67828283888568, 111.28700754629801 156.03230656956163, 111.52131523704243 156.3466593376935, 111.81244795397133 156.6092607426931, 112.14921763004224 156.8100191598348, 112.51868239546639 156.9412195557345, 112.90664392650673 156.9978199727558, 219.90664392650675 161.9978199727558))", rs.getString(1));
         rs.close();
     }
     
@@ -158,6 +158,7 @@ public class WPSScriptTests {
         inputMap.put("fieldList", new String[]{"id"});
         inputMap.put("outputTableName", "buffer_table");        
         Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);        
         Map<String, Object> outputMap = new HashMap<>();
         outputMap.put("literalOutput", "Not executed");
          //Drop the output table(s)
@@ -169,6 +170,7 @@ public class WPSScriptTests {
                 "SELECT * FROM buffer_table;");
         assertTrue(rs.next());
         Assert.assertEquals(2,rs.getInt(2));
+        assertGeometryEquals("POLYGON ((219.90664392650675 161.9978199727558, 220.29819307909673 161.9776452886144, 220.67828283888568 161.88147080510785, 221.03230656956163 161.712992453702, 221.3466593376935 161.47868476295758, 221.6092607426931 161.18755204602869, 221.8100191598348 160.85078236995776, 221.9412195557345 160.48131760453361, 221.9978199727558 160.09335607349325, 221.9776452886144 159.70180692090327, 221.88147080510785 159.32171716111432, 221.712992453702 158.96769343043837, 221.47868476295758 158.6533406623065, 221.18755204602869 158.3907392573069, 220.85078236995776 158.1899808401652, 220.48131760453361 158.0587804442655, 220.09335607349325 158.0021800272442, 113.09335607349325 153.0021800272442, 112.70180692090325 153.0223547113856, 112.32171716111434 153.11852919489215, 111.96769343043839 153.287007546298, 111.65334066230649 153.52131523704242, 111.39073925730692 153.81244795397131, 111.1899808401652 154.14921763004224, 111.05878044426551 154.51868239546639, 111.00218002724422 154.90664392650675, 111.02235471138559 155.29819307909673, 111.11852919489215 155.67828283888568, 111.28700754629801 156.03230656956163, 111.52131523704243 156.3466593376935, 111.81244795397133 156.6092607426931, 112.14921763004224 156.8100191598348, 112.51868239546639 156.9412195557345, 112.90664392650673 156.9978199727558, 219.90664392650675 161.9978199727558))", rs.getString(1));
         rs.close();
     }
     
@@ -179,9 +181,10 @@ public class WPSScriptTests {
         Map<String, Object> inputMap = new HashMap<>();
         inputMap.put("inputJDBCTable", "input_table_a ");
         inputMap.put("geometricField", new String[]{"the_geom"});
-        inputMap.put("fieldList", new String[]{"id"});
+        inputMap.put("fieldList", new String[]{"id", "type"});
         inputMap.put("outputTableName", "center_table");        
         Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);
         Map<String, Object> outputMap = new HashMap<>();
         outputMap.put("literalOutput", "Not executed");
         //Drop the output table(s)
@@ -190,8 +193,37 @@ public class WPSScriptTests {
         WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
-                "SELECT * FROM buffer_table;");
+                "SELECT * FROM center_table;");
         assertTrue(rs.next());
+           assertGeometryEquals("POINT (166.5 157.5)", rs.getString(1));
+        Assert.assertEquals(2,rs.getInt(2));
+        Assert.assertEquals("OrbisGIS",rs.getString(3));
+        rs.close();
+    }
+    
+    @Test
+    public void testExtractCenter2() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Convert/extractCenter.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "input_table_a ");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("fieldList", new String[]{"id"});
+        inputMap.put("operation", new String[]{"interior"});
+        inputMap.put("outputTableName", "center_table");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);       
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Drop the output table(s)
+        st.execute("DROP TABLE if exists center_table");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT * FROM center_table;");
+        assertTrue(rs.next());      
+        assertGeometryEquals("POINT (113 155)", rs.getString(1));
         Assert.assertEquals(2,rs.getInt(2));
         rs.close();
     }

@@ -43,11 +43,6 @@ import org.orbiswps.groovyapi.input.*
 import org.orbiswps.groovyapi.output.*
 import org.orbiswps.groovyapi.process.*
 
-/********************/
-/** Process method **/
-/********************/
-
-
 
 /**
  * This process reproject a geometry table using the SQL function.
@@ -89,7 +84,7 @@ def processing() {
 	}
 
     query +=  " FROM "+inputJDBCTable+";"
-    logger.warn(query)
+    
     if(dropTable){
 	sql.execute "drop table if exists " + outputTableName
     }
@@ -200,9 +195,6 @@ String outputTableName
 Boolean dropInputTable 
 
 
-/*****************/
-/** OUTPUT Data **/
-/*****************/
 
 /** String output of the process. */
 @LiteralDataOutput(

@@ -16,6 +16,7 @@
  */
 package org.orbiswps.scripts;
 
+import com.vividsolutions.jts.geom.Geometry;
 import groovy.lang.GroovyClassLoader;
 import groovy.sql.Sql;
 import java.io.IOException;
@@ -228,5 +229,38 @@ public class WPSScriptTests {
         rs.close();
     }
 
+    @Test
+    public void testReproject1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Transform/reprojectGeometries.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "to_be_reprojected ");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("fieldList", new String[]{"id"});
+        inputMap.put("srid", new String[]{"2154"});
+        inputMap.put("outputTableName", "reprojected_table");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);       
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Add table to reproject
+        st.execute("drop table if exists to_be_reprojected"
+                + "; create table to_be_reprojected(the_geom point, id int);"
+                + "insert into to_be_reprojected values(st_geomfromtext('POINT(2.114551393 50.345609791)',4326), 99);");
+        //Drop the output table(s)
+        st.execute("DROP TABLE if exists reprojected_table");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT * FROM reprojected_table;");
+        assertTrue(rs.next());      
+        Geometry geom = (Geometry) rs.getObject(1);
+        Assert.assertEquals(2154,geom.getSRID());
+        assertGeometryEquals("POINT(636890.7403226076 7027895.263553156)",geom.toText());
+        Assert.assertEquals(99,rs.getInt(2));
+        st.execute("drop table if exists to_be_reprojected,reprojected_table");
+        rs.close();
+    }
 
 }

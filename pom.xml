@@ -60,7 +60,7 @@
                 <org.osgi.enterprise-version>5.0.0</org.osgi.enterprise-version>
                 <org.osgi.core-version>4.3.1</org.osgi.core-version>
                 <org.apache.felix.scr.ds-annotations-version>1.2.4</org.apache.felix.scr.ds-annotations-version>
-                <h2gis-version>1.3.1-SNAPSHOT</h2gis-version>
+                <h2gis-version>1.4.0-SNAPSHOT</h2gis-version>
                 <commons-io-version>2.4</commons-io-version>
         </properties>
         <scm>

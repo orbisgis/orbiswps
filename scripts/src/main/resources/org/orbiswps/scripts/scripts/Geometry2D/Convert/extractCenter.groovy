@@ -136,7 +136,7 @@ String[] geometricField
 @JDBCColumnInput(
         title = [
                 "Columns to keep","en",
-                "Colonne à conserver","fr"],
+                "Colonnes à conserver","fr"],
         description = [
                 "The columns that will be kept in the output.","en",
                 "Les colonnes qui seront conservées dans la table de sortie.","fr"],

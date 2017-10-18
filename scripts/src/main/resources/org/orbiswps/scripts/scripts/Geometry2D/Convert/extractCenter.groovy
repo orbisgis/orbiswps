@@ -67,18 +67,27 @@ import org.orbiswps.groovyapi.process.*
 				"DBMS_TYPE", "POSTGIS"],
                 version = "1.0")
 def processing() {
-	//Build the start of the query
-	String query = "CREATE TEMPORARY TABLE "+outputTableName+" AS SELECT "
-   
-
-	if(operation[0].equalsIgnoreCase("centroid")){
-		query += " ST_Centroid("+geometricField[0]+""
-	}
-	else{
-		query += " ST_PointOnSurface("+geometricField[0]+""
-	}
+    //Build the start of the query
+    String query = "CREATE TABLE "+outputTableName+" AS SELECT "
+    
+    
+    if(operation[0].equalsIgnoreCase("centroid")){
+        query += " ST_Centroid("+geometricField[0]+""
+    }
+    else{
+        query += " ST_PointOnSurface("+geometricField[0]+""
+    }
     //Build the end of the query
-    query += ") AS the_geom ,"+ idField[0]+ " FROM "+inputJDBCTable+";"
+    query += ") AS the_geom "
+    
+    
+    for(String field : fieldList) {
+        if (field != null) {
+            query += ", " + field;
+        }
+    }
+    
+    query+=" FROM "+inputJDBCTable+";"
     
     if(dropTable){
 	sql.execute "drop table if exists " + outputTableName
@@ -123,16 +132,19 @@ String inputJDBCTable
         dataTypes = ["GEOMETRY"])
 String[] geometricField
 
-/** Name of the identifier field of the JDBCTable inputJDBCTable. */
+/** Fields to keep. */
 @JDBCColumnInput(
-		title = ["Column identifier","en",
-				"Colonne identifiant","fr"],
-		description = [
-				"A column used as an identifier.","en",
-				"Colonne utilisée comme identifiant.","fr"],
-		excludedTypes=["GEOMETRY"],
-		jdbcTableReference = "inputJDBCTable")
-String[] idField
+        title = [
+                "Columns to keep","en",
+                "Colonnes à conserver","fr"],
+        description = [
+                "The columns that will be kept in the output.","en",
+                "Les colonnes qui seront conservées dans la table de sortie.","fr"],
+        excludedTypes=["GEOMETRY"],
+        multiSelection = true,
+        minOccurs = 0,
+        jdbcTableReference = "inputJDBCTable")
+String[] fieldList
 
 @EnumerationInput(
 		title = ["Operation","en",

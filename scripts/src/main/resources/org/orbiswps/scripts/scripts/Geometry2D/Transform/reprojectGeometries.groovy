@@ -42,6 +42,8 @@ package org.orbiswps.scripts.scripts.Geometry2D.Transform
 import org.orbiswps.groovyapi.input.*
 import org.orbiswps.groovyapi.output.*
 import org.orbiswps.groovyapi.process.*
+import org.h2gis.utilities.SFSUtilities
+import org.h2gis.utilities.TableLocation
 
 
 /**
@@ -70,19 +72,26 @@ import org.orbiswps.groovyapi.process.*
 		identifier = "orbisgis:wps:official:reprojectGeometries"
 )
 def processing() {
-	//Build the start of the query
-	String query = "CREATE TABLE " + outputTableName + " AS SELECT ST_TRANSFORM("
-	query += geometricField[0] + "," + srid[0]
-
-	//Build the end of the query
-	query += ") AS the_geom ";
-
-	for (String field : fieldList) {
-		if (field != null) {
-			query += ", " + field;
-		}
-	}
-
+    TableLocation table = TableLocation.parse(inputJDBCTable, ish2)
+    int srid = SFSUtilities.getSRID(sql.getConnection(),table, geometricField[0])
+    if(srid==0){
+        logger.warn("The input table must contains a SRID constraint.")
+        literalOutput = "Fail to execute the process"
+    }
+    else{
+    //Build the start of the query
+    String query = "CREATE TABLE " + outputTableName + " AS SELECT ST_TRANSFORM("
+    query += geometricField[0] + "," + srid[0]
+    
+    //Build the end of the query
+    query += ") AS the_geom ";
+    
+    for (String field : fieldList) {
+        if (field != null) {
+            query += ", " + field;
+        }
+    }
+    
     query +=  " FROM "+inputJDBCTable+";"
     
     if(dropTable){
@@ -94,6 +103,7 @@ def processing() {
         sql.execute "drop table if exists " + inputJDBCTable
     }
     literalOutput = "Process done"
+    }
 }
 
 /****************/

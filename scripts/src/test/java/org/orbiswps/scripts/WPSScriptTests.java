@@ -262,5 +262,80 @@ public class WPSScriptTests {
         st.execute("drop table if exists to_be_reprojected,reprojected_table");
         rs.close();
     }
+    
+    @Test
+    public void testAttributeFiltering1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Select/attributeFiltering.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("fromSelectedTable", "input_table_b");        
+        inputMap.put("fromSelectedColumn", new String[]{"id"});     
+        inputMap.put("operation", new String[]{"="});  
+        inputMap.put("fromSelectedValue", "2");    
+        inputMap.put("dropTable", true);    
+        inputMap.put("outputTableName", "input_table_b_filetered");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);       
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT * FROM input_table_b_filetered;");
+        assertTrue(rs.next());      
+        Assert.assertEquals("CNRS", rs.getString(3));
+        rs.close();
+    }
+    
+    @Test
+    public void testAttributeFiltering2() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Select/attributeFiltering.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("fromSelectedTable", "input_table_b");        
+        inputMap.put("fromSelectedColumn", new String[]{"id"});     
+        inputMap.put("operation", new String[]{"limit"});  
+        inputMap.put("fromSelectedValue", "2");    
+        inputMap.put("dropTable", true);    
+        inputMap.put("outputTableName", "input_table_b_filetered");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);       
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM input_table_b_filetered;");
+        assertTrue(rs.next());      
+        Assert.assertEquals(2, rs.getInt(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testAttributeFiltering3() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Select/attributeFiltering.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("fromSelectedTable", "input_table_b");        
+        inputMap.put("fromSelectedColumn", new String[]{"id"});     
+        inputMap.put("operation", new String[]{"in"});  
+        inputMap.put("fromSelectedValue", "(1,3)");    
+        inputMap.put("dropTable", true);    
+        inputMap.put("outputTableName", "input_table_b_filetered");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);       
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM input_table_b_filetered;");
+        assertTrue(rs.next());      
+        Assert.assertEquals(2, rs.getInt(1));
+        rs.close();
+    }
 
 }

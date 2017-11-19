@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.scripts.scripts.Geometry2D.Select
+package org.orbiswps.scripts.scripts.Select
 
 import org.orbiswps.groovyapi.input.*
 import org.orbiswps.groovyapi.output.*
@@ -61,7 +61,7 @@ import org.h2gis.utilities.TableLocation
     properties = ["DBMS_TYPE", "H2GIS",
 				"DBMS_TYPE", "POSTGIS"],
     version = "1.0",
-    identifier = "orbisgis:wps:official:spatialFiltering"
+    identifier = "orbisgis:wps:official:selectSpatial"
 )
 def processing() {
     

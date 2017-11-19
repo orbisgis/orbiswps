@@ -51,17 +51,17 @@ import org.h2gis.utilities.TableLocation
  */
 @Process(
     title = [
-				"Attribut selection","en",
-				"Selection par attribut","fr"],
+				"Expression filtering","en",
+				"Selection par expression","fr"],
     description = [
-				"Select rows from one table based on one column value. SQL expression could be used to custom the select. ","en",
-				"Selectionnez des lignes dans une table à partir de la valeur d'une colonne. La syntaxe SQL peut être combinée pour personnaliser la sélection.","fr"],
+				"Select rows from one table based on a SQL expression. ","en",
+				"Selectionnez des lignes dans une table à partir d'une expression SQL.","fr"],
     keywords = ["Filtering", "en",
 				"Sélection", "fr"],
     properties = ["DBMS_TYPE", "H2GIS",
 				"DBMS_TYPE", "POSTGIS"],
     version = "1.0",
-    identifier = "orbisgis:wps:official:selectAttribute"
+    identifier = "orbisgis:wps:official:selectionExpression"
 )
 def processing() {
     
@@ -73,7 +73,7 @@ def processing() {
     }
 
     String query = "CREATE TABLE " + outputTable + " AS SELECT a.*"
-    query += " from " +  fromSelectedTable+ " as a  where " + fromSelectedColumn[0] + " "+ operation[0] + " "+ fromSelectedValue
+    query += " from " +  fromSelectedTable+ " as a   " + fromSelectedValue
  
     if(dropTable){
 	sql.execute "drop table if exists " + outputTable
@@ -94,42 +94,20 @@ def processing() {
 				"Table to select from","en",
 				"Entités à selectionner","fr"],
     description = [
-				"The spatial data source that contains the selected features.","en",
+				"The data source that contains the selected features.","en",
 				"La table qui contient les entités à selectionner.","fr"]
 )
 String fromSelectedTable
 
 
-@JDBCColumnInput(
-    title = [
-				"Geometric column from","en",
-				"Colonne géométrique","fr"],
-    description = [
-				"The geometric column of selected table.","en",
-				"La colonne géométrique de la table avec les entités à selectionner","fr"],
-    jdbcTableReference = "fromSelectedTable",
-    excludedTypes = ["GEOMETRY"]
-)
-String[] fromSelectedColumn
-
-
-@EnumerationInput(
-    title = ["Operator","en",
-				"Opérateur","fr"],
-    description = [
-				"Operator to select rows.","en",
-				"Opérateur pour séléctionner les lignes.","fr"],
-    values=["=", ">",">=", "<", "<=","<>", "limit", "in", "not in", "like"],
-    names=["Equal to, Greater than, Greater than or equal to, Less than, Less than or equal to, Not equal to,Limit, In, Not In, Like", "en", "Egal à, Supérieur à, Supérieur ou égal à, Inférieur à, Inférieur ou égal à,Non égal à,Limite, Contient, Ne contient pas, Comme ",  "fr"])
-String[] operation = ["="]
 
 @LiteralDataInput(
     title = [
-				"Value","en",
-				"Valeur","fr"],
+				"SQL expression","en",
+				"Expression SQL","fr"],
     description = [
-				"Value to select or any syntax supported by SQL as function on value.","en",
-				"Valeur à selectionner ou syntaxe supportée par le SQL comme l'utilisation d'une fonction ou une référence vers une autre colonne.","fr"])
+				"Write here a valid where SQL expression.","en",
+				"Saisir ici une expression WHERE SQL valide.","fr"])
 String fromSelectedValue  
 
 

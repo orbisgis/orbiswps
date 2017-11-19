@@ -241,6 +241,7 @@ public class WPSScriptTests {
         inputMap.put("outputTableName", "reprojected_table");        
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);       
+        propertyMap.put("ish2", true);
         Map<String, Object> outputMap = new HashMap<>();
         outputMap.put("literalOutput", "Not executed");
         //Add table to reproject
@@ -335,6 +336,82 @@ public class WPSScriptTests {
                 "SELECT count(*) FROM input_table_b_filetered;");
         assertTrue(rs.next());      
         Assert.assertEquals(2, rs.getInt(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testSpatialFiltering1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Select/spatialFiltering.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("fromSelectedTable", "input_table_b");        
+        inputMap.put("geometricFieldFromSelected", new String[]{"the_geom"});     
+        inputMap.put("operation", new String[]{"st_disjoint"});  
+        inputMap.put("toSelectedTable", "input_table_a");        
+        inputMap.put("geometricFieldToSelected", new String[]{"the_geom"});    
+        inputMap.put("dropTable", true);    
+        inputMap.put("outputTableName", "input_table_filetered");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);       
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM input_table_filetered;");
+        assertTrue(rs.next());      
+        Assert.assertEquals(2, rs.getInt(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testExpressionFiltering1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Select/expressionFiltering.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("fromSelectedTable", "input_table_b");        
+        inputMap.put("fromSelectedValue", "limit 2");
+        inputMap.put("dropTable", true);    
+        inputMap.put("outputTableName", "input_table_b_filetered");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);       
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM input_table_b_filetered;");
+        assertTrue(rs.next());      
+        Assert.assertEquals(2, rs.getInt(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testExpressionFiltering2() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Select/expressionFiltering.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("fromSelectedTable", "input_table_b");        
+        inputMap.put("fromSelectedValue", "order by id desc");
+        inputMap.put("dropTable", true);    
+        inputMap.put("outputTableName", "input_table_b_filetered");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);       
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT * FROM input_table_b_filetered;");
+        assertTrue(rs.next());      
+        Assert.assertEquals(3, rs.getInt(2));
+        assertTrue(rs.next());      
+        Assert.assertEquals(2, rs.getInt(2));
+        assertTrue(rs.next());      
+        Assert.assertEquals(1, rs.getInt(2));
         rs.close();
     }
 

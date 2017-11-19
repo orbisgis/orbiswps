@@ -135,6 +135,7 @@ public class WpsScriptPlugin extends WpsScriptsPackage {
             I18n.marktr("Transform");
             I18n.marktr("Import");
             I18n.marktr("Export");
+            I18n.marktr("Select");
             //Default method to load the scripts
             loadAllScripts();
         }

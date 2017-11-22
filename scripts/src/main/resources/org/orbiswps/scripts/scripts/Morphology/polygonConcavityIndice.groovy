@@ -54,8 +54,8 @@ import org.h2gis.utilities.TableLocation
 				"Concavity indice","en",
 				"Indice de concavité","fr"],
     description = [
-				"The concavity is equal to the geometry’s area divided by its convex hull’s area.","en",
-				"L'indice de concavité  est un ratio entre l'aire d'un polygon et l'aire de son convexhull.","fr"],
+				"The concavity is equal to the geometry’s area divided by its convex hull’s area.<p><em>Bibliography:</em></p><p>L. Adolphe, A simplified model of urban morphology: Application to an analysis of the environmental performance of cities, Environment and Planning B: Planning and Design 28 (2001) 183–200.</p><p>A. P. d’URbanisme (APUR), Consommations d'énergie et émissions degaz à effet de serre liées au chauffage des résidences principales parisiennes, Technical Report, Atelier Parisien d’URbanisme (APUR), 2007.</p>","en",
+				"L'indice de concavité  est un ratio entre l'aire d'un polygon et l'aire de son convexhull.<p><em>Bibliographie:</em></p><p>L. Adolphe, A simplified model of urban morphology: Application to an analysis of the environmental performance of cities, Environment and Planning B: Planning and Design 28 (2001) 183–200.</p><p>A. P. d’URbanisme (APUR), Consommations d'énergie et émissions degaz à effet de serre liées au chauffage des résidences principales parisiennes, Technical Report, Atelier Parisien d’URbanisme (APUR), 2007.</p>","fr"],
     keywords = ["Vector,Geometry,Morphology", "en",
 				"Vecteur,Géométrie,Morphologie", "fr"],
     properties = ["DBMS_TYPE", "H2GIS",
@@ -74,8 +74,6 @@ def processing() {
 
 
     String query = "CREATE TABLE " + outputTable + " AS SELECT "
-
-
 
     if(keepgeom==true){
         query+= geometryColumn[0]+","

@@ -54,8 +54,8 @@ import org.h2gis.utilities.TableLocation
 				"Form factor","en",
 				"Facteur de forme","fr"],
     description = [
-				"The form factor is a ratio between the polygon’s area and the square of the polygon’s perimeter. See Horton, R. E. (1932) Drainage-basin characteristics. Eos, Transactions American Geophysical Union, 13(1):350–361. ","en",
-				"Le calcul du facteur de forme est un ratio entre l'aire d'un polygon et son perimetre. Voir Horton, R. E. (1932) Drainage-basin characteristics. Eos, Transactions American Geophysical Union, 13(1):350–361.","fr"],
+				"The form factor is a ratio between the polygon’s area and the square of the polygon’s perimeter. <p><em>Bibliography:</em></p><p>Horton, R. E. (1932) Drainage-basin characteristics. Eos, Transactions American Geophysical Union, 13(1):350–361.</p>","en",
+				"Le calcul du facteur de forme est un ratio entre l'aire d'un polygon et son perimetre. <p><em>Bibliographie:</em></p><p>Horton, R. E. (1932) Drainage-basin characteristics. Eos, Transactions American Geophysical Union, 13(1):350–361.</p>","fr"],
     keywords = ["Vector,Geometry,Morphology", "en",
 				"Vecteur,Géométrie,Morphologie", "fr"],
     properties = ["DBMS_TYPE", "H2GIS",

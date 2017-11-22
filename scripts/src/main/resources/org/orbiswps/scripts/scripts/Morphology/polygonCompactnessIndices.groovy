@@ -54,8 +54,8 @@ import org.h2gis.utilities.TableLocation
 				"Compactness indice(s)","en",
 				"Indice(s) de compacité","fr"],
     description = [
-				"The compactness indice is based on the geometry properties of a polygon : perimeter, area and longest line. 3 methods are available  : Miller, Morton and Gravélius","en",
-				"L'indice de compacité  est déduit des propriétés du polygon : superficie, périmètre et longueur maximale dans toutes les directions. 3 méthodes de calcul existent : Miller, Morton and Gravélius .","fr"],
+				"The compactness indice is based on the geometry properties of a polygon : perimeter, area and longest line. 3 methods are available  : Miller, Morton and Gravélius.<p><em>Bibliography:</em></p><p>W. E. Dramstad, Spatial metrics–useful indicators for society or mainly fun tools for landscape ecologists?, Norsk Geografisk Tidsskrift-Norwegian Journal of Geography 63 (2009) 246–254.0</p><p> H. Gravelius, Grundriß der gesamten Gewässerkunde: in vier Bänden,vol.1, Göschen, 1914.</p>","en",
+				"L'indice de compacité  est déduit des propriétés du polygon : superficie, périmètre et longueur maximale dans toutes les directions. 3 méthodes de calcul existent : Miller, Morton and Gravélius.<p><em>Bibliographie:</em></p><p>W. E. Dramstad, Spatial metrics–useful indicators for society or mainly fun tools for landscape ecologists?, Norsk Geografisk Tidsskrift-Norwegian Journal of Geography 63 (2009) 246–254.0</p><p> H. Gravelius, Grundriß der gesamten Gewässerkunde: in vier Bänden,vol.1, Göschen, 1914.</p>","fr"],
     keywords = ["Vector,Geometry,Morphology", "en",
 				"Vecteur,Géométrie,Morphologie", "fr"],
     properties = ["DBMS_TYPE", "H2GIS",

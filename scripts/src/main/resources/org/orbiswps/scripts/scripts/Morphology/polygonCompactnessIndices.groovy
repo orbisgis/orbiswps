@@ -61,12 +61,12 @@ import org.h2gis.utilities.TableLocation
     properties = ["DBMS_TYPE", "H2GIS",
 				"DBMS_TYPE", "POSTGIS"],
     version = "1.0",
-    identifier = "orbisgis:wps:official:compactnessIndice"
+    identifier = "orbisgis:wps:official:compactnessIndices"
 )
 def processing() {
     
     //Build the start of the query
-    String  outputTable = inputTable+"_compactnessindice"
+    String  outputTable = inputTable+"_compactnessindices"
 
     if(outputTableName != null){
 	outputTable  = outputTableName
@@ -86,7 +86,7 @@ def processing() {
             query+= " 4*PI ()*ST_AREA("+geometricField[0]+")/(POWER(ST_PERIMETER ("+ geometricField[0]+"),2)) as miller,"
         }
         else if(operation.equals("morton")){
-            query+= "ST_AREA("+geometricField[0]+")/(PI () * (0.5 * POWER(ST_MAXDISTANCE ("+ geometricField[0]+","+ geometricField[0]+"),2))) as morton,"
+            query+= "ST_AREA("+geometricField[0]+")/(PI () * (POWER(0.5 * ST_MAXDISTANCE ("+ geometricField[0]+","+ geometricField[0]+"),2))) as morton,"
         }
     }    
     query+=idField[0]+ " from " +  inputTable

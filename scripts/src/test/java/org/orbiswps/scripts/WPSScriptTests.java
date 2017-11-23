@@ -418,7 +418,7 @@ public class WPSScriptTests {
     
     @Test
     public void testpolygonCompactnessIndices1() throws Exception {
-        String scriptPath = WPSScriptExecute.class.getResource("scripts/Morphology/polygonCompactnessIndices.groovy").getPath();
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Indices/compactnessIndices.groovy").getPath();
         //Prepare input and output values
         Map<String, Object> inputMap = new HashMap<>();
         inputMap.put("inputTable", "geomForms");        
@@ -472,6 +472,6 @@ public class WPSScriptTests {
         //Morton circle
         Assert.assertEquals(1, rs.getDouble(3), 0.1);
         rs.close();
-    }
+    }    
 
 }

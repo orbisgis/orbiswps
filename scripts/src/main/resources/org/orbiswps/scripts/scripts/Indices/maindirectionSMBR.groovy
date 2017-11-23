@@ -51,37 +51,39 @@ import org.h2gis.utilities.TableLocation
  */
 @Process(
     title = [
-				"Form factor","en",
-				"Facteur de forme","fr"],
+				"Main direction SMBR","en",
+				"Direction principale PPRE","fr"],
     description = [
-				"The form factor is a ratio between the polygon’s area and the square of the polygon’s perimeter. <p><em>Bibliography:</em></p><p>Horton, R. E. (1932) Drainage-basin characteristics. Eos, Transactions American Geophysical Union, 13(1):350–361.</p>","en",
-				"Le calcul du facteur de forme est un ratio entre l'aire d'un polygon et son perimetre. <p><em>Bibliographie:</em></p><p>Horton, R. E. (1932) Drainage-basin characteristics. Eos, Transactions American Geophysical Union, 13(1):350–361.</p>","fr"],
-    keywords = ["Vector,Geometry,Morphology", "en",
-				"Vecteur,Géométrie,Morphologie", "fr"],
+				"Compute the main direction (in degree) of a polygon, based on its Smallest Minimum Bounding Rectangle (SMBR).\n\
+<p>The north is equal to 0°. Values are clockwise, so East = 90°.</p>\n\
+<p>The value is ”modulo pi” expressed → the value is between 0 and 180°(e.g 355° becomes 175°).</p>\n\
+<p><em>Bibliography:</em></p><p>Duchêne, C., Bard, S., Barillot, X., Ruas, A., Trévisan, J., and Holzapfel, F. (2003). Quantitative and qualitative description of building orientation, In Fifth workshop on progress in automated map generalisation, ICA, commission on map generalisation.</p>","en",
+				"Calcule de la direction principale (en degré) d'un polygon sur la base du Plus Petit Rectangle Englobant (PPRE).\n\
+<p>Le nord est égale à 0°. L'Est correspond à 90°.</p>\n\
+<p>Les orientations sont rapportées sur l'intervalle 0 and 180°(e.g 355° = 175°)</p>\n\
+<p><em>Bibliographie:</em></p><p>Duchêne, C., Bard, S., Barillot, X., Ruas, A., Trévisan, J., and Holzapfel, F. (2003). Quantitative and qualitative description of building orientation, In Fifth workshop on progress in automated map generalisation, ICA, commission on map generalisation.</p>","fr"],
+    keywords = ["Vector,Geometry,Index", "en",
+				"Vecteur,Géométrie,Indice", "fr"],
     properties = ["DBMS_TYPE", "H2GIS",
 				"DBMS_TYPE", "POSTGIS"],
     version = "1.0",
-    identifier = "orbisgis:wps:official:formFactor"
+    identifier = "orbisgis:wps:official:mainDirectionSMBR"
 )
 def processing() {
     
     //Build the start of the query
-    String  outputTable = inputTable+"_formfactor"
+    String  outputTable = inputTable+"_mainDirectionSMBR"
 
     if(outputTableName != null){
 	outputTable  = outputTableName
     }
 
-
     String query = "CREATE TABLE " + outputTable + " AS SELECT "
-
-
 
     if(keepgeom==true){
         query+= geometryColumn[0]+","
     }
-    query += idField[0]+","+ "st_area("+geometryColumn[0]+")/POWER(ST_PERIMETER(" +geometryColumn[0]+ "),2) as formfactor from " +  inputTable
-
+    query += idField[0]+",mod(CASE WHEN ST_LENGTH ( ST_MINIMUMDIAMETER("+geometryColumn[0]+ ") ) <0.1  THEN DEGREES( ST_AZIMUTH ( ST_STARTPOINT ("+geometryColumn[0]+") , ST_ENDPOINT ("+geometryColumn[0]+ ") ) ) ELSE DEGREES(ST_AZIMUTH (ST_STARTPOINT ( ST_ROTATE (ST_MINIMUMDIAMETER("+geometryColumn[0]+") , pi () /2) ) , ST_ENDPOINT ( ST_ROTATE ( ST_MINIMUMDIAMETER ("+geometryColumn[0]+") , pi () /2) ) ) ) END, 180) as maindirectionsmbr from "+ inputTable
     
     if(dropTable){
 	sql.execute "drop table if exists " + outputTable

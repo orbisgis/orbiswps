@@ -51,54 +51,46 @@ import org.h2gis.utilities.TableLocation
  */
 @Process(
     title = [
-				"Compactness indice(s)","en",
-				"Indice(s) de compacité","fr"],
+				"Shape index","en",
+				"Index de forme","fr"],
     description = [
-				"The compactness indice is based on the geometry properties of a polygon : perimeter, area and longest line. 3 methods are available  : Miller, Morton and Gravélius.<p><em>Bibliography:</em></p><p>W. E. Dramstad, Spatial metrics–useful indicators for society or mainly fun tools for landscape ecologists?, Norsk Geografisk Tidsskrift-Norwegian Journal of Geography 63 (2009) 246–254.0</p><p> H. Gravelius, Grundriß der gesamten Gewässerkunde: in vier Bänden,vol.1, Göschen, 1914.</p>","en",
-				"L'indice de compacité  est déduit des propriétés du polygon : superficie, périmètre et longueur maximale dans toutes les directions. 3 méthodes de calcul existent : Miller, Morton and Gravélius.<p><em>Bibliographie:</em></p><p>W. E. Dramstad, Spatial metrics–useful indicators for society or mainly fun tools for landscape ecologists?, Norsk Geografisk Tidsskrift-Norwegian Journal of Geography 63 (2009) 246–254.0</p><p> H. Gravelius, Grundriß der gesamten Gewässerkunde: in vier Bänden,vol.1, Göschen, 1914.</p>","fr"],
-    keywords = ["Vector,Geometry,Morphology", "en",
-				"Vecteur,Géométrie,Morphologie", "fr"],
+				"Compute the shape index. It equals the quarter perimeter divided by the square root of area.<p><em>Bibliography:</em></p>","en",
+				"Calcule l'indice de forme comme le rapport du quart du perimetre sur la racine carrée de la surface.<p><em>Bibliographie:</em></p>","fr"],
+    keywords = ["Vector,Geometry,Index", "en",
+				"Vecteur,Géométrie,Indice", "fr"],
     properties = ["DBMS_TYPE", "H2GIS",
 				"DBMS_TYPE", "POSTGIS"],
     version = "1.0",
-    identifier = "orbisgis:wps:official:compactnessIndices"
+    identifier = "orbisgis:wps:official:shapeIndex"
 )
 def processing() {
     
     //Build the start of the query
-    String  outputTable = inputTable+"_compactnessindices"
+    String  outputTable = inputTable+"_shapeIndex"
 
     if(outputTableName != null){
 	outputTable  = outputTableName
     }
 
+
     String query = "CREATE TABLE " + outputTable + " AS SELECT "
 
+
     if(keepgeom==true){
-        query+= geometricField[0]+","
-    }    
+        query+= geometryColumn[0]+","
+    }
+    query += idField[0]+","+ "(0.25 * ST_PERIMETER ("+ geometryColumn[0] +"))  / (SQRT (ST_AREA ("+ geometryColumn[0] +")))  as shapeindex from " +  inputTable
+
     
-    for (String operation : operations) {
-        if(operation.equals("gravelius")){
-            query+= " ST_PERIMETER("+geometricField[0]+")/(2 * SQRT ( PI () * ST_AREA ("+ geometricField[0]+"))) as gravelius,"
-        }
-        else if(operation.equals("miller")){
-            query+= " 4*PI ()*ST_AREA("+geometricField[0]+")/(POWER(ST_PERIMETER ("+ geometricField[0]+"),2)) as miller,"
-        }
-        else if(operation.equals("morton")){
-            query+= "ST_AREA("+geometricField[0]+")/(PI () * (POWER(0.5 * ST_MAXDISTANCE ("+ geometricField[0]+","+ geometricField[0]+"),2))) as morton,"
-        }
-    }    
-    query+=idField[0]+ " from " +  inputTable
     if(dropTable){
-        sql.execute "drop table if exists " + outputTable
+	sql.execute "drop table if exists " + outputTable
     }
     //Execute the query
     sql.execute(query)
-    
+
     literalOutput = "Process done"
     
-   }
+}
 
 /****************/
 /** INPUT Data **/
@@ -126,7 +118,7 @@ String inputTable
     jdbcTableReference = "inputTable",
     dataTypes = ["POLYGON", "MULTIPOLYGON"]
 )
-String[] geometricField
+String[] geometryColumn
 
 /** Name of the identifier field of the JDBCTable inputJDBCTable. */
 @JDBCColumnInput(
@@ -150,18 +142,6 @@ String[] idField
 				"Conserver la géométrie d'entrée dans la table résultante.","fr"],
     minOccurs = 0)
 Boolean keepgeom;
-
-@EnumerationInput(
-    title = [
-                "Indice","en",
-                "Indice","fr"],
-    description = [
-                "Method to compute the indice.","en",
-                "Méthode pour calculer l'indice.","fr"],
-    values=["gravelius","miller", "morton"],
-    names = ["Gravélius","Miller", "Morton"],
-    multiSelection = true)
-String[] operations = ["gravelius"]
 
 
 @LiteralDataInput(

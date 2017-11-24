@@ -52,7 +52,7 @@ import org.h2gis.utilities.TableLocation
 @Process(
     title = [
 				"Equal Area Circle","en",
-				"Approximation circulaire","fr"],
+				"Cercle de surface équivalente","fr"],
     description = [
 				"It is a circle with an area equal to that of the polygon and centered on the polygon's centroid. <p><em>Bibliography:</em></p>","en",
 				"Calcule un cercle centré sur le centroid du polygon et dont la superficie est égale à l'aire du polygone. <p><em>Bibliographie:</em></p>","fr"],

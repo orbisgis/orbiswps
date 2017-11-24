@@ -432,7 +432,7 @@ public class WPSScriptTests {
         Map<String, Object> outputMap = new HashMap<>();
         outputMap.put("literalOutput", "Not executed");
         //Add data
-        st.execute("create table geomForms (the_geom polygon, id int, form varchar); "
+        st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon, id int, form varchar); "
                 + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 300, 200 300, 200 200, 100 200, 100 300))'), 1,'square')"
                 + ",(ST_GeomFromText('POLYGON ((100 300, 300 300, 300 200, 100 200, 100 300))'), 2,'rectangle'),"
                 + "(ST_GeomFromText('POLYGON ((100 300, 200 400, 300 400, 400 300, 400 200, 300 100, 200 100, 100 200, 100 300))'), 3,'hexagon'),"
@@ -472,6 +472,42 @@ public class WPSScriptTests {
         //Morton circle
         Assert.assertEquals(1, rs.getDouble(3), 0.1);
         rs.close();
-    }    
+    }
+
+    @Test
+    public void testmainDirectionSMBR1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Indices/maindirectionSMBR.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputTable", "geomForms");
+        inputMap.put("geometryColumn", new String[]{"the_geom"});
+        inputMap.put("idField", new String[]{"id"});
+        inputMap.put("dropTable", true);
+        inputMap.put("outputTableName", "geomForms_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Add data
+        st.execute("create table geomForms (the_geom polygon, id int); "
+                + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((140 370, 180 370, 180 120, 140 120, 140 370))'), 1)"
+                + ",(ST_GeomFromText('POLYGON ((100 300, 300 300, 300 270, 100 270, 100 300))'), 2),"
+                + "(ST_GeomFromText('POLYGON ((118.68272016354703 224.8959235991435, 260.10407640085657 366.317279836453, 281.31727983645294 345.1040764008565, 139.89592359914346 203.68272016354706, 118.68272016354703 224.8959235991435))'), 3),"
+                + "(ST_GeomFromText('POLYGON ((260.10407640085657 203.68272016354703, 118.68272016354706 345.10407640085657, 139.89592359914354 366.31727983645294, 281.317279836453 224.89592359914346, 260.10407640085657 203.68272016354703))'), 4,)");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done", outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT * FROM geomForms_res;");
+        assertTrue(rs.next());
+        Assert.assertEquals(0, rs.getDouble(2), 0.01);
+        assertTrue(rs.next());
+        Assert.assertEquals(90, rs.getDouble(2), 0.01);
+        assertTrue(rs.next());
+        Assert.assertEquals(45, rs.getDouble(2), 0.1);
+        assertTrue(rs.next());
+        Assert.assertEquals(135, rs.getDouble(2), 0.1);
+        rs.close();
+    }
 
 }

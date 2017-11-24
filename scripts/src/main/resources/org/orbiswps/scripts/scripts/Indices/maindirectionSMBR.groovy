@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.scripts.scripts.Morphology
+package org.orbiswps.scripts.scripts.Indices
 
 import org.orbiswps.groovyapi.input.*
 import org.orbiswps.groovyapi.output.*

@@ -509,5 +509,37 @@ public class WPSScriptTests {
         Assert.assertEquals(135, rs.getDouble(2), 0.1);
         rs.close();
     }
+    
+    @Test
+    public void testequalAreaCircle1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Indices/equalAreaCircle.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputTable", "geomForms");
+        inputMap.put("geometryColumn", new String[]{"the_geom"});
+        inputMap.put("idField", new String[]{"id"});
+        inputMap.put("dropTable", true);
+        inputMap.put("outputTableName", "geomForms_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Add data
+        st.execute("create table geomForms (the_geom polygon, id int); "
+                + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 200, 200 200, 200 100, 100 100, 100 200))'), 1)"
+                + ",(ST_GeomFromText('POLYGON ((100 300, 200 400, 300 400, 400 300, 400 200, 300 100, 200 100, 100 200, 100 300))'), 2)");
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done", outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT * FROM geomForms_res;");
+        assertTrue(rs.next());
+        //Square
+        Assert.assertEquals(56.4, rs.getDouble(3), 0.1);
+        assertTrue(rs.next());
+        //Hexagon
+        Assert.assertEquals(149.3, rs.getDouble(3), 0.1);        
+        rs.close();
+    }
 
 }

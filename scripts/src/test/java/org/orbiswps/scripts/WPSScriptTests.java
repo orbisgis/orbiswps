@@ -541,5 +541,51 @@ public class WPSScriptTests {
         Assert.assertEquals(149.3, rs.getDouble(3), 0.1);        
         rs.close();
     }
+    
+    
+    @Test
+    public void testConcavityIndice1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Indices/concavityIndex.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputTable", "geomForms");        
+        inputMap.put("geometryColumn", new String[]{"the_geom"});
+        inputMap.put("idField", new String[]{"id"});        
+        inputMap.put("dropTable", true);    
+        inputMap.put("outputTableName", "geomForms_res");        
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);       
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("literalOutput", "Not executed");
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon, id int, form varchar); "
+                + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 300, 200 300, 200 200, 100 200, 100 300))'), 1,'square')"
+                + ",(ST_GeomFromText('POLYGON ((100 300, 300 300, 300 200, 100 200, 100 300))'), 2,'rectangle'),"
+                + "(ST_GeomFromText('POLYGON ((100 300, 200 400, 300 400, 400 300, 400 200, 300 100, 200 100, 100 200, 100 300))'), 3,'hexagon'),"
+                + "(ST_GeomFromText('POLYGON ((20 10, 19.807852804032304 8.049096779838717, 19.238795325112868 6.173165676349102, 18.314696123025453 4.444297669803978, 17.071067811865476 2.9289321881345254, 15.555702330196024 1.6853038769745474, 13.826834323650898 0.7612046748871322, 11.950903220161283 0.1921471959676957, 10 0, 8.049096779838719 0.1921471959676957, 6.173165676349103 0.7612046748871322, 4.44429766980398 1.6853038769745474, 2.9289321881345254 2.9289321881345245, 1.6853038769745474 4.444297669803978, 0.7612046748871322 6.173165676349106, 0.1921471959676939 8.049096779838722, 0 10.000000000000007, 0.1921471959676975 11.950903220161292, 0.7612046748871375 13.826834323650909, 1.6853038769745545 15.555702330196034, 2.928932188134537 17.071067811865486, 4.444297669803992 18.314696123025463, 6.173165676349122 19.238795325112875, 8.04909677983874 19.807852804032308, 10.000000000000025 20, 11.950903220161308 19.8078528040323, 13.826834323650925 19.238795325112857, 15.555702330196048 18.314696123025435, 17.071067811865497 17.07106781186545, 18.31469612302547 15.555702330195993, 19.238795325112882 13.826834323650862, 19.80785280403231 11.950903220161244, 20 10))'), 4,'circle'),"
+                + "(ST_GeomFromText('POLYGON ((100 320, 100 120, 400 120, 400 320, 300 320, 300 200, 200 200, 200 320, 100 320))'), 4,'polygon')");
+       
+        //Execute
+        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT * FROM geomForms_res;");
+        assertTrue(rs.next());
+        //square
+        Assert.assertEquals(1, rs.getDouble(2), 0.01);        
+        assertTrue(rs.next());     
+        //rectangle
+        Assert.assertEquals(1, rs.getDouble(2), 0.01);       
+        assertTrue(rs.next());   
+        //hexagon
+        Assert.assertEquals(1, rs.getDouble(2), 0.01);
+        assertTrue(rs.next());   
+        //circle
+        Assert.assertEquals(1, rs.getDouble(2), 0.1);        
+        assertTrue(rs.next());   
+        //polygon
+        Assert.assertTrue(rs.getDouble(2)<1);
+        rs.close();
+    }
 
 }

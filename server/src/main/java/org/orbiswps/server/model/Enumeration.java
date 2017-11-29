@@ -176,7 +176,10 @@ public class Enumeration extends ComplexDataType implements TranslatableComplexD
                     String subClientLanguageTranslation = null;
                     String serverLanguageTranslation = null;
                     for (LanguageStringType stringType : translatableString.getStrings()) {
-                        if (stringType.getLang().equals(clientLanguages)) {
+                        if(stringType.getLang() == null){
+                            serverLanguageTranslation = serverLanguage;
+                        }
+                        else if (stringType.getLang().equals(clientLanguages)) {
                             clientLanguageTranslation = stringType.getValue();
                         } else if (stringType.getLang().equals(clientLanguages.substring(0, 2))) {
                             subClientLanguageTranslation = stringType.getValue();

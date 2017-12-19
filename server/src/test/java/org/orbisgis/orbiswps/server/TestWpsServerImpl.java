@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server;
+package org.orbisgis.orbiswps.server;
 
 import junit.framework.Assert;
 import net.opengis.ows._2.*;
@@ -46,8 +46,8 @@ import net.opengis.wps._2_0.GetCapabilitiesType;
 import net.opengis.wps._2_0.ObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbiswps.server.model.JaxbContainer;
-import org.orbiswps.server.utils.WpsServerListener;
+import org.orbisgis.orbiswps.server.model.JaxbContainer;
+import org.orbisgis.orbiswps.server.utils.WpsServerListener;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;

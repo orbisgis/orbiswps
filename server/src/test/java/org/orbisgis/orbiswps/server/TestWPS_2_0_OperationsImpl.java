@@ -1,4 +1,4 @@
-package org.orbiswps.server;
+package org.orbisgis.orbiswps.server;
 
 import junit.framework.Assert;
 import net.opengis.ows._2.*;
@@ -6,8 +6,8 @@ import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbiswps.server.model.JaxbContainer;
-import org.orbiswps.server.utils.WpsServerProperties_2_0;
+import org.orbisgis.orbiswps.server.model.JaxbContainer;
+import org.orbisgis.orbiswps.server.utils.WpsServerProperties_2_0;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;

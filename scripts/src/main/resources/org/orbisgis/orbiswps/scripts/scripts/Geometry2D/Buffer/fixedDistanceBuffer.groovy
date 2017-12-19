@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.scripts.scripts.Geometry2D.Buffer
+package org.orbisgis.orbiswps.scripts.scripts.Geometry2D.Buffer
 
 import org.orbiswps.groovyapi.input.*
 import org.orbiswps.groovyapi.output.*

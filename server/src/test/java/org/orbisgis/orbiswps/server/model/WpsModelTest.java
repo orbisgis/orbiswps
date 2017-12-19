@@ -37,14 +37,14 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server.model;
+package org.orbisgis.orbiswps.server.model;
 
 import net.opengis.wps._2_0.Format;
 import org.junit.Assert;
 import org.junit.Test;
-import org.orbiswps.groovyapi.attributes.*;
-import org.orbiswps.server.controller.utils.FormatFactory;
-import org.orbiswps.server.controller.utils.ObjectAnnotationConverter;
+import org.orbisgis.orbiswps.groovyapi.attributes.*;
+import org.orbisgis.orbiswps.server.controller.utils.FormatFactory;
+import org.orbisgis.orbiswps.server.controller.utils.ObjectAnnotationConverter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

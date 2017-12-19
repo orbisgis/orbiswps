@@ -37,13 +37,13 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.scripts.scripts.Import
+package org.orbisgis.orbiswps.scripts.scripts.Import
 
 import org.h2gis.api.DriverFunction
 import org.h2gis.functions.io.shp.SHPDriverFunction
-import org.orbiswps.groovyapi.input.*
-import org.orbiswps.groovyapi.output.*
-import org.orbiswps.groovyapi.process.*
+import org.orbisgis.orbiswps.groovyapi.input.*
+import org.orbisgis.orbiswps.groovyapi.output.*
+import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
  * @author Erwan Bocher

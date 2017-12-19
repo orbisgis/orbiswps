@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server.controller.utils;
+package org.orbisgis.orbiswps.server.controller.utils;
 
 import net.opengis.ows._2.CodeType;
 import net.opengis.ows._2.KeywordsType;
@@ -45,9 +45,9 @@ import net.opengis.ows._2.LanguageStringType;
 import net.opengis.ows._2.MetadataType;
 import org.junit.Assert;
 import org.junit.Test;
-import org.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
+import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
 import net.opengis.wps._2_0.DescriptionType;
-import org.orbiswps.server.model.MalformedScriptException;
+import org.orbisgis.orbiswps.server.model.MalformedScriptException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

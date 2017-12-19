@@ -37,11 +37,11 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.scripts.scripts.Export
+package org.orbisgis.orbiswps.scripts.scripts.Export
 
-import org.orbiswps.groovyapi.input.*
-import org.orbiswps.groovyapi.output.*
-import org.orbiswps.groovyapi.process.*
+import org.orbisgis.orbiswps.groovyapi.input.*
+import org.orbisgis.orbiswps.groovyapi.output.*
+import org.orbisgis.orbiswps.groovyapi.process.*
 
 import org.h2gis.functions.io.shp.SHPDriverFunction
 import org.h2gis.api.DriverFunction

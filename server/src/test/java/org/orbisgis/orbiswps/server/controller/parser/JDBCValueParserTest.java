@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server.controller.parser;
+package org.orbisgis.orbiswps.server.controller.parser;
 
 import net.opengis.wps._2_0.DataDescriptionType;
 import net.opengis.wps._2_0.InputDescriptionType;
@@ -45,12 +45,12 @@ import net.opengis.wps._2_0.OutputDescriptionType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
-import org.orbiswps.groovyapi.attributes.InputAttribute;
-import org.orbiswps.groovyapi.attributes.JDBCValueAttribute;
-import org.orbiswps.groovyapi.attributes.OutputAttribute;
-import org.orbiswps.server.model.JDBCValue;
-import org.orbiswps.server.model.MalformedScriptException;
+import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
+import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
+import org.orbisgis.orbiswps.groovyapi.attributes.JDBCValueAttribute;
+import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute;
+import org.orbisgis.orbiswps.server.model.JDBCValue;
+import org.orbisgis.orbiswps.server.model.MalformedScriptException;
 
 import java.lang.reflect.Field;
 import java.math.BigInteger;

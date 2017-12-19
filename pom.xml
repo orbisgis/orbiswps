@@ -27,7 +27,7 @@
                 <module>groovy-api</module>
                 <module>server</module>
                 <module>scripts</module>
-                <module>client</module>
+                <module>client-api</module>
         </modules>
         <profiles>
                 <profile>

@@ -37,11 +37,11 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server.controller.utils;
+package org.orbisgis.orbiswps.server.controller.utils;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.orbiswps.groovyapi.attributes.InputAttribute;
+import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import net.opengis.wps._2_0.*;
 
 import java.lang.annotation.Annotation;

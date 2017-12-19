@@ -57,8 +57,8 @@
                 </executions>
                 <artifactId>gettext-maven-plugin</artifactId>
                 <configuration>
-                    <poDirectory>src/main/resources/org/orbiswps/scripts/translation/</poDirectory>
-                    <targetBundle>org.orbiswps.scripts.Messages</targetBundle>
+                    <poDirectory>src/main/resources/org/orbisgis/orbiswps/scripts/translation/</poDirectory>
+                    <targetBundle>org.orbisgis.orbiswps.scripts.Messages</targetBundle>
                     <keywords>-ktr -kmarktr</keywords>
                     <outputFormat>properties</outputFormat>
                 </configuration>

@@ -41,7 +41,7 @@ package org.orbisgis.orbiswps.client.api;
 
 import net.opengis.wps._2_0.Result;
 import net.opengis.wps._2_0.StatusInfo;
-import org.orbiswps.server.utils.ProcessMetadata;
+import org.orbisgis.orbiswps.server.utils.ProcessMetadata;
 
 import java.net.URI;
 import java.util.Map;

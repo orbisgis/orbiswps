@@ -37,15 +37,15 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server.controller.utils;
+package org.orbisgis.orbiswps.server.controller.utils;
 
 import net.opengis.wps._2_0.Format;
 import net.opengis.wps._2_0.LiteralDataType;
 import org.junit.Assert;
 import org.junit.Test;
-import org.orbiswps.groovyapi.attributes.*;
-import org.orbiswps.server.model.DataType;
-import org.orbiswps.server.model.MalformedScriptException;
+import org.orbisgis.orbiswps.groovyapi.attributes.*;
+import org.orbisgis.orbiswps.server.model.DataType;
+import org.orbisgis.orbiswps.server.model.MalformedScriptException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

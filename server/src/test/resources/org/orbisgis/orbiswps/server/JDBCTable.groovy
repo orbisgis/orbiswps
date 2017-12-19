@@ -39,9 +39,9 @@
  */
 package org.orbiswps.server
 
-import org.orbiswps.groovyapi.input.JDBCTableInput
-import org.orbiswps.groovyapi.output.JDBCTableOutput
-import org.orbiswps.groovyapi.process.Process
+import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
+import org.orbisgis.orbiswps.groovyapi.output.JDBCTableOutput
+import org.orbisgis.orbiswps.groovyapi.process.Process
 /********************/
 /** Process method **/
 /********************/

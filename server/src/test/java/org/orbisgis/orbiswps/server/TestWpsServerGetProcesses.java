@@ -37,13 +37,13 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server;
+package org.orbisgis.orbiswps.server;
 
 import net.opengis.wps._2_0.ProcessOffering;
 import net.opengis.wps._2_0.ProcessOfferings;
 import org.junit.Assert;
 import org.junit.Test;
-import org.orbiswps.server.model.JaxbContainer;
+import org.orbisgis.orbiswps.server.model.JaxbContainer;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;

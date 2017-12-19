@@ -1,11 +1,11 @@
-package org.orbiswps.server;
+package org.orbisgis.orbiswps.server;
 
 import junit.framework.Assert;
 import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbiswps.server.utils.WpsServerProperties_1_0_0;
+import org.orbisgis.orbiswps.server.utils.WpsServerProperties_1_0_0;
 
 import javax.xml.bind.JAXBException;
 import java.io.DataInput;

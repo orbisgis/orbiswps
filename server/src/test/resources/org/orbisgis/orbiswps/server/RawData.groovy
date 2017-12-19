@@ -37,11 +37,11 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server
+package org.orbisgis.orbiswps.server
 
-import org.orbiswps.groovyapi.input.RawDataInput
-import org.orbiswps.groovyapi.output.RawDataOutput
-import org.orbiswps.groovyapi.process.Process
+import org.orbisgis.orbiswps.groovyapi.input.RawDataInput
+import org.orbisgis.orbiswps.groovyapi.output.RawDataOutput
+import org.orbisgis.orbiswps.groovyapi.process.Process
 /********************/
 /** Process method **/
 /********************/

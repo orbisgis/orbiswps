@@ -81,8 +81,8 @@
                 </executions>
                 <artifactId>gettext-maven-plugin</artifactId>
                 <configuration>
-                    <poDirectory>src/main/resources/org/orbiswps/server/translation/</poDirectory>
-                    <targetBundle>org.orbiswps.server.Messages</targetBundle>
+                    <poDirectory>src/main/resources/org/orbisgis/orbiswps/server/translation/</poDirectory>
+                    <targetBundle>org.orbisgis.orbiswps.server.Messages</targetBundle>
                     <keywords>-ktr</keywords>
                     <outputFormat>properties</outputFormat>
                 </configuration>

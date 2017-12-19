@@ -37,17 +37,17 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server.controller.parser
+package org.orbisgis.orbiswps.server.controller.parser
 
-import org.orbiswps.groovyapi.input.EnumerationInput
-import org.orbiswps.groovyapi.input.JDBCColumnInput
-import org.orbiswps.groovyapi.input.JDBCTableInput
-import org.orbiswps.groovyapi.input.JDBCValueInput
-import org.orbiswps.groovyapi.output.EnumerationOutput
-import org.orbiswps.groovyapi.output.JDBCColumnOutput
-import org.orbiswps.groovyapi.output.JDBCTableOutput
-import org.orbiswps.groovyapi.output.JDBCValueOutput
-import org.orbiswps.groovyapi.process.Process
+import org.orbisgis.orbiswps.groovyapi.input.EnumerationInput
+import org.orbisgis.orbiswps.groovyapi.input.JDBCColumnInput
+import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
+import org.orbisgis.orbiswps.groovyapi.input.JDBCValueInput
+import org.orbisgis.orbiswps.groovyapi.output.EnumerationOutput
+import org.orbisgis.orbiswps.groovyapi.output.JDBCColumnOutput
+import org.orbisgis.orbiswps.groovyapi.output.JDBCTableOutput
+import org.orbisgis.orbiswps.groovyapi.output.JDBCValueOutput
+import org.orbisgis.orbiswps.groovyapi.process.Process
 /********************/
 /** Process method **/
 /********************/

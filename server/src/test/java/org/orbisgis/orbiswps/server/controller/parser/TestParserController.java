@@ -37,13 +37,13 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server.controller.parser;
+package org.orbisgis.orbiswps.server.controller.parser;
 
 import net.opengis.wps._2_0.ProcessOffering;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbiswps.server.model.MalformedScriptException;
+import org.orbisgis.orbiswps.server.model.MalformedScriptException;
 
 /**
  * Test class for the ParserController
@@ -65,7 +65,7 @@ public class TestParserController {
         Class c = parserController.getProcessClass(this.getClass().getResource("SimpleProcess.groovy").getFile());
         Assert.assertNotNull("The generated class should not be null.", c);
         Assert.assertEquals("The class name should be 'org.orbiswps.server.controller.parser.SimpleProcess'.",
-                "org.orbiswps.server.controller.parser.SimpleProcess", c.getName());
+                "org.orbisgis.orbiswps.server.controller.parser.SimpleProcess", c.getName());
 
         c = parserController.getProcessClass("absent.groovy");
         Assert.assertNull("The generated class should be null.", c);

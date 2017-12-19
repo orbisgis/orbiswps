@@ -37,16 +37,16 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server.controller.parser;
+package org.orbisgis.orbiswps.server.controller.parser;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import net.opengis.wps._2_0.ProcessOffering;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
-import org.orbiswps.groovyapi.attributes.ProcessAttribute;
-import org.orbiswps.server.model.MalformedScriptException;
+import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
+import org.orbisgis.orbiswps.groovyapi.attributes.ProcessAttribute;
+import org.orbisgis.orbiswps.server.model.MalformedScriptException;
 
 import java.lang.reflect.Method;
 import java.net.URI;

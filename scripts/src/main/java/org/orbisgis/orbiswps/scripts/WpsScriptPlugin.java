@@ -37,10 +37,10 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.scripts;
+package org.orbisgis.orbiswps.scripts;
 
-import org.orbiswps.client.api.WpsClient;
-import org.orbiswps.server.WpsServer;
+import org.orbisgis.orbiswps.client.api.WpsClient;
+import org.orbisgis.orbiswps.server.WpsServer;
 import org.osgi.service.component.annotations.*;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;

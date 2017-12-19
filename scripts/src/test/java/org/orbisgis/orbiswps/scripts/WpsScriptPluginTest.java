@@ -37,18 +37,18 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.scripts;
+package org.orbisgis.orbiswps.scripts;
 
 import junit.framework.Assert;
 import net.opengis.ows._2.CodeType;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.junit.Test;
-import org.orbiswps.client.api.WpsClient;
-import org.orbiswps.server.WpsServer;
-import org.orbiswps.server.controller.process.ProcessIdentifier;
-import org.orbiswps.server.utils.ProcessMetadata;
-import org.orbiswps.server.utils.WpsServerListener;
+import org.orbisgis.orbiswps.client.api.WpsClient;
+import org.orbisgis.orbiswps.server.WpsServer;
+import org.orbisgis.orbiswps.server.controller.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.server.utils.ProcessMetadata;
+import org.orbisgis.orbiswps.server.utils.WpsServerListener;
 
 import javax.sql.DataSource;
 import java.io.*;

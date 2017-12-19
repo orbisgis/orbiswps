@@ -37,14 +37,14 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.scripts;
+package org.orbisgis.orbiswps.scripts;
 
 import org.apache.commons.io.IOUtils;
-import org.orbiswps.client.api.WpsClient;
-import org.orbiswps.server.WpsServer;
-import org.orbiswps.server.controller.process.ProcessIdentifier;
-import org.orbiswps.server.utils.ProcessMetadata;
-import org.orbiswps.server.utils.WpsScriptUtils;
+import org.orbisgis.orbiswps.client.api.WpsClient;
+import org.orbisgis.orbiswps.server.WpsServer;
+import org.orbisgis.orbiswps.server.controller.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.server.utils.ProcessMetadata;
+import org.orbisgis.orbiswps.server.utils.WpsScriptUtils;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -40,6 +40,7 @@
 package org.orbisgis.orbiswps.server.controller.parser;
 
 import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 import net.opengis.wps._2_0.InputDescriptionType;
 import net.opengis.wps._2_0.OutputDescriptionType;
@@ -57,6 +58,8 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,6 +108,52 @@ public class ParserController {
         return null;
     }
 
+    public Class getProcessClass(URL url){
+        //Retrieve the class corresponding to the Groovy script.
+        Class clazz = null;
+        try {
+            groovyClassLoader.clearCache();
+            clazz =  groovyClassLoader.parseClass(new GroovyCodeSource(url));
+        } catch (Exception e) {
+            LOGGER.error(I18N.tr("Can not parse the process : {0}\n Cause : {1}.", url, e.getLocalizedMessage()));
+        }
+        return clazz;
+    }
+
+    /**
+     * Parse a groovy file under a wps process and the groovy class representing the script.
+     * @param processUrl URL path of the file to parse.
+     * @return An entry with the process and the class object.
+     * @throws MalformedScriptException
+     */
+    public ProcessOffering parseProcess(URL processUrl) throws MalformedScriptException {
+        //Retrieve the class corresponding to the Groovy script.
+        Class clazz = null;
+        try {
+            groovyClassLoader.clearCache();
+            clazz =  groovyClassLoader.parseClass(new GroovyCodeSource(processUrl));
+        } catch (Exception e) {
+            LOGGER.error(I18N.tr("Can not parse the process : {0}\n Cause : {1}.", processUrl, e.getLocalizedMessage()));
+        }
+        if(clazz == null){
+            return null;
+        }
+
+        //Parse the process
+        ProcessOffering processOffering;
+        try {
+            URI uri = processUrl.toURI();
+            processOffering = processParser.parseProcess(clazz.getDeclaredMethod("processing"), uri);
+            setProcessOffering(processOffering, clazz);
+        } catch (NoSuchMethodException e) {
+            return null;
+        } catch (URISyntaxException e) {
+            LOGGER.error(I18N.tr("unable to generate the URI of the process {0}.", processUrl.toString()));
+            return null;
+        }
+        return processOffering;
+    }
+
     /**
      * Parse a groovy file under a wps process and the groovy class representing the script.
      * @param processPath String path of the file to parse.
@@ -123,9 +172,21 @@ public class ParserController {
         ProcessOffering processOffering;
         try {
             processOffering = processParser.parseProcess(clazz.getDeclaredMethod("processing"), processFile.toURI());
+            setProcessOffering(processOffering, clazz);
         } catch (NoSuchMethodException e) {
             return null;
         }
+        return processOffering;
+    }
+
+    /**
+     * Configure the given ProcessOffering with the given class.
+     * @param processOffering ProcessOffering to configure
+     * @param clazz Class used to do the configuration.
+     * @throws MalformedScriptException
+     */
+    private void setProcessOffering(ProcessOffering processOffering, Class clazz) throws MalformedScriptException {
+
         ProcessDescriptionType process = processOffering.getProcess();
 
         //Retrieve the list of input and output of the script.
@@ -215,8 +276,6 @@ public class ParserController {
         process.getInput().addAll(inputList);
 
         link(processOffering.getProcess());
-
-        return processOffering;
     }
 
     /**

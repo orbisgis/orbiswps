@@ -43,7 +43,7 @@ import org.apache.commons.io.IOUtils;
 import org.orbisgis.orbiswps.client.api.WpsClient;
 import org.orbisgis.orbiswps.server.WpsServer;
 import org.orbisgis.orbiswps.server.controller.process.ProcessIdentifier;
-import org.orbisgis.orbiswps.server.utils.ProcessMetadata;
+import org.orbisgis.orbiswps.serviceapi.ProcessMetadata;
 import org.orbisgis.orbiswps.server.utils.WpsScriptUtils;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;

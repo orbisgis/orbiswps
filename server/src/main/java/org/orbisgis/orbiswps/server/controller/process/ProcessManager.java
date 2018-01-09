@@ -50,7 +50,7 @@ import org.orbisgis.orbiswps.server.controller.utils.CancelClosure;
 import org.orbisgis.orbiswps.server.controller.utils.WpsSql;
 import org.orbisgis.orbiswps.server.model.*;
 import org.orbisgis.orbiswps.server.model.Enumeration;
-import org.orbisgis.orbiswps.server.utils.ProcessMetadata;
+import org.orbisgis.orbiswps.serviceapi.ProcessMetadata;
 import org.orbisgis.orbiswps.server.utils.ProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +64,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -148,13 +149,13 @@ public class ProcessManager {
                     for(MetadataType metadata : processOffering.getProcess().getMetadata()){
                         if(wpsServer.getDatabase() == null ||
                                 (metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME) &&
-                                metadata.getTitle().toLowerCase().equals(wpsServer.getDatabase().name().toLowerCase()))){
+                                        metadata.getTitle().toLowerCase().equals(wpsServer.getDatabase().name().toLowerCase()))){
                             isAcceptedDBMS = true;
                         }
                     }
                 }
                 if(!isAcceptedDBMS){
-                    return new ProcessIdentifier(null, null);
+                    return new ProcessIdentifier(null, "");
                 }
             } catch (MalformedScriptException e) {
                 LOGGER.error(I18N.tr("Unable to parse the process {0}.\nCause : {1}", scriptUri, e.getMessage()), e);
@@ -163,6 +164,62 @@ public class ProcessManager {
             if(processOffering != null) {
                 //Save the process in a ProcessIdentifier
                 ProcessIdentifier pi = new ProcessIdentifier(processOffering, f.getAbsolutePath());
+                processIdList.add(pi);
+                return pi;
+            }
+        }
+        LOGGER.error(I18N.tr("The script is not valid."));
+        return null;
+    }
+
+    /**
+     * Adds a script which is at the given URL and returns its process identifier.
+     * @param scriptUrl Url of the process.
+     * @return Process identifier corresponding to the process.
+     */
+    public ProcessIdentifier addScript(URL scriptUrl){
+        //Test that the script name is not only '.groovy'
+        if (scriptUrl.toString().endsWith(".groovy") && scriptUrl.toString().length()>7) {
+            //Ensure that the process does not already exists.
+            //Parse the process
+            ProcessOffering processOffering = null;
+            try {
+                processOffering = parserController.parseProcess(scriptUrl);
+                if(processOffering == null){
+                    LOGGER.error(I18N.tr("Unable to parse the process {0}.", scriptUrl));
+                    return null;
+                }
+                if(getProcess(processOffering.getProcess().getIdentifier()) != null){
+                    LOGGER.warn(I18N.tr("A process with the identifier {0} already exists.",
+                            processOffering.getProcess().getIdentifier().getValue()));
+                    return null;
+                }
+                //Check if the process is compatible with the DBMS connected to OrbisGIS.
+                boolean isAcceptedDBMS = true;
+                for(MetadataType metadata : processOffering.getProcess().getMetadata()){
+                    if(metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME)){
+                        isAcceptedDBMS = false;
+                    }
+                }
+                if(! isAcceptedDBMS){
+                    for(MetadataType metadata : processOffering.getProcess().getMetadata()){
+                        if(wpsServer.getDatabase() == null ||
+                                (metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME) &&
+                                        metadata.getTitle().toLowerCase().equals(wpsServer.getDatabase().name().toLowerCase()))){
+                            isAcceptedDBMS = true;
+                        }
+                    }
+                }
+                if(!isAcceptedDBMS){
+                    return new ProcessIdentifier(null, "");
+                }
+            } catch (MalformedScriptException e) {
+                LOGGER.error(I18N.tr("Unable to parse the process {0}.\nCause : {1}", scriptUrl.toString(), e.getMessage()), e);
+            }
+            //If the process is not already registered
+            if(processOffering != null) {
+                //Save the process in a ProcessIdentifier
+                ProcessIdentifier pi = new ProcessIdentifier(processOffering, scriptUrl);
                 processIdList.add(pi);
                 return pi;
             }
@@ -207,7 +264,16 @@ public class ProcessManager {
             ProgressMonitor progressMonitor){
 
         ProcessDescriptionType process = processIdentifier.getProcessDescriptionType();
-        Class clazz = parserController.getProcessClass(processIdentifier.getFilePath());
+        Class clazz;
+        if(processIdentifier.getFilePath() != null){
+            clazz = parserController.getProcessClass(processIdentifier.getFilePath());
+        }
+        else if(processIdentifier.getSourceUrl() != null){
+            clazz = parserController.getProcessClass(processIdentifier.getSourceUrl());
+        }
+        else{
+            clazz = null;
+        }
         GroovyObject groovyObject = createProcess(process, clazz, dataMap);
         if(groovyObject != null) {
             CancelClosure closure = new CancelClosure(this);
@@ -499,7 +565,8 @@ public class ProcessManager {
         for(ProcessIdentifier pi : getAllProcessIdentifier()){
             boolean isAccepted = false;
             for(MetadataType metadata : pi.getProcessDescriptionType().getMetadata()){
-                if(metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME) &&
+                if(metadata.getRole() != null && metadata.getTitle() != null &&
+                        metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME) &&
                         metadata.getTitle().toLowerCase().equals(wpsServer.getDatabase().name().toLowerCase())){
                     isAccepted = true;
                 }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-19 15:14+0100\n"
+"POT-Creation-Date: 2018-01-10 13:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,96 +17,59 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptsPackage.java:110
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:127
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:96
 msgid "OrbisGIS"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptsPackage.java:177
-#: org/orbisgis/orbiswps/scripts/WpsScriptsPackage.java:230
-msgid "Unable to create the OrbisGIS temporary folder."
-msgstr ""
-
-#: org/orbisgis/orbiswps/scripts/WpsScriptsPackage.java:189
-msgid "Error, the ProcessIdentifier get is malformed."
-msgstr ""
-
-#: org/orbisgis/orbiswps/scripts/WpsScriptsPackage.java:223
-#, java-format
-msgid "Unable to get the URL of the icon {0}"
-msgstr ""
-
-#: org/orbisgis/orbiswps/scripts/WpsScriptsPackage.java:239
-msgid "Unable to create the icon file."
-msgstr ""
-
-#: org/orbisgis/orbiswps/scripts/WpsScriptsPackage.java:243
-#, java-format
-msgid ""
-"Unable to create the icon file.\n"
-" Error : {0}"
-msgstr ""
-
-#: org/orbisgis/orbiswps/scripts/WpsScriptsPackage.java:251
-msgid "Unable to copy the content of the icon to the temporary file."
-msgstr ""
-
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:128
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:97
 msgid "Network"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:129
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:98
 msgid "Table"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:130
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:99
 msgid "Geometry2D"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:131
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:100
 msgid "Convert"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:132
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:101
 msgid "Create"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:133
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:102
 msgid "Buffer"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:134
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:103
 msgid "Properties"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:135
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:104
 msgid "Transform"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:136
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:105
 msgid "Import"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:137
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:106
 msgid "Export"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:138
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:107
 msgid "Select"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:139
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:108
 msgid "Indices"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:145
-msgid ""
-"Unable to retrieve the WpsService from OrbisGIS.\n"
-"The processes won't be loaded."
-msgstr ""
-
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:163
-msgid ""
-"Unable to retrieve the WpsService from OrbisGIS.\n"
-"The processes won't be removed."
+#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:195
+#, java-format
+msgid "Unable to explore the URL {0}"
 msgstr ""

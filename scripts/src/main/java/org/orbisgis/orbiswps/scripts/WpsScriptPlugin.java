@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -39,129 +39,160 @@
  */
 package org.orbisgis.orbiswps.scripts;
 
-import org.orbisgis.orbiswps.client.api.WpsClient;
-import org.orbisgis.orbiswps.server.WpsServer;
-import org.osgi.service.component.annotations.*;
+import org.orbisgis.orbiswps.serviceapi.ProcessMetadata;
+import org.orbisgis.orbiswps.serviceapi.WpsScriptBundle;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
 
 /**
- * Main class of the plugin which declares the scripts to add, their locations in the process tree and the icons
- * associated.
- * When the plugin is launched , the 'activate()' method is call. This method load the scripts in the
- * WpsService and refresh the WpsClient.
- * When the plugin is stopped or uninstalled, the 'deactivate()' method is called. This method removes the loaded script
- * from the WpsService and refreshes the WpsClient.
- *
+ * Main class of the plugin which implements the WpsScriptBundle.
  */
 @Component(immediate = true)
-public class WpsScriptPlugin extends WpsScriptsPackage {
+public class WpsScriptPlugin implements WpsScriptBundle {
 
-    /** I18N object */
+    /** {@link I18n} object */
     private static final I18n I18N = I18nFactory.getI18n(WpsScriptPlugin.class);
+    /** {@link Logger} */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WpsScriptPlugin.class);
 
-    /**
-     * OSGI method used to give to the plugin the WpsService. (Be careful before any modification)
-     * @param wpsServer WpsServer to used to load scripts.
-     */
-    @Reference
-    public void setWpsServer(WpsServer wpsServer) {
-        this.wpsServer = wpsServer;
-    }
+    /** String parameters for the plugin. */
+    /** Resource path to the folder containing the scripts. */
+    private static final String SCRIPTS_RESOURCE_FOLDER_PATH = "scripts";
+    /** Resource path to the folder containing the icons. */
+    private static final String ICONS_RESOURCE_FOLDER_PATH = "icons";
+    /** Name of the icon file to use. */
+    private static final String ICON_NAME = "orbisgis.png";
+    /** Groovy extension. */
+    private static final String GROOVY_EXTENSION = ".groovy";
+    /** Base path of the script. */
+    private static final String BASE_PATH = "OrbisGIS";
 
-    /**
-     * OSGI method used to remove from the plugin the WpsService. (Be careful before any modification)
-     * @param wpsServer WpsServer to used to load scripts.
-     */
-    public void unsetWpsServer(WpsServer wpsServer) {
-        this.wpsServer = null;
-    }
+    /** Icon {@link URL} array transmitted as process {@link ProcessMetadata.INTERNAL_METADATA INTERNAL_METADATA}. */
+    private URL[] icons = new URL[]{};
+    /** Cached map of the script path, the script {@link URL} as key, the path as value. This map is build when the
+     *  method {@link #getScriptsList()} is called.*/
+    private Map<URL, String> cachedPath;
 
-    /**
-     * OSGI method used to give to the plugin the WpsClient. (Be careful before any modification)
-     * @param wpsClient WpsClient to use to add script metadata.
-     */
-    @Reference
-    public void setWpsClient(WpsClient wpsClient) {
-        this.wpsClient = wpsClient;
-    }
-
-    /**
-     * OSGI method used to remove from the plugin the WpsClient. (Be careful before any modification)
-     * @param wpsClient WpsClient to use to add script metadata.
-     */
-    public void unsetWpsClient(WpsClient wpsClient) {
-        this.wpsClient = null;
-    }
-
-    /**
-     * This methods is called once the plugin is loaded.
-     *
-     * It first check if the WpsService is ready.
-     * If it is the case:
-     *      Load the processes in the WpsService and save their identifier in the 'listIdProcess' list.
-     *      Check if the WpsClient is ready.
-     *      If it is the case :
-     *          Refresh the WpsClient to display the processes.
-     *      If not :
-     *          Warn the user in the log that the WpsClient could not be found.
-     * If not :
-     *      Log the error and skip the process loading.
-     *
-     * In this class there is two methods to add the scripts :
-     * The default one :
-     *      This method adds all the scripts of the contained by the 'scripts' resources folder under the specified
-     *      'nodePath' in the WpsClient. It keeps the file tree structure.
-     * The custom one :
-     *      This methods adds each script one by one under a specific node for each one.
-     */
     @Activate
     public void activate(){
-        listIdProcess = new ArrayList<>();
-        //Check the WpsService
-        if(wpsServer != null){
-            //Mark the string to translate which will be used in the tree path.
-            I18n.marktr("OrbisGIS");
-            I18n.marktr("Network");
-            I18n.marktr("Table");
-            I18n.marktr("Geometry2D");
-            I18n.marktr("Convert");
-            I18n.marktr("Create");
-            I18n.marktr("Buffer");
-            I18n.marktr("Properties");
-            I18n.marktr("Transform");
-            I18n.marktr("Import");
-            I18n.marktr("Export");
-            I18n.marktr("Select");
-            I18n.marktr("Indices");
-            //Default method to load the scripts
-            loadAllScripts();
-        }
-        else{
-            LoggerFactory.getLogger(WpsScriptsPackage.class).error(
-                    I18N.tr("Unable to retrieve the WpsService from OrbisGIS.\n" +
-                            "The processes won't be loaded."));
-        }
+        //Initialize icons and path collections
+        icons = new URL[]{this.getClass().getResource(ICONS_RESOURCE_FOLDER_PATH+File.separator+ICON_NAME)};
+        cachedPath = new HashMap<>();
+
+        //Mark the path parts to translate
+        I18n.marktr("OrbisGIS");
+        I18n.marktr("Network");
+        I18n.marktr("Table");
+        I18n.marktr("Geometry2D");
+        I18n.marktr("Convert");
+        I18n.marktr("Create");
+        I18n.marktr("Buffer");
+        I18n.marktr("Properties");
+        I18n.marktr("Transform");
+        I18n.marktr("Import");
+        I18n.marktr("Export");
+        I18n.marktr("Select");
+        I18n.marktr("Indices");
+    }
+
+    @Deactivate
+    public void deactivate(){
+        //Nothing to do
+    }
+
+    @Override
+    public Map<String, Object> getGroovyProperties() {
+        //No groovy property are needed
+        return new HashMap<>();
+    }
+
+    @Override
+    public List<URL> getScriptsList() {
+        return getAllSubUrl(this.getClass().getResource(SCRIPTS_RESOURCE_FOLDER_PATH));
+    }
+
+    @Override
+    public Map<ProcessMetadata.INTERNAL_METADATA, Object> getScriptMetadata(URL scriptUrl) {
+        Map<ProcessMetadata.INTERNAL_METADATA, Object> map = new HashMap<>();
+        map.put(ProcessMetadata.INTERNAL_METADATA.IS_REMOVABLE, false);
+        map.put(ProcessMetadata.INTERNAL_METADATA.NODE_PATH, cachedPath.get(scriptUrl));
+        map.put(ProcessMetadata.INTERNAL_METADATA.ICON_ARRAY, icons);
+        return map;
     }
 
     /**
-     * This method is called when the plugin is deactivated.
-     * If the WpsService is ready, removes all the previously loaded scripts.
-     * If not, log the error and skip the process removing.
-     * Then if the WpsClient is ready, refresh it.
+     * Return the list of the {@link URL} of the Groovy files inside the given root url. It also puts in cache all the
+     * path associated to the script url.
+     * @param url Root {@link URL} to explore to return the groovy files.
+     * @return List of {@link URL} of the groovy files.
      */
-    @Deactivate
-    public void deactivate(){
-        if(wpsServer != null) {
-            removeAllScripts();
+    private List<URL> getAllSubUrl(URL url){
+        List<URL> list = new ArrayList<>();
+        //Iterates over all the file and folder URL contained in the root URL
+        for(URL u : getChildUrl(url)){
+            //If the URL is a groovy file, build the node path, cache it and add the url to the list to return.
+            if(u.getFile().endsWith(GROOVY_EXTENSION)){
+                int pathStartIndex = this.getClass().getResource(SCRIPTS_RESOURCE_FOLDER_PATH).toString().length();
+                String[] pathArray = new File(u.toString()).getParent().substring(pathStartIndex).split(File.separator);
+                StringBuilder finalPath = new StringBuilder(I18N.tr(BASE_PATH));
+                for(String pathPart : pathArray){
+                    finalPath.append(File.separator).append(I18N.tr(pathPart));
+                }
+                cachedPath.put(u, finalPath.toString());
+                list.add(u);
+            }
+            //Else, explore the URL
+            else{
+                list.addAll(getAllSubUrl(u));
+            }
         }
-        else{
-            LoggerFactory.getLogger(WpsScriptsPackage.class).error(
-                    I18N.tr("Unable to retrieve the WpsService from OrbisGIS.\n" +
-                            "The processes won't be removed."));
+        return list;
+    }
+
+    /**
+     * Returns the list of child {@link URL} of a root {@link URL} no matter if the file are located in an OSG bundle.
+     * @param url Root {@link URL}.
+     * @return List of child {@link URL}.
+     */
+    private List<URL> getChildUrl(URL url){
+        List<URL> childUrl = new ArrayList<>();
+
+        //Case of an osgi bundle
+        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+        if(bundle != null) {
+            Enumeration<URL> enumUrl = bundle.findEntries(url.getFile(), "*", false);
+            while(enumUrl.hasMoreElements()) {
+                childUrl.add(enumUrl.nextElement());
+            }
+            return childUrl;
         }
+
+        //Other case
+        try {
+            File f = new File(url.toURI());
+            if(f.exists()){
+                for(File child : f.listFiles()){
+                    childUrl.add(child.toURI().toURL());
+                }
+                return childUrl;
+            }
+        } catch (URISyntaxException|MalformedURLException ignored) {}
+
+        //Unknown case, return empty list
+        LOGGER.error(I18N.tr("Unable to explore the URL {0}", url));
+        return new ArrayList<>();
     }
 }

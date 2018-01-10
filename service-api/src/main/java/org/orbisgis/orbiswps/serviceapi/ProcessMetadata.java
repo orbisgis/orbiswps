@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.server.utils;
+package org.orbisgis.orbiswps.serviceapi;
 
 /**
  * This class contains the process metadata used by OrbisGIS. A process metadata is composed of a role and a title.

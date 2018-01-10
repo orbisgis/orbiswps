@@ -41,6 +41,8 @@ package org.orbisgis.orbiswps.server;
 
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
+import org.orbisgis.orbiswps.serviceapi.ProcessMetadata;
+import org.orbisgis.orbiswps.serviceapi.WpsScriptBundle;
 import org.orbisgis.orbiswps.server.controller.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.server.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.server.controller.utils.Job;
@@ -49,8 +51,7 @@ import org.orbisgis.orbiswps.server.model.JaxbContainer;
 import org.orbisgis.orbiswps.server.utils.WpsServerListener;
 import org.orbisgis.orbiswps.server.utils.WpsServerProperties_1_0_0;
 import org.orbisgis.orbiswps.server.utils.WpsServerProperties_2_0;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
@@ -64,6 +65,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.*;
 import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -156,6 +158,48 @@ public class WpsServerImpl implements WpsServer {
         this.setScriptFolder(scriptFolder);
         wps20Operations = new WPS_2_0_OperationsImpl(this, new WpsServerProperties_2_0(propertyFileLocation));
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, new WpsServerProperties_1_0_0(propertyFileLocation));
+    }
+
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addWpsScriptBundle(WpsScriptBundle wpsScriptBundle) {
+        List<URL> scriptList = wpsScriptBundle.getScriptsList();
+        for(URL url : scriptList) {
+            ProcessIdentifier pi = this.processManager.addScript(url);
+            Map<ProcessMetadata.INTERNAL_METADATA, Object> map = wpsScriptBundle.getScriptMetadata(url);
+            for(Map.Entry<ProcessMetadata.INTERNAL_METADATA, Object> entry : map.entrySet()){
+                MetadataType metadataType = new MetadataType();
+                metadataType.setRole(entry.getKey().name());
+                Object obj = entry.getValue();
+                if(obj != null) {
+                    if (obj instanceof URL[]) {
+                        StringBuilder iconStr = new StringBuilder();
+                        for(URL urlIcon : (URL[]) obj) {
+                            if(iconStr.length() > 0){
+                                iconStr.append(",");
+                            }
+                            iconStr.append(urlIcon.toString());
+                        }
+                        metadataType.setTitle(iconStr.toString());
+                    } else {
+                        metadataType.setTitle(obj.toString());
+                    }
+                }
+                pi.getProcessDescriptionType().getMetadata().add(metadataType);
+            }
+        }
+        for(WpsServerListener listener : wpsServerListenerList){
+            listener.onScriptAdd();
+        }
+    }
+
+    public void removeWpsScriptBundle(WpsScriptBundle wpsScriptBundle) {
+        for(URL url : wpsScriptBundle.getScriptsList()) {
+            this.processManager.addScript(url);
+        }
+        for(WpsServerListener listener : wpsServerListenerList){
+            listener.onScriptAdd();
+        }
     }
 
     /**

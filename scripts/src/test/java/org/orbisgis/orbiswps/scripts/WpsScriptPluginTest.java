@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -39,220 +39,72 @@
  */
 package org.orbisgis.orbiswps.scripts;
 
-import junit.framework.Assert;
-import net.opengis.ows._2.CodeType;
-import net.opengis.wps._2_0.*;
-import net.opengis.wps._2_0.GetCapabilitiesType;
+import org.junit.Assert;
 import org.junit.Test;
-import org.orbisgis.orbiswps.client.api.WpsClient;
-import org.orbisgis.orbiswps.server.WpsServer;
-import org.orbisgis.orbiswps.server.controller.process.ProcessIdentifier;
-import org.orbisgis.orbiswps.server.utils.ProcessMetadata;
-import org.orbisgis.orbiswps.server.utils.WpsServerListener;
+import org.orbisgis.orbiswps.serviceapi.ProcessMetadata.INTERNAL_METADATA;
+import org.osgi.framework.BundleException;
 
-import javax.sql.DataSource;
-import java.io.*;
-import java.net.URI;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Class to test the well working of the plugin life cycle :
- *
- * On activating : add all the scripts of the resource folder (src/main/resources/org/orbisgis/wpsservicescripts/scripts)
- * to a fake WPS server {@code CustomWpsService}.
- *
- * On deactivating : remove all the scripts add from the WPS server.
+ * Class to test all the basic WPS script plugin methods.
  *
  * @author Sylvain PALOMINOS
  */
 public class WpsScriptPluginTest {
 
     /**
-     * Test the life cycle of the plugin.
+     * Test the acyivation and deactivation of the plugin.
      */
     @Test
-    public void testPlugin(){
-        //Initialize an instance of OrbisGISWpsScriptPlugin, CustomWpsService, CustomWpsClient and CustomCoreWorkspace
-        CustomWpsServer customWpsServer = new CustomWpsServer();
-        customWpsServer.setScriptFolder(System.getProperty("java.io.tmpdir"));
-        CustomWpsClient customWpsClient = new CustomWpsClient();
+    public void bundleLifeCycleTest(){
         WpsScriptPlugin plugin = new WpsScriptPlugin();
-        //Give to the OrbisGISWpsScriptPlugin the WpsServer and the WpsClient
-        plugin.setWpsServer(customWpsServer);
-        plugin.setWpsClient(customWpsClient);
-        //Simulate the activation of the plugin and get back the list of script file add
         plugin.activate();
-        List<File> addScriptList = customWpsServer.getAddScriptList();
-        //Gets the list of the script files contained in the resource folder of the plugin
-        File folder = new File(this.getClass().getResource("scripts").getFile());
-        List<File> resourceGroovyScriptList = getAllGroovyScripts(folder);
-        //Test if each file from the resource folder has been loaded in the WPS server
-        for(File resourceScript : resourceGroovyScriptList){
-            boolean isResourceScriptAdd = false;
-            for(File addScript : addScriptList){
-                if(resourceScript.getName().equals(addScript.getName())){
-                    isResourceScriptAdd = true;
-                }
-            }
-            Assert.assertTrue("The resource file '"+resourceScript.getName()+"' should be add by the plugin.",
-                    isResourceScriptAdd);
-        }
-        Assert.assertEquals("There must be a metadata map in the client for each loaded script in the server.",
-                addScriptList.size(), customWpsClient.getMetadataMap().size());
-        //Simulate the deactivation of the plugin
-        plugin.deactivate();
-        //Test if all the script have been removed
-        Assert.assertTrue("All the scripts should have been removed from the server.",
-                customWpsServer.getAddScriptList().isEmpty());
-        //Unset the CoreWorkspace and the WpsServer and the WpsClient
-        plugin.unsetWpsServer(null);
-        plugin.unsetWpsClient(null);
-    }
-
-    /**
-     * Test the plugin life cycle without
-     */
-    @Test
-    public void testPluginNoServerClient(){
-        //Initialize an instance of OrbisGISWpsScriptPlugin, d CustomCoreWorkspace
-        WpsScriptPlugin plugin = new WpsScriptPlugin();
-        //Simulate the activation of the plugin and get back the list of script file add
-        plugin.activate();
-        Assert.assertNotNull("The plugin process id list should be initialized", plugin.listIdProcess);
         plugin.deactivate();
     }
 
     /**
-     * Tests the method loadIcons() from the class WpsScriptsPackage.
+     * Test the {@link WpsScriptPlugin#getScriptsList()} method.
      */
     @Test
-    public void testLoadIconMethod(){
-        String tmpFolderPath = System.getProperty("java.io.tmpdir") + File.separator;
-        WpsScriptsPackage wpsScriptsPackage = new WpsScriptsPackage();
-        //Test with a bad icon
-        Object result = wpsScriptsPackage.loadIcon("UnExistingIcon.notAnExtension");
-        Assert.assertNull("The loadIcon() method should return null if the given icon name is bad.", result);
-        //Test with a bad script folder
-        CustomWpsServer customWpsServer = new CustomWpsServer();
-        customWpsServer.setScriptFolder(tmpFolderPath + "InvalidName"+'\0');
-        wpsScriptsPackage.wpsServer = customWpsServer;
-        result = wpsScriptsPackage.loadIcon("orbisgis.png");
-        Assert.assertNull("The loadIcon() method should return null if the given script folder name is bad.", result);
-
-        customWpsServer.setScriptFolder(tmpFolderPath + "ValidName"+UUID.randomUUID());
-        result = wpsScriptsPackage.loadIcon("orbisgis.png");
-        Assert.assertNotNull("The loadIcon() method should return a valid String file path.", result);
+    public void getGroovyPropertiesTest(){
+        WpsScriptPlugin plugin = new WpsScriptPlugin();
+        plugin.activate();
+        Map<String, Object> propertyMap = plugin.getGroovyProperties();
+        Assert.assertNotNull("The plugin property map should not be null", propertyMap.isEmpty());
+        Assert.assertTrue("The plugin property map should be empty", propertyMap.isEmpty());
     }
 
     /**
-     * Returns the list of the groovy script file of a given directory.
-     * @param directory Directory to explore.
-     * @return The list of the groovy script files.
+     * Test the {@link WpsScriptPlugin#getScriptsList()} method.
      */
-    private List<File> getAllGroovyScripts(File directory){
-        List<File> scriptList = new ArrayList<>();
-        File[] files = directory.listFiles();
-        if(files != null){
-            for(File f : files) {
-                if (f.isDirectory()) {
-                    scriptList.addAll(getAllGroovyScripts(f));
-                }
-                else {
-                    scriptList.add(f);
-                }
+    @Test
+    public void getScriptListTest() throws BundleException {
+        WpsScriptPlugin plugin = new WpsScriptPlugin();
+        plugin.activate();
+        List<URL> scriptList = plugin.getScriptsList();
+        for(URL url : scriptList){
+            if(!url.getFile().endsWith(".groovy")){
+                Assert.fail("Only the groovy files should be returned.");
             }
         }
-        return scriptList;
     }
 
-    /**
-     * A fake WpsServer implementation. Only addLocalSource(File,String[],boolean,String) and removeProcess(URI)
-     * methods are implemented. It is used to simulate a WpsServer but it only store in a list the loaded script.
-     * This list is accessible throw the methods getAddScriptList().
-     */
-    private class CustomWpsServer implements WpsServer {
-        private List<File> addScriptList = new ArrayList<>();
-        private String scriptFolder;
-
-        @Override
-        public List<ProcessIdentifier> addProcess(File f) {
-            addScriptList.add(f);
-            //Building of an empty processOffering
-            CodeType codeType = new CodeType();
-            codeType.setValue(f.toURI().toString());
-            ProcessDescriptionType processDescriptionType = new ProcessDescriptionType();
-            processDescriptionType.setIdentifier(codeType);
-            ProcessOffering processOffering = new ProcessOffering();
-            processOffering.setProcess(processDescriptionType);
-            //Return the ProcessIdentifier of the source to add
-            List<ProcessIdentifier> processIdentifierList = new ArrayList<>();
-            processIdentifierList.add(new ProcessIdentifier(processOffering, f.getAbsolutePath()));
-            return processIdentifierList;
+    @Test
+    public void getScriptMetadataTest() {
+        WpsScriptPlugin plugin = new WpsScriptPlugin();
+        plugin.activate();
+        List<URL> urlList = plugin.getScriptsList();
+        for(URL u : urlList){
+            Map<INTERNAL_METADATA, Object> map = plugin.getScriptMetadata(u);
+            Assert.assertFalse("The script metadata should contain 'ICON_ARRAY'",
+                    !map.containsKey(INTERNAL_METADATA.ICON_ARRAY));
+            Assert.assertFalse("The script metadata should contain 'IS_REMOVABLE'",
+                    !map.containsKey(INTERNAL_METADATA.IS_REMOVABLE));
+            Assert.assertFalse("The script metadata should contain 'NODE_PATH'",
+                    !map.containsKey(INTERNAL_METADATA.NODE_PATH));
         }
-
-        /**
-         * Returns the list of the script files add to the server.
-         * @return The list of the script files add to the server.
-         */
-        public List<File> getAddScriptList(){ return addScriptList;}
-
-        @Override public void removeProcess(URI identifier) {
-            File fileToRemove = null;
-            for(File f : addScriptList){
-                if(f.toURI().toString().equals(identifier.toString())){
-                    fileToRemove = f;
-                }
-            }
-            addScriptList.remove(fileToRemove);
-        }
-        @Override public String getScriptFolder() {return scriptFolder;}
-        @Override public void setScriptFolder(String scriptFolder) {this.scriptFolder = scriptFolder;}
-
-
-        //Methods not used in the tests
-        @Override public void setDataSource(DataSource dataSource) {}
-        @Override public void setExecutorService(ExecutorService executorService) {}
-        @Override public void addGroovyProperties(Map<String, Object> propertiesMap) {}
-        @Override public void removeGroovyProperties(Map<String, Object> propertiesMap) {}
-        @Override public OutputStream callOperation(InputStream xml) {return null;}
-        @Override public void cancelProcess(UUID jobId) {}
-        @Override public Database getDatabase() {return null;}
-        @Override public void setDatabase(Database database) {}
-        @Override public void addWpsServerListener(WpsServerListener wpsServerListener) {}
-        @Override public void removeWpsServerListener(WpsServerListener wpsServerListener) {}
-    }
-
-
-    /**
-     * A fake WpsClient implementation. Only addLocalSource(File,String[],boolean,String) and removeProcess(URI)
-     * methods are implemented. It is used to simulate a WpsServer but it only store in a list the loaded script.
-     * This list is accessible throw the methods getAddScriptList().
-     */
-    private class CustomWpsClient implements WpsClient{
-
-        private Map<URI, Map<ProcessMetadata.INTERNAL_METADATA, Object>> metadataMap = new HashMap<>();
-
-        @Override
-        public void addProcessMetadata(URI processIdentifier, Map<ProcessMetadata.INTERNAL_METADATA,
-                Object> metadataMap) {
-            this.metadataMap.put(processIdentifier, metadataMap);
-        }
-        @Override
-        public void removeProcessMetadata(URI processIdentifier) {
-            this.metadataMap.remove(processIdentifier);
-        }
-
-        /**
-         * Returns the metadata map.
-         * @return The metadata map.
-         */
-        public Map<URI, Map<ProcessMetadata.INTERNAL_METADATA, Object>> getMetadataMap(){return metadataMap;}
-
-        //Methods not used in the tests
-        @Override public StatusInfo getJobStatus(UUID jobID) {return null;}
-        @Override public Result getJobResult(UUID jobID) {return null;}
-        @Override public StatusInfo dismissJob(UUID jobID) {return null;}
-        @Override public StatusInfo executeProcess(URI processIdentifier, Map<URI, Object> dataMap) {return null;}
     }
 }

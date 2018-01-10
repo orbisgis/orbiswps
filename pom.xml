@@ -28,6 +28,7 @@
                 <module>server</module>
                 <module>scripts</module>
                 <module>client-api</module>
+                <module>service-api</module>
         </modules>
         <profiles>
                 <profile>

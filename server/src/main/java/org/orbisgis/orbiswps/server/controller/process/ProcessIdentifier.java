@@ -42,6 +42,8 @@ package org.orbisgis.orbiswps.server.controller.process;
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import net.opengis.wps._2_0.ProcessOffering;
 
+import java.net.URL;
+
 /**
  * Class containing information to identify a process.
  *
@@ -54,6 +56,8 @@ public class ProcessIdentifier {
     private ProcessOffering processOffering;
     /** File path of the process. */
     private String filePath;
+    /** Source URL. */
+    private URL sourceUrl;
 
     /**
      * Main constructor.
@@ -64,6 +68,19 @@ public class ProcessIdentifier {
     public ProcessIdentifier(ProcessOffering processOffering, String filePath){
         this.processOffering = processOffering;
         this.filePath = filePath;
+        this.sourceUrl = null;
+    }
+
+    /**
+     * Main constructor.
+     *
+     * @param processOffering ProcessOffering containing all the information about a process.
+     * @param sourceUrl Source URL of the file.
+     */
+    public ProcessIdentifier(ProcessOffering processOffering, URL sourceUrl){
+        this.processOffering = processOffering;
+        this.filePath = null;
+        this.sourceUrl = sourceUrl;
     }
 
     /**
@@ -89,5 +106,13 @@ public class ProcessIdentifier {
      */
     public String getFilePath(){
         return filePath;
+    }
+
+    /**
+     * Returns the source URL of the file.
+     * @return The source URL.
+     */
+    public URL getSourceUrl(){
+        return sourceUrl;
     }
 }

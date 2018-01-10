@@ -1,18 +1,41 @@
 /*
- * Copyright (C) 2017 Lab-STICC - UMR CNRS 6285
+ * OrbisWPS contains a set of libraries to build a Web Processing Service (WPS)
+ * compliant with the 2.0 specification.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * OrbisWPS is part of the OrbisGIS platform
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * OrbisGIS is a java GIS application dedicated to research in GIScience.
+ * OrbisGIS is developed by the GIS group of the DECIDE team of the
+ * Lab-STICC CNRS laboratory, see <http://www.lab-sticc.fr/>.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The GIS group of the DECIDE team is located at :
+ *
+ * Laboratoire Lab-STICC – CNRS UMR 6285
+ * Equipe DECIDE
+ * UNIVERSITÉ DE BRETAGNE-SUD
+ * Institut Universitaire de Technologie de Vannes
+ * 8, Rue Montaigne - BP 561 56017 Vannes Cedex
+ *
+ * OrbisWPS is distributed under GPL 3 license.
+ *
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
+ *
+ *
+ * OrbisWPS is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * OrbisWPS is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * OrbisWPS. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * For more information, please consult: <http://www.orbisgis.org/>
+ * or contact directly:
+ * info_at_ orbisgis.org
  */
 package org.orbisgis.orbiswps.scripts;
 
@@ -32,7 +55,7 @@ import org.codehaus.groovy.control.CompilationFailedException;
  */
 public class WPSScriptExecute {
 
-      /**
+    /**
      * This method is used to test the groovy script execution. The given script is parsed ans the configured with the
      * given inputs and properties. Ons the method processing is run, the script output are tested with the given one.
      * @param groovyClassLoader the groovy class loader
@@ -40,28 +63,28 @@ public class WPSScriptExecute {
      * @param inputMap Map containing the inputs. The keys are the script attribute name and the values are the attribute data.
      * @param propertyMap Map containing the groovy properties. The keys are the property attribute name and the values
      *                    are the property attribute data.
-     * @param outputMap Map containing the desired outputs. The keys are the script output attribute name and the values
+     * @param expectedOutputMap Map containing the desired outputs. The keys are the script output attribute name and the values
      *                  are the desired output attribute data which will be tested.
      * @throws java.lang.Exception
      */
-    public static  void run(GroovyClassLoader groovyClassLoader, String scriptPath,
+    public static void run(GroovyClassLoader groovyClassLoader, String scriptPath,
                                     Map<String, Object> propertyMap,
                                     Map<String, Object> inputMap,
-                                    Map<String, Object> outputMap) throws Exception{
+                                    Map<String, Object> expectedOutputMap) throws Exception{
         if(groovyClassLoader==null){
-            throw new Exception("The GroovyClassLoader cannot be null"); 
+            throw new Exception("The GroovyClassLoader cannot be null");
         }
         
         if(scriptPath==null){
-             throw new Exception("The script '"+scriptPath+"'\n cannot be null");    
+             throw new Exception("The script '"+scriptPath+"'\n cannot be null");
         }  
         
-        if(outputMap==null){
-            throw new Exception("The outputMap cannot be null"); 
+        if(expectedOutputMap==null){
+            throw new Exception("The expectedOutputMap cannot be null");
         }
          
-        if(outputMap.isEmpty()){
-            throw new Exception("The outputMap must contains at leat one key - value");
+        if(expectedOutputMap.isEmpty()){
+            throw new Exception("The expectedOutputMap must contains at leat one key - value");
         }
         
         //Step 1 : Parse the script
@@ -119,15 +142,15 @@ public class WPSScriptExecute {
         groovyObject.invokeMethod("processing", null);
 
         //Step 5 : Test the outputs
-        for(Map.Entry<String, Object> entry : outputMap.entrySet()){
+        for(Map.Entry<String, Object> entry : expectedOutputMap.entrySet()){
             Field f = null;
             try {
                 f = scriptClass.getDeclaredField(entry.getKey());
                 if(f != null){
                     f.setAccessible(true);
-                    outputMap.put(entry.getKey(), f.get(groovyObject));
+                    expectedOutputMap.put(entry.getKey(), f.get(groovyObject));
                 }
-                else{    
+                else{
                     throw new Exception("Unable to get the field '" + entry.getKey() + "' from the script '"
                             + scriptPath + "'.");
                 }

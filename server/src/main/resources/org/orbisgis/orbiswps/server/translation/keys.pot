@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-19 15:23+0100\n"
+"POT-Creation-Date: 2018-01-10 13:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,87 +17,98 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:103
+#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:106
+#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:118
+#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:136
 #, java-format
 msgid ""
 "Can not parse the process : {0}\n"
 " Cause : {1}."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:138
+#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:151
+#, java-format
+msgid "unable to generate the URI of the process {0}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:199
 #, java-format
 msgid ""
 "Unable to create a new instance of the groovy script.\n"
 "Cause : {0}"
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:151
-#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:184
+#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:212
+#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:245
 #, java-format
 msgid ""
 "Unable to retrieve the default value of the field : {0}.\n"
 "Cause : {1}."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:174
+#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:235
 #, java-format
 msgid "Unable to find the Parser fo the annotation {0}."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:207
+#: org/orbisgis/orbiswps/server/controller/parser/ParserController.java:268
 #, java-format
 msgid "Unable to find the Parser for the annotation {0}."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:121
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:122
 msgid "The script file doesn't exists."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:132
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:133
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:189
 #, java-format
 msgid "Unable to parse the process {0}."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:136
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:137
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:193
 #, java-format
 msgid "A process with the identifier {0} already exists."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:160
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:161
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:217
 #, java-format
 msgid ""
 "Unable to parse the process {0}.\n"
 "Cause : {1}"
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:170
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:171
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:227
 msgid "The script is not valid."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:359
+#: org/orbisgis/orbiswps/server/controller/process/ProcessManager.java:425
 msgid "Unable to convert the LiteralData to the good script type."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/WpsServerImpl.java:223
+#: org/orbisgis/orbiswps/server/WpsServerImpl.java:267
 #, java-format
 msgid ""
 "Unable to parse the incoming xml.\n"
 "Cause : {0}."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/WpsServerImpl.java:235
+#: org/orbisgis/orbiswps/server/WpsServerImpl.java:279
 #, java-format
 msgid ""
 "Unable to parse the outcoming xml.\n"
 "Cause : {0}."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/WpsServerImpl.java:323
+#: org/orbisgis/orbiswps/server/WpsServerImpl.java:367
 #, java-format
 msgid "Unable to set the property {0}, the name is already used."
 msgstr ""
 
-#: org/orbisgis/orbiswps/server/WpsServerImpl.java:338
+#: org/orbisgis/orbiswps/server/WpsServerImpl.java:382
 #, java-format
 msgid "Unable to remove the property {0}, the name protected or not defined."
 msgstr ""

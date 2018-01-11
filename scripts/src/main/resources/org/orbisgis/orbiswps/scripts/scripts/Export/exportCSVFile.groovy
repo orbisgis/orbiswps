@@ -97,11 +97,11 @@ Boolean dropInputTable
 
 
 @RawDataInput(
-        title = ["Output CSV","en","Fichier CSV","fr"],
-        description = ["The output CSV file to be exported.","en",
-                "Nom du fichier CSV à exporter.","fr"],
-        fileTypes = ["csv"],
-        isDirectory = false)
+    title = ["Output CSV","en","Fichier CSV","fr"],
+    description = ["The output CSV file to be exported.","en",
+            "Nom du fichier CSV à exporter.","fr"],
+    fileTypes = ["csv"],
+    isDirectory = false)
 String[] fileDataInput
 
 

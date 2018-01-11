@@ -46,6 +46,8 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.functions.io.tsv.TSVDriverFunction
 import org.h2gis.api.DriverFunction
 
+import java.sql.Connection
+
 
 /**
  * @author Erwan Bocher
@@ -59,8 +61,9 @@ import org.h2gis.api.DriverFunction
     version = "1.0")
 def processing() {
     File outputFile = new File(fileDataInput[0])    
-    DriverFunction exp = new TSVDriverFunction();
-    exp.exportTable(sql.getDataSource().getConnection(), inputJDBCTable, outputFile,progressMonitor);
+    DriverFunction exp = new TSVDriverFunction()
+    Connection con = sql.getDataSource()?sql.getDataSource().getConnection():sql.getConnection()
+    exp.exportTable(con, inputJDBCTable, outputFile, progressMonitor)
     if(dropInputTable){
 	sql.execute "drop table if exists " + inputJDBCTable
     }
@@ -68,6 +71,9 @@ def processing() {
 }
 
 
+/***********/
+/** INPUT **/
+/***********/
 
 @JDBCTableInput(
     title = [
@@ -85,11 +91,7 @@ String inputJDBCTable
     description = [
 				"Drop the input table when the export is finished.","en",
 				"Supprimer la table d'entrée à l'issue l'export.","fr"])
-Boolean dropInputTable 
-
-/************/
-/** OUTPUT **/
-/************/
+Boolean dropInputTable
 
 @RawDataInput(
     title = ["Output TSV","en","Fichier TSV","fr"],
@@ -99,6 +101,10 @@ Boolean dropInputTable
     isDirectory = false)
 String[] fileDataInput
 
+
+/************/
+/** OUTPUT **/
+/************/
 
 @LiteralDataOutput(
     title = ["Output message","en",

@@ -45,6 +45,9 @@ import org.h2gis.functions.io.dbf.DBFDriverFunction
 import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
+
+import java.sql.Connection
+
 /**
  * @author Erwan Bocher
  */
@@ -57,15 +60,18 @@ import org.orbisgis.orbiswps.groovyapi.process.*
     version = "1.0")
 def processing() {
     File outputFile = new File(fileDataInput[0])    
-    DriverFunction exp = new DBFDriverFunction();
-    exp.exportTable(sql.getDataSource().getConnection(), inputJDBCTable, outputFile,progressMonitor);
+    DriverFunction exp = new DBFDriverFunction()
+    Connection con = sql.getDataSource()?sql.getDataSource().getConnection():sql.getConnection()
+    exp.exportTable(con, inputJDBCTable, outputFile, progressMonitor)
     if(dropInputTable){
-	sql.execute "drop table if exists " + inputJDBCTable
+	    sql.execute "drop table if exists " + inputJDBCTable
     }
     literalDataOutput = "The DBF file has been created."
 }
 
-
+/***********/
+/** INPUT **/
+/***********/
 
 @JDBCTableInput(
     title = [
@@ -84,23 +90,21 @@ String inputJDBCTable
     description = [
 				"Drop the input table when the export is finished.","en",
 				"Supprimer la table d'entrée à l'issue l'export.","fr"])
-Boolean dropInputTable 
+Boolean dropInputTable
 
-
-/************/
-/** OUTPUT **/
-/************/
 
 @RawDataInput(
     title = ["Output DBF","en","Fichier DBF","fr"],
     description = ["The output DBF file to be exported.","en",
-                "Nom du fichier DBF à exporter.","fr"],
+            "Nom du fichier DBF à exporter.","fr"],
     fileTypes = ["dbf"],
     isDirectory = false)
 String[] fileDataInput
 
 
-
+/************/
+/** OUTPUT **/
+/************/
 
 @LiteralDataOutput(
     title = ["Output message","en",

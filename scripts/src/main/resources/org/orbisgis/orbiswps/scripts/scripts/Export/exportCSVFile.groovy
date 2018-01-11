@@ -46,6 +46,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.functions.io.csv.CSVDriverFunction
 import org.h2gis.api.DriverFunction
 
+import java.sql.Connection
 
 /**
  * @author Erwan Bocher
@@ -58,18 +59,22 @@ import org.h2gis.api.DriverFunction
     properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
     version = "1.0")
 def processing() {
-    File outputFile = new File(fileDataInput[0])    
-    DriverFunction exp = new CSVDriverFunction();
-    exp.exportTable(sql.getDataSource().getConnection(), inputJDBCTable, outputFile,progressMonitor);
+    File outputFile = new File(fileDataInput[0])
+    DriverFunction exp = new CSVDriverFunction()
+    Connection con = sql.getDataSource()?sql.getDataSource().getConnection():sql.getConnection()
+    exp.exportTable(con, inputJDBCTable, outputFile, progressMonitor)
     
     if(dropInputTable){
-	sql.execute "drop table if exists " + inputJDBCTable
+	    sql.execute "drop table if exists " + inputJDBCTable
     }
     
     literalDataOutput = "The CSV file has been created."
 }
 
 
+/***********/
+/** INPUT **/
+/***********/
 
 @JDBCTableInput(
     title = [
@@ -88,22 +93,21 @@ String inputJDBCTable
     description = [
 				"Drop the input table when the export is finished.","en",
 				"Supprimer la table d'entrée à l'issue l'export.","fr"])
-Boolean dropInputTable 
+Boolean dropInputTable
 
+
+@RawDataInput(
+    title = ["Output CSV","en","Fichier CSV","fr"],
+    description = ["The output CSV file to be exported.","en",
+            "Nom du fichier CSV à exporter.","fr"],
+    fileTypes = ["csv"],
+    isDirectory = false)
+String[] fileDataInput
 
 
 /************/
 /** OUTPUT **/
 /************/
-
-@RawDataInput(
-    title = ["Output CSV","en","Fichier CSV","fr"],
-    description = ["The output CSV file to be exported.","en",
-                "Nom du fichier CSV à exporter.","fr"],
-    fileTypes = ["csv"],
-    isDirectory = false)
-String[] fileDataInput
-
 
 @LiteralDataOutput(
     title = ["Output message","en",

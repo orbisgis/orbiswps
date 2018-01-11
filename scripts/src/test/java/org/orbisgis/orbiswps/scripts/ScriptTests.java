@@ -106,9 +106,7 @@ public class ScriptTests {
         Map<String, Object> inputMap = new HashMap<>();
         inputMap.put("inputValue", "good ");
         Map<String, Object> propertyMap = new HashMap<>();
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("outputValue", "Not executed");
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("The script has been executed.",outputMap.get("outputValue"));
     }
 
@@ -117,9 +115,7 @@ public class ScriptTests {
         String scriptPath = ScriptTests.class.getResource("basicWPSScript.groovy").getPath();
         Map<String, Object> inputMap = new HashMap<>();
         inputMap.put("inputValue", "good ");
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("outputValue", "Not executed");
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, null, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, null, inputMap);
         Assert.assertEquals("The script has been executed.",outputMap.get("outputValue"));
     }
 
@@ -128,9 +124,7 @@ public class ScriptTests {
         String scriptPath = ScriptTests.class.getResource("wpsScriptWithoutInput.groovy").getPath();
         Map<String, Object> inputMap = new HashMap<>();
         Map<String, Object> propertyMap = new HashMap<>();
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("outputValue", "Not executed");
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("The script has been executed.",outputMap.get("outputValue"));
     }
 
@@ -146,12 +140,10 @@ public class ScriptTests {
         inputMap.put("outputTableName", "buffer_table");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
          //Drop the output table(s)
         st.execute("DROP TABLE if exists buffer_table");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM buffer_table;");
@@ -173,12 +165,10 @@ public class ScriptTests {
         inputMap.put("outputTableName", "buffer_table");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
          //Drop the output table(s)
         st.execute("DROP TABLE if exists buffer_table");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM buffer_table;");
@@ -199,12 +189,10 @@ public class ScriptTests {
         inputMap.put("outputTableName", "center_table");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Drop the output table(s)
         st.execute("DROP TABLE if exists center_table");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM center_table;");
@@ -227,12 +215,10 @@ public class ScriptTests {
         inputMap.put("outputTableName", "center_table");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Drop the output table(s)
         st.execute("DROP TABLE if exists center_table");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM center_table;");
@@ -255,8 +241,6 @@ public class ScriptTests {
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
         propertyMap.put("ish2", true);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Add table to reproject
         st.execute("drop table if exists to_be_reprojected"
                 + "; create table to_be_reprojected(the_geom point, id int);"
@@ -264,7 +248,7 @@ public class ScriptTests {
         //Drop the output table(s)
         st.execute("DROP TABLE if exists reprojected_table");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM reprojected_table;");
@@ -290,10 +274,8 @@ public class ScriptTests {
         inputMap.put("outputTableName", "input_table_b_filetered");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM input_table_b_filetered;");
@@ -315,10 +297,8 @@ public class ScriptTests {
         inputMap.put("outputTableName", "input_table_b_filetered");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT count(*) FROM input_table_b_filetered;");
@@ -340,10 +320,8 @@ public class ScriptTests {
         inputMap.put("outputTableName", "input_table_b_filetered");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT count(*) FROM input_table_b_filetered;");
@@ -366,10 +344,8 @@ public class ScriptTests {
         inputMap.put("outputTableName", "input_table_filetered");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT count(*) FROM input_table_filetered;");
@@ -389,10 +365,8 @@ public class ScriptTests {
         inputMap.put("outputTableName", "input_table_b_filetered");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT count(*) FROM input_table_b_filetered;");
@@ -412,10 +386,8 @@ public class ScriptTests {
         inputMap.put("outputTableName", "input_table_b_filetered");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM input_table_b_filetered;");
@@ -442,8 +414,6 @@ public class ScriptTests {
         inputMap.put("outputTableName", "geomForms_res");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Add data
         st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon, id int, form varchar); "
                 + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 300, 200 300, 200 200, 100 200, 100 300))'), 1,'square')"
@@ -451,7 +421,7 @@ public class ScriptTests {
                 + "(ST_GeomFromText('POLYGON ((100 300, 200 400, 300 400, 400 300, 400 200, 300 100, 200 100, 100 200, 100 300))'), 3,'hexagon'),"
                 + "(ST_GeomFromText('POLYGON ((20 10, 19.807852804032304 8.049096779838717, 19.238795325112868 6.173165676349102, 18.314696123025453 4.444297669803978, 17.071067811865476 2.9289321881345254, 15.555702330196024 1.6853038769745474, 13.826834323650898 0.7612046748871322, 11.950903220161283 0.1921471959676957, 10 0, 8.049096779838719 0.1921471959676957, 6.173165676349103 0.7612046748871322, 4.44429766980398 1.6853038769745474, 2.9289321881345254 2.9289321881345245, 1.6853038769745474 4.444297669803978, 0.7612046748871322 6.173165676349106, 0.1921471959676939 8.049096779838722, 0 10.000000000000007, 0.1921471959676975 11.950903220161292, 0.7612046748871375 13.826834323650909, 1.6853038769745545 15.555702330196034, 2.928932188134537 17.071067811865486, 4.444297669803992 18.314696123025463, 6.173165676349122 19.238795325112875, 8.04909677983874 19.807852804032308, 10.000000000000025 20, 11.950903220161308 19.8078528040323, 13.826834323650925 19.238795325112857, 15.555702330196048 18.314696123025435, 17.071067811865497 17.07106781186545, 18.31469612302547 15.555702330195993, 19.238795325112882 13.826834323650862, 19.80785280403231 11.950903220161244, 20 10))'), 4,'circle')");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM geomForms_res;");
@@ -499,8 +469,6 @@ public class ScriptTests {
         inputMap.put("outputTableName", "geomForms_res");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Add data
         st.execute("create table geomForms (the_geom polygon, id int); "
                 + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((140 370, 180 370, 180 120, 140 120, 140 370))'), 1)"
@@ -508,7 +476,7 @@ public class ScriptTests {
                 + "(ST_GeomFromText('POLYGON ((118.68272016354703 224.8959235991435, 260.10407640085657 366.317279836453, 281.31727983645294 345.1040764008565, 139.89592359914346 203.68272016354706, 118.68272016354703 224.8959235991435))'), 3),"
                 + "(ST_GeomFromText('POLYGON ((260.10407640085657 203.68272016354703, 118.68272016354706 345.10407640085657, 139.89592359914354 366.31727983645294, 281.317279836453 224.89592359914346, 260.10407640085657 203.68272016354703))'), 4,)");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done", outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM geomForms_res;");
@@ -535,14 +503,12 @@ public class ScriptTests {
         inputMap.put("outputTableName", "geomForms_res");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Add data
         st.execute("create table geomForms (the_geom polygon, id int); "
                 + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 200, 200 200, 200 100, 100 100, 100 200))'), 1)"
                 + ",(ST_GeomFromText('POLYGON ((100 300, 200 400, 300 400, 400 300, 400 200, 300 100, 200 100, 100 200, 100 300))'), 2)");
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done", outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM geomForms_res;");
@@ -568,8 +534,6 @@ public class ScriptTests {
         inputMap.put("outputTableName", "geomForms_res");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        Map<String, Object> outputMap = new HashMap<>();
-        outputMap.put("literalOutput", "Not executed");
         //Add data
         st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon, id int, form varchar); "
                 + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 300, 200 300, 200 200, 100 200, 100 300))'), 1,'square')"
@@ -579,7 +543,7 @@ public class ScriptTests {
                 + "(ST_GeomFromText('POLYGON ((100 320, 100 120, 400 120, 400 320, 300 320, 300 200, 200 200, 200 320, 100 320))'), 4,'polygon')");
 
         //Execute
-        WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap, outputMap);
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
         Assert.assertEquals("Process done",outputMap.get("literalOutput"));
         ResultSet rs = st.executeQuery(
                 "SELECT * FROM geomForms_res;");
@@ -600,5 +564,4 @@ public class ScriptTests {
         Assert.assertTrue(rs.getDouble(2)<1);
         rs.close();
     }
-
 }

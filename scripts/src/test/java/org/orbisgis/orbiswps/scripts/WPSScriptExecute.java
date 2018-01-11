@@ -43,9 +43,12 @@ import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 import org.codehaus.groovy.control.CompilationFailedException;
+import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute;
 
 /**
  * An utility method to execute a WPS groovy script
@@ -62,29 +65,23 @@ public class WPSScriptExecute {
      * @param scriptPath Path to the script to run.
      * @param inputMap Map containing the inputs. The keys are the script attribute name and the values are the attribute data.
      * @param propertyMap Map containing the groovy properties. The keys are the property attribute name and the values
-     *                    are the property attribute data.
-     * @param expectedOutputMap Map containing the desired outputs. The keys are the script output attribute name and the values
-     *                  are the desired output attribute data which will be tested.
+     *                  are the property attribute data.
+     * @return Map containing the process outputs. The keys are the script output attribute name and the values
+     *                  are the output attribute data.
      * @throws java.lang.Exception
      */
-    public static void run(GroovyClassLoader groovyClassLoader, String scriptPath,
+    public static Map<String, Object> run(GroovyClassLoader groovyClassLoader, String scriptPath,
                                     Map<String, Object> propertyMap,
-                                    Map<String, Object> inputMap,
-                                    Map<String, Object> expectedOutputMap) throws Exception{
+                                    Map<String, Object> inputMap) throws Exception{
+
+        Map<String, Object> outputMap = new HashMap<>();
+
         if(groovyClassLoader==null){
             throw new Exception("The GroovyClassLoader cannot be null");
         }
         
         if(scriptPath==null){
              throw new Exception("The script '"+scriptPath+"'\n cannot be null");
-        }  
-        
-        if(expectedOutputMap==null){
-            throw new Exception("The expectedOutputMap cannot be null");
-        }
-         
-        if(expectedOutputMap.isEmpty()){
-            throw new Exception("The expectedOutputMap must contains at leat one key - value");
         }
         
         //Step 1 : Parse the script
@@ -142,23 +139,20 @@ public class WPSScriptExecute {
         groovyObject.invokeMethod("processing", null);
 
         //Step 5 : Test the outputs
-        for(Map.Entry<String, Object> entry : expectedOutputMap.entrySet()){
-            Field f = null;
-            try {
-                f = scriptClass.getDeclaredField(entry.getKey());
-                if(f != null){
-                    f.setAccessible(true);
-                    expectedOutputMap.put(entry.getKey(), f.get(groovyObject));
+        for(Field f : scriptClass.getDeclaredFields()){
+            for(Annotation annot : f.getDeclaredAnnotations()){
+                if(annot instanceof OutputAttribute) {
+                    try {
+                        f.setAccessible(true);
+                        outputMap.put(f.getName(), f.get(groovyObject));
+                    } catch (IllegalAccessException e) {
+                        throw new Exception("Unable to get the field '" + f.getName() + "' from the script '" + scriptPath + "'\n Cause : " +
+                                e.getLocalizedMessage());
+                    }
                 }
-                else{
-                    throw new Exception("Unable to get the field '" + entry.getKey() + "' from the script '"
-                            + scriptPath + "'.");
-                }
-            } catch (IllegalAccessException|NoSuchFieldException e) {
-                throw new Exception("Unable to get the field '"+entry.getKey()+"' from the script '"+scriptPath+"'\n Cause : "+
-                        e.getLocalizedMessage());
             }
         }
+        return outputMap;
     }
     
 }

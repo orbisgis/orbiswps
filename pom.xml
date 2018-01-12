@@ -25,7 +25,7 @@
         </parent>
         <modules>
                 <module>groovy-api</module>
-                <module>server</module>
+                <module>service</module>
                 <module>scripts</module>
                 <module>client-api</module>
                 <module>service-api</module>

@@ -64,7 +64,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 				"Vecteur,Géométrie,Extraction,Centre", "fr"],
 
 		properties = ["DBMS_TYPE", "H2GIS",
-				"DBMS_TYPE", "POSTGIS"],
+				"DBMS_TYPE", "POSTGRESQL"],
                 version = "1.0")
 def processing() {
     //Build the start of the query

@@ -42,18 +42,14 @@ package org.orbisgis.orbiswps.service;
 import org.orbisgis.orbiswps.service.controller.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.service.utils.WpsServerListener;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
 
 /**
- * A WPS Server is a web server that provides access to simple or complex computational processing services.
+ * A WPS Service provides access to simple or complex computational processing services.
  *
  * @author Sylvain PALOMINOS
  */
@@ -69,29 +65,6 @@ public interface WpsServer {
     OutputStream callOperation(InputStream xml);
 
     /**
-     * Cancel the running process corresponding to the given URI.
-     * @param jobId Id of the job to cancel.
-     */
-    void cancelProcess(UUID jobId);
-
-    /**
-     * Enumeration of the supported databases
-     */
-    enum Database {H2GIS, POSTGIS}
-
-    /**
-     * Returns the database which is connected to the WPS server.
-     * @return The database which is connected to the WPS server.
-     */
-    Database getDatabase();
-
-    /**
-     * Sets the database which is connected to the WPS server.
-     * @param database The database which is connected to the WPS server.
-     */
-    void setDatabase(Database database);
-
-    /**
      * Add a local groovy file or directory of processes to the wps service.
      * @param f  File object to add to the service.
      * @return
@@ -103,46 +76,6 @@ public interface WpsServer {
      * @param identifier URI identifier of the process.
      */
     void removeProcess(URI identifier);
-
-    /**
-     * Adds to the server execution properties which will be set to the GroovyObject for the execution.
-     * Those properties will be accessible inside the groovy script as variables which name is the map entry key.
-     * For example :
-     * If the propertiesMap contains <"message", "HelloWorld">, inside the groovy script you can print the message this
-     * way : 'print message'
-     * @param propertiesMap Map containing the properties to be passed to the GroovyObject
-     */
-    void addGroovyProperties(Map<String, Object> propertiesMap);
-
-    /**
-     * Removes the properties already set for the GroovyObject for the execution.
-     * @param propertiesMap Map containing the properties to be removed
-     */
-    void removeGroovyProperties(Map<String, Object> propertiesMap);
-
-    /**
-     * Returns the path of the folder containing the WPS groovy scripts.
-     * @return The path of the folder containing the WPS groovy scripts.
-     */
-    String getScriptFolder();
-
-    /**
-     * Sets the path of the folder containing the WPS groovy scripts.
-     * @param scriptFolder The path of the folder containing the WPS groovy scripts.
-     */
-    void setScriptFolder(String scriptFolder);
-
-    /**
-     * Sets the data source.
-     * @param dataSource DataSource to use.
-     */
-    void setDataSource(DataSource dataSource);
-
-    /**
-     * Sets the ExecutorService.
-     * @param executorService ExecutorService to use.
-     */
-    void setExecutorService(ExecutorService executorService);
 
     /**
      * Registers a WpsServerListener.

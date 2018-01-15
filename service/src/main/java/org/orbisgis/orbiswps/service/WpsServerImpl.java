@@ -79,8 +79,6 @@ import java.util.concurrent.Future;
 @Component(immediate = true, service = WpsServer.class)
 public class WpsServerImpl implements WpsServer {
 
-    /** Name of the folder containing the cached scripts. */
-    private static final String SCRIPT_CACHE_FOLDER_NAME = "wpsscripts";
     /** Logger */
     private static final Logger LOGGER = LoggerFactory.getLogger(WpsServerImpl.class);
     /** I18N object */
@@ -90,8 +88,6 @@ public class WpsServerImpl implements WpsServer {
     private ProcessManager processManager;
     /** ExecutorService of OrbisGIS */
     private ExecutorService executorService;
-    /** Database connected to the WPS server */
-    private Database database;
     /** Map containing all the properties to give to the groovy object.
      * The following words are reserved and SHOULD NOT be used as keys : 'logger', 'sql', 'isH2'. */
     private Map<String, Object> propertiesMap;
@@ -99,14 +95,13 @@ public class WpsServerImpl implements WpsServer {
     private boolean processRunning = false;
     /** FIFO list of ProcessWorker, it is used to run the processes one by one in the good order. */
     private LinkedList<ProcessWorker> workerFIFO;
-    /** String path to the script folder. */
-    private String scriptFolder;
     /** List of OrbisGISWpsServerListener. */
     private List<WpsServerListener> wpsServerListenerList = new ArrayList<>();
     /** Class execution the WPS 2.0 operations. */
     private WPS_2_0_Operations wps20Operations;
-    /** Class execution the WPS 2.0 operations. */
+    /** Class execution the WPS 1.0.0 operations. */
     private WPS_1_0_0_Operations wps100Operations;
+
     private Map<UUID, Future> workerMap = new HashMap<>();
 
 
@@ -122,42 +117,45 @@ public class WpsServerImpl implements WpsServer {
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(null, this);
         workerFIFO = new LinkedList<>();
-        this.setScriptFolder(System.getProperty("java.io.tmpdir") + File.separator + SCRIPT_CACHE_FOLDER_NAME);
-        wps20Operations = new WPS_2_0_OperationsImpl(this, new WpsServerProperties_2_0(null));
-        wps100Operations = new WPS_1_0_0_OperationsImpl(this, new WpsServerProperties_1_0_0(null));
+        WpsServerProperties_2_0 props20 = new WpsServerProperties_2_0(null);
+        wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
+        WpsServerProperties_1_0_0 props100 = new WpsServerProperties_1_0_0(null);
+        wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
     /**
      * Initialization of the WpsServer with the given properties.
      *
-     * @param scriptFolder String path to the OrbisGIS script folder.
      * @param dataSource DataSource to be used by the server.
      */
-    public WpsServerImpl(String scriptFolder, DataSource dataSource){
+    public WpsServerImpl(DataSource dataSource, ExecutorService executorService){
+        this.executorService = executorService;
         propertiesMap = new HashMap<>();
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
         workerFIFO = new LinkedList<>();
-        this.setScriptFolder(scriptFolder);
-        wps20Operations = new WPS_2_0_OperationsImpl(this, new WpsServerProperties_2_0(null));
-        wps100Operations = new WPS_1_0_0_OperationsImpl(this, new WpsServerProperties_1_0_0(null));
+        WpsServerProperties_2_0 props20 = new WpsServerProperties_2_0(null);
+        wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
+        WpsServerProperties_1_0_0 props100 = new WpsServerProperties_1_0_0(null);
+        wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
     /**
      * Initialization of the WpsServer with the given properties.
      *
-     * @param scriptFolder String path to the OrbisGIS script folder.
      * @param dataSource DataSource to be used by the server.
      * @param propertyFileLocation Location of the property file of the Server.
      */
-    public WpsServerImpl(String scriptFolder, DataSource dataSource, String propertyFileLocation){
+    public WpsServerImpl(DataSource dataSource, String propertyFileLocation, ExecutorService executorService){
+        this.executorService = executorService;
         propertiesMap = new HashMap<>();
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
         workerFIFO = new LinkedList<>();
-        this.setScriptFolder(scriptFolder);
-        wps20Operations = new WPS_2_0_OperationsImpl(this, new WpsServerProperties_2_0(propertyFileLocation));
-        wps100Operations = new WPS_1_0_0_OperationsImpl(this, new WpsServerProperties_1_0_0(propertyFileLocation));
+        WpsServerProperties_2_0 props20 = new WpsServerProperties_2_0(propertyFileLocation);
+        wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
+        WpsServerProperties_1_0_0 props100 = new WpsServerProperties_1_0_0(propertyFileLocation);
+        wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
 
@@ -282,45 +280,9 @@ public class WpsServerImpl implements WpsServer {
         return out;
     }
 
-    @Override
-    public void cancelProcess(UUID jobId){
-        processManager.cancelProcess(jobId);
-        workerMap.get(jobId).cancel(true);
-    }
-
-    /*************************/
-    /** Getters and setters **/
-    /*************************/
-
-    @Override
-    public void setDatabase(Database database){
-        this.database = database;
-        processManager.filterProcessByDatabase();
-    }
-    @Override
-    public Database getDatabase() {
-        return database;
-    }
-    @Override
-    public void setDataSource(DataSource dataSource){
-        this.processManager.setDataSource(dataSource);
-    }
-    @Override
-    public void setExecutorService(ExecutorService executorService){
-        this.executorService = executorService;
-    }
-
     /************************/
     /** Utilities methods. **/
     /************************/
-
-    /**
-     * Returns the list of processes managed by the wpsService.
-     * @return The list of processes managed by the wpsService.
-     */
-    protected List<ProcessIdentifier> getProcessList(){
-        return processManager.getAllProcessIdentifier();
-    }
 
     @Override
     public List<ProcessIdentifier> addProcess(File f){
@@ -354,48 +316,6 @@ public class WpsServerImpl implements WpsServer {
     }
 
     @Override
-    public void addGroovyProperties(Map<String, Object> propertiesMap){
-        //Before adding an entry, check if it is not already defined.
-        for(Map.Entry<String, Object> entry : propertiesMap.entrySet()){
-            if(!this.propertiesMap.containsKey(entry.getKey()) &&
-                    !entry.getKey().equals("logger") &&
-                    !entry.getKey().equals("isH2") &&
-                    !entry.getKey().equals("sql")){
-                this.propertiesMap.put(entry.getKey(), entry.getValue());
-            }
-            else{
-                LOGGER.error(I18N.tr("Unable to set the property {0}, the name is already used.", entry.getKey()));
-            }
-        }
-    }
-
-    @Override
-    public void removeGroovyProperties(Map<String, Object> propertiesMap){
-        for(Map.Entry<String, Object> entry : propertiesMap.entrySet()){
-            if(this.propertiesMap.containsKey(entry.getKey()) &&
-                    !entry.getKey().equals("logger") &&
-                    !entry.getKey().equals("isH2") &&
-                    !entry.getKey().equals("sql")){
-                this.propertiesMap.remove(entry.getKey());
-            }
-            else{
-                LOGGER.error(I18N.tr("Unable to remove the property {0}, the name protected or not defined.",
-                        entry.getKey()));
-            }
-        }
-    }
-
-    @Override
-    public void setScriptFolder(String scriptFolder){
-        this.scriptFolder = scriptFolder;
-    }
-
-    @Override
-    public String getScriptFolder(){
-        return scriptFolder;
-    }
-
-    @Override
     public void addWpsServerListener(WpsServerListener wpsServerListener) {
         this.wpsServerListenerList.add(wpsServerListener);
     }
@@ -419,7 +339,7 @@ public class WpsServerImpl implements WpsServer {
      * @return True if a process is running, false otherwise.
      */
     protected Future executeNewProcessWorker(Job job, ProcessIdentifier processIdentifier, Map<URI, Object> dataMap){
-        ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this);
+        ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this, propertiesMap);
 
         if(processRunning){
             workerFIFO.push(worker);
@@ -467,18 +387,11 @@ public class WpsServerImpl implements WpsServer {
     }
 
     /**
-     * Returns the Map containing all the properties which will be given to the Groovy engine.
-     * @return The Map of the groovy properties.
+     * Cancel the running process corresponding to the given URI.
+     * @param jobId Id of the job to cancel.
      */
-    public Map<String, Object> getGroovyPropertiesMap(){
-        return propertiesMap;
-    }
-
-    /**
-     * Returns the ProcessManager.
-     * @return The ProcessManager.
-     */
-    protected ProcessManager getProcessManager(){
-        return processManager;
+    public void cancelProcess(UUID jobId){
+        processManager.cancelProcess(jobId);
+        workerMap.get(jobId).cancel(true);
     }
 }

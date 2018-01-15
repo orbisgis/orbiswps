@@ -183,11 +183,11 @@ public class ProcessParserTest {
                 processDescriptionType.getMetadata().get(0).getTitle());
         Assert.assertEquals("The role of the second metadata is not the one expected", "DBMS_TYPE",
                 processDescriptionType.getMetadata().get(1).getRole());
-        Assert.assertEquals("The title of the second metadata is not the one expected", "H2GIS",
+        Assert.assertEquals("The title of the second metadata is not the one expected", "H2",
                 processDescriptionType.getMetadata().get(1).getTitle());
         Assert.assertEquals("The role of the third metadata is not the one expected", "DBMS_TYPE",
                 processDescriptionType.getMetadata().get(2).getRole());
-        Assert.assertEquals("The title of the third metadata is not the one expected", "POSTGIS",
+        Assert.assertEquals("The title of the third metadata is not the one expected", "POSTGRESQL",
                 processDescriptionType.getMetadata().get(2).getTitle());
     }
 
@@ -205,7 +205,7 @@ public class ProcessParserTest {
         @ProcessAttribute(
                 language = "fr",
                 version = "1.0.0",
-                properties = {"DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"}
+                properties = {"DBMS_TYPE", "H2", "DBMS_TYPE", "POSTGRESQL"}
         )
         @DescriptionTypeAttribute(
                 title = {"title", "en", "titre", "fr"},

@@ -74,7 +74,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
         keywords = ["Vector,Geometry", "en",
                 "Vecteur,Géométrie", "fr"],
         properties = ["DBMS_TYPE", "H2GIS",
-                "DBMS_TYPE", "POSTGIS"],
+                "DBMS_TYPE", "POSTGRESQL"],
         version = "1.0")
 def processing() {
 

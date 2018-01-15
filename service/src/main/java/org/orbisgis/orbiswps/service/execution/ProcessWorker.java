@@ -77,12 +77,14 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWorker.class);
     private ProgressMonitor progressMonitor;
     private WpsServerImpl wpsServer;
+    private Map<String, Object> groovyProperties;
 
     public ProcessWorker(Job job,
                          ProcessIdentifier processIdentifier,
                          ProcessManager processManager,
                          Map<URI, Object> dataMap,
-                         WpsServerImpl wpsServer){
+                         WpsServerImpl wpsServer,
+                         Map<String, Object> groovyProperties){
         this.job = job;
         this.processIdentifier = processIdentifier;
         this.processManager = processManager;
@@ -91,6 +93,7 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
         progressMonitor = new ProgressMonitor(job.getProcess().getTitle().get(0).getValue());
         progressMonitor.addPropertyChangeListener(ProgressMonitor.PROPERTY_PROGRESS, this.job);
         progressMonitor.addPropertyChangeListener(ProgressMonitor.PROPERTY_CANCEL, this);
+        this.groovyProperties = groovyProperties;
     }
 
     @Override
@@ -119,9 +122,7 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
                 job.appendLog(ProcessExecutionListener.LogType.INFO, I18N.tr("Execute the script."));
             }
             progressMonitor.setTaskName(I18N.tr("{0} : Execution", title));
-            processManager.executeProcess(job.getId(), processIdentifier, dataMap, wpsServer.getGroovyPropertiesMap(),
-                    progressMonitor);
-
+            processManager.executeProcess(job.getId(), processIdentifier, dataMap, groovyProperties, progressMonitor);
             progressMonitor.setTaskName(I18N.tr("{0} : Postprocessing", title));
             //Post-process the data
             if(job != null) {

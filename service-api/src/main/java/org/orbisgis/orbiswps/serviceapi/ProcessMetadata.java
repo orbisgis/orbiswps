@@ -43,7 +43,7 @@ package org.orbisgis.orbiswps.serviceapi;
  * This class contains the process metadata used by OrbisGIS. A process metadata is composed of a role and a title.
  * OrbisGIS use the metadata to get annexe information about the process such as the DBMS compatible with the script.
  * The metadata role corresponds to the property and the title is the value. For example for the compatible DBMS
- * metadata, the role is DBMS_TYPE and the title can be H2GIS or POSTGIS.
+ * metadata, the role is DBMS_TYPE and the title can be H2 or POSTGRESQL.
  * In this class, the metadata role are the enumeration name and the titles are the enumeration values.
  *
  * @author Sylvain PALOMINOS
@@ -58,13 +58,15 @@ public class ProcessMetadata {
      * @ Process(
      *      ...
      *      metadata = [
-     *          @ MetadataAttribute(title="H2GIS", role ="DBMS_TYPE", href = "http://www.h2gis.org/"),
-     *          @ MetadataAttribute(title="POSTGIS", role ="DBMS_TYPE", href = "http://postgis.net/")
+     *          @ MetadataAttribute(title="H2", role ="DBMS_TYPE", href = "http://www.h2gis.org/"),
+     *          @ MetadataAttribute(title="POSTGRESQL", role ="DBMS_TYPE", href = "http://postgis.net/")
      *      ]
      *      ...
      * )
      */
-    public enum DBMS_TYPE{H2GIS, POSTGIS}
+    public enum DBMS_TYPE{
+        H2, POSTGRESQL
+    }
     public static final String DBMS_TYPE_NAME = "DBMS_TYPE";
 
     /**

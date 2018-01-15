@@ -57,7 +57,7 @@ import java.sql.Connection
                 "Exporter une table dans un fichier GeoJSON.","fr"],
     keywords = ["OrbisGIS,Exporter, Fichier, GeoJSON","fr",
                 "OrbisGIS,Export, File, GeoJSON","en"],
-    properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
+    properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGRESQL"],
     version = "1.0")
 def processing() {
     File outputFile = new File(fileDataInput[0])

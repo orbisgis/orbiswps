@@ -40,10 +40,10 @@
 package org.orbisgis.orbiswps.service;
 
 import junit.framework.Assert;
-import net.opengis.ows._2.*;
+import net.opengis.ows._2.AcceptVersionsType;
+import net.opengis.ows._2.ExceptionReport;
+import net.opengis.ows._2.SectionsType;
 import net.opengis.wps._2_0.*;
-import net.opengis.wps._2_0.GetCapabilitiesType;
-import net.opengis.wps._2_0.ObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
@@ -57,11 +57,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.lang.Thread.sleep;
@@ -80,7 +76,7 @@ public class TestWpsServerImpl {
      */
     @Before
     public void initialize(){
-        WpsServerImpl wpsServer = new WpsServerImpl();
+        WpsServerImpl wpsServer = new WpsServerImpl(null, null, Executors.newFixedThreadPool(1));
 
         try {
             URL url = this.getClass().getResource("JDBCTable.groovy");
@@ -123,20 +119,7 @@ public class TestWpsServerImpl {
             Assert.fail("Error on loading the scripts : "+e.getMessage());
         }
 
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-        wpsServer.setExecutorService(executorService);
-
         this.wpsServer = wpsServer;
-    }
-
-    @Test
-    public void testWpsServerImplActivation(){
-        WpsServerImpl wpsServerImpl = new WpsServerImpl();
-        wpsServerImpl.activate();
-        Assert.assertNotNull("The script folder should not be null.", wpsServerImpl.getScriptFolder());
-        wpsServerImpl = new WpsServerImpl(System.getProperty("java.io.tmpdir") + File.separator + "folder", null);
-        wpsServerImpl.activate();
-        Assert.assertNotNull("The script folder should not be null.", wpsServerImpl.getScriptFolder());
     }
 
     /**
@@ -798,17 +781,6 @@ public class TestWpsServerImpl {
     }
 
     /**
-     * Tests the getter and setter of the Database attribute.
-     */
-    @Test
-    public void testGetSetDatabase(){
-        wpsServer.setDataSource(null);
-        wpsServer.setDatabase(WpsServer.Database.H2GIS);
-        Assert.assertEquals("The database attribute should be 'H2GIS'",
-                wpsServer.getDatabase(), WpsServer.Database.H2GIS);
-    }
-
-    /**
      * Test the listening of adding and removing of processes.
      * @throws URISyntaxException Exception get if the creation of the process identifier fails.
      */
@@ -850,7 +822,7 @@ public class TestWpsServerImpl {
     /**
      * Test the adding and removing of groovy properties.
      */
-    @Test
+    /*@Test
     public void testProperties(){
         Map<String, Object> propertiesMap = new HashMap<>();
         propertiesMap.put("logger", "invalidProperty");
@@ -863,5 +835,5 @@ public class TestWpsServerImpl {
         map = wpsServer.getGroovyPropertiesMap();
         Assert.assertFalse("The property map not should contains the property 'prop'.", map.containsKey("prop"));
         Assert.assertNull("The property 'logger' should be null", map.get("logger"));
-    }
+    }*/
 }

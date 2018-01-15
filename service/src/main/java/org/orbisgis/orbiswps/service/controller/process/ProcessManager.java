@@ -52,6 +52,7 @@ import org.orbisgis.orbiswps.service.model.*;
 import org.orbisgis.orbiswps.service.model.Enumeration;
 import org.orbisgis.orbiswps.serviceapi.ProcessMetadata;
 import org.orbisgis.orbiswps.service.utils.ProgressMonitor;
+import org.orbisgis.orbiswps.serviceapi.ProcessMetadata.DBMS_TYPE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
@@ -65,6 +66,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -89,6 +91,7 @@ public class ProcessManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManager.class);
     /** I18N object */
     private static final I18n I18N = I18nFactory.getI18n(ProcessManager.class);
+    private DBMS_TYPE database;
 
     /**
      * Main constructor.
@@ -101,6 +104,15 @@ public class ProcessManager {
         this.setDataSource(dataSource);
         this.wpsServer = wpsServer;
         this.closureMap = new HashMap<>();
+        //Method get from H2 JDBCUtilities to avoid adding a dependency
+        try {
+            if(dataSource!=null && dataSource.getConnection()!=null && dataSource.getConnection().getMetaData()!=null) {
+                String driverName = dataSource.getConnection().getMetaData().getDriverName();
+                database = driverName.equalsIgnoreCase("H2 JDBC Driver") ? DBMS_TYPE.H2 : DBMS_TYPE.POSTGRESQL;
+            }
+        } catch (SQLException ignore) {
+            LOGGER.error((I18N.tr("Unable detect if the dataSource is H2 or Postgresql")));
+        }
     }
 
     /**
@@ -147,9 +159,9 @@ public class ProcessManager {
                 }
                 if(! isAcceptedDBMS){
                     for(MetadataType metadata : processOffering.getProcess().getMetadata()){
-                        if(wpsServer.getDatabase() == null ||
+                        if(database == null ||
                                 (metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME) &&
-                                        metadata.getTitle().toLowerCase().equals(wpsServer.getDatabase().name().toLowerCase()))){
+                                        metadata.getTitle().equalsIgnoreCase(database.name()))){
                             isAcceptedDBMS = true;
                         }
                     }
@@ -203,9 +215,9 @@ public class ProcessManager {
                 }
                 if(! isAcceptedDBMS){
                     for(MetadataType metadata : processOffering.getProcess().getMetadata()){
-                        if(wpsServer.getDatabase() == null ||
+                        if(database == null ||
                                 (metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME) &&
-                                        metadata.getTitle().toLowerCase().equals(wpsServer.getDatabase().name().toLowerCase()))){
+                                        metadata.getTitle().equalsIgnoreCase(database.name()))){
                             isAcceptedDBMS = true;
                         }
                     }
@@ -278,17 +290,17 @@ public class ProcessManager {
         if(groovyObject != null) {
             CancelClosure closure = new CancelClosure(this);
             closureMap.put(jobId, closure);
+            for(Map.Entry<String, Object> entry : propertiesMap.entrySet()){
+                groovyObject.setProperty(entry.getKey(), entry.getValue());
+            }
             if (dataSource != null) {
                 WpsSql sql = new WpsSql(dataSource);
                 sql.withStatement(closure);
                 groovyObject.setProperty("sql", sql);
-                groovyObject.setProperty("isH2", wpsServer.getDatabase().equals(WpsServer.Database.H2GIS));
+                groovyObject.setProperty("isH2", database.equals(DBMS_TYPE.H2));
             }
             groovyObject.setProperty("logger", LoggerFactory.getLogger(ProcessManager.class));
             groovyObject.setProperty("progressMonitor", progressMonitor);
-            for(Map.Entry<String, Object> entry : propertiesMap.entrySet()){
-                groovyObject.setProperty(entry.getKey(), entry.getValue());
-            }
             groovyObject.invokeMethod("processing", null);
             retrieveData(process, clazz, groovyObject, dataMap);
         }
@@ -567,7 +579,7 @@ public class ProcessManager {
             for(MetadataType metadata : pi.getProcessDescriptionType().getMetadata()){
                 if(metadata.getRole() != null && metadata.getTitle() != null &&
                         metadata.getRole().equalsIgnoreCase(ProcessMetadata.DBMS_TYPE_NAME) &&
-                        metadata.getTitle().toLowerCase().equals(wpsServer.getDatabase().name().toLowerCase())){
+                        metadata.getTitle().equalsIgnoreCase(database.name())){
                     isAccepted = true;
                 }
             }

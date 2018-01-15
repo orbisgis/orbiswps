@@ -43,6 +43,7 @@ import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.orbisgis.orbiswps.service.controller.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.service.controller.utils.Job;
 import org.orbisgis.orbiswps.service.execution.ProcessExecutionListener;
 import org.orbisgis.orbiswps.service.utils.ProcessTranslator;
@@ -68,12 +69,16 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
     private WpsServerImpl wpsServer;
 
     /** WPS 2.0 properties of the server */
-    private static WpsServerProperties_2_0 wpsProp;
+    private WpsServerProperties_2_0 wpsProp;
+
+    private ProcessManager processManager;
 
     /** Main constructor */
-    public WPS_2_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_2_0 wpsProp){
+    public WPS_2_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_2_0 wpsProp,
+                                  ProcessManager processManager){
         this.wpsServer = wpsServer;
-        WPS_2_0_OperationsImpl.wpsProp = wpsProp;
+        this.wpsProp = wpsProp;
+        this.processManager = processManager;
         jobMap = new HashMap<>();
     }
 
@@ -244,7 +249,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         if(requestedSections.contains(SectionName.All) || requestedSections.contains(SectionName.Contents)) {
             Contents contents = new Contents();
             List<ProcessSummaryType> processSummaryTypeList = new ArrayList<>();
-            List<ProcessIdentifier> processIdList = wpsServer.getProcessList();
+            List<ProcessIdentifier> processIdList = processManager.getAllProcessIdentifier();
             for (ProcessIdentifier pId : processIdList) {
                 ProcessDescriptionType process = pId.getProcessDescriptionType();
                 ProcessDescriptionType translatedProcess = ProcessTranslator.getTranslatedProcess(
@@ -284,7 +289,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         //For each of the processes
         for(CodeType id : idList) {
             ProcessOffering processOffering = null;
-            List<ProcessIdentifier> piList = wpsServer.getProcessManager().getAllProcessIdentifier();
+            List<ProcessIdentifier> piList = processManager.getAllProcessIdentifier();
             //Find the process registered in the server with the same id
             for(ProcessIdentifier pi : piList){
                 if(pi.getProcessDescriptionType().getIdentifier().getValue().equals(id.getValue())){
@@ -349,8 +354,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         UUID jobId = UUID.randomUUID();
         statusInfo.setJobID(jobId.toString());
         //Get the Process
-        ProcessIdentifier processIdentifier =
-                wpsServer.getProcessManager().getProcessIdentifier(execute.getIdentifier());
+        ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(execute.getIdentifier());
         //Generate the processInstance
         Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
                 wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,

@@ -5,6 +5,7 @@ import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.service.utils.WpsServerProperties_1_0_0;
 
 import javax.xml.bind.JAXBException;
@@ -38,16 +39,18 @@ public class TestWPS_1_0_0_OperationsImpl {
     @Before
     public void initialize() {
         wpsServer = new WpsServerImpl();
+        ProcessManager processManager = new ProcessManager(null, wpsServer);
         try {
             URL url = this.getClass().getResource("JDBCTable.groovy");
             Assert.assertNotNull("Unable to load the script 'JDBCTable.groovy'", url);
             File f = new File(url.toURI());
             wpsServer.addProcess(f);
+            processManager.addScript(f.toURI());
         } catch (URISyntaxException e) {
             Assert.fail("Error on loading the scripts : "+e.getMessage());
         }
         wpsProps = new WpsServerProperties_1_0_0(null);
-        wps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, wpsProps);
+        wps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, wpsProps, processManager);
     }
 
 

@@ -53,6 +53,7 @@ import net.opengis.wps._2_0.BoundingBoxData;
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.*;
 import org.orbisgis.orbiswps.service.controller.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.service.controller.utils.Job;
 import org.orbisgis.orbiswps.service.model.Enumeration;
 import org.orbisgis.orbiswps.service.model.*;
@@ -78,6 +79,8 @@ import java.util.concurrent.Future;
  */
 public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_1_0_0_OperationsImpl.class);
+
     /** Map containing the WPS Jobs and their UUID */
     private Map<UUID, Job> jobMap;
 
@@ -85,14 +88,16 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
     private WpsServerImpl wpsServer;
 
     /** WPS 2.0 properties of the server */
-    private static WpsServerProperties_1_0_0 wpsProp;
+    private WpsServerProperties_1_0_0 wpsProp;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_1_0_0_OperationsImpl.class);
+    private ProcessManager processManager;
 
     /** Main constructor */
-    public WPS_1_0_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_1_0_0 wpsProp){
-        WPS_1_0_0_OperationsImpl.wpsProp = wpsProp;
+    public WPS_1_0_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_1_0_0 wpsProp,
+                                    ProcessManager processManager){
+        this.wpsProp = wpsProp;
         this.wpsServer = wpsServer;
+        this.processManager = processManager;
         jobMap = new HashMap<>();
     }
 
@@ -191,7 +196,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         wpsCapabilitiesType.setVersion("1.0.0");
 
         ProcessOfferings processOfferings = new ProcessOfferings();
-        List<ProcessIdentifier> piList = wpsServer.getProcessManager().getAllProcessIdentifier();
+        List<ProcessIdentifier> piList = processManager.getAllProcessIdentifier();
         for (ProcessIdentifier pi : piList) {
             net.opengis.wps._2_0.ProcessDescriptionType process = pi.getProcessDescriptionType();
             ProcessBriefType processBriefType = new ProcessBriefType();
@@ -276,7 +281,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             language = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;
         }
 
-        List<ProcessIdentifier> processList = wpsServer.getProcessList();
+        List<ProcessIdentifier> processList = processManager.getAllProcessIdentifier();
         for (ProcessIdentifier pId : processList) {
             net.opengis.wps._2_0.ProcessDescriptionType process = pId.getProcessDescriptionType();
             for(CodeType codeType : codeTypeList){
@@ -324,7 +329,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         net.opengis.ows._2.CodeType codeType = new net.opengis.ows._2.CodeType();
         codeType.setValue(execute.getIdentifier().getValue());
         codeType.setCodeSpace(execute.getIdentifier().getCodeSpace());
-        ProcessIdentifier processIdentifier = wpsServer.getProcessManager().getProcessIdentifier(codeType);
+        ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(codeType);
 
         //Generate the processInstance
         Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
@@ -555,7 +560,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
      * @param inputDescriptionType2 WPS 2 InputDescriptionType
      * @return WPS 1 InputDescriptionType
      */
-    private static InputDescriptionType convertInputDescriptionType2to1(
+    private InputDescriptionType convertInputDescriptionType2to1(
             net.opengis.wps._2_0.InputDescriptionType inputDescriptionType2,
             String defaultLanguage, String requestedLanguage){
         InputDescriptionType inputDescriptionType1 = new InputDescriptionType();
@@ -625,7 +630,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
      * @param inputDescriptionType2List WPS 2.0 InputDescriptionType list
      * @return WPS 1.0.0 InputDescriptionType list
      */
-    private static List<InputDescriptionType> convertInputDescriptionTypeList2to1(
+    private List<InputDescriptionType> convertInputDescriptionTypeList2to1(
             List<net.opengis.wps._2_0.InputDescriptionType> inputDescriptionType2List,
             String defaultLanguage, String requestedLanguage){
         List<InputDescriptionType> inputDescriptionType1List = new ArrayList<>();
@@ -774,7 +779,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
      * @param complexData WPS 2.0 ComplexDataType
      * @return WPS 1.0.0 SupportedComplexDataInputType
      */
-    private static SupportedComplexDataInputType convertComplexDataTypeToSupportedComplexDataInputType(ComplexDataType complexData){
+    private SupportedComplexDataInputType convertComplexDataTypeToSupportedComplexDataInputType(ComplexDataType complexData){
         SupportedComplexDataInputType complexDataInput = new SupportedComplexDataInputType();
         complexDataInput.setMaximumMegabytes(new BigInteger(wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES));
         ComplexDataCombinationsType combinations = new ComplexDataCombinationsType();
@@ -895,7 +900,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
      * @param outputDescriptionTypeList WPS 2.0 OutputDescriptionType list
      * @return WPS 1.0.0 ProcessOutputs
      */
-    private static ProcessDescriptionType.ProcessOutputs convertOutputDescriptionTypeList2to1(
+    private ProcessDescriptionType.ProcessOutputs convertOutputDescriptionTypeList2to1(
             List<net.opengis.wps._2_0.OutputDescriptionType> outputDescriptionTypeList,
             String defaultLanguage, String requestedLanguage){
         ProcessDescriptionType.ProcessOutputs processOutputs = new ProcessDescriptionType.ProcessOutputs();

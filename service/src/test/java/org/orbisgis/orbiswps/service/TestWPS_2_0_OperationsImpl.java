@@ -6,6 +6,7 @@ import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.junit.Before;
 import org.junit.Test;
+import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.utils.WpsServerProperties_2_0;
 
@@ -31,13 +32,16 @@ public class TestWPS_2_0_OperationsImpl {
     /** Wps server object. */
     private WpsServerImpl wpsServer;
 
+    private ProcessManager processManager;
+
     /**
      * Initialize a wps server for processing all the tests.
      */
     @Before
     public void initialize() {
         wpsServer = new WpsServerImpl();
-        wps20Operations =  new WPS_2_0_OperationsImpl(wpsServer, new WpsServerProperties_2_0(null));
+        processManager = new ProcessManager(null, wpsServer);
+        wps20Operations = new WPS_2_0_OperationsImpl(wpsServer, new WpsServerProperties_2_0(null), processManager);
     }
 
 
@@ -333,8 +337,9 @@ public class TestWPS_2_0_OperationsImpl {
          */
     @Test
     public void testBadExecution() throws InterruptedException {
-        wpsServer.addProcess(
-                new File(TestWPS_2_0_OperationsImpl.class.getResource("Enumeration.groovy").getFile()));
+        File file = new File(TestWPS_2_0_OperationsImpl.class.getResource("Enumeration.groovy").getFile());
+        wpsServer.addProcess(file);
+        processManager.addScript(file.toURI());
         //Test process execution with an input data without any content
         ExecuteRequestType executeRequestType = new ExecuteRequestType();
         CodeType id = new CodeType();
@@ -370,9 +375,9 @@ public class TestWPS_2_0_OperationsImpl {
      */
     @Test
     public void testExecuteWithoutExecutionService() throws JAXBException, IOException, InterruptedException {
-        wpsServer.setExecutorService(null);
-        wpsServer.addProcess(
-                new File(TestWPS_2_0_OperationsImpl.class.getResource("Enumeration.groovy").getFile()));
+        File file = new File(TestWPS_2_0_OperationsImpl.class.getResource("Enumeration.groovy").getFile());
+        wpsServer.addProcess(file);
+        processManager.addScript(file.toURI());
 
         Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
         //Build the Execute object

@@ -65,7 +65,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
         keywords = ["Table,Delete", "en",
                 "Table,Suppression", "fr"],
         properties = ["DBMS_TYPE", "H2GIS",
-                "DBMS_TYPE", "POSTGIS"],
+                "DBMS_TYPE", "POSTGRESQL"],
         version = "1.0",
         identifier = "orbisgis:wps:official:deleteRows"
 )

@@ -64,7 +64,9 @@ public class ProcessMetadata {
      *      ...
      * )
      */
-    public enum DBMS_TYPE{H2GIS, POSTGIS}
+    public enum DBMS_TYPE{
+        H2GIS, POSTGIS
+    }
     public static final String DBMS_TYPE_NAME = "DBMS_TYPE";
 
     /**

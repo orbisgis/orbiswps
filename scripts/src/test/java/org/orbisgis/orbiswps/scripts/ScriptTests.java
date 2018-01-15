@@ -65,7 +65,7 @@ import static org.h2gis.unitTest.GeometryAsserts.assertGeometryEquals;
  */
 public class ScriptTests {
 
-    /** Sql {@link Connection} to an embedded H2 database. */
+    /** Sql {@link Connection} to an embedded H2GIS database. */
     private static Connection connection;
     /** {@link Sql} object get from the connection. */
     private static Sql sql;

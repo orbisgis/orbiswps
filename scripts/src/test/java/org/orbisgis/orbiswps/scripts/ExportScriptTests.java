@@ -45,7 +45,7 @@ import junit.framework.Assert;
 import org.h2.tools.RunScript;
 import org.h2gis.functions.factory.H2GISDBFactory;
 import org.junit.*;
-import org.orbisgis.orbiswps.server.utils.ProgressMonitor;
+import org.orbisgis.orbiswps.service.utils.ProgressMonitor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -65,7 +65,7 @@ import java.util.Map;
  */
 public class ExportScriptTests {
 
-    /** Sql {@link Connection} to an embedded H2 database. */
+    /** Sql {@link Connection} to an embedded H2GIS database. */
     private static Connection connection;
     /** {@link Sql} object get from the connection. */
     private static Sql sql;

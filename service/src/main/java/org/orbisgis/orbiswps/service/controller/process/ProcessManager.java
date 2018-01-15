@@ -104,14 +104,14 @@ public class ProcessManager {
         this.setDataSource(dataSource);
         this.wpsServer = wpsServer;
         this.closureMap = new HashMap<>();
-        //Method get from H2 JDBCUtilities to avoid adding a dependency
+        //Method get from H2GIS JDBCUtilities to avoid adding a dependency
         try {
             if(dataSource!=null && dataSource.getConnection()!=null && dataSource.getConnection().getMetaData()!=null) {
                 String driverName = dataSource.getConnection().getMetaData().getDriverName();
-                database = driverName.equalsIgnoreCase("H2 JDBC Driver") ? DBMS_TYPE.H2 : DBMS_TYPE.POSTGRESQL;
+                database = driverName.equalsIgnoreCase("H2 JDBC Driver") ? DBMS_TYPE.H2GIS : DBMS_TYPE.POSTGIS;
             }
         } catch (SQLException ignore) {
-            LOGGER.error((I18N.tr("Unable detect if the dataSource is H2 or Postgresql")));
+            LOGGER.error((I18N.tr("Unable detect if the dataSource is H2GIS or Postgresql")));
         }
     }
 
@@ -121,6 +121,15 @@ public class ProcessManager {
      */
     public void setDataSource(DataSource dataSource){
         this.dataSource = dataSource;
+        //Method get from H2GIS JDBCUtilities to avoid adding a dependency
+        try {
+            if(dataSource!=null && dataSource.getConnection()!=null && dataSource.getConnection().getMetaData()!=null) {
+                String driverName = dataSource.getConnection().getMetaData().getDriverName();
+                database = driverName.equalsIgnoreCase("H2 JDBC Driver") ? DBMS_TYPE.H2GIS : DBMS_TYPE.POSTGIS;
+            }
+        } catch (SQLException ignore) {
+            LOGGER.error((I18N.tr("Unable detect if the dataSource is H2GIS or Postgresql")));
+        }
     }
 
     /**
@@ -297,7 +306,7 @@ public class ProcessManager {
                 WpsSql sql = new WpsSql(dataSource);
                 sql.withStatement(closure);
                 groovyObject.setProperty("sql", sql);
-                groovyObject.setProperty("isH2", database.equals(DBMS_TYPE.H2));
+                groovyObject.setProperty("isH2", database.equals(DBMS_TYPE.H2GIS));
             }
             groovyObject.setProperty("logger", LoggerFactory.getLogger(ProcessManager.class));
             groovyObject.setProperty("progressMonitor", progressMonitor);

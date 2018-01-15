@@ -65,7 +65,7 @@ import org.h2gis.utilities.TableLocation
     keywords = ["Vector,Geometry,Index", "en",
 				"Vecteur,Géométrie,Indice", "fr"],
     properties = ["DBMS_TYPE", "H2GIS",
-				"DBMS_TYPE", "POSTGRESQL"],
+				"DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:mainDirectionSMBR"
 )

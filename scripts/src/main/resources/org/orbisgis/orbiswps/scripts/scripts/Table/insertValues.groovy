@@ -66,7 +66,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
         keywords = ["Table,Insert,Values", "en",
                 "Table,Insertion,Valeurs", "fr"],
         properties = ["DBMS_TYPE", "H2GIS",
-                "DBMS_TYPE", "POSTGRESQL"],
+                "DBMS_TYPE", "POSTGIS"],
         version = "1.0",
         identifier = "orbisgis:wps:official:insertValues")
 def processing() {

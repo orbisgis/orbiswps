@@ -158,32 +158,49 @@ public class WpsServerImpl implements WpsServer {
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
+    @Reference
+    public void setDataSource(DataSource dataSource) {
+        processManager.setDataSource(dataSource);
+    }
+    public void unsetDataSource(DataSource dataSource) {
+        processManager.setDataSource(null);
+    }
+
+    @Reference
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
+    }
+    public void unsetExecutorService(ExecutorService executorService) {
+        this.executorService = null;
+    }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addWpsScriptBundle(WpsScriptBundle wpsScriptBundle) {
         List<URL> scriptList = wpsScriptBundle.getScriptsList();
         for(URL url : scriptList) {
             ProcessIdentifier pi = this.processManager.addScript(url);
-            Map<ProcessMetadata.INTERNAL_METADATA, Object> map = wpsScriptBundle.getScriptMetadata(url);
-            for(Map.Entry<ProcessMetadata.INTERNAL_METADATA, Object> entry : map.entrySet()){
-                MetadataType metadataType = new MetadataType();
-                metadataType.setRole(entry.getKey().name());
-                Object obj = entry.getValue();
-                if(obj != null) {
-                    if (obj instanceof URL[]) {
-                        StringBuilder iconStr = new StringBuilder();
-                        for(URL urlIcon : (URL[]) obj) {
-                            if(iconStr.length() > 0){
-                                iconStr.append(",");
+            if(pi != null && pi.getProcessOffering() != null) {
+                Map<ProcessMetadata.INTERNAL_METADATA, Object> map = wpsScriptBundle.getScriptMetadata(url);
+                for (Map.Entry<ProcessMetadata.INTERNAL_METADATA, Object> entry : map.entrySet()) {
+                    MetadataType metadataType = new MetadataType();
+                    metadataType.setRole(entry.getKey().name());
+                    Object obj = entry.getValue();
+                    if (obj != null) {
+                        if (obj instanceof URL[]) {
+                            StringBuilder iconStr = new StringBuilder();
+                            for (URL urlIcon : (URL[]) obj) {
+                                if (iconStr.length() > 0) {
+                                    iconStr.append(",");
+                                }
+                                iconStr.append(urlIcon.toString());
                             }
-                            iconStr.append(urlIcon.toString());
+                            metadataType.setTitle(iconStr.toString());
+                        } else {
+                            metadataType.setTitle(obj.toString());
                         }
-                        metadataType.setTitle(iconStr.toString());
-                    } else {
-                        metadataType.setTitle(obj.toString());
                     }
+                    pi.getProcessDescriptionType().getMetadata().add(metadataType);
                 }
-                pi.getProcessDescriptionType().getMetadata().add(metadataType);
             }
         }
         for(WpsServerListener listener : wpsServerListenerList){

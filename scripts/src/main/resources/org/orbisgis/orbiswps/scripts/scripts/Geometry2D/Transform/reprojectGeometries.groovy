@@ -67,7 +67,7 @@ import org.h2gis.utilities.TableLocation
 		keywords = ["Vector,Geometry,Reproject", "en",
 				"Vecteur,Géométrie,Reprojection", "fr"],
 		properties = ["DBMS_TYPE", "H2GIS",
-				"DBMS_TYPE", "POSTGRESQL"],
+				"DBMS_TYPE", "POSTGIS"],
                 version = "1.0",
 		identifier = "orbisgis:wps:official:reprojectGeometries"
 )

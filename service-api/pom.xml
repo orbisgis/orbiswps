@@ -34,4 +34,12 @@
         </plugins>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.googlecode.gettext-commons</groupId>
+            <artifactId>gettext-commons</artifactId>
+            <version>${gettext-commons-version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

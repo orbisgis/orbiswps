@@ -180,6 +180,7 @@ public class WpsServerImpl implements WpsServer {
         for(URL url : scriptList) {
             ProcessIdentifier pi = this.processManager.addScript(url);
             if(pi != null && pi.getProcessOffering() != null) {
+                pi.setI18n(wpsScriptBundle.getI18n());
                 Map<ProcessMetadata.INTERNAL_METADATA, Object> map = wpsScriptBundle.getScriptMetadata(url);
                 for (Map.Entry<ProcessMetadata.INTERNAL_METADATA, Object> entry : map.entrySet()) {
                     MetadataType metadataType = new MetadataType();

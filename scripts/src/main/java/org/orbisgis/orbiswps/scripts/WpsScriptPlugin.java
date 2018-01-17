@@ -115,8 +115,9 @@ public class WpsScriptPlugin implements WpsScriptBundle {
 
     @Override
     public Map<String, Object> getGroovyProperties() {
-        //No groovy property are needed
-        return new HashMap<>();
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("i18n",I18N);
+        return properties;
     }
 
     @Override
@@ -131,6 +132,11 @@ public class WpsScriptPlugin implements WpsScriptBundle {
         map.put(ProcessMetadata.INTERNAL_METADATA.NODE_PATH, cachedPath.get(scriptUrl));
         map.put(ProcessMetadata.INTERNAL_METADATA.ICON_ARRAY, icons);
         return map;
+    }
+
+    @Override
+    public I18n getI18n() {
+        return I18nFactory.getI18n(WpsScriptPlugin.class);
     }
 
     /**

@@ -50,7 +50,7 @@
                 <jts-core-version>1.14.0</jts-core-version>
                 <sl4j-version>1.6.0</sl4j-version>
                 <gettext-commons-version>0.9.8</gettext-commons-version>
-                <gettext-maven-plugin-version>1.2.4</gettext-maven-plugin-version>
+                <gettext-maven-plugin-version>1.2.5-SNAPSHOT</gettext-maven-plugin-version>
                 <ogc-commons-version>1.3-SNAPSHOT</ogc-commons-version>
                 <groovy-all-version>2.3.6</groovy-all-version>
                 <groovy-eclipse-compiler-version>2.9.2-01</groovy-eclipse-compiler-version>

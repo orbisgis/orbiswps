@@ -24,6 +24,7 @@
                 <version>2</version>
         </parent>
         <modules>
+                <module>gettext-maven-plugin</module>
                 <module>groovy-api</module>
                 <module>service</module>
                 <module>service-api</module>

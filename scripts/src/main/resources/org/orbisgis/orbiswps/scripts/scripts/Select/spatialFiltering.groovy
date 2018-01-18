@@ -128,7 +128,7 @@ String[] geometricFieldToSelected
     title = "Spatial relationship",
     description = "Spatial relationship to select features.",
     values=["st_intersects", "st_contains", "st_disjoint", "st_crosses", "st_touches"],
-    names="Intersects, Contains, Disjoint, Crosses, Touches")
+    names=["Intersects","Contains","Disjoint","Crosses","Touches"])
 String[] operation = ["st_intersects"]
 
 

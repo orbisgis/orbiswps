@@ -74,7 +74,7 @@ def processing() {
         multiSelection = true,
         isEditable = true,
         values = "value1",
-        names = "name,name",
+        names = ["name","name"],
         minOccurs = 0,
         maxOccurs = 2,
         identifier = "input",

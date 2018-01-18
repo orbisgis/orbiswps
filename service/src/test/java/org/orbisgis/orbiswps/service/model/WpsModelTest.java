@@ -203,7 +203,7 @@ public class WpsModelTest {
     @EnumerationAttribute(
             multiSelection = true,
             isEditable = true,
-            names = {"name, name, name"},
+            names = {"name","name","name"},
             values = {"value1, value2, value3"}
     )
     public String[] enumerationInput = {"value1, value2"};

@@ -102,7 +102,7 @@ String[] fromSelectedColumn
     title = "Operator",
     description = "Operator to select rows.",
 	values=["=", ">",">=", "<", "<=","<>", "limit", "in", "not in", "like"],
-    names="Equal to, Greater than, Greater than or equal to, Less than, Less than or equal to, Not equal to,Limit, In, Not In, Like")
+    names=["Equal to","Greater than","Greater than or equal to","Less than","Less than or equal to","Not equal to","Limit","In","Not In","Like"])
 String[] operation = ["="]
 
 @LiteralDataInput(

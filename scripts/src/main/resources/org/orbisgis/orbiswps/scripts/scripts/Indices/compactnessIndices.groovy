@@ -133,7 +133,7 @@ Boolean keepgeom;
     title = "Indice",
     description = "Method to compute the indice.",
     values=["gravelius","miller", "morton"],
-    names = ["Gravélius,Miller,Morton"],
+    names = ["Gravélius","Miller","Morton"],
     multiSelection = true)
 String[] operations = ["gravelius"]
 

@@ -102,7 +102,6 @@ public class EnumerationParserTest {
                 new String[]{"value1"}, enumeration.getDefaultValues());
         Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
                 new String[]{"value1", "value2"}, enumeration.getValues());
-        Assert.assertNull("The Enumeration valueNames attribute should be null.", enumeration.getValuesNames());
         Assert.assertFalse("The Enumeration isEditable attribute should be false.", enumeration.isEditable());
         Assert.assertFalse("The Enumeration multiSelection attribute should be false.", enumeration.isMultiSelection());
 
@@ -164,14 +163,10 @@ public class EnumerationParserTest {
                 1, enumeration.getValuesNames()[0].getStrings().length);
         Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",
                 "name1", enumeration.getValuesNames()[0].getStrings()[0].getValue());
-        Assert.assertEquals("The Enumeration first valueNames language should be 'en'.",
-                "en", enumeration.getValuesNames()[0].getStrings()[0].getLang());
         Assert.assertEquals("The Enumeration second valueNames length should be 1.",
                 1, enumeration.getValuesNames()[1].getStrings().length);
         Assert.assertEquals("The Enumeration second valueNames should be 'name2'.",
                 "name2", enumeration.getValuesNames()[1].getStrings()[0].getValue());
-        Assert.assertEquals("The Enumeration second valueNames language should be 'en'.",
-                "en", enumeration.getValuesNames()[1].getStrings()[0].getLang());
         Assert.assertTrue("The Enumeration isEditable attribute should be true.", enumeration.isEditable());
         Assert.assertTrue("The Enumeration multiSelection attribute should be true.", enumeration.isMultiSelection());
 
@@ -251,7 +246,6 @@ public class EnumerationParserTest {
                 new String[]{"value1"}, enumeration.getDefaultValues());
         Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
                 new String[]{"value1", "value2"}, enumeration.getValues());
-        Assert.assertNull("The Enumeration valueNames attribute should be null.", enumeration.getValuesNames());
         Assert.assertFalse("The Enumeration isEditable attribute should be false.", enumeration.isEditable());
         Assert.assertFalse("The Enumeration multiSelection attribute should be false.", enumeration.isMultiSelection());
 
@@ -307,14 +301,10 @@ public class EnumerationParserTest {
                 1, enumeration.getValuesNames()[0].getStrings().length);
         Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",
                 "name1", enumeration.getValuesNames()[0].getStrings()[0].getValue());
-        Assert.assertEquals("The Enumeration first valueNames language should be 'en'.",
-                "en", enumeration.getValuesNames()[0].getStrings()[0].getLang());
         Assert.assertEquals("The Enumeration second valueNames length should be 1.",
                 1, enumeration.getValuesNames()[1].getStrings().length);
         Assert.assertEquals("The Enumeration second valueNames should be 'name2'.",
                 "name2", enumeration.getValuesNames()[1].getStrings()[0].getValue());
-        Assert.assertEquals("The Enumeration second valueNames language should be 'en'.",
-                "en", enumeration.getValuesNames()[1].getStrings()[0].getLang());
         Assert.assertTrue("The Enumeration isEditable attribute should be true.", enumeration.isEditable());
         Assert.assertTrue("The Enumeration multiSelection attribute should be true.", enumeration.isMultiSelection());
 
@@ -370,7 +360,7 @@ public class EnumerationParserTest {
                 isEditable = true,
                 multiSelection = true,
                 values = {"value1", "value2"},
-                names = {"name1,name2","en"}
+                names = {"name1","name2"}
         )
         @InputAttribute(maxOccurs = 2, minOccurs = 0)
         @DescriptionTypeAttribute(
@@ -393,7 +383,7 @@ public class EnumerationParserTest {
                 isEditable = true,
                 multiSelection = true,
                 values = {"value1", "value2"},
-                names = {"name1,name2","en"}
+                names = {"name1","name2"}
         )
         @OutputAttribute
         @DescriptionTypeAttribute(

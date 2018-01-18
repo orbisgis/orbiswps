@@ -116,7 +116,7 @@ String[] csvDataInput
     title = "CSV separator",
     description = "The CSV separator.",
     values=[",", "\t", " ", ";"],
-    names="Coma, Tabulation, Space, Semicolon",
+    names=["Coma","Tabulation","Space","Semicolon"],
     isEditable = true)
 String[] separator = [";"]
 

@@ -51,14 +51,10 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Sylvain PALOMINOS
  */
 @Process(
-        title = ["Describe columns","en",
-                "Décrire les colonnes","fr"],
-        description = ["Extract the name, type and comment from all fields of a table.","en",
-                "Extrait le nom, le type et le commentaire de chacun des champs d'un table.","fr"],
-        keywords = ["Table,Describe", "en",
-                "Table,Description", "fr"],
-        properties = ["DBMS_TYPE", "H2GIS",
-                "DBMS_TYPE", "POSTGIS"],
+        title = "Describe columns",
+        description = "Extract the name, type and comment from all fields of a table.",
+        keywords = "Table,Describe",
+        properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0")
 def processing() {    
     String query;
@@ -73,7 +69,7 @@ def processing() {
 	sql.execute "drop table if exists " + outputTableName
     }
     sql.execute(query);
-    literalOutput = "The descriptions have been extracted."
+    literalOutput = i18n.tr("The descriptions have been extracted.")
 }
 
 /****************/
@@ -82,36 +78,24 @@ def processing() {
 
 /** This JDBCTable is the input data source table. */
 @JDBCTableInput(
-        title = ["Table","en",
-                "Table","fr"],
-        description = ["Extract name, type and comments from the selected table.","en",
-                "Extrait les noms, les types et les commentaires de la table.","fr"])
+        title = "Table",
+        description = "Extract name, type and comments from the selected table.")
 String tableName
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"])
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.")
 Boolean dropTable 
 
 @LiteralDataInput(
-        title = ["Output table name","en",
-                "Nom de la table de sortie","fr"],
-        description = [
-                "Name of the table containing the descriptions.","en",
-                "Nom de la table contenant les descriptions.","fr"])
+        title = "Output table name",
+        description = "Name of the table containing the descriptions.")
 String outputTableName
 
 
 /** Output message. */
 @LiteralDataOutput(
-        title = ["Output message","en",
-                "Message de sortie","fr"],
-        description = [
-                "The output message.","en",
-                "Le message de sortie.","fr"])
+        title = "Output message",
+        description = "The output message.")
 String literalOutput
 

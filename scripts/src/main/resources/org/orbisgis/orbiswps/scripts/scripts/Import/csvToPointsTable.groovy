@@ -63,11 +63,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Sylvain PALOMINOS
  * @author Erwan BOCHER
  */
-@Process(title = ["Point table from CSV","en","Table ponctuelle depuis un CSV","fr"],
-    description = ["Creates a point layer from a CSV file containing the id of the point, its X and Y coordinate.","en",
-                "Création d'une table de geometries ponctuelles à partir d'un fichier CSV contenant l'identifiant du point ainsi que ses coordonnées X et Y.","fr"],
-    keywords = ["OrbisGIS,Importer, Fichier","fr",
-                "OrbisGIS,Import, File","en"],
+@Process(title = "Point table from CSV",
+    description = "Creates a point layer from a CSV file containing the id of the point, its X and Y coordinate.",
+    keywords = "OrbisGIS,Import, File",
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
@@ -77,10 +75,11 @@ def processing() {
     tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
     
     if(jdbcTableOutputName != null){
-	tableName = jdbcTableOutputName
+	    tableName = jdbcTableOutputName
     }    
     if(dropTable){
-	sql.execute "drop table if exists " + tableName    }
+	    sql.execute "drop table if exists " + tableName
+    }
     
     String csvRead = "CSVRead('"+csvFile.absolutePath+"', NULL, 'fieldSeparator="+separator+"')";   
     sql.execute("CREATE TABLE "+ tableName + " AS SELECT "+idField+", ST_MakePoint("+xField+", "+yField+") THE_GEOM FROM "+csvRead+";");    
@@ -89,7 +88,7 @@ def processing() {
         sql.execute "create spatial index on "+ tableName + " (the_geom)"
     }
     
-    literalDataOutput = "Process done"
+    literalDataOutput = i18n.tr("Process done")
 }
 
 /****************/
@@ -103,9 +102,8 @@ def processing() {
  * ........
  * */
 @RawDataInput(
-    title = ["Input csv","en","Fichier CSV","fr"],
-    description = ["The input CSV file containing the point data.","en",
-                "Le fichier CSV d'entrée contenant les données ponctuelles.","fr"],
+    title = "Input csv",
+    description = "The input CSV file containing the point data.",
     fileTypes = ["csv"],
     isDirectory = false)
 String[] csvDataInput
@@ -115,57 +113,44 @@ String[] csvDataInput
 /** INPUT Parameters **/
 /**********************/
 @EnumerationInput(
-    title = ["CSV separator","en","Séparateur CSV","fr"],
-    description = ["The CSV separator.","en",
-                "Le séparateur CSV.","fr"],
+    title = "CSV separator",
+    description = "The CSV separator.",
     values=[",", "\t", " ", ";"],
-    names=["Coma, Tabulation, Space, Semicolon","en","Virgule, Tabulation, Espace, Point virgule","fr"],
+    names="Coma, Tabulation, Space, Semicolon",
     isEditable = true)
 String[] separator = [";"]
 
 @LiteralDataInput(
-    title = ["Id field","en","Champ identifiant","fr"],
-    description = ["The point id field.","en",
-                "Le champ contenant l'identifiant du point.","fr"])
+    title = "Id field",
+    description = "The point id field.")
 String idField
 
 @LiteralDataInput(
-    title = ["X field","en","Champ X","fr"],
-    description = ["The X coordinate field.","en",
-                "Le champ de la coordonnée X.","fr"])
+    title = "X field",
+    description = "The X coordinate field.")
 String xField
 
 @LiteralDataInput(
-    title = ["Y field","en","Champ Y","fr"],
-    description = ["The Y coordinate field.","en",
-                "Le champ de la coordonnée Y.","fr"])
+    title = "Y field",
+    description = "The Y coordinate field.")
 String yField
 
 
 @LiteralDataInput(
-    title = [
-				"Add a spatial index","en",
-				"Créer un index spatial","fr"],
-    description = [
-				"Add a spatial index on the geometry column.","en",
-				"Ajout d'un index spatial sur la géometrie de la table.","fr"])
+    title = "Add a spatial index",
+    description = "Add a spatial index on the geometry column.")
 Boolean createIndex
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the existing table","en",
-				"Supprimer la table existante","fr"],
-    description = [
-				"Drop the existing table.","en",
-				"Supprimer la table existante.","fr"])
+    title = "Drop the existing table",
+    description = "Drop the existing table.")
 Boolean dropTable 
 
 /** Output JDBCTable name. */
 @LiteralDataInput(
-    title = ["Output points table","en","Table de points","fr"],
-    description = ["Name of the output table. If it is not defined the name of the file will be used.","en",
-                "Nom de la table de sortie. Par défaut le nom de la table correspond au nom du fichier.","fr"],
+    title = "Output points table",
+    description = "Name of the output table. If it is not defined the name of the file will be used.",
     minOccurs = 0)
 String jdbcTableOutputName
 
@@ -173,8 +158,6 @@ String jdbcTableOutputName
 /** OUTPUT **/
 /************/
 @LiteralDataOutput(
-    title = ["Output message","en",
-                "Message de sortie","fr"],
-    description = ["Output message.","en",
-                "Message de sortie.","fr"])
+    title = "Output message",
+    description = "Output message.")
 String literalDataOutput

@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbiswps.server
+package org.orbisgis.orbiswps.service
 
 import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
 import org.orbisgis.orbiswps.groovyapi.output.JDBCTableOutput
@@ -50,7 +50,7 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  * Test script for the JDBCTable
  * @author Sylvain PALOMINOS
  */
-@Process(title = ["JDBCTable test","en","Test du JDBCTable","fr"],
+@Process(title = "JDBCTable test",
         description = ["Test script using the JDBCTable ComplexData.","en",
                 "Scripts test pour l'usage du ComplexData JDBCTable.","fr"],
         keywords = ["test,script,wps","en","test,scripte,wps","fr"],

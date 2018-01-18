@@ -48,11 +48,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 /**
  * @author Erwan Bocher
  */
-@Process(title = ["Import a shapeFile","en","Importer un fichier SHP","fr"],
-    description = ["Import in the database a shapeFile as a new table.","en",
-                "Import d'un fichier SHP dans la base de données.","fr"],
-    keywords = ["OrbisGIS,Importer, Fichier, SHP","fr",
-                "OrbisGIS,Import, File, SHP","en"],
+@Process(title = "Import a shapeFile",
+    description = "Import in the database a shapeFile as a new table.",
+    keywords = "OrbisGIS,Import, File, SHP",
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
@@ -73,20 +71,19 @@ def processing() {
     else{
         driverFunction.importFile(sql.getDataSource().getConnection(), tableName,shpFile,progressMonitor)
     }
-    literalDataOutput = "The ShapeFile has been created."
+    literalDataOutput = i18n.tr("The ShapeFile has been created.")
 
     if(createIndex){
         sql.execute "create spatial index on "+ tableName + " (the_geom)"
     }
 
-    literalDataOutput = "The SHP file has been imported."
+    literalDataOutput = i18n.tr("The SHP file has been imported.")
 }
 
 
 @RawDataInput(
-    title = ["Input SHP","en","Fichier SHP","fr"],
-    description = ["The input shapeFile to be imported.","en",
-                "Selectionner un fichier SHP à importer.","fr"],
+    title = "Input SHP",
+    description = "The input shapeFile to be imported.",
     fileTypes = ["shp"],
     isDirectory = false)
 String[] shpDataInput
@@ -94,41 +91,31 @@ String[] shpDataInput
 
 
 @EnumerationInput(
-    title = ["File Encoding","en","Encodage du fichier","fr"],
-    description = ["The file encoding .","en",
-                "L'encodage du fichier.","fr"],
+    title = "File Encoding",
+    description = "The file encoding .",
     values=["System", "utf-8", "ISO-8859-1", "ISO-8859-2", "ISO-8859-4", "ISO-8859-5", "ISO-8859-7", "ISO-8859-9", "ISO-8859-13","ISO-8859-15"],
-    names=["System, utf-8, ISO-8859-1, ISO-8859-2, ISO-8859-4, ISO-8859-5, ISO-8859-7, ISO-8859-9, ISO-8859-13,ISO-8859-15","en", "Système, utf-8, ISO-8859-1, ISO-8859-2, ISO-8859-4, ISO-8859-5, ISO-8859-7, ISO-8859-9, ISO-8859-13,ISO-8859-15","fr"],
+    names="System, utf-8, ISO-8859-1, ISO-8859-2, ISO-8859-4, ISO-8859-5, ISO-8859-7, ISO-8859-9, ISO-8859-13,ISO-8859-15",
     isEditable = false)
 String[] encoding = ["System"]
 
 
 @LiteralDataInput(
-    title = [
-				"Add a spatial index","en",
-				"Créer un index spatial","fr"],
-    description = [
-				"Add a spatial index on the geometry column.","en",
-				"Ajout d'un index spatial sur la géometrie de la table.","fr"])
+    title = "Add a spatial index",
+    description = "Add a spatial index on the geometry column.")
 Boolean createIndex
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the existing table","en",
-				"Supprimer la table existante","fr"],
-    description = [
-				"Drop the existing table.","en",
-				"Supprimer la table existante.","fr"])
+    title = "Drop the existing table",
+    description = "Drop the existing table.")
 Boolean dropTable 
 
 
 
 /** Optional table name. */
 @LiteralDataInput(
-    title = ["Output table name","en","Nom de la table importée","fr"],
-    description = ["Table name to store the shapeFile. If it is not defined the name of the file will be used.","en",
-                "Nom de la table importée. Par défaut le nom de la table correspond au nom du fichier.","fr"],
+    title = "Output table name",
+    description = "Table name to store the shapeFile. If it is not defined the name of the file will be used.",
     minOccurs = 0)
 String jdbcTableOutputName
 
@@ -140,8 +127,6 @@ String jdbcTableOutputName
 /** OUTPUT **/
 /************/
 @LiteralDataOutput(
-    title = ["Output message","en",
-                "Message de sortie","fr"],
-    description = ["Output message.","en",
-                "Message de sortie.","fr"])
+    title = "Output message",
+    description = "Output message.")
 String literalDataOutput

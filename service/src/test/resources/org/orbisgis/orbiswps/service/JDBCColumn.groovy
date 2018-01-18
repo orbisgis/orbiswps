@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.server
+package org.orbisgis.orbiswps.service
 
 import org.orbisgis.orbiswps.groovyapi.input.JDBCColumnInput
 import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
@@ -54,10 +54,9 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  * @author Sylvain PALOMINOS
  * @author Erwan Bocher
  */
-@Process(title = ["JDBCColumn test","en","Test du JDBCColumn","fr"],
-        description = ["Test script using the JDBCColumn ComplexData.","en",
-                "Scripts test pour l'usage du ComplexData JDBCColumn.","fr"],
-        keywords = ["test,script,wps", "en", "test,scripte,wps", "fr"],
+@Process(title = "JDBCColumn test",
+        description = "Test script using the JDBCColumn ComplexData.",
+        keywords = "test,script,wps",
         identifier = "orbisgis:test:jdbccolumn",
         metadata = ["website","metadata"]
 )
@@ -76,9 +75,9 @@ String jdbcTableInput
 
 /** This JDBCColumn is the input data source. */
 @JDBCColumnInput(
-        title = ["Input JDBCColumn","en","Entrée JDBCColumn","fr"],
-        description = ["A JDBCColumn input.","en","Une entrée JDBCColumn.","fr"],
-        keywords = ["input","en","entrée","fr"],
+        title = "Input JDBCColumn",
+        description = "A JDBCColumn input.",
+        keywords = "input",
         jdbcTableReference = "orbisgis:test:jdbctable:input",
         excludedTypes = ["BOOLEAN"],
         minOccurs = 0,
@@ -98,9 +97,9 @@ String jdbcTableOutput
 
 /** This JDBCColumn is the output data source. */
 @JDBCColumnOutput(
-        title = ["Output JDBCColumn","en","Sortie JDBCColumn","fr"],
-        description = ["A JDBCColumn output.","en","Une sortie JDBCColumn.","fr"],
-        keywords = ["output","en","sortie","fr"],
+        title = "Output JDBCColumn",
+        description = "A JDBCColumn output.",
+        keywords = "output",
         jdbcTableReference = "orbisgis:test:jdbctable:output",
         dataTypes = ["GEOMETRY", "NUMBER"],
         multiSelection = true,

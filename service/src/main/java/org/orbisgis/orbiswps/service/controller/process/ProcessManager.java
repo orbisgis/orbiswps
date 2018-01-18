@@ -308,6 +308,7 @@ public class ProcessManager {
                 groovyObject.setProperty("sql", sql);
                 groovyObject.setProperty("isH2", database.equals(DBMS_TYPE.H2GIS));
             }
+            groovyObject.setProperty("i18n", processIdentifier.getI18n());
             groovyObject.setProperty("logger", LoggerFactory.getLogger(ProcessManager.class));
             groovyObject.setProperty("progressMonitor", progressMonitor);
             groovyObject.invokeMethod("processing", null);

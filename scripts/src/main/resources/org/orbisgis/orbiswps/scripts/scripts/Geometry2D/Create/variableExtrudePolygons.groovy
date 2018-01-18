@@ -55,14 +55,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Sylvain PALOMINOS
  */
 @Process(
-		title = [
-				"Variable extrude polygons","en",
-				"Extrusion de polygones variable","fr"],
-		description = [
-				"Extrude a polygon and extends it to a 3D representation, returning a geometry collection containing floor, ceiling and wall geometries.","en",
-				"Extrusion de polygones en l'étendant à une représentation en 3D, retournant une collection de géométries contenant les géométries du sol, du plafond et des murs.","fr"],
-		keywords = ["Vector,Geometry,Create", "en",
-				"Vecteur,Géométrie,Création", "fr"],
+		title = "Variable extrude polygons",
+		description = "Extrude a polygon and extends it to a 3D representation, returning a geometry collection containing floor, ceiling and wall geometries.",
+		keywords = "Vector,Geometry,Create",
 		properties = ["DBMS_TYPE", "H2GIS"],
                 version = "1.0")
 def processing() {
@@ -87,7 +82,7 @@ def processing() {
     if(dropInputTable){
         sql.execute "drop table if exists " + inputJDBCTable
     }
-    literalOutput = "Process done"
+    literalOutput = i18n.tr("Process done")
 }
 
 

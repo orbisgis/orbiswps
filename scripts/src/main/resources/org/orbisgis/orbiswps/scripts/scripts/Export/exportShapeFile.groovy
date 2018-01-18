@@ -52,11 +52,9 @@ import java.sql.Connection
 /**
  * @author Erwan Bocher
  */
-@Process(title = ["Export into a SHP file","en","Exporter dans un fichier SHP","fr"],
-    description = ["Export a table to a SHP file.","en",
-                "Exporter une table dans un fichier SHP.","fr"],
-    keywords = ["OrbisGIS,Exporter, Fichier, SHP","fr",
-                "OrbisGIS,Export, File, SHP","en"],
+@Process(title = "Export into a SHP file",
+    description = "Export a table to a SHP file.",
+    keywords = "OrbisGIS,Exporter, Fichier, SHP",
     properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
     version = "1.0")
 def processing() {
@@ -67,7 +65,7 @@ def processing() {
     if(dropInputTable){
 	sql.execute "drop table if exists " + inputJDBCTable
     }
-    literalDataOutput = "The ShapeFile has been created."
+    literalDataOutput = i18n.tr("The ShapeFile has been created.")
 }
 
 

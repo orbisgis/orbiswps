@@ -58,16 +58,10 @@ import org.h2gis.utilities.TableLocation
  * @author Erwan Bocher
  */
 @Process(
-		title = [
-				"Reproject geometries","en",
-				"Reprojection de géométries","fr"],
-		description = [
-				"Reproject geometries from one Coordinate Reference System to another.","en",
-				"Reprojection une géométrie d'un SRID vers un autre.","fr"],
-		keywords = ["Vector,Geometry,Reproject", "en",
-				"Vecteur,Géométrie,Reprojection", "fr"],
-		properties = ["DBMS_TYPE", "H2GIS",
-				"DBMS_TYPE", "POSTGIS"],
+		title = "Reproject geometries",
+		description = "Reproject geometries from one Coordinate Reference System to another.",
+		keywords = "Vector,Geometry,Reproject",
+		properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
                 version = "1.0",
 		identifier = "orbisgis:wps:official:reprojectGeometries"
 )
@@ -75,34 +69,34 @@ def processing() {
     TableLocation table = TableLocation.parse(inputJDBCTable, ish2)
     int srid = SFSUtilities.getSRID(sql.getConnection(),table, geometricField[0])
     if(srid==0){
-        logger.warn("The input table must contains a SRID constraint.")
-        literalOutput = "Fail to execute the process"
+        logger.warn(i18n.tr("The input table must contains a SRID constraint."))
+        literalOutput = i18n.tr("Fail to execute the process")
     }
     else{
-    //Build the start of the query
-    String query = "CREATE TABLE " + outputTableName + " AS SELECT ST_TRANSFORM("
-    query += geometricField[0] + "," + srid[0]
-    
-    //Build the end of the query
-    query += ") AS the_geom ";
-    
-    for (String field : fieldList) {
-        if (field != null) {
-            query += ", " + field;
-        }
-    }
-    
-    query +=  " FROM "+inputJDBCTable+";"
-    
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTableName
-    }
-    //Execute the query
-    sql.execute(query)
-    if(dropInputTable){
-        sql.execute "drop table if exists " + inputJDBCTable
-    }
-    literalOutput = "Process done"
+		//Build the start of the query
+		String query = "CREATE TABLE " + outputTableName + " AS SELECT ST_TRANSFORM("
+		query += geometricField[0] + "," + srid[0]
+
+		//Build the end of the query
+		query += ") AS the_geom ";
+
+		for (String field : fieldList) {
+			if (field != null) {
+				query += ", " + field;
+			}
+		}
+
+		query +=  " FROM "+inputJDBCTable+";"
+
+		if(dropTable){
+			sql.execute "drop table if exists " + outputTableName
+		}
+		//Execute the query
+		sql.execute(query)
+		if(dropInputTable){
+			sql.execute "drop table if exists " + inputJDBCTable
+		}
+    	literalOutput = i18n.tr("Process done")
     }
 }
 

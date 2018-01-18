@@ -54,14 +54,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Erwan BOCHER
  */
 @Process(
-		title = [
-				"Fixed extrude polygons","en",
-				"Extrusion de polygones fixe","fr"],
-		description = [
-				"Extrude a polygon and extends it to a 3D representation, returning a geometry collection containing floor, ceiling and wall geometries.","en",
-				"Extrusion de polygones en l'étendant à une représentation en 3D, retournant une collection de géométries contenant les géométries du sol, du plafond et des murs.","fr"],
-		keywords = ["Vector,Geometry,Create", "en",
-				"Vecteur,Géométrie,Création", "fr"],
+		title = "Fixed extrude polygons",
+		description = "Extrude a polygon and extends it to a 3D representation, returning a geometry collection containing floor, ceiling and wall geometries.",
+		keywords = "Vector,Geometry,Create",
 		properties = ["DBMS_TYPE", "H2GIS"],
                 version = "1.0")
 def processing() {
@@ -86,7 +81,7 @@ def processing() {
     if(dropInputTable){
         sql.execute "drop table if exists " + inputJDBCTable
     }
-    literalOutput = "Process done"
+    literalOutput = i18n.tr("Process done")
 }
 
 
@@ -95,12 +90,8 @@ def processing() {
 /****************/
 
 @JDBCTableInput(
-		title = [
-				"Input spatial data","en",
-				"Données spatiales d'entrée","fr"],
-		description = [
-				"The spatial data source that must be extruded.","en",
-				"La source de données qui doit etre extrudée.","fr"],
+		title = "Input spatial data",
+		description = "The spatial data source that must be extruded.",
 		dataTypes = ["GEOMETRY"])
 String inputJDBCTable
 
@@ -109,34 +100,22 @@ String inputJDBCTable
 /**********************/
 
 @JDBCColumnInput(
-		title = [
-				"Geometric column","en",
-				"Colonne géométrique","fr"],
-		description = [
-				"The geometric column of the data source.","en",
-				"La colonne géométrique de la source de données.","fr"],
+		title = "Geometric column",
+		description = "The geometric column of the data source.",
 		jdbcTableReference = "inputJDBCTable",
         dataTypes = ["GEOMETRY"])
 String[] geometricField
 
 
 @LiteralDataInput(
-		title = [
-				"Height of the polygons","en",
-				"Hauteur des polygones","fr"],
-		description = [
-				"A numeric value to specify the height of all polygon.","en",
-				"Une valeur numérique définissant la hauteur des polygones.","fr"])
+		title = "Height of the polygons",
+		description = "A numeric value to specify the height of all polygon.")
 Double height = 1
 
 /** Fields to keep. */
 @JDBCColumnInput(
-		title = [
-				"Columns to keep","en",
-				"Colonnes à conserver","fr"],
-		description = [
-				"The columns that will be kept in the output.","en",
-				"Les colonnes qui seront conservées dans la table de sortie.","fr"],
+		title = "Columns to keep",
+		description = "The columns that will be kept in the output.",
 		excludedTypes=["GEOMETRY"],
 		multiSelection = true,
 		minOccurs = 0,
@@ -144,31 +123,19 @@ Double height = 1
 String[] fieldList
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"])
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.")
 Boolean dropTable 
 
 @LiteralDataInput(
-		title = [
-				"Output table name","en",
-				"Nom de la table de sortie","fr"],
-		description = [
-				"Name of the table containing the result of the process.","en",
-				"Nom de la table contenant les résultats du traitement.","fr"])
+		title = "Output table name",
+		description = "Name of the table containing the result of the process.")
 String outputTableName
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the input table","en",
-				"Supprimer la table d'entrée","fr"],
-    description = [
-				"Drop the input table when the script is finished.","en",
-				"Supprimer la table d'entrée lorsque le script est terminé.","fr"])
+    title = "Drop the input table",
+    description = "Drop the input table when the script is finished.")
 Boolean dropInputTable 
 
 
@@ -178,11 +145,7 @@ Boolean dropInputTable
 
 /** String output of the process. */
 @LiteralDataOutput(
-		title = [
-				"Output message","en",
-				"Message de sortie","fr"],
-		description = [
-				"The output message.","en",
-				"Le message de sortie.","fr"])
+		title = "Output message",
+		description = "The output message.")
 String literalOutput
 

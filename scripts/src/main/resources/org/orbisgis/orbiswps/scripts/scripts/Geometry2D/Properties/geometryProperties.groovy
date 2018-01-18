@@ -63,15 +63,10 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Sylvain PALOMINOS
  */
 @Process(
-        title = ["Geometry properties","en",
-                "Propriétés géométriques","fr"],
-        description = [
-                "Compute some basic geometry properties.","en",
-                "Calcul des propriétés de base des géométries.","fr"],
-        keywords = ["Vector,Geometry,Properties", "en",
-                "Vecteur,Géométrie,Propriétés", "fr"],
-        properties = ["DBMS_TYPE", "H2GIS",
-                "DBMS_TYPE", "POSTGIS"],
+        title = "Geometry properties",
+        description = "Compute some basic geometry properties.",
+        keywords = "Vector,Geometry,Properties",
+        properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0",
         identifier = "orbisgis:wps:official:geometryProperties"
 )
@@ -131,7 +126,7 @@ def processing() {
     if(dropInputTable){
         sql.execute "drop table if exists " + inputJDBCTable
     }
-    literalOutput = "Process done"
+    literalOutput = i18n.tr("Process done")
 }
 
 
@@ -141,12 +136,8 @@ def processing() {
 
 /** This JDBCTable is the input data source. */
 @JDBCTableInput(
-        title = [
-                "Input spatial data","en",
-                "Données spatiales d'entrée","fr"],
-        description = [
-                "The spatial data source to compute the geometry properties.","en",
-                "La source de données spatiales pour le calcul des propriétés géométriques.","fr"],
+        title = "Input spatial data",
+        description = "The spatial data source to compute the geometry properties.",
         dataTypes = ["GEOMETRY"],
         identifier = "inputJDBCTable")
 String inputJDBCTable
@@ -157,12 +148,8 @@ String inputJDBCTable
 
 /** Name of the Geometric field of the JDBCTable inputJDBCTable. */
 @JDBCColumnInput(
-        title = [
-                "Geometric column","en",
-                "Colonne géométrique","fr"],
-        description = [
-                "The geometric column of the data source.","en",
-                "La colonne géométrique de la source de données.","fr"],
+        title = "Geometric column",
+        description = "The geometric column of the data source.",
         jdbcTableReference = "inputJDBCTable",
         identifier = "geometricField",
         dataTypes = ["GEOMETRY"])
@@ -170,58 +157,37 @@ String[] geometricField
 
 /** Name of the identifier field of the JDBCTable inputJDBCTable. */
 @JDBCColumnInput(
-        title = [
-                "Column identifier","en",
-                "Colonne identifiant","fr"],
-        description = [
-                "A column used as an identifier.","en",
-                "La colonne utilisée comme identifiant.","fr"],
+        title = "Column identifier",
+        description = "A column used as an identifier.",
 	    excludedTypes=["GEOMETRY"],
         jdbcTableReference = "inputJDBCTable",
         identifier = "idField")
 String[] idField
 
 @EnumerationInput(
-        title = [
-                "Operation","en",
-                "Opération","fr"],
-        description = [
-                "Operation to compute the properties.","en",
-                "Opération à effectuer.","fr"],
+        title = "Operation",
+        description = "Operation to compute the properties.",
         values=["geomtype","srid", "length","perimeter","area", "dimension", "coorddim", "num_geoms", "num_pts", "issimple", "isvalid", "isempty"],
-        names = ["Geometry type,SRID,Length,Perimeter,Area,Geometry dimension,Coordinate dimension,Number of geometries,Number of points,Is simple,Is valid,Is empty","en",
-                "Type de géométrie,SRID,Longueur,Périmètre,Surface,Dimension de la géométrie,Dimension des coordonnées,Nombre de géométries,Nombre de points,Est simple,Est valide,Est vide","fr"],
+        names = "Geometry type,SRID,Length,Perimeter,Area,Geometry dimension,Coordinate dimension,Number of geometries,Number of points,Is simple,Is valid,Is empty",
         multiSelection = true,
         identifier = "operations")
 String[] operations = ["geomtype"]
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"])
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.")
 Boolean dropTable 
 
 @LiteralDataInput(
-        title = [
-                "Output table name","en",
-                "Nom de la table de sortie","fr"],
-        description = [
-                "Name of the table containing the result of the process.","en",
-                "Nom de la table contenant les résultats du traitement.","fr"],
+        title = "Output table name",
+        description = "Name of the table containing the result of the process.",
         identifier = "outputTableName")
 String outputTableName
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the input table","en",
-				"Supprimer la table d'entrée","fr"],
-    description = [
-				"Drop the input table when the script is finished.","en",
-				"Supprimer la table d'entrée lorsque le script est terminé.","fr"])
+    title = "Drop the input table",
+    description = "Drop the input table when the script is finished.")
 Boolean dropInputTable 
 
 
@@ -231,12 +197,8 @@ Boolean dropInputTable
 
 /** String output of the process. */
 @LiteralDataOutput(
-        title = [
-                "Output message","en",
-                "Message de sortie","fr"],
-        description = [
-                "The output message.","en",
-                "Le message de sortie.","fr"],
+        title = "Output message",
+        description = "The output message.",
         identifier = "literalOutput")
 String literalOutput
 

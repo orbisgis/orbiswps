@@ -59,14 +59,10 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Sylvain PALOMINOS
  */
 @Process(
-        title = ["Insert values in a table","en",
-                "Insertion de valeurs dans une table","fr"],
-        description = ["Insert values into a table.","en",
-                "Insert de valeurs dans une table.","fr"],
-        keywords = ["Table,Insert,Values", "en",
-                "Table,Insertion,Valeurs", "fr"],
-        properties = ["DBMS_TYPE", "H2GIS",
-                "DBMS_TYPE", "POSTGIS"],
+        title = "Insert values in a table",
+        description = "Insert values into a table.",
+        keywords = "Table,Insert,Values",
+        properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0",
         identifier = "orbisgis:wps:official:insertValues")
 def processing() {
@@ -108,7 +104,7 @@ def processing() {
         //execute the query
         sql.execute(query)
     }
-    literalOutput = "Insert done."
+    literalOutput = i18n.tr("Insert done.")
 }
 
 
@@ -118,10 +114,8 @@ def processing() {
 
 /** This JDBCTable is the input data source table. */
 @JDBCTableInput(
-        title = ["Table","en",
-                "Table","fr"],
-        description = ["The table to edit.","en",
-                "La table à éditer.","fr"],
+        title = "Table",
+        description = "The table to edit.",
         identifier = "tableName")
 String tableName
 
@@ -131,11 +125,8 @@ String tableName
 
 /** Field list concerned by the value insertion. */
 @JDBCColumnInput(
-        title = ["Columns","en",
-                "Colonnes","fr"],
-        description = [
-                "The columns concerned by the value insertion.","en",
-                "Les colonnes concernés par les insertions de valeurs.","fr"],
+        title = "Columns",
+        description = "The columns concerned by the value insertion.",
         jdbcTableReference = "tableName",
         multiSelection = true,
         minOccurs = 0,
@@ -144,21 +135,15 @@ String[] fieldList
 
 /** Coma separated values to insert. */
 @LiteralDataInput(
-        title = ["Values","en",
-                "Valeurs","fr"],
-        description = [
-                "The input values. The values should be separated by a ',' and rows by ';'","en",
-                "Les valeurs à insérer. Elles doivent etre séparées par une ',' et les lignes par un ';'","fr"],
+        title = "Values",
+        description = "The input values. The values should be separated by a ',' and rows by ';'",
         identifier = "values")
 String values
 
 /** String output of the process. */
 @LiteralDataOutput(
-        title = ["Output message","en",
-                "Message de sortie","fr"],
-        description = [
-                "The output message.","en",
-                "Le message de sortie.","fr"],
+        title = "Output message",
+        description = "The output message.",
         identifier = "literalOutput")
 String literalOutput
 

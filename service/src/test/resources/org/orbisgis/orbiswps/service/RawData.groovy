@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.server
+package org.orbisgis.orbiswps.service
 
 import org.orbisgis.orbiswps.groovyapi.input.RawDataInput
 import org.orbisgis.orbiswps.groovyapi.output.RawDataOutput
@@ -50,10 +50,9 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  * Test script for the RawData
  * @author Sylvain PALOMINOS
  */
-@Process(title = ["RawData test","en","Test du RawData","fr"],
-        description = ["Test script using the RawData ComplexData.","en",
-                "Scripts test pour l'usage du ComplexData RawData.","fr"],
-        keywords = ["test,script,wps","en","test,scripte,wps","fr"],
+@Process(title = "RawData test",
+        description = "Test script using the RawData ComplexData.",
+        keywords = "test,script,wps",
         identifier = "orbisgis:test:rawdata",
         metadata = ["website","metadata"]
 )
@@ -68,9 +67,9 @@ def processing() {
 
 /** This RawData is the input data source. */
 @RawDataInput(
-        title = ["Input RawData","en","Entrée RawData","fr"],
-        description = ["A RawData input.","en","Une entrée RawData.","fr"],
-        keywords = ["input","en","entrée","fr"],
+        title = "Input RawData",
+        description = "A RawData input.",
+        keywords = "input",
         isDirectory = false,
         minOccurs = 0,
         maxOccurs = 2,
@@ -85,9 +84,9 @@ String inputRawData
 
 /** This RawData is the output data source. */
 @RawDataOutput(
-        title = ["Output RawData","en","Sortie RawData","fr"],
-        description = ["A RawData output.","en","Une sortie RawData.","fr"],
-        keywords = ["output","en","sortie","fr"],
+        title = "Output RawData",
+        description = "A RawData output.",
+        keywords = "output",
         isFile = false,
         multiSelection = true,
         identifier = "orbisgis:test:rawdata:output",

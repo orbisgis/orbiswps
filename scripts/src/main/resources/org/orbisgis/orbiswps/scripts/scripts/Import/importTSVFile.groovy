@@ -46,11 +46,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 /**
  * @author Erwan Bocher
  */
-@Process(title = ["Import a TSV file","en","Importer un fichier TSV","fr"],
-    description = ["Import in the database a TSV file as a new table.","en",
-                "Import d'un fichier TSV dans la base de données.","fr"],
-    keywords = ["OrbisGIS,Importer, Fichier, TSV","fr",
-                "OrbisGIS,Import, File, TSV","en"],
+@Process(title = "Import a TSV file",
+    description = "Import in the database a TSV file as a new table.",
+    keywords = "OrbisGIS,Import, File, TSV",
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
@@ -69,14 +67,13 @@ def processing() {
 
     sql.execute query
 
-    literalDataOutput = "The TSV file has been imported."
+    literalDataOutput = i18n.tr("The TSV file has been imported.")
 }
 
 
 @RawDataInput(
-    title = ["Input TSV","en","Fichier TSV","fr"],
-    description = ["The input TSV file to be imported.","en",
-                "Selectionner un fichier TSV à importer.","fr"],
+    title = "Input TSV",
+    description = "The input TSV file to be imported.",
     fileTypes = ["tsv"],
     isDirectory = false)
 String[] fileDataInput
@@ -85,21 +82,16 @@ String[] fileDataInput
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the existing table","en",
-				"Supprimer la table existante","fr"],
-    description = [
-				"Drop the existing table.","en",
-				"Supprimer la table existante.","fr"])
+    title = "Drop the existing table",
+    description = "Drop the existing table.")
 Boolean dropTable 
 
 
 
 /** Optional table name. */
 @LiteralDataInput(
-    title = ["Output table name","en","Nom de la table importée","fr"],
-    description = ["Table name to store the TSV file. If it is not defined the name of the file will be used.","en",
-                "Nom de la table importée. Par défaut le nom de la table correspond au nom du fichier.","fr"],
+    title = "Output table name",
+    description = "Table name to store the TSV file. If it is not defined the name of the file will be used.",
     minOccurs = 0)
 String jdbcTableOutputName
 
@@ -111,8 +103,6 @@ String jdbcTableOutputName
 /** OUTPUT **/
 /************/
 @LiteralDataOutput(
-    title = ["Output message","en",
-                "Message de sortie","fr"],
-    description = ["Output message.","en",
-                "Message de sortie.","fr"])
+    title = "Output message",
+    description = "Output message.")
 String literalDataOutput

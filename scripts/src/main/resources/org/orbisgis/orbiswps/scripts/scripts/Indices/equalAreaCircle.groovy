@@ -50,16 +50,10 @@ import org.h2gis.utilities.TableLocation
  * @author Erwan Bocher
  */
 @Process(
-    title = [
-				"Equal Area Circle","en",
-				"Cercle de surface équivalente","fr"],
-    description = [
-				"It is a circle with an area equal to that of the polygon and centered on the polygon's centroid. <p><em>Bibliography:</em></p>","en",
-				"Calcule un cercle centré sur le centroid du polygon et dont la superficie est égale à l'aire du polygone. <p><em>Bibliographie:</em></p>","fr"],
-    keywords = ["Vector,Geometry,Index", "en",
-				"Vecteur,Géométrie,Indice", "fr"],
-    properties = ["DBMS_TYPE", "H2GIS",
-				"DBMS_TYPE", "POSTGIS"],
+    title = "Equal Area Circle",
+    description = "It is a circle with an area equal to that of the polygon and centered on the polygon's centroid. <p><em>Bibliography:</em></p>",
+	keywords = "Vector,Geometry,Index",
+    properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:equalAreaCircle"
 )
@@ -83,7 +77,7 @@ def processing() {
     //Execute the query
     sql.execute(query)
 
-    literalOutput = "Process done"
+    literalOutput = i18n.tr("Process done")
     
 }
 
@@ -92,24 +86,16 @@ def processing() {
 /****************/
 
 @JDBCTableInput(
-    title = [
-				"Input table","en",
-				"Table d'entrée","fr"],
-    description = [
-				"The spatial data source that contains the polygons.","en",
-				"La table qui contient les polygones.","fr"],
+    title = "Input table",
+    description = "The spatial data source that contains the polygons.",
     dataTypes = ["POLYGON", "MULTIPOLYGON"]
 )
 String inputTable
 
 
 @JDBCColumnInput(
-    title = [
-				"Geometric column","en",
-				"Colonne géométrique","fr"],
-    description = [
-				"The geometric column of input table.","en",
-				"La colonne géométrique de la table d'entrée","fr"],
+    title = "Geometric column",
+    description = "The geometric column of input table.",
     jdbcTableReference = "inputTable",
     dataTypes = ["POLYGON", "MULTIPOLYGON"]
 )
@@ -117,12 +103,8 @@ String[] geometryColumn
 
 /** Name of the identifier field of the JDBCTable inputJDBCTable. */
 @JDBCColumnInput(
-    title = [
-                "Column identifier","en",
-                "Colonne identifiant","fr"],
-    description = [
-                "A column used as an identifier.","en",
-                "La colonne utilisée comme identifiant.","fr"],
+    title = "Column identifier",
+    description = "A column used as an identifier.",
     excludedTypes=["GEOMETRY"],
     multiSelection = false,
     jdbcTableReference = "inputTable")
@@ -131,22 +113,14 @@ String[] idField
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"],
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.",
     minOccurs = 0)
 Boolean dropTable 
 
 @LiteralDataInput(
-    title = [
-				"Output table prefix","en",
-				"Prefixe de la table de sortie","fr"],
-    description = [
-				"Prefix of the table containing the result of the process.","en",
-				"Prefixe de la table contenant les résultats du traitement.","fr"],
+    title = "Output table prefix",
+    description = "Prefix of the table containing the result of the process.",
     minOccurs = 0,
     identifier = "outputTableName"
 )
@@ -156,12 +130,8 @@ String outputTableName
 
 /** String output of the process. */
 @LiteralDataOutput(
-    title = [
-				"Output message","en",
-				"Message de sortie","fr"],
-    description = [
-				"The output message.","en",
-				"Le message de sortie.","fr"],
+    title = "Output message",
+    description = "The output message.",
     identifier = "literalOutput"
 )
 String literalOutput

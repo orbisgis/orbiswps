@@ -50,16 +50,10 @@ import org.h2gis.utilities.TableLocation
  * @author Erwan Bocher
  */
 @Process(
-    title = [
-				"Expression filtering","en",
-				"Selection par expression","fr"],
-    description = [
-				"Select rows from one table based on a SQL expression. ","en",
-				"Selectionnez des lignes dans une table à partir d'une expression SQL.","fr"],
-    keywords = ["Filtering", "en",
-				"Sélection", "fr"],
-    properties = ["DBMS_TYPE", "H2GIS",
-				"DBMS_TYPE", "POSTGIS"],
+    title = "Expression filtering",
+    description = "Select rows from one table based on a SQL expression. ",
+    keywords = "Filtering",
+    properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:selectionExpression"
 )
@@ -81,7 +75,7 @@ def processing() {
     //Execute the query
     sql.execute(query)
 
-    literalOutput = "Process done"
+    literalOutput = i18n.tr("Process done")
     
 }
 
@@ -90,45 +84,28 @@ def processing() {
 /****************/
 
 @JDBCTableInput(
-    title = [
-				"Table to select from","en",
-				"Entités à selectionner","fr"],
-    description = [
-				"The data source that contains the selected features.","en",
-				"La table qui contient les entités à selectionner.","fr"]
-)
+    title = "Table to select from",
+    description = "The data source that contains the selected features.")
 String fromSelectedTable
 
 
 
 @LiteralDataInput(
-    title = [
-				"SQL expression","en",
-				"Expression SQL","fr"],
-    description = [
-				"Write here a valid where SQL expression.","en",
-				"Saisir ici une expression WHERE SQL valide.","fr"])
+    title = "SQL expression",
+    description = "Write here a valid where SQL expression.")
 String fromSelectedValue  
 
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"],
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.",
     minOccurs = 0)
 Boolean dropTable 
 
 @LiteralDataInput(
-    title = [
-				"Output table name","en",
-				"Nom de la table de sortie","fr"],
-    description = [
-				"Name of the table containing the result of the process.","en",
-				"Nom de la table contenant les résultats du traitement.","fr"],
+    title = "Output table name",
+    description = "Name of the table containing the result of the process.",
     minOccurs = 0,
     identifier = "outputTableName"
 )
@@ -138,12 +115,8 @@ String outputTableName
 
 /** String output of the process. */
 @LiteralDataOutput(
-    title = [
-				"Output message","en",
-				"Message de sortie","fr"],
-    description = [
-				"The output message.","en",
-				"Le message de sortie.","fr"],
+    title = "Output message",
+    description = "The output message.",
     identifier = "literalOutput"
 )
 String literalOutput

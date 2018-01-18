@@ -58,14 +58,10 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Erwan Bocher
  */
 @Process(
-        title = ["Delete rows","en",
-                "Suppression de lignes","fr"],
-        description = ["Delete rows from a table.","en",
-                "Supprime des lignes d'une table.","fr"],
-        keywords = ["Table,Delete", "en",
-                "Table,Suppression", "fr"],
-        properties = ["DBMS_TYPE", "H2GIS",
-                "DBMS_TYPE", "POSTGIS"],
+        title = "Delete rows",
+        description = "Delete rows from a table.",
+        keywords = "Table,Delete",
+        properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0",
         identifier = "orbisgis:wps:official:deleteRows"
 )
@@ -76,7 +72,7 @@ def processing() {
         //Execute the query
         sql.execute(query)
     }
-    literalOutput = "Delete done."
+    literalOutput = i18n.tr("Delete done.")
 }
 
 
@@ -86,10 +82,8 @@ def processing() {
 
 /** This JDBCTable is the input data source table. */
 @JDBCTableInput(
-        title = ["Table","en",
-                "Table","fr"],
-        description = ["The table to edit.","en",
-                "La table à éditer.","fr"],
+        title = "Table",
+        description = "The table to edit.",
         identifier = "tableName"
 )
 String tableName
@@ -100,10 +94,8 @@ String tableName
 
 /** Name of the PrimaryKey field of the JDBCTable tableName. */
 @JDBCColumnInput(
-        title = ["PKField","en",
-                "Clef primaire","fr"],
-        description = ["The primary key column.","en",
-                "La colonne de la clef primaire.","fr"],
+        title = "PKField",
+        description = "The primary key column.",
         jdbcTableReference = "tableName",
         identifier = "pkField"
 )
@@ -111,10 +103,8 @@ String[] pkField
 
 /** List of primary keys to remove from the table. */
 @JDBCValueInput(
-        title = ["Primary key values","en",
-                "Valeurs des clefs primaires","fr"],
-        description = ["The array of the primary keys of the rows to remove.","en",
-                "La liste des clefs primaires dont les lignes sont à supprimer.","fr"],
+        title = "Primary key values",
+        description = "The array of the primary keys of the rows to remove.",
         jdbcColumnReference = "pkField",
         multiSelection = true,
         identifier = "pkToRemove"
@@ -123,10 +113,8 @@ String[] pkToRemove
 
 /** Output message. */
 @LiteralDataOutput(
-        title = ["Output message","en",
-                "Message de sortie","fr"],
-        description = ["The output message.","en",
-                "Le message de sortie.","fr"],
+        title = "Output message",
+        description = "The output message.",
         identifier = "literalOutput")
 String literalOutput
 

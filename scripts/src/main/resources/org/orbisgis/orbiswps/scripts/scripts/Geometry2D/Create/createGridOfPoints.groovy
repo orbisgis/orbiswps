@@ -55,13 +55,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Sylvain PALOMINOS
  */
 @Process(
-        title = ["Create a grid of points","en",
-                "Création d'une grille de points","fr"],
-        description = [
-                "Create a grid of points.","en",
-                "Création d'une grille de points.","fr"],
-        keywords = ["Vector,Geometry,Creation", "en",
-                "Vecteur,Géométrie,Création", "fr"],
+        title = "Create a grid of points",
+        description = "Create a grid of points.",
+        keywords = "Vector,Geometry,Creation",
         properties = ["DBMS_TYPE", "H2GIS"],
         version = "1.0")
 def processing() {
@@ -78,7 +74,7 @@ def processing() {
     if(dropInputTable){
         sql.execute "drop table if exists " + inputJDBCTable
     }
-    literalOutput = "Process done"
+    literalOutput = i18n.tr("Process done")
 }
 
 
@@ -87,11 +83,8 @@ def processing() {
 /****************/
 
 @JDBCTableInput(
-        title = ["Input spatial data","en",
-                "Données spatiales d'entrée","fr"],
-        description = [
-                "The spatial data source to compute the grid. The extend of grid is based on the full extend of the table.","en",
-                "La source de données spatiales utilisée pour le calcul de la grille. L'étendue de la grille se base sur l'étendue de la table.","fr"],
+        title = "Input spatial data",
+        description = "The spatial data source to compute the grid. The extend of grid is based on the full extend of the table.",
         dataTypes = ["GEOMETRY"])
 String inputJDBCTable
 
@@ -100,46 +93,30 @@ String inputJDBCTable
 /**********************/
 
 @LiteralDataInput(
-        title = ["X cell size","en",
-                "Taille X des cellules","fr"],
-        description = ["The X cell size.","en",
-                "La taille X des cellules.","fr"])
+        title = "X cell size",
+        description = "The X cell size.")
 Double x_distance =1
 
 @LiteralDataInput(
-        title = ["Y cell size","en",
-                "Taille Y des cellules","fr"],
-        description = [
-                "The Y cell size.","en",
-                "La taille Y des cellules.","fr"])
+        title = "Y cell size",
+        description = "The Y cell size.")
 Double y_distance =1
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"])
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.")
 Boolean dropTable 
 
 @LiteralDataInput(
-        title = ["Output table name","en",
-                "Nom de la table de sortie","fr"],
-        description = [
-                "Name of the table containing the result of the process.","en",
-                "Nom de la table contenant les résultats du traitement.","fr"])
+        title = "Output table name",
+        description = "Name of the table containing the result of the process.")
 String outputTableName
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the input table","en",
-				"Supprimer la table d'entrée","fr"],
-    description = [
-				"Drop the input table when the script is finished.","en",
-				"Supprimer la table d'entrée lorsque le script est terminé.","fr"])
+    title = "Drop the input table",
+    description = "Drop the input table when the script is finished.")
 Boolean dropInputTable 
 
 
@@ -149,10 +126,7 @@ Boolean dropInputTable
 
 /** String output of the process. */
 @LiteralDataOutput(
-        title = ["Output message","en",
-                "Message de sortie","fr"],
-        description = [
-                "The output message.","en",
-                "Le message de sortie.","fr"])
+        title = "Output message",
+        description = "The output message.")
 String literalOutput
 

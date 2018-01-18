@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.server
+package org.orbisgis.orbiswps.service
 
 import org.orbisgis.orbiswps.groovyapi.input.GeometryInput
 import org.orbisgis.orbiswps.groovyapi.output.GeometryOutput
@@ -50,10 +50,9 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  * Test script for the Geometry
  * @author Sylvain PALOMINOS
  */
-@Process(title = ["Geometry test","en","Test du Geometry","fr"],
-        description = ["Test script using the Geometry ComplexData.","en",
-                "Scripts test pour l'usage du ComplexData Geometry.","fr"],
-        keywords = ["test,script,wps","en","test,scripte,wps","fr"],
+@Process(title = "Geometry test",
+        description = "Test script using the Geometry ComplexData.",
+        keywords = "test,script,wps",
         identifier = "orbisgis:test:geometry",
         metadata = ["website","metadata"]
 )
@@ -68,9 +67,9 @@ def processing() {
 
 /** This Geometry is the input data source. */
 @GeometryInput(
-        title = ["Input Geometry","en","Entrée Geometry","fr"],
-        description = ["A Geometry input.","en","Une entrée Geometry.","fr"],
-        keywords = ["input","en","entrée","fr"],
+        title = "Input Geometry",
+        description = "A Geometry input.",
+        keywords = "input",
         dimension = 3,
         excludedTypes = ["MULTIPOINT", "POINT"],
         minOccurs = 0,
@@ -86,9 +85,9 @@ String inputGeometry
 
 /** This Geometry is the output data source. */
 @GeometryOutput(
-        title = ["Output Geometry","en","Sortie Geometry","fr"],
-        description = ["A Geometry output.","en","Une sortie Geometry.","fr"],
-        keywords = ["output","en","sortie","fr"],
+        title = "Output Geometry",
+        description = "A Geometry output.",
+        keywords = "output",
         dimension = 2,
         geometryTypes = ["POLYGON", "POINT"],
         identifier = "orbisgis:test:geometry:output",

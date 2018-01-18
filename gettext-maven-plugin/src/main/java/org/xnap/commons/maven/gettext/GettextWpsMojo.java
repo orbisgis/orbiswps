@@ -149,7 +149,7 @@ public class GettextWpsMojo extends AbstractGettextMojo {
 
 		DirectoryScanner ds = new DirectoryScanner();
 		ds.setBasedir(sourceDirectory);
-		ds.setIncludes(new String[]{"**/exportCSVFile.groovy"});
+		ds.setIncludes(new String[]{"**/*.groovy"});
 		ds.scan();
 		String[] files = ds.getIncludedFiles();
 		try {
@@ -200,7 +200,6 @@ public class GettextWpsMojo extends AbstractGettextMojo {
 				cl.createArg().setValue("--join-existing");
 				cl.createArg().setLine(keywords);
 				cl.setWorkingDirectory(sourceDirectory.getAbsolutePath());
-				getLog().info(sourceDirectory.getAbsolutePath());
 
 				getLog().debug("Executing: " + cl.toString());
 				StreamConsumer out = new LoggerStreamConsumer(getLog(), LoggerStreamConsumer.INFO);

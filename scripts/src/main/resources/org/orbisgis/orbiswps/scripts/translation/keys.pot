@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-10 13:59+0100\n"
+"POT-Creation-Date: 2018-01-18 10:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,59 +17,100 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:96
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:96
 msgid "OrbisGIS"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:97
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:97
 msgid "Network"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:98
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:98
 msgid "Table"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:99
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:99
 msgid "Geometry2D"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:100
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:100
 msgid "Convert"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:101
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:101
 msgid "Create"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:102
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:102
 msgid "Buffer"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:103
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:103
 msgid "Properties"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:104
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:104
 msgid "Transform"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:105
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:105
 msgid "Import"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:106
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:106
 msgid "Export"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:107
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:107
 msgid "Select"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:108
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:108
 msgid "Indices"
 msgstr ""
 
-#: org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:195
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:201
 #, java-format
 msgid "Unable to explore the URL {0}"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy8086110716201937190.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy8086110716201937190.tmp:2
+msgid ","
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy8114696818166259843.tmp:1
+msgid "en"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy1886485264878535874.tmp:1
+msgid ""
+"Left join,Right join, Left join without rigth values, Right join without "
+"left values, Inner join, Cross join, Natural join"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy1643542298764744370.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy5626264347832370835.tmp:1
+msgid "Coma, Tabulation, Space, Semicolon"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy1590837670450252561.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy223968561360217018.tmp:1
+msgid ""
+"System, utf-8, ISO-8859-1, ISO-8859-2, ISO-8859-4, ISO-8859-5, ISO-8859-7, "
+"ISO-8859-9, ISO-8859-13,ISO-8859-15"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy19684933567770783.tmp:1
+msgid "Intersects, Contains, Disjoint, Crosses, Touches"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy4657323478340381177.tmp:1
+msgid ""
+"Equal to, Greater than, Greater than or equal to, Less than, Less than or "
+"equal to, Not equal to,Limit, In, Not In, Like"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy2443363125730773663.tmp:1
+msgid "Centroid"
 msgstr ""

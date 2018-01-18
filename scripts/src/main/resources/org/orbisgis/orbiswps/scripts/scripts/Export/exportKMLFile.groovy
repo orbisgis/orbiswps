@@ -54,7 +54,7 @@ import java.sql.Connection
  */
 @Process(title = "Export into a KML file",
     description = "Export a table to a KML file.",
-    keywords = "OrbisGIS,Export, File, KML",
+    keywords = ["OrbisGIS","Export","File","KML"],
     properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
     version = "1.0")
 def processing() {

@@ -51,7 +51,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
         title = "Create a graph",
         description = "Create a graph stored in two tables nodes and edges from an input table that contains Multi or LineString.<br>If the input table has name 'input', then the output tables are named 'input_nodes' and 'input_edges'.",
-        keywords = "Network,Geometry",
+        keywords = ["Network","Geometry"],
         properties = ["DBMS_TYPE", "H2GIS"],
         version = "1.0")
 def processing() {    

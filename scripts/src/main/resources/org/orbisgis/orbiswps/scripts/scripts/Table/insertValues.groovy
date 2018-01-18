@@ -61,7 +61,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
         title = "Insert values in a table",
         description = "Insert values into a table.",
-        keywords = "Table,Insert,Values",
+        keywords = ["Table","Insert","Values"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0",
         identifier = "orbisgis:wps:official:insertValues")

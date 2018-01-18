@@ -69,9 +69,9 @@ public class DescriptionTypeConvertTest {
 
     /** Field containing the full DescriptionTypeAttribute annotation. */
     @DescriptionTypeAttribute(
-            title = {"DescriptionType attribute title","en","Titre de l'attribut DescriptionType","fr"},
-            description = {"DescriptionType attribute resume","en","Description de l'attribut DescriptionType","fr"},
-            keywords = {"DescriptionType en,Attribute en", "en", "DescriptionType fr,Attribute fr", "fr"},
+            title = "DescriptionType attribute title",
+            description = "DescriptionType attribute resume",
+            keywords = {"DescriptionType en","Attribute en"},
             identifier = "test:descriptionTypeAttribute",
             metadata = {"role1","metadata1","role2","metadata2"}
     )
@@ -115,12 +115,7 @@ public class DescriptionTypeConvertTest {
             List<LanguageStringType> titleList = new ArrayList<>();
             LanguageStringType titleEN = new LanguageStringType();
             titleEN.setValue("DescriptionType attribute title");
-            titleEN.setLang("en");
             titleList.add(titleEN);
-            LanguageStringType titleFR = new LanguageStringType();
-            titleFR.setValue("Titre de l'attribut DescriptionType");
-            titleFR.setLang("fr");
-            titleList.add(titleFR);
 
             toTest.getTitle().clear();
             toTest.getTitle().addAll(titleList);
@@ -129,12 +124,7 @@ public class DescriptionTypeConvertTest {
             List<LanguageStringType> resumeList = new ArrayList<>();
             LanguageStringType resumeEN = new LanguageStringType();
             resumeEN.setValue("DescriptionType attribute resume");
-            resumeEN.setLang("en");
             resumeList.add(resumeEN);
-            LanguageStringType resumeFR = new LanguageStringType();
-            resumeFR.setValue("Description de l'attribut DescriptionType");
-            resumeFR.setLang("fr");
-            resumeList.add(resumeFR);
 
             toTest.getAbstract().clear();
             toTest.getAbstract().addAll(resumeList);
@@ -146,12 +136,7 @@ public class DescriptionTypeConvertTest {
             List<LanguageStringType> descriptionTypeList = new ArrayList<>();
             LanguageStringType descriptionTypeEN = new LanguageStringType();
             descriptionTypeEN.setValue("DescriptionType en");
-            descriptionTypeEN.setLang("en");
             descriptionTypeList.add(descriptionTypeEN);
-            LanguageStringType descriptionTypeFR = new LanguageStringType();
-            descriptionTypeFR.setValue("DescriptionType fr");
-            descriptionTypeFR.setLang("fr");
-            descriptionTypeList.add(descriptionTypeFR);
             descriptionTypeKeyword.getKeyword().clear();
             descriptionTypeKeyword.getKeyword().addAll(descriptionTypeList);
             keywordsTypeList.add(descriptionTypeKeyword);
@@ -160,12 +145,7 @@ public class DescriptionTypeConvertTest {
             List<LanguageStringType> attributeList = new ArrayList<>();
             LanguageStringType attributeEN = new LanguageStringType();
             attributeEN.setValue("Attribute en");
-            attributeEN.setLang("en");
             attributeList.add(attributeEN);
-            LanguageStringType attributeFR = new LanguageStringType();
-            attributeFR.setValue("Attribute fr");
-            attributeFR.setLang("fr");
-            attributeList.add(attributeFR);
             attributeKeyword.getKeyword().clear();
             attributeKeyword.getKeyword().addAll(attributeList);
             keywordsTypeList.add(attributeKeyword);
@@ -207,7 +187,7 @@ public class DescriptionTypeConvertTest {
             for(LanguageStringType title1 : toTest.getTitle()){
                 boolean isTitlePresent = false;
                 for(LanguageStringType title2 : descriptionType.getTitle()){
-                    if(title1.getLang().equals(title2.getLang()) && title1.getValue().equals(title2.getValue())){
+                    if(title2.getValue().equals(title1.getValue())){
                         isTitlePresent = true;
                     }
                 }
@@ -228,7 +208,7 @@ public class DescriptionTypeConvertTest {
             for(LanguageStringType resume1 : toTest.getAbstract()){
                 boolean isResumePresent = false;
                 for(LanguageStringType resume2 : descriptionType.getAbstract()){
-                    if(resume1.getLang().equals(resume2.getLang()) && resume1.getValue().equals(resume2.getValue())){
+                    if(resume1.getValue().equals(resume2.getValue())){
                         isResumePresent = true;
                     }
                 }
@@ -253,8 +233,7 @@ public class DescriptionTypeConvertTest {
                     for(LanguageStringType language1 : keyword1.getKeyword()){
                         boolean sameTranslation = false;
                         for(LanguageStringType language2 : keyword2.getKeyword()){
-                            if(language1.getLang().equals(language2.getLang()) &&
-                                    language1.getValue().equals(language2.getValue())){
+                            if(language1.getValue().equals(language2.getValue())){
                                 sameTranslation = true;
                             }
                         }
@@ -311,7 +290,7 @@ public class DescriptionTypeConvertTest {
     @DescriptionTypeAttribute(
             title = "DescriptionType attribute title",
             description = "DescriptionType attribute resume",
-            keywords = "DescriptionType,Attribute"
+            keywords = {"DescriptionType","Attribute"}
     )
     public Object simpleDescriptionTypeAttribute;
     /** Name of the field containing the simpleDescriptionTypeAttribute annotation. */

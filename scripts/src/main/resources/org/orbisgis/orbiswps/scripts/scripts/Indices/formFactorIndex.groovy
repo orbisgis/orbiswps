@@ -52,7 +52,7 @@ import org.h2gis.utilities.TableLocation
 @Process(
     title = "Form factor index",
     description = "The form factor index is a ratio between the polygon’s area and the square of the polygon’s perimeter. <p><em>Bibliography:</em></p><p>Horton, R. E. (1932) Drainage-basin characteristics. Eos, Transactions American Geophysical Union, 13(1):350–361.</p>",
-	keywords = "Vector,Geometry,Index",
+	keywords = ["Vector","Geometry","Index"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:formFactorIndex"

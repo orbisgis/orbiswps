@@ -50,7 +50,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  */
 @Process(title = "Import a shapeFile",
     description = "Import in the database a shapeFile as a new table.",
-    keywords = "OrbisGIS,Import, File, SHP",
+    keywords = ["OrbisGIS","Import","File","SHP"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {

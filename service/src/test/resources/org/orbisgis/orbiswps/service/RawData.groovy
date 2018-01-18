@@ -52,7 +52,7 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  */
 @Process(title = "RawData test",
         description = "Test script using the RawData ComplexData.",
-        keywords = "test,script,wps",
+        keywords = ["test","script","wps"],
         identifier = "orbisgis:test:rawdata",
         metadata = ["website","metadata"]
 )

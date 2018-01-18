@@ -54,7 +54,7 @@ import java.sql.Connection
  */
 @Process(title = "Export into a GeoJSON",
     description = "Export a table to a GeoJSON.",
-    keywords = "OrbisGIS,Export, File, GeoJSON",
+    keywords = ["OrbisGIS","Export","File","GeoJSON"],
     properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
     version = "1.0")
 def processing() {

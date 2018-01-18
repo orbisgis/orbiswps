@@ -48,7 +48,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  */
 @Process(title = "Import a GeoJSON file",
     description = "Import in the database a GeoJSON file as a new table.",
-    keywords = "OrbisGIS,Import, File, GeoJSON",
+    keywords = ["OrbisGIS","Import","File","GeoJSON"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {

@@ -58,7 +58,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
 		title = "Extract center",
 		description = "Extract the center of a geometry.",
-		keywords = "Vector,Geometry,Extract,Center",
+		keywords = ["Vector","Geometry","Extract","Center"],
 		properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
                 version = "1.0")
 def processing() {

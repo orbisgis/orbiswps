@@ -48,7 +48,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  */
 @Process(title = "Import a DBF file",
     description = "Import in the database a DBF file as a new table.",
-    keywords = "OrbisGIS,Import, File, DBF",
+    keywords = ["OrbisGIS","Import","File","DBF"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {

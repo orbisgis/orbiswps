@@ -65,7 +65,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  */
 @Process(title = "Point table from CSV",
     description = "Creates a point layer from a CSV file containing the id of the point, its X and Y coordinate.",
-    keywords = "OrbisGIS,Import, File",
+    keywords = ["OrbisGIS","Import","File"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {

@@ -58,7 +58,7 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  */
 @Process(title = "JDBCValue test",
         description = "Test script using the JDBCValue ComplexData.",
-        keywords = "test,script,wps",
+        keywords = ["test","script","wps"],
         identifier = "orbisgis:test:jdbcvalue",
         metadata = ["website","metadata"]
 )

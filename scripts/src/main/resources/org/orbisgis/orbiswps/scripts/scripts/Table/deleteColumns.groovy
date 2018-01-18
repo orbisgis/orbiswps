@@ -58,7 +58,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
         title = "Delete columns",
         description = "Delete columns from a table.",
-        keywords = "Table,Delete",
+        keywords = ["Table","Delete"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0",
         identifier = "orbisgis:wps:official:deleteColumns"

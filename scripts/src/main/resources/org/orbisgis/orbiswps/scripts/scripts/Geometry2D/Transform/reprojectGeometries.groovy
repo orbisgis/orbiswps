@@ -60,7 +60,7 @@ import org.h2gis.utilities.TableLocation
 @Process(
 		title = "Reproject geometries",
 		description = "Reproject geometries from one Coordinate Reference System to another.",
-		keywords = "Vector,Geometry,Reproject",
+		keywords = ["Vector","Geometry","Reproject"],
 		properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
                 version = "1.0",
 		identifier = "orbisgis:wps:official:reprojectGeometries"

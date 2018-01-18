@@ -52,7 +52,7 @@ import org.h2gis.utilities.TableLocation
 @Process(
     title = "Shape index",
     description = "Compute the shape index. It equals the quarter perimeter divided by the square root of area.<p><em>Bibliography:</em></p>",
-	keywords = "Vector,Geometry,Index",
+	keywords = ["Vector","Geometry","Index"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:shapeIndex"

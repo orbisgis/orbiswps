@@ -65,7 +65,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
         title = "Geometry properties",
         description = "Compute some basic geometry properties.",
-        keywords = "Vector,Geometry,Properties",
+        keywords = ["Vector","Geometry","Properties"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0",
         identifier = "orbisgis:wps:official:geometryProperties"

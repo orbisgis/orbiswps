@@ -52,7 +52,7 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  */
 @Process(title = "Enumeration test",
         description = "Test script using the Enumeration ComplexData.",
-        keywords = "test,script,wps",
+        keywords = ["test","script","wps"],
         identifier = "orbisgis:test:enumeration",
         metadata = ["website","metadata"]
 )

@@ -66,7 +66,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
         title = "Fixed distance buffer",
         description = "Execute a buffer on a geometric field with a constant distance.",
-        keywords = "Vector,Geometry",
+        keywords = ["Vector","Geometry"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0")
 def processing() {

@@ -54,7 +54,7 @@ import java.sql.Connection
  */
 @Process(title = "Export into a SHP file",
     description = "Export a table to a SHP file.",
-    keywords = "OrbisGIS,Exporter, Fichier, SHP",
+    keywords = ["OrbisGIS","Exporter","Fichier","SHP"],
     properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
     version = "1.0")
 def processing() {

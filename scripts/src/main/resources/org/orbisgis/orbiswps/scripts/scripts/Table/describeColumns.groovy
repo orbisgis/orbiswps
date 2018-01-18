@@ -53,7 +53,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
         title = "Describe columns",
         description = "Extract the name, type and comment from all fields of a table.",
-        keywords = "Table,Describe",
+        keywords = ["Table","Describe"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0")
 def processing() {    

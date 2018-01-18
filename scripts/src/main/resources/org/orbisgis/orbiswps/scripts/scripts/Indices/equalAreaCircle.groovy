@@ -52,7 +52,7 @@ import org.h2gis.utilities.TableLocation
 @Process(
     title = "Equal Area Circle",
     description = "It is a circle with an area equal to that of the polygon and centered on the polygon's centroid. <p><em>Bibliography:</em></p>",
-	keywords = "Vector,Geometry,Index",
+	keywords = ["Vector","Geometry","Index"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:equalAreaCircle"

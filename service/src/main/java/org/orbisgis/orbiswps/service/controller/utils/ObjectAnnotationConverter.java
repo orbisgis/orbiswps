@@ -195,75 +195,25 @@ public class ObjectAnnotationConverter {
         //Keywords
         String[] keywords = descriptionTypeAttribute.keywords();
         //Case of only one keyword language (i.e. keywords="key1,key2,key3")
-        if(keywords.length == 1) {
-            LinkedList<KeywordsType> keywordsTypeList = new LinkedList<>();
-            //Splits the keyword string with the ',' character
-            String[] split = keywords[0].split(",");
-            //For each keyword :
-            for(String str : split){
-                //Create the LanguageStringType containing the keyword as value and nothing as language
-                LanguageStringType keywordString = new LanguageStringType();
-                keywordString.setValue(str.trim());
-                //Creates the keywordList which will contains one keyword, but in several languages.
-                // (In this case there is only one language)
-                List<LanguageStringType> keywordList = new ArrayList<>();
-                keywordList.add(keywordString);
-                //Creates the KeywordsType object containing the list of translation of a keyword
-                KeywordsType keywordsType = new KeywordsType();
-                keywordsType.getKeyword().addAll(keywordList);
-                //Add it to the keywordsType list
-                keywordsTypeList.add(keywordsType);
-            }
-            descriptionType.getKeywords().clear();
-            descriptionType.getKeywords().addAll(keywordsTypeList);
+        LinkedList<KeywordsType> keywordsTypeList = new LinkedList<>();
+        //Splits the keyword string with the ',' character
+        //For each keyword :
+        for(String str : keywords){
+            //Create the LanguageStringType containing the keyword as value and nothing as language
+            LanguageStringType keywordString = new LanguageStringType();
+            keywordString.setValue(str.trim());
+            //Creates the keywordList which will contains one keyword, but in several languages.
+            // (In this case there is only one language)
+            List<LanguageStringType> keywordList = new ArrayList<>();
+            keywordList.add(keywordString);
+            //Creates the KeywordsType object containing the list of translation of a keyword
+            KeywordsType keywordsType = new KeywordsType();
+            keywordsType.getKeyword().addAll(keywordList);
+            //Add it to the keywordsType list
+            keywordsTypeList.add(keywordsType);
         }
-        //Case of several keyword language (i.e. keywords=["key1,key2,key3","en","clef1,clef2,clef3","fr"])
-        else if(keywords.length != 0 && keywords.length%2 == 0) {
-            LinkedList<KeywordsType> keywordTypeList = new LinkedList<>();
-            //Each time take a pair of string : the keywords and the language.
-            //Then split the keywords string with the ',' character, put the keyword in a LanguageStringType object
-            // with its language and then put the first keyword LanguageStringType in the first KeywordsType object,
-            // the second keyword in the second KeywordsType object ...
-            //Repeat the operation for each language.
-            //
-            //Example :
-            // keywords=["key1,key2,key3","en","clef1,clef2,clef3","fr"] becomes
-            //
-            //List<LanguageStringType> {
-            //          KeywordsType{LanguageStringType{"key1","en"},LanguageStringType{"clef1","fr"}},
-            //          KeywordsType{LanguageStringType{"key2","en"},LanguageStringType{"clef2","fr"}},
-            //          KeywordsType{LanguageStringType{"key3","en"},LanguageStringType{"clef3","fr"}}
-            // }
-            for(int i=0; i<keywords.length; i+=2){
-                String language = keywords[i+1];
-                String[] split = keywords[i].split(",");
-                //If the KeywordsType object haven't already been created, create them
-                if(keywordTypeList.isEmpty()){
-                    for (String ignored : split) {
-                        KeywordsType keywordsType = new KeywordsType();
-                        keywordsType.getKeyword().addAll(new ArrayList<LanguageStringType>());
-                        keywordTypeList.add(keywordsType);
-                    }
-                }
-                //Adds all the keywords to the good KeywordsType
-                for(int j=0; j<split.length; j++){
-                    String str = split[j];
-                    LanguageStringType keywordString = new LanguageStringType();
-                    keywordString.setValue(str.trim());
-                    keywordString.setLang(language);
-
-                    List<LanguageStringType> keywordList = keywordTypeList.get(j).getKeyword();
-                    keywordList.add(keywordString);
-                }
-            }
-            descriptionType.getKeywords().clear();
-            descriptionType.getKeywords().addAll(keywordTypeList);
-        }
-        //Case of more than one keyword but not well formed (pair of a keyword with its language)
-        else if(keywords.length>0){
-            throw new MalformedScriptException(DescriptionTypeAttribute.class, "keywords", "The keywords should " +
-                    "be composed of pairs of String : the coma separated keywords and their language.");
-        }
+        descriptionType.getKeywords().clear();
+        descriptionType.getKeywords().addAll(keywordsTypeList);
 
         String[] metadata = descriptionTypeAttribute.metadata();
         //Check if the metadata is composed of pairs of string

@@ -46,11 +46,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 /**
  * @author Erwan Bocher
  */
-@Process(title = ["Import a GeoJSON file","en","Importer un fichier GeoJSON","fr"],
-    description = ["Import in the database a GeoJSON file as a new table.","en",
-                "Import d'un fichier GeoJSON dans la base de données.","fr"],
-    keywords = ["OrbisGIS,Importer, Fichier, GeoJSON","fr",
-                "OrbisGIS,Import, File, GeoJSON","en"],
+@Process(title = "Import a GeoJSON file",
+    description = "Import in the database a GeoJSON file as a new table.",
+    keywords = "OrbisGIS,Import, File, GeoJSON",
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
@@ -59,10 +57,10 @@ def processing() {
     tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
     query = "CALL GeoJsonRead('"+ fileData.absolutePath+"','"
     if(jdbcTableOutputName != null){
-	tableName = jdbcTableOutputName
+	    tableName = jdbcTableOutputName
     }
     if(dropTable){
-	sql.execute "drop table if exists " + tableName
+	    sql.execute "drop table if exists " + tableName
     }
     
     query += tableName+"')"	    
@@ -73,14 +71,13 @@ def processing() {
         sql.execute "create spatial index on "+ tableName + " (the_geom)"
     }
 
-    literalDataOutput = "The GeoJSON file has been imported."
+    literalDataOutput = i18n.tr("The GeoJSON file has been imported.")
 }
 
 
 @RawDataInput(
-    title = ["Input GeoJSON","en","Fichier GeoJSON","fr"],
-    description = ["The input GeoJSON file to be imported.","en",
-                "Selectionner un fichier GeoJSON à importer.","fr"],
+    title = "Input GeoJSON",
+    description = "The input GeoJSON file to be imported.",
     fileTypes = ["geojson"],
     isDirectory = false)
 String[] fileDataInput
@@ -88,31 +85,22 @@ String[] fileDataInput
 
 
 @LiteralDataInput(
-    title = [
-				"Add a spatial index","en",
-				"Créer un index spatial","fr"],
-    description = [
-				"Add a spatial index on the geometry column.","en",
-				"Ajout d'un index spatial sur la géometrie de la table.","fr"])
+    title = "Add a spatial index",
+    description = "Add a spatial index on the geometry column.")
 Boolean createIndex
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the existing table","en",
-				"Supprimer la table existante","fr"],
-    description = [
-				"Drop the existing table.","en",
-				"Supprimer la table existante.","fr"])
+    title = "Drop the existing table",
+    description = "Drop the existing table.")
 Boolean dropTable 
 
 
 
 /** Optional table name. */
 @LiteralDataInput(
-    title = ["Output table name","en","Nom de la table importée","fr"],
-    description = ["Table name to store the GeoJSON file. If it is not defined the name of the file will be used.","en",
-                "Nom de la table importée. Par défaut le nom de la table correspond au nom du fichier.","fr"],
+    title = "Output table name",
+    description = "Table name to store the GeoJSON file. If it is not defined the name of the file will be used.",
     minOccurs = 0)
 String jdbcTableOutputName
 
@@ -124,8 +112,6 @@ String jdbcTableOutputName
 /** OUTPUT **/
 /************/
 @LiteralDataOutput(
-    title = ["Output message","en",
-                "Message de sortie","fr"],
-    description = ["Output message.","en",
-                "Message de sortie.","fr"])
+    title = "Output message",
+    description = "Output message.")
 String literalDataOutput

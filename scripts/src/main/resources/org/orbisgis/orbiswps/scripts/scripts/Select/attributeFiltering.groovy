@@ -50,16 +50,10 @@ import org.h2gis.utilities.TableLocation
  * @author Erwan Bocher
  */
 @Process(
-    title = [
-				"Attribut selection","en",
-				"Selection par attribut","fr"],
-    description = [
-				"Select rows from one table based on one column value. SQL expression could be used to custom the select. ","en",
-				"Selectionnez des lignes dans une table à partir de la valeur d'une colonne. La syntaxe SQL peut être combinée pour personnaliser la sélection.","fr"],
-    keywords = ["Filtering", "en",
-				"Sélection", "fr"],
-    properties = ["DBMS_TYPE", "H2GIS",
-				"DBMS_TYPE", "POSTGIS"],
+    title = "Attribut selection",
+    description = "Select rows from one table based on one column value. SQL expression could be used to custom the select. ",
+	keywords = "Filtering",
+    properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:selectAttribute"
 )
@@ -81,7 +75,7 @@ def processing() {
     //Execute the query
     sql.execute(query)
 
-    literalOutput = "Process done"
+    literalOutput = i18n.tr("Process done")
     
 }
 
@@ -90,23 +84,14 @@ def processing() {
 /****************/
 
 @JDBCTableInput(
-    title = [
-				"Table to select from","en",
-				"Entités à selectionner","fr"],
-    description = [
-				"The spatial data source that contains the selected features.","en",
-				"La table qui contient les entités à selectionner.","fr"]
-)
+    title = "Table to select from",
+    description = "The spatial data source that contains the selected features.")
 String fromSelectedTable
 
 
 @JDBCColumnInput(
-    title = [
-				"Geometric column from","en",
-				"Colonne géométrique","fr"],
-    description = [
-				"The geometric column of selected table.","en",
-				"La colonne géométrique de la table avec les entités à selectionner","fr"],
+    title = "Geometric column from",
+    description = "The geometric column of selected table.",
     jdbcTableReference = "fromSelectedTable",
     excludedTypes = ["GEOMETRY"]
 )
@@ -114,43 +99,28 @@ String[] fromSelectedColumn
 
 
 @EnumerationInput(
-    title = ["Operator","en",
-				"Opérateur","fr"],
-    description = [
-				"Operator to select rows.","en",
-				"Opérateur pour séléctionner les lignes.","fr"],
-    values=["=", ">",">=", "<", "<=","<>", "limit", "in", "not in", "like"],
-    names=["Equal to, Greater than, Greater than or equal to, Less than, Less than or equal to, Not equal to,Limit, In, Not In, Like", "en", "Egal à, Supérieur à, Supérieur ou égal à, Inférieur à, Inférieur ou égal à,Non égal à,Limite, Contient, Ne contient pas, Comme ",  "fr"])
+    title = "Operator",
+    description = "Operator to select rows.",
+	values=["=", ">",">=", "<", "<=","<>", "limit", "in", "not in", "like"],
+    names="Equal to, Greater than, Greater than or equal to, Less than, Less than or equal to, Not equal to,Limit, In, Not In, Like")
 String[] operation = ["="]
 
 @LiteralDataInput(
-    title = [
-				"Value","en",
-				"Valeur","fr"],
-    description = [
-				"Value to select or any syntax supported by SQL as function on value.","en",
-				"Valeur à selectionner ou syntaxe supportée par le SQL comme l'utilisation d'une fonction ou une référence vers une autre colonne.","fr"])
-String fromSelectedValue  
+    title = "Value",
+    description = "Value to select or any syntax supported by SQL as function on value.")
+String fromSelectedValue
 
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"],
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.",
     minOccurs = 0)
 Boolean dropTable 
 
 @LiteralDataInput(
-    title = [
-				"Output table name","en",
-				"Nom de la table de sortie","fr"],
-    description = [
-				"Name of the table containing the result of the process.","en",
-				"Nom de la table contenant les résultats du traitement.","fr"],
+    title = "Output table name",
+    description = "Name of the table containing the result of the process.",
     minOccurs = 0,
     identifier = "outputTableName"
 )
@@ -160,12 +130,8 @@ String outputTableName
 
 /** String output of the process. */
 @LiteralDataOutput(
-    title = [
-				"Output message","en",
-				"Message de sortie","fr"],
-    description = [
-				"The output message.","en",
-				"Le message de sortie.","fr"],
+    title = "Output message",
+    description = "The output message.",
     identifier = "literalOutput"
 )
 String literalOutput

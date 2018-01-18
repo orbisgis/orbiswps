@@ -64,18 +64,10 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Erwan BOCHER
  */
 @Process(
-        title = [
-                "Fixed distance buffer","en",
-                "Buffer avec une distance fixe","fr"
-        ],
-        description = [
-                "Execute a buffer on a geometric field with a constant distance.","en",
-                "Génère une zone tampon sur un champ géométrique avec une distance constante.","fr"
-        ],
-        keywords = ["Vector,Geometry", "en",
-                "Vecteur,Géométrie", "fr"],
-        properties = ["DBMS_TYPE", "H2GIS",
-              "DBMS_TYPE", "POSTGIS"],
+        title = "Fixed distance buffer",
+        description = "Execute a buffer on a geometric field with a constant distance.",
+        keywords = "Vector,Geometry",
+        properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0")
 def processing() {
 
@@ -124,7 +116,7 @@ def processing() {
         sql.execute "drop table if exists " + inputJDBCTable
     }
     
-    literalOutput = "Process done"
+    literalOutput = i18n.tr("Process done")
 }
 
 

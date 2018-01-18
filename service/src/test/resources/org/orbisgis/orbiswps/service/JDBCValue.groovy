@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.server
+package org.orbisgis.orbiswps.service
 
 import org.orbisgis.orbiswps.groovyapi.input.JDBCColumnInput
 import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
@@ -56,10 +56,9 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  * @author Sylvain PALOMINOS
  * @author Erwan Bocher
  */
-@Process(title = ["JDBCValue test","en","Test du JDBCValue","fr"],
-        description = ["Test script using the JDBCValue ComplexData.","en",
-                "Scripts test pour l'usage du ComplexData JDBCValue.","fr"],
-        keywords = ["test,script,wps","en","test,scripte,wps","fr"],
+@Process(title = "JDBCValue test",
+        description = "Test script using the JDBCValue ComplexData.",
+        keywords = "test,script,wps",
         identifier = "orbisgis:test:jdbcvalue",
         metadata = ["website","metadata"]
 )
@@ -83,9 +82,9 @@ String jdbcColumnInput
 
 /** This JDBCValue is the input data source. */
 @JDBCValueInput(
-        title = ["Input JDBCValue","en","Entrée JDBCValue","fr"],
-        description = ["A JDBCValue input.","en","Une entrée JDBCValue.","fr"],
-        keywords = ["input","en","entrée","fr"],
+        title = "Input JDBCValue",
+        description = "A JDBCValue input.",
+        keywords = "input",
         jdbcColumnReference = "orbisgis:test:jdbccolumn:input",
         minOccurs = 0,
         maxOccurs = 2,
@@ -109,9 +108,9 @@ String jdbcColumnOutput
 
 /** This JDBCValue is the output data source. */
 @JDBCValueOutput(
-        title = ["Output JDBCValue","en","Sortie JDBCValue","fr"],
-        description = ["A JDBCValue output.","en","Une sortie JDBCValue.","fr"],
-        keywords = ["output","en","sortie","fr"],
+        title = "Output JDBCValue",
+        description = "A JDBCValue output.",
+        keywords = "output",
         jdbcColumnReference = "orbisgis:test:jdbccolumn:output",
         multiSelection = true,
         identifier = "orbisgis:test:jdbcvalue:output",

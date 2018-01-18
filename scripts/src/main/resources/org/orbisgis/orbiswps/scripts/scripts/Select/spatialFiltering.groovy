@@ -50,16 +50,10 @@ import org.h2gis.utilities.TableLocation
  * @author Erwan Bocher
  */
 @Process(
-    title = [
-				"Spatial filtering","en",
-				"Selection spatiale","fr"],
-    description = [
-				"Select geometries from one table based on one other table.\nThe criteria for selecting features is based on the spatial relationship between eachfeature and the features in an additional layer. ","en",
-				"Selectionnez les géométries d'une table à partir des géométries d'une autre table. \nLe critère de sélection repose sur un opérateur géométrique.","fr"],
-    keywords = ["Vector,Geometry,Filtering", "en",
-				"Vecteur,Géométrie,Sélection", "fr"],
-    properties = ["DBMS_TYPE", "H2GIS",
-				"DBMS_TYPE", "POSTGIS"],
+    title = "Spatial filtering",
+    description = "Select geometries from one table based on one other table.\nThe criteria for selecting features is based on the spatial relationship between eachfeature and the features in an additional layer. ",
+	keywords = "Vector,Geometry,Filtering",
+    properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:selectSpatial"
 )
@@ -89,7 +83,7 @@ def processing() {
     //Execute the query
     sql.execute(query)
 
-    literalOutput = "Process done"
+    literalOutput = i18n.tr("Process done")
     
 }
 
@@ -98,24 +92,16 @@ def processing() {
 /****************/
 
 @JDBCTableInput(
-    title = [
-				"Table to select from","en",
-				"Entités à selectionner","fr"],
-    description = [
-				"The spatial data source that contains the selected features.","en",
-				"La table qui contient les entités à selectionner.","fr"],
+    title = "Table to select from",
+    description = "The spatial data source that contains the selected features.",
     dataTypes = ["GEOMETRY"]
 )
 String fromSelectedTable
 
 
 @JDBCColumnInput(
-    title = [
-				"Geometric column from","en",
-				"Colonne géométrique","fr"],
-    description = [
-				"The geometric column of selected table.","en",
-				"La colonne géométrique de la table avec les entités à selectionner","fr"],
+    title = "Geometric column from",
+    description = "The geometric column of selected table.",
     jdbcTableReference = "fromSelectedTable",
     dataTypes = ["GEOMETRY"]
 )
@@ -123,23 +109,15 @@ String[] geometricFieldFromSelected
 
 
 @JDBCTableInput(
-    title = [
-				"Table to select","en",
-				"Table pour la selection","fr"],
-    description = [
-				"The spatial data source used to select the features.","en",
-				"La table pour selectionner les entités.","fr"],
+    title = "Table to select",
+    description = "The spatial data source used to select the features.",
     dataTypes = ["GEOMETRY"]
 )
 String toSelectedTable
 
 @JDBCColumnInput(
-    title = [
-				"Geometric column to","en",
-				"Colonne géométrique","fr"],
-    description = [
-				"The geometric column of the mask table.","en",
-				"La colonne géométrique de la table utiliser pour la selection","fr"],
+    title = "Geometric column to",
+    description = "The geometric column of the mask table.",
     jdbcTableReference = "toSelectedTable",
     dataTypes = ["GEOMETRY"]
 )
@@ -147,34 +125,23 @@ String[] geometricFieldToSelected
 
 
 @EnumerationInput(
-    title = ["Spatial relationship","en",
-				"Opérateur spatial","fr"],
-    description = [
-				"Spatial relationship to select features.","en",
-				"Opérateur spatial pour selection les entités.","fr"],
+    title = "Spatial relationship",
+    description = "Spatial relationship to select features.",
     values=["st_intersects", "st_contains", "st_disjoint", "st_crosses", "st_touches"],
-    names=["Intersects, Contains, Disjoint, Crosses, Touches", "en", "Intersecte, Contient, Disjoint, Croise, Touche", "fr"])
+    names="Intersects, Contains, Disjoint, Crosses, Touches")
 String[] operation = ["st_intersects"]
 
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"],
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.",
     minOccurs = 0)
 Boolean dropTable 
 
 @LiteralDataInput(
-    title = [
-				"Output table prefix","en",
-				"Prefixe de la table de sortie","fr"],
-    description = [
-				"Prefix of the table containing the result of the process.","en",
-				"Prefixe de la table contenant les résultats du traitement.","fr"],
+    title = "Output table prefix",
+    description = "Prefix of the table containing the result of the process.",
     minOccurs = 0,
     identifier = "outputTableName"
 )
@@ -184,12 +151,8 @@ String outputTableName
 
 /** String output of the process. */
 @LiteralDataOutput(
-    title = [
-				"Output message","en",
-				"Message de sortie","fr"],
-    description = [
-				"The output message.","en",
-				"Le message de sortie.","fr"],
+    title = "Output message",
+    description = "The output message.",
     identifier = "literalOutput"
 )
 String literalOutput

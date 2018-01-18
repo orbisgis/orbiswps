@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.scripts.scripts.Export
+package org.orbisgis.orbiswps.scripts
 
 import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
@@ -46,8 +46,8 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 /**
  * @author Erwan Bocher
  */
-@Process(title = ["Single script","en"],
-    description = ["Single script.","en"],
+@Process(title = "Single script",
+    description = "Single script.",
     version = "1.0")
 def processing() {
 
@@ -59,6 +59,6 @@ def processing() {
 
 
 @LiteralDataOutput(
-    title = ["Output message","en"],
-    description = ["Output message.","en"])
+    title = "Output message",
+    description = "Output message.")
 String outputValue

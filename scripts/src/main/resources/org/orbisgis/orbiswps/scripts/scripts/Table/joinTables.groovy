@@ -56,14 +56,10 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @author Sylvain PALOMINOS
  */
 @Process(
-		title = ["Tables join","en",
-				"Jointure de tables","fr"],
-		description = ["SQL join between two tables.","en",
-				"Jointure SQL entre deux tables.","fr"],
-		keywords = ["Table,Join", "en",
-				"Table,Jointure", "fr"],
-		properties = ["DBMS_TYPE", "H2GIS",
-				"DBMS_TYPE", "POSTGIS"],
+		title = "Tables join",
+		description = "SQL join between two tables.",
+		keywords = "Table,Join",
+		properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
                 version = "1.0")
 def processing() {
 
@@ -112,7 +108,7 @@ def processing() {
         if(dropInputTables){
             sql.execute "drop table if exists " + leftJDBCTable+","+ rightJDBCTable
         }
-	literalOutput = "Process done"
+	literalOutput = i18n.tr("Process done")
 }
 
 
@@ -122,21 +118,14 @@ def processing() {
 
 /** This JDBCTable is the left data source. */
 @JDBCTableInput(
-		title = ["Left table","en",
-				"Table à gauche","fr"],
-		description = [
-				"The left table used for the join.","en",
-				"La table à gauche utilisée pour la jointure.","fr"])
+		title = "Left table",
+		description = "The left table used for the join.")
 String leftJDBCTable
 
 /** This JDBCTable is the right data source. */
 @JDBCTableInput(
-		title = [
-				"Right table","en",
-				"Table de droite","fr"],
-		description = [
-				"The right table  used for the join.","en",
-				"La table de droite utilisée pour la jointure.","fr"])
+		title = "Right table",
+		description = "The right table  used for the join.")
 String rightJDBCTable
 
 /**********************/
@@ -145,67 +134,44 @@ String rightJDBCTable
 
 /** Name of the identifier field of the left jdbcTable. */
 @JDBCColumnInput(
-		title = [
-				"Left column identifier","en",
-				"Colonne de correspondance à gauche","fr"],
-		description = [
-				"The column name identifier of the left table.","en",
-				"Nom de la colonne de correspondance de la table à gauche.","fr"],
+		title = "Left column identifier",
+		description = "The column name identifier of the left table.",
         jdbcTableReference = "leftJDBCTable",
         excludedTypes = ["GEOMETRY"])
 String[] leftField
 
 /** Name of the identifier field of the right jdbcTable. */
 @JDBCColumnInput(
-		title = [
-				"Right column identifier","en",
-				"Colonne de correspondance à gauche","fr"],
-		description = [
-				"The column name identifier of the right table.","en",
-				"Nom de la colonne de correspondance de la table à droite.","fr"],
+		title = "Right column identifier",
+		description = "The column name identifier of the right table.",
         jdbcTableReference = "rightJDBCTable",
         excludedTypes = ["GEOMETRY"])
 String[] rightField
 
 
 @EnumerationInput(
-		title = ["Operation","en",
-				"Opération","fr"],
-		description = [
-				"Types of join.","en",
-				"Type de jointure.","fr"],
+		title = "Operation",
+		description = "Types of join.",
         values=["left","right","left_without_b", "right_without_a", "inner", "cross","natural"],
-        names=["Left join,Right join, Left join without rigth values, Right join without left values, Inner join, Cross join, Natural join", "en",
-        "Jointure à gauche ,Jointure à droite, Jointure à gauche sans les valeurs de droite, Jointure à droite sans les valeurs de gauche, Intersection des deux tables, Jointure croisée, Jointure naturelle", "fr" ],
-		multiSelection = false)
+        names="Left join,Right join, Left join without rigth values, Right join without left values, Inner join, Cross join, Natural join",
+        multiSelection = false)
 String[] operation = ["left"]
 
 
 @LiteralDataInput(
-		title = [
-				"Create indexes","en",
-				"Création d'indexes","fr"],
-		description = [
-				"Create an index on each field identifiers to perform the join.","en",
-				"Création d'un index sur chacun des identifiants des champs avant la jointure.","fr"],
+		title = "Create indexes",
+		description = "Create an index on each field identifiers to perform the join.",
 		minOccurs = 0)
 Boolean createIndex
 
 @LiteralDataInput(
-    title = [
-				"Drop the input tables","en",
-				"Supprimer les tables d'entrée","fr"],
-    description = [
-				"Drop the input tables when the script is finished.","en",
-				"Supprimer les tables d'entrée lorsque le script est terminé.","fr"])
+    title = "Drop the input tables",
+    description = "Drop the input tables when the script is finished.")
 Boolean dropInputTables 
 
 @LiteralDataInput(
-		title = ["Output table name","en",
-				"Nom de la table de sortie","fr"],
-		description = [
-				"Name of the table containing the result of the process.","en",
-				"Nom de la table contenant le résultat de la jointure.","fr"])
+		title = "Output table name",
+		description = "Name of the table containing the result of the process.")
 String outputTableName
 
 /*****************/
@@ -214,10 +180,7 @@ String outputTableName
 
 /** String output of the process. */
 @LiteralDataOutput(
-		title = ["Output message","en",
-				"Message de sortie","fr"],
-		description = [
-				"The output message.","en",
-				"Le message de sortie.","fr"])
+		title = "Output message",
+		description = "The output message.")
 String literalOutput
 

@@ -51,11 +51,9 @@ import java.sql.Connection
 /**
  * @author Erwan Bocher
  */
-@Process(title = ["Export CSV file","en","Exporter dans un fichier CSV","fr"],
-    description = ["Export a table to a CSV file.","en",
-                "Exporter une table dans un fichier CSV.","fr"],
-    keywords = ["OrbisGIS,Exporter, Fichier, CSV","fr",
-                "OrbisGIS,Export, File, CSV","en"],
+@Process(title = "Export CSV file",
+    description = "Export a table to a CSV file.",
+    keywords = "OrbisGIS,Exporter, Fichier, CSV",
     properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
     version = "1.0")
 def processing() {
@@ -68,7 +66,7 @@ def processing() {
 	    sql.execute "drop table if exists " + inputJDBCTable
     }
     
-    literalDataOutput = "The CSV file has been created."
+    literalDataOutput = i18n.tr("The CSV file has been created.")
 }
 
 
@@ -77,29 +75,20 @@ def processing() {
 /***********/
 
 @JDBCTableInput(
-    title = [
-                "Table to export","en",
-                "Table à exporter","fr"],
-    description = [
-                "The table that will be exported in a CSV file","en",
-                "La table à exporter dans un fichier CSV.","fr"])
+    title = "Table to export",
+    description = "The table that will be exported in a CSV file")
 String inputJDBCTable
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the input table","en",
-				"Supprimer la table d'entrée","fr"],
-    description = [
-				"Drop the input table when the export is finished.","en",
-				"Supprimer la table d'entrée à l'issue l'export.","fr"])
+    title = "Drop the input table",
+    description = "Drop the input table when the export is finished.")
 Boolean dropInputTable
 
 
 @RawDataInput(
-    title = ["Output CSV","en","Fichier CSV","fr"],
-    description = ["The output CSV file to be exported.","en",
-            "Nom du fichier CSV à exporter.","fr"],
+    title = "Output CSV",
+    description = "The output CSV file to be exported.",
     fileTypes = ["csv"],
     isDirectory = false)
 String[] fileDataInput
@@ -110,8 +99,6 @@ String[] fileDataInput
 /************/
 
 @LiteralDataOutput(
-    title = ["Output message","en",
-                "Message de sortie","fr"],
-    description = ["Output message.","en",
-                "Message de sortie.","fr"])
+    title = "Output message",
+    description = "Output message.")
 String literalDataOutput

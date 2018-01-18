@@ -253,7 +253,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
             for (ProcessIdentifier pId : processIdList) {
                 ProcessDescriptionType process = pId.getProcessDescriptionType();
                 ProcessDescriptionType translatedProcess = ProcessTranslator.getTranslatedProcess(
-                        process, requestLanguage, wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+                        pId, requestLanguage, wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
                 ProcessSummaryType processSummaryType = new ProcessSummaryType();
                 processSummaryType.getJobControlOptions().clear();
                 processSummaryType.getJobControlOptions().addAll(Arrays.asList(wpsProp.GLOBAL_PROPERTIES.JOB_CONTROL_OPTIONS));
@@ -288,30 +288,27 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         List<ProcessOffering> processOfferingList = new ArrayList<>();
         //For each of the processes
         for(CodeType id : idList) {
-            ProcessOffering processOffering = null;
             List<ProcessIdentifier> piList = processManager.getAllProcessIdentifier();
             //Find the process registered in the server with the same id
             for(ProcessIdentifier pi : piList){
                 if(pi.getProcessDescriptionType().getIdentifier().getValue().equals(id.getValue())){
-                    processOffering = pi.getProcessOffering();
+                    //Once the process found, build the corresponding processOffering to send to the client
+                    if(pi.getProcessOffering() != null) {
+                        //Build the new ProcessOffering which will be return
+                        ProcessOffering po = new ProcessOffering();
+                        po.setProcessVersion(pi.getProcessOffering().getProcessVersion());
+                        po.getJobControlOptions().clear();
+                        po.getJobControlOptions().addAll(Arrays.asList(wpsProp.GLOBAL_PROPERTIES.JOB_CONTROL_OPTIONS));
+                        //Get the translated process and add it to the ProcessOffering
+                        List<DataTransmissionModeType> listTransmission = new ArrayList<>();
+                        listTransmission.add(DataTransmissionModeType.VALUE);
+                        po.getOutputTransmission().clear();
+                        po.getOutputTransmission().addAll(listTransmission);
+                        po.setProcess(ProcessTranslator.getTranslatedProcess(pi, describeProcess.getLang(),
+                                wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE));
+                        processOfferingList.add(po);
+                    }
                 }
-            }
-            //Once the process found, build the corresponding processOffering to send to the client
-            if(processOffering != null) {
-                //Build the new ProcessOffering which will be return
-                ProcessOffering po = new ProcessOffering();
-                po.setProcessVersion(processOffering.getProcessVersion());
-                po.getJobControlOptions().clear();
-                po.getJobControlOptions().addAll(Arrays.asList(wpsProp.GLOBAL_PROPERTIES.JOB_CONTROL_OPTIONS));
-                //Get the translated process and add it to the ProcessOffering
-                List<DataTransmissionModeType> listTransmission = new ArrayList<>();
-                listTransmission.add(DataTransmissionModeType.VALUE);
-                po.getOutputTransmission().clear();
-                po.getOutputTransmission().addAll(listTransmission);
-                ProcessDescriptionType process = processOffering.getProcess();
-                po.setProcess(ProcessTranslator.getTranslatedProcess(process, describeProcess.getLang(),
-                        wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE));
-                processOfferingList.add(po);
             }
         }
         if(processOfferingList.isEmpty()){

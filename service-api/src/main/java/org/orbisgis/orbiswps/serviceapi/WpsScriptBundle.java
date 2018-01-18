@@ -1,5 +1,7 @@
 package org.orbisgis.orbiswps.serviceapi;
 
+import org.xnap.commons.i18n.I18n;
+
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -30,4 +32,6 @@ public interface WpsScriptBundle {
      * @return A map with the metadata of a script with the name as key and its value as value.
      */
     Map<ProcessMetadata.INTERNAL_METADATA, Object> getScriptMetadata(URL scriptUrl);
+
+    I18n getI18n();
 }

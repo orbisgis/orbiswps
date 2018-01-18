@@ -73,8 +73,8 @@ public class WpsScriptPluginTest {
         WpsScriptPlugin plugin = new WpsScriptPlugin();
         plugin.activate();
         Map<String, Object> propertyMap = plugin.getGroovyProperties();
-        Assert.assertNotNull("The plugin property map should not be null", propertyMap.isEmpty());
-        Assert.assertTrue("The plugin property map should be empty", propertyMap.isEmpty());
+        Assert.assertEquals("The plugin property map should contain 1 element", 1, propertyMap.size());
+        Assert.assertTrue("The plugin property map should a property call i18n", propertyMap.containsKey("i18n"));
     }
 
     /**

@@ -41,6 +41,8 @@ package org.orbisgis.orbiswps.service.controller.process;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import net.opengis.wps._2_0.ProcessOffering;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import java.net.URL;
 
@@ -59,6 +61,8 @@ public class ProcessIdentifier {
     /** Source URL. */
     private URL sourceUrl;
 
+    private I18n i18n;
+
     /**
      * Main constructor.
      *
@@ -69,6 +73,7 @@ public class ProcessIdentifier {
         this.processOffering = processOffering;
         this.filePath = filePath;
         this.sourceUrl = null;
+        this.i18n = I18nFactory.getI18n(ProcessIdentifier.class);
     }
 
     /**
@@ -81,6 +86,11 @@ public class ProcessIdentifier {
         this.processOffering = processOffering;
         this.filePath = null;
         this.sourceUrl = sourceUrl;
+        this.i18n = I18nFactory.getI18n(ProcessIdentifier.class);
+    }
+
+    public void setI18n(I18n i18n){
+        this.i18n = i18n;
     }
 
     /**
@@ -114,5 +124,9 @@ public class ProcessIdentifier {
      */
     public URL getSourceUrl(){
         return sourceUrl;
+    }
+
+    public I18n getI18n() {
+        return i18n;
     }
 }

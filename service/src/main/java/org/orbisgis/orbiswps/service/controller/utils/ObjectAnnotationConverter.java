@@ -195,75 +195,25 @@ public class ObjectAnnotationConverter {
         //Keywords
         String[] keywords = descriptionTypeAttribute.keywords();
         //Case of only one keyword language (i.e. keywords="key1,key2,key3")
-        if(keywords.length == 1) {
-            LinkedList<KeywordsType> keywordsTypeList = new LinkedList<>();
-            //Splits the keyword string with the ',' character
-            String[] split = keywords[0].split(",");
-            //For each keyword :
-            for(String str : split){
-                //Create the LanguageStringType containing the keyword as value and nothing as language
-                LanguageStringType keywordString = new LanguageStringType();
-                keywordString.setValue(str.trim());
-                //Creates the keywordList which will contains one keyword, but in several languages.
-                // (In this case there is only one language)
-                List<LanguageStringType> keywordList = new ArrayList<>();
-                keywordList.add(keywordString);
-                //Creates the KeywordsType object containing the list of translation of a keyword
-                KeywordsType keywordsType = new KeywordsType();
-                keywordsType.getKeyword().addAll(keywordList);
-                //Add it to the keywordsType list
-                keywordsTypeList.add(keywordsType);
-            }
-            descriptionType.getKeywords().clear();
-            descriptionType.getKeywords().addAll(keywordsTypeList);
+        LinkedList<KeywordsType> keywordsTypeList = new LinkedList<>();
+        //Splits the keyword string with the ',' character
+        //For each keyword :
+        for(String str : keywords){
+            //Create the LanguageStringType containing the keyword as value and nothing as language
+            LanguageStringType keywordString = new LanguageStringType();
+            keywordString.setValue(str.trim());
+            //Creates the keywordList which will contains one keyword, but in several languages.
+            // (In this case there is only one language)
+            List<LanguageStringType> keywordList = new ArrayList<>();
+            keywordList.add(keywordString);
+            //Creates the KeywordsType object containing the list of translation of a keyword
+            KeywordsType keywordsType = new KeywordsType();
+            keywordsType.getKeyword().addAll(keywordList);
+            //Add it to the keywordsType list
+            keywordsTypeList.add(keywordsType);
         }
-        //Case of several keyword language (i.e. keywords=["key1,key2,key3","en","clef1,clef2,clef3","fr"])
-        else if(keywords.length != 0 && keywords.length%2 == 0) {
-            LinkedList<KeywordsType> keywordTypeList = new LinkedList<>();
-            //Each time take a pair of string : the keywords and the language.
-            //Then split the keywords string with the ',' character, put the keyword in a LanguageStringType object
-            // with its language and then put the first keyword LanguageStringType in the first KeywordsType object,
-            // the second keyword in the second KeywordsType object ...
-            //Repeat the operation for each language.
-            //
-            //Example :
-            // keywords=["key1,key2,key3","en","clef1,clef2,clef3","fr"] becomes
-            //
-            //List<LanguageStringType> {
-            //          KeywordsType{LanguageStringType{"key1","en"},LanguageStringType{"clef1","fr"}},
-            //          KeywordsType{LanguageStringType{"key2","en"},LanguageStringType{"clef2","fr"}},
-            //          KeywordsType{LanguageStringType{"key3","en"},LanguageStringType{"clef3","fr"}}
-            // }
-            for(int i=0; i<keywords.length; i+=2){
-                String language = keywords[i+1];
-                String[] split = keywords[i].split(",");
-                //If the KeywordsType object haven't already been created, create them
-                if(keywordTypeList.isEmpty()){
-                    for (String ignored : split) {
-                        KeywordsType keywordsType = new KeywordsType();
-                        keywordsType.getKeyword().addAll(new ArrayList<LanguageStringType>());
-                        keywordTypeList.add(keywordsType);
-                    }
-                }
-                //Adds all the keywords to the good KeywordsType
-                for(int j=0; j<split.length; j++){
-                    String str = split[j];
-                    LanguageStringType keywordString = new LanguageStringType();
-                    keywordString.setValue(str.trim());
-                    keywordString.setLang(language);
-
-                    List<LanguageStringType> keywordList = keywordTypeList.get(j).getKeyword();
-                    keywordList.add(keywordString);
-                }
-            }
-            descriptionType.getKeywords().clear();
-            descriptionType.getKeywords().addAll(keywordTypeList);
-        }
-        //Case of more than one keyword but not well formed (pair of a keyword with its language)
-        else if(keywords.length>0){
-            throw new MalformedScriptException(DescriptionTypeAttribute.class, "keywords", "The keywords should " +
-                    "be composed of pairs of String : the coma separated keywords and their language.");
-        }
+        descriptionType.getKeywords().clear();
+        descriptionType.getKeywords().addAll(keywordsTypeList);
 
         String[] metadata = descriptionTypeAttribute.metadata();
         //Check if the metadata is composed of pairs of string
@@ -307,76 +257,22 @@ public class ObjectAnnotationConverter {
         //Decodes the Groovy annotation 'names' attribute and store each name in a LanguageStringType with its language
         String[] names = enumAttribute.names();
         //In the case where is only one language
-        if(names.length == 1) {
-            //Splits the names
-            String[] split = names[0].split(",");
-            TranslatableString[] translatableStrings = new TranslatableString[split.length];
-            //Populate the TranslatableString array with all the names
-            for(int i=0; i<split.length; i++){
-                //Creates the LanguageStringType Object containing the name
-                LanguageStringType type = new LanguageStringType();
-                type.setValue(split[i].trim());
-                //Store the LanguageStringType Object in an array
-                LanguageStringType[] types = new LanguageStringType[1];
-                types[0] = type;
-                //Store the array in a TranslatableString object
-                TranslatableString string = new TranslatableString();
-                string.setStrings(types);
-                //Store the TranslatableString
-                translatableStrings[i] = string;
-            }
-            enumeration.setValuesNames(translatableStrings);
+        TranslatableString[] translatableStrings = new TranslatableString[names.length];
+        //Populate the TranslatableString array with all the names
+        for(int i=0; i<names.length; i++){
+            //Creates the LanguageStringType Object containing the name
+            LanguageStringType type = new LanguageStringType();
+            type.setValue(names[i].trim());
+            //Store the LanguageStringType Object in an array
+            LanguageStringType[] types = new LanguageStringType[1];
+            types[0] = type;
+            //Store the array in a TranslatableString object
+            TranslatableString string = new TranslatableString();
+            string.setStrings(types);
+            //Store the TranslatableString
+            translatableStrings[i] = string;
         }
-        //Case of several names language (i.e. names=["name1,name2,name3","en","nom1,nom2,nom3","fr"])
-        else if(names.length != 0 && names.length%2==0) {
-            TranslatableString[] translatableStringArray = new TranslatableString[names[0].split(",").length];
-            //Each time take a pair of string : the names and the language.
-            //Then split the names string with the ',' character, put the name in a LanguageStringType object
-            // with its language and then put the first name LanguageStringType in the first TranslatableString object,
-            // the second name in the second TranslatableString object ...
-            //Repeat the operation for each language.
-            //
-            //Example :
-            // names=["name1,name2,name3","en","nom1,nom2,nom3","fr"] becomes
-            //
-            //TranslatableString {
-            //          LanguageStringType[]{LanguageStringType{"name1","en"},LanguageStringType{"nom1","fr"}},
-            //          LanguageStringType[]{LanguageStringType{"name2","en"},LanguageStringType{"nom2","fr"}},
-            //          LanguageStringType[]{LanguageStringType{"name3","en"},LanguageStringType{"nom3","fr"}}
-            // }
-            //For each languages, uses the a pair of String : the names and the language.
-            for(int i=0; i< names.length; i+=2) {
-                String[] splitNames = names[i].split(",");
-                String language = names[i + 1];
-                //For each name
-                for (int j = 0; j < splitNames.length; j++) {
-                    //Gets the TranslatableString object that should contains the name
-                    TranslatableString translatableString = translatableStringArray[j];
-                    //If the TranslatableString at the index of the name is null, then creates it
-                    if(translatableString == null){
-                        translatableString = new TranslatableString();
-                    }
-                    //Gets the LanguageStringType array that should contains the name
-                    LanguageStringType[] languageStringArray = translatableString.getStrings();
-                    //If the TranslatableString LanguageStringType array is null, then creates it
-                    if(languageStringArray == null || languageStringArray.length == 0) {
-                        languageStringArray = new LanguageStringType[names.length/2];
-                    }
-                    //Creates the name LanguageStringType Object
-                    LanguageStringType languageString = new LanguageStringType();
-                    //Sets the name
-                    languageString.setValue(splitNames[j].trim());
-                    //Sets the language
-                    languageString.setLang(language);
-                    //Store it in the LanguageStringType array
-                    languageStringArray[i/2] = languageString;
-                    //Store the LanguageStringType array in the TranslatableString
-                    translatableString.setStrings(languageStringArray);
-                    translatableStringArray[j] = translatableString;
-                }
-            }
-            enumeration.setValuesNames(translatableStringArray);
-        }
+        enumeration.setValuesNames(translatableStrings);
         return enumeration;
     }
 

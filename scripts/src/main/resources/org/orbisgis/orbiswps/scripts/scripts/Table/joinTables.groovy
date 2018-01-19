@@ -58,7 +58,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
 		title = "Tables join",
 		description = "SQL join between two tables.",
-		keywords = "Table,Join",
+		keywords = ["Table","Join"],
 		properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
                 version = "1.0")
 def processing() {
@@ -153,7 +153,7 @@ String[] rightField
 		title = "Operation",
 		description = "Types of join.",
         values=["left","right","left_without_b", "right_without_a", "inner", "cross","natural"],
-        names="Left join,Right join, Left join without rigth values, Right join without left values, Inner join, Cross join, Natural join",
+        names=["Left join","Right join","Left join without rigth values","Right join without left values","Inner join","Cross join","Natural join"],
         multiSelection = false)
 String[] operation = ["left"]
 

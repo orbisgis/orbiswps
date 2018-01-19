@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.server.ascriptfolder
+package org.orbisgis.orbiswps.service.ascriptfolder
 
 import org.orbisgis.orbiswps.groovyapi.output.LiteralDataOutput
 import org.orbisgis.orbiswps.groovyapi.process.Process

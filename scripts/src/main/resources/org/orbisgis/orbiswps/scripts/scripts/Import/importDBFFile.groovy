@@ -48,7 +48,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  */
 @Process(title = "Import a DBF file",
     description = "Import in the database a DBF file as a new table.",
-    keywords = "OrbisGIS,Import, File, DBF",
+    keywords = ["OrbisGIS","Import","File","DBF"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
@@ -88,7 +88,7 @@ String[] dbfDataInput
     title = "File Encoding",
     description = "The file encoding .",
     values=["System", "utf-8", "ISO-8859-1", "ISO-8859-2", "ISO-8859-4", "ISO-8859-5", "ISO-8859-7", "ISO-8859-9", "ISO-8859-13","ISO-8859-15"],
-    names="System, utf-8, ISO-8859-1, ISO-8859-2, ISO-8859-4, ISO-8859-5, ISO-8859-7, ISO-8859-9, ISO-8859-13,ISO-8859-15",
+    names=["System","utf-8","ISO-8859-1","ISO-8859-2","ISO-8859-4","ISO-8859-5","ISO-8859-7","ISO-8859-9","ISO-8859-13","ISO-8859-15"],
     isEditable = false)
 String[] encoding = ["System"]
 

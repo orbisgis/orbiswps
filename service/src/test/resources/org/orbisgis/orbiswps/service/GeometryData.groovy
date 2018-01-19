@@ -52,7 +52,7 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  */
 @Process(title = "Geometry test",
         description = "Test script using the Geometry ComplexData.",
-        keywords = "test,script,wps",
+        keywords = ["test","script","wps"],
         identifier = "orbisgis:test:geometry",
         metadata = ["website","metadata"]
 )

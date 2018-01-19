@@ -50,7 +50,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  */
 @Process(title = "Import a shapeFile",
     description = "Import in the database a shapeFile as a new table.",
-    keywords = "OrbisGIS,Import, File, SHP",
+    keywords = ["OrbisGIS","Import","File","SHP"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
@@ -94,7 +94,7 @@ String[] shpDataInput
     title = "File Encoding",
     description = "The file encoding .",
     values=["System", "utf-8", "ISO-8859-1", "ISO-8859-2", "ISO-8859-4", "ISO-8859-5", "ISO-8859-7", "ISO-8859-9", "ISO-8859-13","ISO-8859-15"],
-    names="System, utf-8, ISO-8859-1, ISO-8859-2, ISO-8859-4, ISO-8859-5, ISO-8859-7, ISO-8859-9, ISO-8859-13,ISO-8859-15",
+    names=["System","utf-8","ISO-8859-1","ISO-8859-2","ISO-8859-4","ISO-8859-5","ISO-8859-7","ISO-8859-9","ISO-8859-13","ISO-8859-15"],
     isEditable = false)
 String[] encoding = ["System"]
 

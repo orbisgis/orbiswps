@@ -48,7 +48,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  */
 @Process(title = "Import a TSV file",
     description = "Import in the database a TSV file as a new table.",
-    keywords = "OrbisGIS,Import, File, TSV",
+    keywords = ["OrbisGIS","Import","File","TSV"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {

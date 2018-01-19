@@ -214,18 +214,8 @@ public class RawDataParserTest {
         Assert.assertEquals("The InputDescriptionType second abstract language is not the one expected", "fr",
                 inputDescriptionType.getAbstract().get(1).getLang());
 
-        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 1", 1,
+        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 4", 4,
                 inputDescriptionType.getKeywords().size());
-        Assert.assertEquals("The InputDescriptionType first keywordList should have a size of 2", 2,
-                inputDescriptionType.getKeywords().get(0).getKeyword().size());
-        Assert.assertEquals("The value of the first keyword of the first keywordList is not the one expected",
-                "keyword", inputDescriptionType.getKeywords().get(0).getKeyword().get(0).getValue());
-        Assert.assertEquals("The language of the first keyword of the first keywordList is not the one expected",
-                "en", inputDescriptionType.getKeywords().get(0).getKeyword().get(0).getLang());
-        Assert.assertEquals("The value of the first keyword of the first keywordList is not the one expected",
-                "motclef", inputDescriptionType.getKeywords().get(0).getKeyword().get(1).getValue());
-        Assert.assertEquals("The language of the first keyword of the first keywordList is not the one expected",
-                "fr", inputDescriptionType.getKeywords().get(0).getKeyword().get(1).getLang());
 
         Assert.assertEquals("The InputDesciriptionType identifier is incorrect.", processId+":"+"identifier",
                 inputDescriptionType.getIdentifier().getValue());
@@ -360,18 +350,8 @@ public class RawDataParserTest {
         Assert.assertEquals("The OutputDescriptionType second abstract language is not the one expected", "fr",
                 outputDescriptionType.getAbstract().get(1).getLang());
 
-        Assert.assertEquals("The OutputDescriptionType keywords attribute should have a size of 1", 1,
+        Assert.assertEquals("The OutputDescriptionType keywords attribute should have a size of 4", 4,
                 outputDescriptionType.getKeywords().size());
-        Assert.assertEquals("The OutputDescriptionType first keywordList should have a size of 2", 2,
-                outputDescriptionType.getKeywords().get(0).getKeyword().size());
-        Assert.assertEquals("The value of the first keyword of the first keywordList is not the one expected",
-                "keyword", outputDescriptionType.getKeywords().get(0).getKeyword().get(0).getValue());
-        Assert.assertEquals("The language of the first keyword of the first keywordList is not the one expected",
-                "en", outputDescriptionType.getKeywords().get(0).getKeyword().get(0).getLang());
-        Assert.assertEquals("The value of the first keyword of the first keywordList is not the one expected",
-                "motclef", outputDescriptionType.getKeywords().get(0).getKeyword().get(1).getValue());
-        Assert.assertEquals("The language of the first keyword of the first keywordList is not the one expected",
-                "fr", outputDescriptionType.getKeywords().get(0).getKeyword().get(1).getLang());
 
         Assert.assertEquals("The InputDesciriptionType identifier is incorrect.", processId+":"+"identifier",
                 outputDescriptionType.getIdentifier().getValue());

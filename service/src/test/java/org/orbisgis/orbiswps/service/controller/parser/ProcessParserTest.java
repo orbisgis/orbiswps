@@ -159,18 +159,8 @@ public class ProcessParserTest {
         Assert.assertEquals("The InputDescriptionType second abstract language is not the one expected", "fr",
                 processDescriptionType.getAbstract().get(1).getLang());
 
-        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 1", 1,
+        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 4", 4,
                 processDescriptionType.getKeywords().size());
-        Assert.assertEquals("The InputDescriptionType first keywordList should have a size of 2", 2,
-                processDescriptionType.getKeywords().get(0).getKeyword().size());
-        Assert.assertEquals("The value of the first keyword of the first keywordList is not the one expected",
-                "keyword", processDescriptionType.getKeywords().get(0).getKeyword().get(0).getValue());
-        Assert.assertEquals("The language of the first keyword of the first keywordList is not the one expected",
-                "en", processDescriptionType.getKeywords().get(0).getKeyword().get(0).getLang());
-        Assert.assertEquals("The value of the first keyword of the first keywordList is not the one expected",
-                "motclef", processDescriptionType.getKeywords().get(0).getKeyword().get(1).getValue());
-        Assert.assertEquals("The language of the first keyword of the first keywordList is not the one expected",
-                "fr", processDescriptionType.getKeywords().get(0).getKeyword().get(1).getLang());
 
         Assert.assertEquals("The InputDesciriptionType identifier is incorrect.", "identifier",
                 processDescriptionType.getIdentifier().getValue());

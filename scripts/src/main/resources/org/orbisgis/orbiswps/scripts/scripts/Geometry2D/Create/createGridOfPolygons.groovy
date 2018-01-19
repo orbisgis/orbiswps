@@ -57,7 +57,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
         title = "Create a grid of polygons",
         description = "Create a grid of polygons.",
-        keywords = "Vector,Geometry,Create",
+        keywords = ["Vector","Geometry","Create"],
         properties = ["DBMS_TYPE", "H2GIS"],
         version = "1.0")
 def processing() {

@@ -48,7 +48,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  */
 @Process(title = "Import a CSV file",
     description = "Import in the database a CSV file as a new table.",
-    keywords = "OrbisGIS,Import, File, CSV",
+    keywords = ["OrbisGIS","Import","File","CSV"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
@@ -82,7 +82,7 @@ String[] csvDataInput
     title = "CSV separator",
     description = "The CSV separator.",
     values = [",", "\t", " ", ";"],
-    names = "Coma, Tabulation, Space, Semicolon",
+    names = ["Coma","Tabulation","Space","Semicolon"],
     isEditable = true)
 String[] separator = [";"]
 

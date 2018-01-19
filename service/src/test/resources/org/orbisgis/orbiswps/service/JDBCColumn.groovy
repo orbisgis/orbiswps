@@ -56,7 +56,7 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  */
 @Process(title = "JDBCColumn test",
         description = "Test script using the JDBCColumn ComplexData.",
-        keywords = "test,script,wps",
+        keywords = ["test","script","wps"],
         identifier = "orbisgis:test:jdbccolumn",
         metadata = ["website","metadata"]
 )

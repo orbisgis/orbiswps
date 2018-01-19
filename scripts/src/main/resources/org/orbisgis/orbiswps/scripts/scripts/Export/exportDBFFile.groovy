@@ -53,7 +53,7 @@ import java.sql.Connection
  */
 @Process(title = "Export DBF file",
     description = "Export a table to a DBF file.",
-    keywords = "OrbisGIS,Export, File, DBF",
+    keywords = ["OrbisGIS","Export","File","DBF"],
     properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
     version = "1.0")
 def processing() {

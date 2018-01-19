@@ -67,7 +67,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
         title = "Variable distance buffer",
         description = "Execute a buffer on a geometric field using another field to specify the distance.",
-        keywords = "Vector,Geometry",
+        keywords = ["Vector","Geometry"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0")
 def processing() {

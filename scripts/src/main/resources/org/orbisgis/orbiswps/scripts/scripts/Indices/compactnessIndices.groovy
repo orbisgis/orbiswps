@@ -52,7 +52,7 @@ import org.h2gis.utilities.TableLocation
 @Process(
     title = "Compactness indice(s)",
     description = "The compactness indice is based on the geometry properties of a polygon : perimeter, area and longest line. 3 methods are available  : Miller, Morton and Gravélius.<p><em>Bibliography:</em></p><p>W. E. Dramstad, Spatial metrics–useful indicators for society or mainly fun tools for landscape ecologists?, Norsk Geografisk Tidsskrift-Norwegian Journal of Geography 63 (2009) 246–254.0</p><p> H. Gravelius, Grundriß der gesamten Gewässerkunde: in vier Bänden,vol.1, Göschen, 1914.</p>",
-    keywords = "Vector,Geometry,Index",
+    keywords = ["Vector","Geometry","Index"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:compactnessIndices"
@@ -133,7 +133,7 @@ Boolean keepgeom;
     title = "Indice",
     description = "Method to compute the indice.",
     values=["gravelius","miller", "morton"],
-    names = ["Gravélius,Miller,Morton"],
+    names = ["Gravélius","Miller","Morton"],
     multiSelection = true)
 String[] operations = ["gravelius"]
 

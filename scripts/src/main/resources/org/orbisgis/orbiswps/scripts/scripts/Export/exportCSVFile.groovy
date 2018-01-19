@@ -53,7 +53,7 @@ import java.sql.Connection
  */
 @Process(title = "Export CSV file",
     description = "Export a table to a CSV file.",
-    keywords = "OrbisGIS,Exporter, Fichier, CSV",
+    keywords = ["OrbisGIS","Exporter","Fichier","CSV"],
     properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
     version = "1.0")
 def processing() {

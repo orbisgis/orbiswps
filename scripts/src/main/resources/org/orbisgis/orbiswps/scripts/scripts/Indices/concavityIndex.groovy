@@ -52,7 +52,7 @@ import org.h2gis.utilities.TableLocation
 @Process(
     title = "Concavity indice",
     description = "The concavity is equal to the geometry’s area divided by its convex hull’s area.<p><em>Bibliography:</em></p><p>L. Adolphe, A simplified model of urban morphology: Application to an analysis of the environmental performance of cities, Environment and Planning B: Planning and Design 28 (2001) 183–200.</p><p>A. P. d’URbanisme (APUR), Consommations d'énergie et émissions degaz à effet de serre liées au chauffage des résidences principales parisiennes, Technical Report, Atelier Parisien d’URbanisme (APUR), 2007.</p>",
-    keywords = "Vector,Geometry,Morphology",
+    keywords = ["Vector","Geometry","Morphology"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:concavityIndice"

@@ -55,7 +55,7 @@ import org.h2gis.utilities.TableLocation
 <p>The north is equal to 0°. Values are clockwise, so East = 90°.</p>\n\
 <p>The value is ”modulo pi” expressed → the value is between 0 and 180°(e.g 355° becomes 175°).</p>\n\
 <p><em>Bibliography:</em></p><p>Duchêne, C., Bard, S., Barillot, X., Ruas, A., Trévisan, J., and Holzapfel, F. (2003). Quantitative and qualitative description of building orientation, In Fifth workshop on progress in automated map generalisation, ICA, commission on map generalisation.</p>",
-	keywords = "Vector,Geometry,Index",
+	keywords = ["Vector","Geometry","Index"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:mainDirectionSMBR"

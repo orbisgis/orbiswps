@@ -52,7 +52,7 @@ import org.h2gis.utilities.TableLocation
 @Process(
     title = "Perimeter-Area Ratio",
     description = "Perimeter-area ratio is a measure of shape complexity.It equals the ratio of the perimeter to area.<p><em>Bibliography:</em></p>",
-	keywords = "Vector,Geometry,Morphology",
+	keywords = ["Vector","Geometry","Morphology"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:perimeterAreaRatio"

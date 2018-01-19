@@ -64,8 +64,8 @@ public class TestParserController {
     public void testGetProcessClass(){
         Class c = parserController.getProcessClass(this.getClass().getResource("SimpleProcess.groovy").getFile());
         Assert.assertNotNull("The generated class should not be null.", c);
-        Assert.assertEquals("The class name should be 'org.orbiswps.server.controller.parser.SimpleProcess'.",
-                "org.orbisgis.orbiswps.server.controller.parser.SimpleProcess", c.getName());
+        Assert.assertEquals("The class name should be 'org.orbiswps.service.controller.parser.SimpleProcess'.",
+                "org.orbisgis.orbiswps.service.controller.parser.SimpleProcess", c.getName());
 
         c = parserController.getProcessClass("absent.groovy");
         Assert.assertNull("The generated class should be null.", c);

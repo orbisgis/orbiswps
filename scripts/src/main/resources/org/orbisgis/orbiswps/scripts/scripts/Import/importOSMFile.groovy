@@ -48,7 +48,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  */
 @Process(title = "Import a OSM file",
     description = "Import a OSM file from path and creates several tables prefixed by tableName representing the file’s contents.\n Please go to  http://www.h2gis.org",
-    keywords = "OrbisGIS,Import, File, OSM",
+    keywords = ["OrbisGIS","Import","File","OSM"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {

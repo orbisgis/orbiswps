@@ -51,9 +51,8 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  * @author Sylvain PALOMINOS
  */
 @Process(title = "JDBCTable test",
-        description = ["Test script using the JDBCTable ComplexData.","en",
-                "Scripts test pour l'usage du ComplexData JDBCTable.","fr"],
-        keywords = ["test,script,wps","en","test,scripte,wps","fr"],
+        description = "Test script using the JDBCTable ComplexData.",
+        keywords = ["test","script","wps"],
         identifier = "orbisgis:test:jdbctable",
         metadata = ["website","metadata"]
 )
@@ -68,9 +67,9 @@ def processing() {
 
 /** This JDBCTable is the input data source. */
 @JDBCTableInput(
-        title = ["Input JDBCTable","en","Entrée JDBCTable","fr"],
-        description = ["A JDBCTable input.","en","Une entrée JDBCTable.","fr"],
-        keywords = ["input","en","entrée","fr"],
+        title = "Input JDBCTable",
+        description = "A JDBCTable input.",
+        keywords = "input",
         dataTypes = ["GEOMETRY"],
         minOccurs = 0,
         maxOccurs = 2,
@@ -85,9 +84,9 @@ String inputJDBCTable
 
 /** This JDBCTable is the output data source. */
 @JDBCTableOutput(
-        title = ["Output JDBCTable","en","Sortie JDBCTable","fr"],
-        description = ["A JDBCTable output.","en","Une sortie JDBCTable.","fr"],
-        keywords = ["output","en","sortie","fr"],
+        title = "Output JDBCTable",
+        description = "A JDBCTable output.",
+        keywords = "output",
         identifier = "orbisgis:test:jdbctable:output",
         metadata = ["website","metadata"]
 )

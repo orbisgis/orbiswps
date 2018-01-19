@@ -65,7 +65,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
         title = "Geometry properties",
         description = "Compute some basic geometry properties.",
-        keywords = "Vector,Geometry,Properties",
+        keywords = ["Vector","Geometry","Properties"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0",
         identifier = "orbisgis:wps:official:geometryProperties"
@@ -168,7 +168,7 @@ String[] idField
         title = "Operation",
         description = "Operation to compute the properties.",
         values=["geomtype","srid", "length","perimeter","area", "dimension", "coorddim", "num_geoms", "num_pts", "issimple", "isvalid", "isempty"],
-        names = "Geometry type,SRID,Length,Perimeter,Area,Geometry dimension,Coordinate dimension,Number of geometries,Number of points,Is simple,Is valid,Is empty",
+        names = ["Geometry type","SRID","Length","Perimeter","Area","Geometry dimension","Coordinate dimension","Number of geometries","Number of points","Is simple","Is valid","Is empty"],
         multiSelection = true,
         identifier = "operations")
 String[] operations = ["geomtype"]

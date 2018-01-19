@@ -56,7 +56,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 @Process(
 		title = "Fixed extrude polygons",
 		description = "Extrude a polygon and extends it to a 3D representation, returning a geometry collection containing floor, ceiling and wall geometries.",
-		keywords = "Vector,Geometry,Create",
+		keywords = ["Vector","Geometry","Create"],
 		properties = ["DBMS_TYPE", "H2GIS"],
                 version = "1.0")
 def processing() {

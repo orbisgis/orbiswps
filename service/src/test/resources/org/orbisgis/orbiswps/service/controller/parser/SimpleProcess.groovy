@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.server.controller.parser
+package org.orbisgis.orbiswps.service.controller.parser
 
 import org.orbisgis.orbiswps.groovyapi.input.EnumerationInput
 import org.orbisgis.orbiswps.groovyapi.input.JDBCColumnInput
@@ -56,10 +56,9 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
  * Test script for the Enumeration
  * @author Sylvain PALOMINOS
  */
-@Process(title = ["Process test","en","Test du Process","fr"],
-        description = ["Test script using the Enumeration ComplexData.","en",
-                "Scripts test pour l'usage du ComplexData Enumeration.","fr"],
-        keywords = ["test,script,wps","en","test,scripte,wps","fr"],
+@Process(title = "Process test",
+        description = "Test script using the Enumeration ComplexData.",
+        keywords = ["test","script","wps"],
         identifier = "orbisgis:test:enumeration",
         metadata = ["website","metadata"]
 )
@@ -75,13 +74,13 @@ def processing() {
 
 /** This Enumeration is the input data source. */
 @EnumerationInput(
-        title = ["Input Enumeration","en","Entrée Enumeration","fr"],
-        description = ["A Enumeration input.","en","Une entrée Enumeration.","fr"],
-        keywords = ["input","en","entrée","fr"],
+        title = "Input Enumeration",
+        description = "A Enumeration input.",
+        keywords = "input",
         multiSelection = true,
         isEditable = true,
         values = ["value1", "value2"],
-        names = ["name,name","en","nom,nom","fr"],
+        names = ["name","name"],
         minOccurs = 0,
         maxOccurs = 2,
         identifier = "input",
@@ -100,9 +99,9 @@ String jdbcColumnInput
 
 /** This JDBCValue is the input data source. */
 @JDBCValueInput(
-        title = ["Input JDBCValue","en","Entrée JDBCValue","fr"],
-        description = ["A JDBCValue input.","en","Une entrée JDBCValue.","fr"],
-        keywords = ["input","en","entrée","fr"],
+        title = "Input JDBCValue",
+        description = "A JDBCValue input.",
+        keywords = "input",
         jdbcColumnReference = "orbisgis:test:jdbccolumn:input",
         minOccurs = 0,
         maxOccurs = 2,
@@ -117,9 +116,9 @@ String inputJDBCValue
 
 /** This Enumeration is the output data source. */
 @EnumerationOutput(
-        title = ["Output Enumeration","en","Sortie Enumeration","fr"],
-        description = ["A Enumeration output.","en","Une sortie Enumeration.","fr"],
-        keywords = ["output","en","sortie","fr"],
+        title = "Output Enumeration",
+        description = "A Enumeration output.",
+        keywords = "output",
         values = ["value1", "value2"],
         identifier = "output",
         metadata = ["website","metadata"]
@@ -137,9 +136,9 @@ String[] jdbcColumnOutput
 
 /** This JDBCValue is the output data source. */
 @JDBCValueOutput(
-        title = ["Output JDBCValue","en","Sortie JDBCValue","fr"],
-        description = ["A JDBCValue output.","en","Une sortie JDBCValue.","fr"],
-        keywords = ["output","en","sortie","fr"],
+        title = "Output JDBCValue",
+        description = "A JDBCValue output.",
+        keywords = "output",
         jdbcColumnReference = "orbisgis:test:jdbccolumn:output",
         multiSelection = true,
         identifier = "orbisgis:test:jdbcvalue:output",

@@ -52,7 +52,7 @@ import org.h2gis.utilities.TableLocation
 @Process(
     title = "Spatial filtering",
     description = "Select geometries from one table based on one other table.\nThe criteria for selecting features is based on the spatial relationship between eachfeature and the features in an additional layer. ",
-	keywords = "Vector,Geometry,Filtering",
+	keywords = ["Vector","Geometry","Filtering"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:selectSpatial"
@@ -128,7 +128,7 @@ String[] geometricFieldToSelected
     title = "Spatial relationship",
     description = "Spatial relationship to select features.",
     values=["st_intersects", "st_contains", "st_disjoint", "st_crosses", "st_touches"],
-    names="Intersects, Contains, Disjoint, Crosses, Touches")
+    names=["Intersects","Contains","Disjoint","Crosses","Touches"])
 String[] operation = ["st_intersects"]
 
 

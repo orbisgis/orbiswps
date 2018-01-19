@@ -54,7 +54,7 @@ import java.sql.Connection
  */
 @Process(title = "Export TSV file",
     description = "Export a table to a TSV file.",
-    keywords = "OrbisGIS,Export, File, TSV",
+    keywords = ["OrbisGIS","Export","File","TSV"],
     properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
     version = "1.0")
 def processing() {

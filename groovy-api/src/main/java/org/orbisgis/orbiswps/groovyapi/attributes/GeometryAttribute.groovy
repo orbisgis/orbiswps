@@ -43,8 +43,8 @@ import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
 /**
- * Attributes for the Geometry complex data.
- * The Geometry is a complex data that represents a geometry.
+ * Attributes for the Geometry complex model.
+ * The Geometry is a complex model that represents a geometry.
  *
  * The following fields can be defined (optional) :
  *  - geometryTypes : String[]

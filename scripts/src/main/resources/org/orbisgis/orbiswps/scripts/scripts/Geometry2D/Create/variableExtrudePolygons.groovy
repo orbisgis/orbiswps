@@ -92,10 +92,10 @@ def processing() {
 
 @JDBCTableInput(
 		title = [
-				"Input spatial data","en",
+				"Input spatial model","en",
 				"Données spatiales d'entrée","fr"],
 		description = [
-				"The spatial data source that must be extruded.","en",
+				"The spatial model source that must be extruded.","en",
 				"La source de données qui doit etre extrudée.","fr"],
 		dataTypes = ["GEOMETRY"])
 String inputJDBCTable
@@ -110,7 +110,7 @@ String inputJDBCTable
 				"Colonne géométrique","fr"
 		],
 		description = [
-				"The geometric column of the data source.","en",
+				"The geometric column of the model source.","en",
 				"La colonne géométrique de la source de données.","fr"
 		],
 		jdbcTableReference = "inputJDBCTable",

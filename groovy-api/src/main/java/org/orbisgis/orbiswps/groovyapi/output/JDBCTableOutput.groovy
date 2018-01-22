@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute
 
 /**
  * JDBCTable output annotation.
- * The JDBCTable complex data represents any data source (database, file ...).
+ * The JDBCTable complex model represents any model source (database, file ...).
  * As an output, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :

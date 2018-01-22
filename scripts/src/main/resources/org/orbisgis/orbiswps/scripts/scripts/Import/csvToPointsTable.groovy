@@ -55,9 +55,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  *  - If the field name is on the first line (LiteralData)
  *  - The X field 
  *  - The Y field 
- *  - The output data source (JDBCTable) *
+ *  - The output model source (JDBCTable) *
  *
- * @return The point layer data source created from a CSV file.
+ * @return The point layer model source created from a CSV file.
  *
  * @see http://www.h2gis.org/docs/dev/ST_SeST_MakePointSRID/
  * @author Sylvain PALOMINOS
@@ -103,7 +103,7 @@ def processing() {
  * */
 @RawDataInput(
     title = "Input csv",
-    description = "The input CSV file containing the point data.",
+    description = "The input CSV file containing the point model.",
     fileTypes = ["csv"],
     isDirectory = false)
 String[] csvDataInput

@@ -93,7 +93,7 @@ def processing() {
 
 @JDBCTableInput(
     title = "Table to select from",
-    description = "The spatial data source that contains the selected features.",
+    description = "The spatial model source that contains the selected features.",
     dataTypes = ["GEOMETRY"]
 )
 String fromSelectedTable
@@ -110,7 +110,7 @@ String[] geometricFieldFromSelected
 
 @JDBCTableInput(
     title = "Table to select",
-    description = "The spatial data source used to select the features.",
+    description = "The spatial model source used to select the features.",
     dataTypes = ["GEOMETRY"]
 )
 String toSelectedTable

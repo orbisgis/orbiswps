@@ -45,14 +45,13 @@ import junit.framework.Assert;
 import org.h2.tools.RunScript;
 import org.h2gis.functions.factory.H2GISDBFactory;
 import org.junit.*;
-import org.orbisgis.orbiswps.service.utils.ProgressMonitor;
+import org.orbisgis.orbiswps.service.process.ProgressMonitor;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +78,7 @@ public class ExportScriptTests {
         // Keep a connection alive to not close the DataBase on each unit test
         connection = H2GISDBFactory.createSpatialDataBase(ExportScriptTests.class.getSimpleName());
         sql = new Sql(connection);        
-        // Set up test data
+        // Set up test model
         InputStreamReader reader = new InputStreamReader(ExportScriptTests.class.getResourceAsStream("wps_scripts_test.sql"));
         RunScript.execute(connection, reader);
         reader.close();

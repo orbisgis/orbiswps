@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+ OrbisWPS contains a set of libraries to build a Web Processing Service (WPS)
+ compliant with the 2.0 specification.
+
+ OrbisWPS is part of the OrbisGIS platform
+
+ OrbisGIS is a java GIS application dedicated to research in GIScience.
+ OrbisGIS is developed by the GIS group of the DECIDE team of the
+ Lab-STICC CNRS laboratory, see <http://www.lab-sticc.fr/>.
+
+ The GIS group of the DECIDE team is located at :
+
+ Laboratoire Lab-STICC – CNRS UMR 6285
+ Equipe DECIDE
+ UNIVERSITÉ DE BRETAGNE-SUD
+ Institut Universitaire de Technologie de Vannes
+ 8, Rue Montaigne - BP 561 56017 Vannes Cedex
+
+ OrbisWPS is distributed under GPL 3 license.
+
+ Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+
+
+ OrbisWPS is free software: you can redistribute it and/or modify it under the
+ terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
+
+ OrbisWPS is distributed in the hope that it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along with
+ OrbisWPS. If not, see <http://www.gnu.org/licenses/>.
+
+ For more information, please consult: <http://www.orbisgis.org/>
+ or contact directly:
+ info_at_ orbisgis.org
+-->
+<wps:Execute xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:wps="http://www.opengis.net/wps/2.0" xmlns:orbisgis="http://orbisgis.org" mode="auto" response="document" service="WPS" version="2.0.0">
+    <ows:Identifier>orbisgis:test:enumeration</ows:Identifier>
+    <wps:Input id="orbisgis:test:enumeration:input">
+        <wps:Data mimeType="text/plain" encoding="simple">value1</wps:Data>
+    </wps:Input>
+    <wps:Output id="orbisgis:test:enumeration:output" transmission="value" mimeType="text/plain" encoding="simple"/>
+</wps:Execute>

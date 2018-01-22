@@ -45,7 +45,7 @@ import net.opengis.wps._2_0.Format;
 import javax.xml.bind.annotation.*;
 import java.util.List;
 
-import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
@@ -63,7 +63,7 @@ public class BoundingBoxData extends ComplexDataType {
     /** Default CRS of the BoundingBox. Should be a string with the pattern : authority:code, like EPSG:2000.*/
     @XmlAttribute(name = "defaultCrs", namespace = "http://orbisgis.org")
     private String defaultCrs;
-    /** List of CRS supported by the BoundingBox data without the default one. Should be a string with the pattern :
+    /** List of CRS supported by the BoundingBox model without the default one. Should be a string with the pattern :
      *      authority:code, like EPSG:2000.*/
     @XmlAttribute(name = "supportedCrs", namespace = "http://orbisgis.org")
     String[] supportedCrs;
@@ -78,8 +78,8 @@ public class BoundingBoxData extends ComplexDataType {
 
     /**
      * Main constructor.
-     * @param formatList Formats of the data accepted.
-     * @param supportedCrs List of CRS supported by the BoundingBox data without the default one.
+     * @param formatList Formats of the model accepted.
+     * @param supportedCrs List of CRS supported by the BoundingBox model without the default one.
      * @param dimension Dimension of the bounding box.
      * @throws MalformedScriptException
      */

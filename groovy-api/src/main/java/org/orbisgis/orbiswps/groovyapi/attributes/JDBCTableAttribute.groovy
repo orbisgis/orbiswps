@@ -43,8 +43,8 @@ import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
 /**
- * Attributes for the JDBCTable complex data.
- * The JDBCTable complex data represents any data source (database, file ...).
+ * Attributes for the JDBCTable complex model.
+ * The JDBCTable complex model represents any model source (database, file ...).
  *
  * The following fields can be defined (optional) :
  * - dataTypes : String[]

@@ -116,13 +116,13 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This JDBCTable is the left data source. */
+/** This JDBCTable is the left model source. */
 @JDBCTableInput(
 		title = "Left table",
 		description = "The left table used for the join.")
 String leftJDBCTable
 
-/** This JDBCTable is the right data source. */
+/** This JDBCTable is the right model source. */
 @JDBCTableInput(
 		title = "Right table",
 		description = "The right table  used for the join.")

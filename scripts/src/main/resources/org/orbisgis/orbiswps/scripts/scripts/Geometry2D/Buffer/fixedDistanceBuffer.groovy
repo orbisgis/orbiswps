@@ -47,11 +47,11 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 /********************/
 
 /**
- * This process execute a buffer on a spatial data source using the ST_Buffer() function.
+ * This process execute a buffer on a spatial model source using the ST_Buffer() function.
  * The user has to specify (mandatory):
- *  - The input spatial data source (JDBCTable)
+ *  - The input spatial model source (JDBCTable)
  *  - The BufferSize (LiteralData)
- *  - The output data source (JDBCTable)
+ *  - The output model source (JDBCTable)
  *
  * The user can specify (optional) :
  *  - The number of segments used to approximate a quarter circle (LiteralData)
@@ -124,7 +124,7 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This JDBCTable is the input data source for the buffer. */
+/** This JDBCTable is the input model source for the buffer. */
 @JDBCTableInput(
         title = [
                 "Input table","en",

@@ -85,7 +85,7 @@ def processing() {
 
 @JDBCTableInput(
     title = "Table to select from",
-    description = "The data source that contains the selected features.")
+    description = "The model source that contains the selected features.")
 String fromSelectedTable
 
 

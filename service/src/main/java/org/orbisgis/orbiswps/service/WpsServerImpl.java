@@ -41,17 +41,19 @@ package org.orbisgis.orbiswps.service;
 
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
+import org.orbisgis.orbiswps.service.operations.WPS_1_0_0_OperationsImpl;
+import org.orbisgis.orbiswps.service.operations.WPS_2_0_OperationsImpl;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_2_0_Operations;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.serviceapi.WpsServerListener;
 import org.orbisgis.orbiswps.serviceapi.*;
-import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
-import org.orbisgis.orbiswps.service.controller.utils.Job;
-import org.orbisgis.orbiswps.service.execution.ProcessWorker;
+import org.orbisgis.orbiswps.service.process.ProcessManager;
+import org.orbisgis.orbiswps.service.utils.Job;
+import org.orbisgis.orbiswps.service.process.ProcessWorker;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
-import org.orbisgis.orbiswps.service.utils.WpsServerProperties_1_0_0;
-import org.orbisgis.orbiswps.service.utils.WpsServerProperties_2_0;
+import org.orbisgis.orbiswps.service.operations.WpsServerProperties_1_0_0;
+import org.orbisgis.orbiswps.service.operations.WpsServerProperties_2_0;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata;
 import org.osgi.service.component.annotations.*;
 import org.slf4j.Logger;
@@ -350,7 +352,7 @@ public class WpsServerImpl implements WpsServer {
      * @param resultUri Uri of the result to destroy.
      * @param date Date when the result should be destroyed.
      */
-    protected void scheduleResultDestroying(URI resultUri, XMLGregorianCalendar date){
+    public void scheduleResultDestroying(URI resultUri, XMLGregorianCalendar date){
         //To be implemented
     }
 
@@ -358,7 +360,7 @@ public class WpsServerImpl implements WpsServer {
      * Indicates if a process is actually running.
      * @return True if a process is running, false otherwise.
      */
-    protected Future executeNewProcessWorker(Job job, ProcessIdentifier processIdentifier, Map<URI, Object> dataMap){
+    public Future executeNewProcessWorker(Job job, ProcessIdentifier processIdentifier, Map<URI, Object> dataMap){
         ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this, propertiesMap);
 
         if(processRunning){

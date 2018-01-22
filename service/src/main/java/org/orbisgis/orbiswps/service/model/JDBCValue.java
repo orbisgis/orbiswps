@@ -41,7 +41,7 @@ package org.orbisgis.orbiswps.service.model;
 
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.Format;
-import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 
 import javax.xml.bind.annotation.*;
 import java.net.URI;
@@ -78,7 +78,7 @@ public class JDBCValue extends ComplexDataType {
 
     /**
      * Main constructor
-     * @param formatList Formats of the data accepted.
+     * @param formatList Formats of the model accepted.
      * @param jdbcColumnIdentifier Identifier of the 'parent' JDBCColumn.
      * @param multiSelection Enable or not the selection of more than one value.
      * @throws MalformedScriptException

@@ -23,7 +23,7 @@ for root, dirs, files in os.walk(og_folder):
         if file == "pom.xml" and pom_with_gettext(os.path.join(root, file)):
             os.chdir(root)
             # Read source file to create key file and merge into PO
-            callext(["mvn" ,"gettext:gettext"])
+            callext(["mvn" ,"gettext:gettext-wps"])
             if merge_po:
                 callext(["mvn" ,"gettext:merge", "-DmsgmergeCmd\"msgmerge --backup=off\""])
                 #remove obsolete and fuzzy entry in po

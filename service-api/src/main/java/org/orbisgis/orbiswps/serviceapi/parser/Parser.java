@@ -41,13 +41,13 @@ package org.orbisgis.orbiswps.serviceapi.parser;
 
 import net.opengis.wps._2_0.InputDescriptionType;
 import net.opengis.wps._2_0.OutputDescriptionType;
-import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 
 import java.lang.reflect.Field;
 import java.net.URI;
 
 /**
- * Interface to define a Parser associated to a data from the model (i.e. LiteralData or RawData).
+ * Interface to define a Parser associated to a model from the model (i.e. LiteralData or RawData).
  * A parse have to be associated to an input and an output groovy annotation used in the script.
  * It have to be also associated to a Data class from the model.
  *

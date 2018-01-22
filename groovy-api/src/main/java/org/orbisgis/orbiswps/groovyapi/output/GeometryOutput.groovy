@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.GeometryAttribute
 
 /**
  * Geometry output annotation.
- * The Geometry is a complex data that represents a geometry.
+ * The Geometry is a complex model that represents a geometry.
  * As an output, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :

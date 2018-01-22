@@ -41,7 +41,7 @@ package org.orbisgis.orbiswps.service.model;
 
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.Format;
-import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
@@ -89,7 +89,7 @@ public class JDBCColumn extends ComplexDataType {
 
     /**
      * Main constructor.
-     * @param formatList Formats of the data accepted.
+     * @param formatList Formats of the model accepted.
      * @param dataTypeList List of the type accepted for this field.
      * @param jdbcTableURI Identifier of the parent jdbcTable.
      * @throws MalformedScriptException

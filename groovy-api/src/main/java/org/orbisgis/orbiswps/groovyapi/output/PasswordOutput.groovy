@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.PasswordAttribute
 
 /**
  * Password output annotation.
- * A password is similar to a String literal data, by its value is hided
+ * A password is similar to a String literal model, by its value is hided
  *
  * @author Sylvain PALOMINOS
  */

@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute
 
 /**
  * JDBCValue output annotation.
- * The JDBCValue complex data represents a list of values contained by a JDBCColumn.
+ * The JDBCValue complex model represents a list of values contained by a JDBCColumn.
  * As an output, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :

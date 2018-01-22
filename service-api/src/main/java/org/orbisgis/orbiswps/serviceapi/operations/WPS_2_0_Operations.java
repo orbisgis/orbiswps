@@ -86,11 +86,11 @@ public interface WPS_2_0_Operations {
      *
      * @param execute The Execute request is a common structure for synchronous and asynchronous execution.
      *                It inherits basic properties from the RequestBaseType and contains additional elements that
-     *                identify the process that shall be executed, the data inputs and outputs, and the response type
+     *                identify the process that shall be executed, the model inputs and outputs, and the response type
      *                of the service.
      * @return Depending on the desired execution mode and the response type declared in the execute request,
      *         the execute response may take one of three different forms:
-     *         A response document, a StatusInfo document, or raw data.
+     *         A response document, a StatusInfo document, or raw model.
      */
     Object execute(ExecuteRequestType execute);
 
@@ -109,7 +109,7 @@ public interface WPS_2_0_Operations {
 
     /**
      * WPS GetResult operation request. This operation is used to query the results of asynchrously
-     * executed processes. The response to a GetResult operation is a wps:ProcessingResult, a raw data response, or an exception.
+     * executed processes. The response to a GetResult operation is a wps:ProcessingResult, a raw model response, or an exception.
      * Depending on the implementation, a WPS may "forget" old process executions sooner or later.
      * In this case, there is no result information available and an exception shall be returned.
      *

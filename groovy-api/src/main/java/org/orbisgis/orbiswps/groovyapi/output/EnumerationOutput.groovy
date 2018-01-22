@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute
 
 /**
  * Enumeration output annotation.
- * The Enumeration complex data represents a selection of values from a predefined list.
+ * The Enumeration complex model represents a selection of values from a predefined list.
  * As an output, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :

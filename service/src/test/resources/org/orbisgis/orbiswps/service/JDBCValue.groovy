@@ -80,7 +80,7 @@ String jdbcTableInput
         jdbcTableReference = "orbisgis:test:jdbctable:input")
 String jdbcColumnInput
 
-/** This JDBCValue is the input data source. */
+/** This JDBCValue is the input model source. */
 @JDBCValueInput(
         title = "Input JDBCValue",
         description = "A JDBCValue input.",
@@ -106,7 +106,7 @@ String jdbcTableOutput
         jdbcTableReference = "orbisgis:test:jdbctable:output")
 String jdbcColumnOutput
 
-/** This JDBCValue is the output data source. */
+/** This JDBCValue is the output model source. */
 @JDBCValueOutput(
         title = "Output JDBCValue",
         description = "A JDBCValue output.",

@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute
 
 /**
  * Enumeration input annotation.
- * The Enumeration complex data represents a selection of values from a predefined list.
+ * The Enumeration complex model represents a selection of values from a predefined list.
  * As an input, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :
@@ -79,7 +79,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute
  *                       "role2,title,href2"]
  *
  *  - supportedCRS : String[]
- *      List of CRS supported by the BoundingBox data without the default one. Should be a string with the pattern :
+ *      List of CRS supported by the BoundingBox model without the default one. Should be a string with the pattern :
  *      authority:code, like EPSG:2000.
  *
  *  - dimension : int

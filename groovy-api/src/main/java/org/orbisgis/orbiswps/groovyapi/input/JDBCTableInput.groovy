@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute
 
 /**
  * JDBCTable input annotation.
- * The JDBCTable complex data represents any data source (database, file ...).
+ * The JDBCTable complex model represents any model source (database, file ...).
  * As an input, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :

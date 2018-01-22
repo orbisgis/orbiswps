@@ -44,13 +44,13 @@ import java.lang.annotation.RetentionPolicy
 
 /**
  * Attributes for the BoundingBox.
- * Bounding box data serves a variety of purposes in spatial data processing.
+ * Bounding box model serves a variety of purposes in spatial model processing.
  * Some simple applications are the definition of extents for a clipping operation or the definition of an
  * analysis region.
  *
  * The following fields can be defined (optional) :
  *  - supportedCRS : String[]
- *      List of CRS supported by the BoundingBox data without the default one. Should be a string with the pattern :
+ *      List of CRS supported by the BoundingBox model without the default one. Should be a string with the pattern :
  *      authority:code, like EPSG:2000.
  *
  *  - dimension : int
@@ -61,7 +61,7 @@ import java.lang.annotation.RetentionPolicy
 @Retention(RetentionPolicy.RUNTIME)
 @interface BoundingBoxAttribute {
 
-    /** List of CRS supported by the BoundingBox data without the default one. Should be a string with the pattern :
+    /** List of CRS supported by the BoundingBox model without the default one. Should be a string with the pattern :
      *  authority:code, like EPSG:2000. */
     String[] supportedCRS() default []
 

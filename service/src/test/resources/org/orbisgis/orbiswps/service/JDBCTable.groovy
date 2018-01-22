@@ -65,7 +65,7 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This JDBCTable is the input data source. */
+/** This JDBCTable is the input model source. */
 @JDBCTableInput(
         title = "Input JDBCTable",
         description = "A JDBCTable input.",
@@ -82,7 +82,7 @@ String inputJDBCTable
 /** OUTPUT Data **/
 /*****************/
 
-/** This JDBCTable is the output data source. */
+/** This JDBCTable is the output model source. */
 @JDBCTableOutput(
         title = "Output JDBCTable",
         description = "A JDBCTable output.",

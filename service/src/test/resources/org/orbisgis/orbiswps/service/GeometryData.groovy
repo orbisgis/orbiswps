@@ -65,7 +65,7 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This Geometry is the input data source. */
+/** This Geometry is the input model source. */
 @GeometryInput(
         title = "Input Geometry",
         description = "A Geometry input.",
@@ -83,7 +83,7 @@ String inputGeometry
 /** OUTPUT Data **/
 /*****************/
 
-/** This Geometry is the output data source. */
+/** This Geometry is the output model source. */
 @GeometryOutput(
         title = "Output Geometry",
         description = "A Geometry output.",

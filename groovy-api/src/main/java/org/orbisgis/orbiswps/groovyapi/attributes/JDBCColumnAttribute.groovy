@@ -43,8 +43,8 @@ import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
 /**
- * Attributes for the JDBCColumn complex data.
- * The JDBCColumn is a complex data that represents a JDBCTable column.
+ * Attributes for the JDBCColumn complex model.
+ * The JDBCColumn is a complex model that represents a JDBCTable column.
  * It is linked to a JDBCTable and its allowed types can be specified.
  *
  * The following fields must be defined (mandatory) :
@@ -73,13 +73,13 @@ import java.lang.annotation.RetentionPolicy
     /** Name of the variable of the JDBCTable or its identifier.*/
     String jdbcTableReference()
 
-    /** Array of the type allowed for the data field. If no types are specified, accept all.*/
+    /** Array of the type allowed for the model field. If no types are specified, accept all.*/
     String[] dataTypes() default []
 
-    /** Array of the type not allowed for the data field.*/
+    /** Array of the type not allowed for the model field.*/
     String[] excludedTypes() default []
 
-    /** Array of the names not allowed for the data field.*/
+    /** Array of the names not allowed for the model field.*/
     String[] excludedNames() default []
 
     /** Enable or not the user to select more than one field.*/

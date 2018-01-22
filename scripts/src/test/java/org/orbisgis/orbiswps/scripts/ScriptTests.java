@@ -79,7 +79,7 @@ public class ScriptTests {
         // Keep a connection alive to not close the DataBase on each unit test
         connection = H2GISDBFactory.createSpatialDataBase(ScriptTests.class.getSimpleName());
         sql = new Sql(connection);        
-        // Set up test data
+        // Set up test model
         InputStreamReader reader = new InputStreamReader(ScriptTests.class.getResourceAsStream("wps_scripts_test.sql"));
         RunScript.execute(connection, reader);
         reader.close();
@@ -414,7 +414,7 @@ public class ScriptTests {
         inputMap.put("outputTableName", "geomForms_res");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        //Add data
+        //Add model
         st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon, id int, form varchar); "
                 + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 300, 200 300, 200 200, 100 200, 100 300))'), 1,'square')"
                 + ",(ST_GeomFromText('POLYGON ((100 300, 300 300, 300 200, 100 200, 100 300))'), 2,'rectangle'),"
@@ -469,7 +469,7 @@ public class ScriptTests {
         inputMap.put("outputTableName", "geomForms_res");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        //Add data
+        //Add model
         st.execute("create table geomForms (the_geom polygon, id int); "
                 + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((140 370, 180 370, 180 120, 140 120, 140 370))'), 1)"
                 + ",(ST_GeomFromText('POLYGON ((100 300, 300 300, 300 270, 100 270, 100 300))'), 2),"
@@ -503,7 +503,7 @@ public class ScriptTests {
         inputMap.put("outputTableName", "geomForms_res");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        //Add data
+        //Add model
         st.execute("create table geomForms (the_geom polygon, id int); "
                 + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 200, 200 200, 200 100, 100 100, 100 200))'), 1)"
                 + ",(ST_GeomFromText('POLYGON ((100 300, 200 400, 300 400, 400 300, 400 200, 300 100, 200 100, 100 200, 100 300))'), 2)");
@@ -534,7 +534,7 @@ public class ScriptTests {
         inputMap.put("outputTableName", "geomForms_res");
         Map<String, Object> propertyMap = new HashMap<>();
         propertyMap.put("sql", sql);
-        //Add data
+        //Add model
         st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon, id int, form varchar); "
                 + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 300, 200 300, 200 200, 100 200, 100 300))'), 1,'square')"
                 + ",(ST_GeomFromText('POLYGON ((100 300, 300 300, 300 200, 100 200, 100 300))'), 2,'rectangle'),"

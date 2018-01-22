@@ -73,7 +73,7 @@ def processing() {
         identifier = "orbisgis:test:jdbctable:input")
 String jdbcTableInput
 
-/** This JDBCColumn is the input data source. */
+/** This JDBCColumn is the input model source. */
 @JDBCColumnInput(
         title = "Input JDBCColumn",
         description = "A JDBCColumn input.",
@@ -95,7 +95,7 @@ String inputJDBCColumn
         identifier = "orbisgis:test:jdbctable:output")
 String jdbcTableOutput
 
-/** This JDBCColumn is the output data source. */
+/** This JDBCColumn is the output model source. */
 @JDBCColumnOutput(
         title = "Output JDBCColumn",
         description = "A JDBCColumn output.",

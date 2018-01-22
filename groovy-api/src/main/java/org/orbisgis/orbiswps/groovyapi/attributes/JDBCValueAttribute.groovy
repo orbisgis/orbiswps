@@ -43,8 +43,8 @@ import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
 /**
- * Attributes for the JDBCValue complex data.
- * The JDBCValue complex data represents a list of values contained by a JDBCColumn.
+ * Attributes for the JDBCValue complex model.
+ * The JDBCValue complex model represents a list of values contained by a JDBCColumn.
  *
  * The following fields must be defined (mandatory) :
  *  - jdbcColumnReference : String

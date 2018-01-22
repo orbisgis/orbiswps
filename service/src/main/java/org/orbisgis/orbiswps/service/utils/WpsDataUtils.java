@@ -47,7 +47,7 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 /**
- * Class containing methods used to manipulate data for the WPS scripts.
+ * Class containing methods used to manipulate model for the WPS scripts.
  *
  * @author Sylvain PALOMINOS
  */

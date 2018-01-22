@@ -93,7 +93,7 @@ def processing() {
 
 @JDBCTableInput(
     title = "Input table",
-    description = "The spatial data source that contains the polygons.",
+    description = "The spatial model source that contains the polygons.",
     dataTypes = ["POLYGON", "MULTIPOLYGON"]
 )
 String inputTable

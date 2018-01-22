@@ -99,7 +99,7 @@ public enum DataType {
     RASTER("RASTER"),
     NONE("NONE");
 
-    /** URI for the data type. */
+    /** URI for the model type. */
     private URI uri;
 
     /**
@@ -117,7 +117,7 @@ public enum DataType {
     /**
      * Return true is the type is spatial, false otherwise.
      * @param dataType DataType to test.
-     * @return True if the given data type is spatial, false otherwise.
+     * @return True if the given model type is spatial, false otherwise.
      */
     public static boolean isSpatialType(DataType dataType){
         return dataType.equals(GEOMETRY) ||
@@ -152,7 +152,7 @@ public enum DataType {
     /**
      * Return true is the type is spatial with Z dimension, false otherwise.
      * @param dataType DataType to test.
-     * @return True if the given data type is spatial, false otherwise.
+     * @return True if the given model type is spatial, false otherwise.
      */
     public static boolean isSpatialZType(DataType dataType){
         return dataType.equals(GEOMETRYZ) ||
@@ -171,7 +171,7 @@ public enum DataType {
     /**
      * Return true is the type is spatial with M dimension, false otherwise.
      * @param dataType DataType to test.
-     * @return True if the given data type is spatial, false otherwise.
+     * @return True if the given model type is spatial, false otherwise.
      */
     public static boolean isSpatialMType(DataType dataType){
         return dataType.equals(GEOMETRYM) ||
@@ -190,7 +190,7 @@ public enum DataType {
     /**
      * Return true is the type is spatial with Z and M dimension, false otherwise.
      * @param dataType DataType to test.
-     * @return True if the given data type is spatial, false otherwise.
+     * @return True if the given model type is spatial, false otherwise.
      */
     public static boolean isSpatialZMType(DataType dataType){
         return dataType.equals(GEOMETRYZM) ||
@@ -232,7 +232,7 @@ public enum DataType {
 
     /**
      * Returns the DataType corresponding to the given database type name.
-     * @param dbTypeName Name of the data type from the database.
+     * @param dbTypeName Name of the model type from the database.
      * @return The DataType corresponding to the given database type name.
      */
     public static DataType getDataType(String dbTypeName){
@@ -355,10 +355,10 @@ public enum DataType {
     }
 
     /**
-     * Returns the DataType corresponding to the given integer database data type.
+     * Returns the DataType corresponding to the given integer database model type.
      * It doesn't take into account the geometric types.
-     * @param sqlTypeId Integer data type from the database.
-     * @return The DataType corresponding to the given integer database data type.
+     * @param sqlTypeId Integer model type from the database.
+     * @return The DataType corresponding to the given integer database model type.
      */
     public static DataType getDataType(int sqlTypeId) {
         switch (sqlTypeId) {

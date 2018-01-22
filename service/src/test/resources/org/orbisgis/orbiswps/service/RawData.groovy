@@ -65,7 +65,7 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This RawData is the input data source. */
+/** This RawData is the input model source. */
 @RawDataInput(
         title = "Input RawData",
         description = "A RawData input.",
@@ -82,7 +82,7 @@ String inputRawData
 /** OUTPUT Data **/
 /*****************/
 
-/** This RawData is the output data source. */
+/** This RawData is the output model source. */
 @RawDataOutput(
         title = "Output RawData",
         description = "A RawData output.",

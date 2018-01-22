@@ -406,7 +406,7 @@ public class TestWpsServerImpl {
                 ((Result)resultObject).getOutput().get(0));
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the result output 0 id should not be null",
                 ((Result)resultObject).getOutput().get(0).getId());
-        Assert.assertNotNull("Error on unmarshalling the WpsService answer, the result output 0 data should not be" +
+        Assert.assertNotNull("Error on unmarshalling the WpsService answer, the result output 0 model should not be" +
                 " null",
                 ((Result)resultObject).getOutput().get(0).getData());
     }

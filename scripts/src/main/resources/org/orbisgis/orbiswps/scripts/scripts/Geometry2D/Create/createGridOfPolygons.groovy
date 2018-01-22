@@ -83,8 +83,8 @@ def processing() {
 /****************/
 
 @JDBCTableInput(
-        title = "Input spatial data",
-        description = "The spatial data source to compute the grid. The extend of grid is based on the full extend of the table.",
+        title = "Input spatial model",
+        description = "The spatial model source to compute the grid. The extend of grid is based on the full extend of the table.",
         dataTypes = ["GEOMETRY"])
 String inputJDBCTable
 

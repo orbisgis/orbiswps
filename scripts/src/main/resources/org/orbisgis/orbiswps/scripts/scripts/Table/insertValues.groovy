@@ -112,7 +112,7 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This JDBCTable is the input data source table. */
+/** This JDBCTable is the input model source table. */
 @JDBCTableInput(
         title = "Table",
         description = "The table to edit.",

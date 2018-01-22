@@ -731,7 +731,7 @@ msgid "Input csv"
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:4
-msgid "The input CSV file containing the point data."
+msgid "The input CSV file containing the point model."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:7
@@ -788,11 +788,11 @@ msgstr ""
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:3
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:3
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:3
-msgid "Input spatial data"
+msgid "Input spatial model"
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:4
-msgid "The spatial data source to create the graphe tables."
+msgid "The spatial model source to create the graphe tables."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:5
@@ -815,7 +815,7 @@ msgstr ""
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:6
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:8
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:6
-msgid "The geometric column of the data source."
+msgid "The geometric column of the model source."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:7
@@ -882,7 +882,7 @@ msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:4
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:5
-msgid "The spatial data source that contains the selected features."
+msgid "The spatial model source that contains the selected features."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:5
@@ -900,7 +900,7 @@ msgid "Table to select"
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:8
-msgid "The spatial data source used to select the features."
+msgid "The spatial model source used to select the features."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:9
@@ -961,7 +961,7 @@ msgid "Filtering"
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:5
-msgid "The data source that contains the selected features."
+msgid "The model source that contains the selected features."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:6
@@ -1138,7 +1138,7 @@ msgid ""
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:4
-msgid "The spatial data source that must be extruded."
+msgid "The spatial model source that must be extruded."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:7
@@ -1176,7 +1176,7 @@ msgstr ""
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:4
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:4
 msgid ""
-"The spatial data source to compute the grid. The extend of grid is based on "
+"The spatial model source to compute the grid. The extend of grid is based on "
 "the full extend of the table."
 msgstr ""
 
@@ -1237,7 +1237,7 @@ msgid "Compute some basic geometry properties."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:4
-msgid "The spatial data source to compute the geometry properties."
+msgid "The spatial model source to compute the geometry properties."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:7
@@ -1383,7 +1383,7 @@ msgstr ""
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:4
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:4
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:4
-msgid "The spatial data source that contains the polygons."
+msgid "The spatial model source that contains the polygons."
 msgstr ""
 
 #: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:6

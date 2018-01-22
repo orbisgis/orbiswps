@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute
 
 /**
  * RawData input annotation.
- * The RawData is a complex data that represents a file or directory.
+ * The RawData is a complex model that represents a file or directory.
  * As an input, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :
@@ -93,10 +93,10 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute
  *      Indicates that the user can select more than one file/directory.
  *
  *  - fileTypes : String[]
- *      Array of the file type allowed for the raw data. If no types are specified, accept all.
+ *      Array of the file type allowed for the raw model. If no types are specified, accept all.
  *
  *  - excludedTypes : String[]
- *      Array of the file type not allowed for the raw data.
+ *      Array of the file type not allowed for the raw model.
  *
  * Usage example can be found at https://github.com/orbisgis/orbisgis/wiki/
  *

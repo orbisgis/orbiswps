@@ -41,8 +41,8 @@ package org.orbisgis.orbiswps.service.model;
 
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.Format;
-import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
-import org.orbisgis.orbiswps.serviceapi.data.TranslatableComplexData;
+import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.model.TranslatableComplexData;
 import org.xnap.commons.i18n.I18n;
 
 import javax.xml.bind.annotation.*;
@@ -77,7 +77,7 @@ public class Enumeration extends ComplexDataType implements TranslatableComplexD
 
     /**
      * Main constructor.
-     * @param formatList Formats of the data accepted.
+     * @param formatList Formats of the model accepted.
      * @param valueList List of values.
      * @throws MalformedScriptException
      */

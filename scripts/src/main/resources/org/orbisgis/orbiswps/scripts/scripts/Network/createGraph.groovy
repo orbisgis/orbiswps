@@ -75,10 +75,10 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This JDBCTable is the input data source. */
+/** This JDBCTable is the input model source. */
 @JDBCTableInput(
-        title = "Input spatial data",
-        description = "The spatial data source to create the graphe tables.",
+        title = "Input spatial model",
+        description = "The spatial model source to create the graphe tables.",
         dataTypes = ["LINESTRING", "MULTILINESTRING"])
 String inputJDBCTable
 
@@ -86,7 +86,7 @@ String inputJDBCTable
 /** Name of the Geometric field of the JDBCTable inputJDBCTable. */
 @JDBCColumnInput(
         title = "Geometric column",
-        description = "The geometric column of the data source.",
+        description = "The geometric column of the model source.",
         jdbcTableReference = "inputJDBCTable",
         dataTypes = ["LINESTRING", "MULTILINESTRING"])
 String[] geometricField

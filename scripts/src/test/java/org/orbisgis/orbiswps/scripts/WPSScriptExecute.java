@@ -63,11 +63,11 @@ public class WPSScriptExecute {
      * given inputs and properties. Ons the method processing is run, the script output are tested with the given one.
      * @param groovyClassLoader the groovy class loader
      * @param scriptPath Path to the script to run.
-     * @param inputMap Map containing the inputs. The keys are the script attribute name and the values are the attribute data.
+     * @param inputMap Map containing the inputs. The keys are the script attribute name and the values are the attribute model.
      * @param propertyMap Map containing the groovy properties. The keys are the property attribute name and the values
-     *                  are the property attribute data.
+     *                  are the property attribute model.
      * @return Map containing the process outputs. The keys are the script output attribute name and the values
-     *                  are the output attribute data.
+     *                  are the output attribute model.
      * @throws java.lang.Exception
      */
     public static Map<String, Object> run(GroovyClassLoader groovyClassLoader, String scriptPath,

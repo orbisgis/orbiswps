@@ -46,10 +46,10 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 /**
  * This process extract the center of a geometry table using  SQL functions.
  * The user has to specify (mandatory):
- *  - The input spatial data source (JDBCTable)
+ *  - The input spatial model source (JDBCTable)
  *  - The geometry column (LiteralData)
  *  - The geometry operation (centroid or interior point)
- *  - The output data source (JDBCTable)
+ *  - The output model source (JDBCTable)
  *
  * @return A datadase table.
  * @author Erwan Bocher
@@ -101,7 +101,7 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This JDBCTable is the input data source. */
+/** This JDBCTable is the input model source. */
 @JDBCTableInput(
 		title = "Extract center",
 		description = "Extract the center of a geometry.",
@@ -115,7 +115,7 @@ String inputJDBCTable
 /** Name of the Geometric field of the JDBCTable inputJDBCTable. */
 @JDBCColumnInput(
 		title = "Geometric column",
-		description = "The geometric column of the data source.",
+		description = "The geometric column of the model source.",
         jdbcTableReference = "inputJDBCTable",
         dataTypes = ["GEOMETRY"])
 String[] geometricField

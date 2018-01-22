@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute
 
 /**
  * Enumeration input annotation.
- * The Enumeration complex data represents a selection of values from a predefined list.
+ * The Enumeration complex model represents a selection of values from a predefined list.
  * As an input, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :

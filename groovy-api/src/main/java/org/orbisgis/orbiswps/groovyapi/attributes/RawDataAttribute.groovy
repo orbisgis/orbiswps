@@ -43,8 +43,8 @@ import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
 /**
- * Attributes for the RawData complex data.
- * The RawData is a complex data that represents a file or directory.
+ * Attributes for the RawData complex model.
+ * The RawData is a complex model that represents a file or directory.
  *
  * The following fields can be defined (optional) :
  *  - isDirectory : boolean
@@ -57,10 +57,10 @@ import java.lang.annotation.RetentionPolicy
  *      Indicates that the user can select more than one file/directory.
  *
  *  - fileTypes : String[]
- *      Array of the file type allowed for the raw data. If no types are specified, accept all.
+ *      Array of the file type allowed for the raw model. If no types are specified, accept all.
  *
  *  - excludedTypes : String[]
- *      Array of the file type not allowed for the raw data.
+ *      Array of the file type not allowed for the raw model.
  *
  * @author Sylvain PALOMINOS
  */
@@ -73,9 +73,9 @@ import java.lang.annotation.RetentionPolicy
     /** Indicates that the user can select more than one file/directory. */
     boolean multiSelection() default false
 
-    /** Array of the file type allowed for the raw data. If no types are specified, accept all.*/
+    /** Array of the file type allowed for the raw model. If no types are specified, accept all.*/
     String[] fileTypes() default []
 
-    /** Array of the file type not allowed for the raw data.*/
+    /** Array of the file type not allowed for the raw model.*/
     String[] excludedTypes() default []
 }

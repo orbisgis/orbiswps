@@ -43,8 +43,8 @@ import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
 /**
- * Attributes for the literal data.
- * This annotation contains the needed attributes for a literal data.
+ * Attributes for the literal model.
+ * This annotation contains the needed attributes for a literal model.
  * The LiteralData represents a number or a string.
  *
  *

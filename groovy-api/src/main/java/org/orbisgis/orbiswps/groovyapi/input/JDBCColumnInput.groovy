@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute
 
 /**
  * JDBCColumn input annotation.
- * The JDBCColumn is a complex data that represents a JDBCTable column.
+ * The JDBCColumn is a complex model that represents a JDBCTable column.
  * As an input, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :

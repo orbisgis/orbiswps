@@ -47,7 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute
 
 /**
  * JDBCValue input annotation.
- * The JDBCValue complex data represents a list of values contained by a JDBCColumn (a column in table).
+ * The JDBCValue complex model represents a list of values contained by a JDBCColumn (a column in table).
  * As an input, this annotation should be placed just before the variable.
  *
  * The following fields must be defined (mandatory) :

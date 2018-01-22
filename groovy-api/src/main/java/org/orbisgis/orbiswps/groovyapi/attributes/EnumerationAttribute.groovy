@@ -43,8 +43,8 @@ import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
 /**
- * Attributes for the Enumeration complex data.
- * The Enumeration complex data represents a selection of values from a predefined list.
+ * Attributes for the Enumeration complex model.
+ * The Enumeration complex model represents a selection of values from a predefined list.
  *
  * The following fields must be defined (mandatory) :
  *  - values : String[]

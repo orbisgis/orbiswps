@@ -66,7 +66,7 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This Enumeration is the input data source. */
+/** This Enumeration is the input model source. */
 @EnumerationInput(
         title = "Input Enumeration",
         description = "A Enumeration input.",
@@ -86,7 +86,7 @@ String[] inputEnumeration = ["value2"]
 /** OUTPUT Data **/
 /*****************/
 
-/** This Enumeration is the output data source. */
+/** This Enumeration is the output model source. */
 @EnumerationOutput(
         title = "Output Enumeration",
         description = "A Enumeration output.",

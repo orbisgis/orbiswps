@@ -49,10 +49,10 @@ import org.h2gis.utilities.TableLocation
 /**
  * This process reproject a geometry table using the SQL function.
  * The user has to specify (mandatory):
- *  - The input spatial data source (JDBCTable)
+ *  - The input spatial model source (JDBCTable)
  *  - The geometry column (LiteralData)
  *  - The SRID value selected from the spatial_ref table
- *  - The output data source (JDBCTable)
+ *  - The output model source (JDBCTable)
  *
  * @return A database table or a file.
  * @author Erwan Bocher
@@ -104,13 +104,13 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This JDBCTable is the input data source. */
+/** This JDBCTable is the input model source. */
 @JDBCTableInput(
 		title = [
-				"Input spatial data","en",
+				"Input spatial model","en",
 				"Données spatiales d'entrée","fr"],
 		description = [
-				"The spatial data source to be reprojected.","en",
+				"The spatial model source to be reprojected.","en",
 				"La source de données spatiales pour la reprojection.","fr"],
 		dataTypes = ["GEOMETRY"],
 		identifier = "inputJDBCTable"
@@ -128,7 +128,7 @@ String inputJDBCTable
 				"Geometric column","en",
 				"Colonne géométrique","fr"],
 		description = [
-				"The geometric field of the data source.","en",
+				"The geometric field of the model source.","en",
 				"La colonne géométrique de la source de données.","fr"],
         jdbcTableReference = "inputJDBCTable",
         dataTypes = ["GEOMETRY"],

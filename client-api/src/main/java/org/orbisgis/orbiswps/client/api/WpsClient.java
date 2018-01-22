@@ -91,7 +91,7 @@ public interface WpsClient {
     StatusInfo dismissJob(UUID jobID);
 
     /**
-     * Build the Execution request with the process identifier and the data to process. Then send it to the server.
+     * Build the Execution request with the process identifier and the model to process. Then send it to the server.
      * To finish return the StatusInfo object get back from the request.
      *
      * @param processIdentifier The identifier of the process to execute.

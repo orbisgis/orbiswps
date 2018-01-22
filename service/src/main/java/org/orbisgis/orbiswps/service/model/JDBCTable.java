@@ -41,7 +41,7 @@ package org.orbisgis.orbiswps.service.model;
 
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.Format;
-import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
@@ -51,7 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * JDBCTable represent a data source which can be an SQL table, a JSON file, a Shape file ...
+ * JDBCTable represent a model source which can be an SQL table, a JSON file, a Shape file ...
  *
  * @author Sylvain PALOMINOS
  * @author Erwan Bocher

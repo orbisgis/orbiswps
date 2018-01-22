@@ -85,14 +85,14 @@ import java.lang.annotation.RetentionPolicy
      * title or a translated title, its language, another title, its language ...
      * i.e. title = "title" or title = ["titleFr", "fr", "titleEn", "en"]
      */
-    String[] title() default[]
+    String title()
 
     /**
      * Brief narrative description of a process, input, and output. Normally available for display to a human. It is
      * composed either a unique description or a translated description, its language, another description, its language ...
      * i.e. description = "description" or description = ["descriptionFr", "fr", "descriptionEn", "en"]
      */
-    String[] description() default []
+    String description() default ""
 
     /** Array of keywords that characterize a process, its inputs, and outputs. Normally available for display to a
      * human. It is composed of a succession of two String : the human readable keyword list coma

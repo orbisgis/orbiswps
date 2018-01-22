@@ -74,28 +74,19 @@ def processing() {
 /***********/
 
 @JDBCTableInput(
-    title = [
-                "Table to export","en",
-                "Table à exporter","fr"],
-    description = [
-                "The table that will be exported in a shapeFile file","en",
-                "La table à exporter dans un fichier shapeFile.","fr"],
+    title = "Table to export",
+    description = "The table that will be exported in a shapeFile file",
     dataTypes = ["GEOMETRY"])
 String inputJDBCTable
 
 @LiteralDataInput(
-    title = [
-				"Drop the input table","en",
-				"Supprimer la table d'entrée","fr"],
-    description = [
-				"Drop the input table when the export is finished.","en",
-				"Supprimer la table d'entrée à l'issue l'export.","fr"])
+    title = "Drop the input table",
+    description = "Drop the input table when the export is finished.")
 Boolean dropInputTable
 
 @RawDataInput(
-    title = ["Output shapeFile","en","Fichier shapeFile","fr"],
-    description = ["The output shapeFile file to be exported.","en",
-                "Nom du fichier shapeFile à exporter.","fr"],
+    title = "Output shapeFile",
+    description = "The output shapeFile file to be exported.",
     fileTypes = ["shp"],
     isDirectory = false)
 String[] fileDataInput
@@ -106,8 +97,6 @@ String[] fileDataInput
 /************/
 
 @LiteralDataOutput(
-    title = ["Output message","en",
-                "Message de sortie","fr"],
-    description = ["Output message.","en",
-                "Message de sortie.","fr"])
+    title = "Output message",
+    description = "Output message.")
 String literalDataOutput

@@ -126,12 +126,8 @@ def processing() {
 
 /** This JDBCTable is the input model source for the buffer. */
 @JDBCTableInput(
-        title = [
-                "Input table","en",
-                "Table en entrée","fr"],
-        description = [
-                "The spatial table  for the buffer.","en",
-                "La table contenant une colonne geometrie pour construire une zone tampon.","fr"],
+        title = "Input table",
+        description = "The spatial table  for the buffer.",
         dataTypes = "GEOMETRY")
 String inputJDBCTable
 
@@ -141,80 +137,52 @@ String inputJDBCTable
 
 /** Name of the Geometric field of the JDBCTable inputJDBCTable. */
 @JDBCColumnInput(
-        title = [
-                "Geometric column","en",
-                "Colonne géométrique","fr"],
-        description = [
-                "The geometric column of the input table.","en",
-                "La colonne géométrique de la table d'entrée.","fr"],
+        title = "Geometric column",
+        description = "The geometric column of the input table.",
         jdbcTableReference = "inputJDBCTable",
         dataTypes = ["GEOMETRY"])
 String[] geometricField
 
 /** Size of the buffer. */
 @LiteralDataInput(
-        title = [
-                "Buffer size","en",
-                "Largeur de la zone tampon","fr"],
-        description = [
-                "The buffer size.","en",
-                "La largeur de la zone tampon.","fr"])
+        title = "Buffer size",
+        description = "The buffer size.")
 Double bufferSize 
 
 /** Mitre ratio limit (only affects mitered join style). */
 @LiteralDataInput(
-        title = [
-                "Mitre limit","en",
-                "Limite de mitre","fr"],
-        description = [
-                "Mitre ratio limit (only affects mitered join style)","en",
-                "Le rapport limite de mitre. (Utilisé uniquement pour le style de jointure mitre)","fr"],
+        title = "Mitre limit",
+        description = "Mitre ratio limit (only affects mitered join style)",
         minOccurs = 0)
 Double mitreLimit = 5.0
 
 /** Number of segments used to approximate a quarter circle. */
 @LiteralDataInput(
-        title = [
-                "Segment number for a quarter circle","en",
-                "Nombre de segment pour un quart de cercle","fr"],
-        description = [
-                "Number of segments used to approximate a quarter circle.","en",
-                "Le nombre de segments utilisé pour approximer un quart de cercle.","fr"],
+        title = "Segment number for a quarter circle",
+        description = "Number of segments used to approximate a quarter circle.",
         minOccurs = 0)
 Integer quadSegs = 8
 
 /** Endcap style. */
 @EnumerationInput(
-        title = [
-                "Endcap style","en",
-                "Style de l'extrémité","fr"],
-        description = [
-                "The endcap style.","en",
-                "Le style de l'extrémité.","fr"],
+        title = "Endcap style",
+        description = "The endcap style.",
         values=["round", "flat", "butt", "square"],
         minOccurs = 0)
 String[] endcapStyle = ["round"]
 
 /** Join style. */
 @EnumerationInput(
-        title = [
-                "Join style","en",
-                "Style de jointure","fr"],
-        description = [
-                "The join style.","en",
-                "Le style de jointure.","fr"],
+        title = "Join style",
+        description = "The join style.",
         values=["round", "mitre", "miter", "bevel"],
         minOccurs = 0)
 String[] joinStyle = ["round"]
 
 /** Fields to keep. */
 @JDBCColumnInput(
-        title = [
-                "Columns to keep","en",
-                "Colonnes à conserver","fr"],
-        description = [
-                "The columns that will be kept in the output.","en",
-                "Les colonnes qui seront conservées dans la table de sortie.","fr"],
+        title = "Columns to keep",
+        description = "The columns that will be kept in the output.",
         excludedTypes=["GEOMETRY"],
         multiSelection = true,
         minOccurs = 0,
@@ -222,31 +190,19 @@ String[] joinStyle = ["round"]
 String[] fieldList
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"])
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.")
 Boolean dropOutputTable 
 
 
 @LiteralDataInput(
-        title = [
-                "Output table name","en",
-                "Nom de la table de sortie","fr"],
-        description = [
-                "Name of the table containing the result of the process.","en",
-                "Nom de la table contenant les résultats du traitement.","fr"])
+        title = "Output table name",
+        description = "Name of the table containing the result of the process.")
 String outputTableName
 
 @LiteralDataInput(
-    title = [
-				"Drop the input table","en",
-				"Supprimer la table d'entrée","fr"],
-    description = [
-				"Drop the input table when the script is finished.","en",
-				"Supprimer la table d'entrée lorsque le script est terminé.","fr"])
+    title = "Drop the input table",
+    description = "Drop the input table when the script is finished.")
 Boolean dropInputTable 
 
 /*****************/
@@ -255,11 +211,7 @@ Boolean dropInputTable
 
 /** String output of the process. */
 @LiteralDataOutput(
-        title = [
-                "Output message","en",
-                "Message de sortie","fr"],
-        description = [
-                "The output message.","en",
-                "Le message de sortie.","fr"])
+        title = "Output message",
+        description = "The output message.")
 String literalOutput
 

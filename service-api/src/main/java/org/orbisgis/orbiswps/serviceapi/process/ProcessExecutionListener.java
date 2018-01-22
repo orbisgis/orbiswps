@@ -52,12 +52,6 @@ public interface ProcessExecutionListener {
     enum LogType{INFO, WARN, ERROR}
 
     /**
-     * Sets the time when the process is starting.
-     * @param time Time in milliseconds when the process is starting.
-     */
-    void setStartTime(long time);
-
-    /**
      * Append a log with the given type and the given message.
      * @param logType Type of the log.
      * @param message Message of the log.

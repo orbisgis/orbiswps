@@ -106,12 +106,8 @@ def processing() {
 
 /** This JDBCTable is the input model source. */
 @JDBCTableInput(
-		title = [
-				"Input spatial model","en",
-				"Données spatiales d'entrée","fr"],
-		description = [
-				"The spatial model source to be reprojected.","en",
-				"La source de données spatiales pour la reprojection.","fr"],
+		title = "Input spatial model",
+		description = "The spatial model source to be reprojected.",
 		dataTypes = ["GEOMETRY"],
 		identifier = "inputJDBCTable"
 )
@@ -124,12 +120,8 @@ String inputJDBCTable
 
 /** Name of the Geometric field of the JDBCTable inputJDBCTable. */
 @JDBCColumnInput(
-		title = [
-				"Geometric column","en",
-				"Colonne géométrique","fr"],
-		description = [
-				"The geometric field of the model source.","en",
-				"La colonne géométrique de la source de données.","fr"],
+		title = "Geometric column",
+		description = "The geometric field of the model source.",
         jdbcTableReference = "inputJDBCTable",
         dataTypes = ["GEOMETRY"],
 		identifier = "geometryField"
@@ -139,12 +131,8 @@ String[] geometricField
 
 /** The spatial_ref SRID */
 @JDBCValueInput(
-		title = [
-				"SRID","en",
-				"SRID","fr"],
-		description = [
-				"The spatial reference system identifier.","en",
-				"L'identifiant du système de référence spatiale.","fr"],
+		title = "SRID",
+		description = "The spatial reference system identifier.",
 		jdbcColumnReference = "\$public\$spatial_ref_sys\$srid\$",
 		multiSelection = false,
 		identifier = "srid"
@@ -154,12 +142,8 @@ String[] srid
 
 /** Fields to keep. */
 @JDBCColumnInput(
-		title = [
-				"Columns to keep","en",
-				"Colonnes à conserver","fr"],
-		description = [
-				"The columns that will be kept in the output.","en",
-				"Les colonnes qui seront conservées dans la table de sortie.","fr"],
+		title = "Columns to keep",
+		description = "The columns that will be kept in the output.",
 		excludedTypes=["GEOMETRY"],
 		multiSelection = true,
 		minOccurs = 0,
@@ -169,45 +153,29 @@ String[] srid
 String[] fieldList
 
 @LiteralDataInput(
-    title = [
-				"Drop the output table if exists","en",
-				"Supprimer la table de sortie si elle existe","fr"],
-    description = [
-				"Drop the output table if exists.","en",
-				"Supprimer la table de sortie si elle existe.","fr"])
+    title = "Drop the output table if exists",
+    description = "Drop the output table if exists.")
 Boolean dropTable 
 
 @LiteralDataInput(
-		title = [
-				"Output table name","en",
-				"Nom de la table de sortie","fr"],
-		description = [
-				"Name of the table containing the result of the process.","en",
-				"Nom de la table contenant les résultats du traitement.","fr"],
+		title = "Output table name",
+		description = "Name of the table containing the result of the process.",
 		identifier = "outputTableName"
 )
 String outputTableName
 
 
 @LiteralDataInput(
-    title = [
-				"Drop the input table","en",
-				"Supprimer la table d'entrée","fr"],
-    description = [
-				"Drop the input table when the script is finished.","en",
-				"Supprimer la table d'entrée lorsque le script est terminé.","fr"])
+    title = "Drop the input table",
+    description = "Drop the input table when the script is finished.")
 Boolean dropInputTable 
 
 
 
 /** String output of the process. */
 @LiteralDataOutput(
-		title = [
-				"Output message","en",
-				"Message de sortie","fr"],
-		description = [
-				"The output message.","en",
-				"Le message de sortie.","fr"],
+		title = "Output message",
+		description = "The output message.",
 		identifier = "literalOutput"
 )
 String literalOutput

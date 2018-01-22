@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.serviceapi;
+package org.orbisgis.orbiswps.serviceapi.process;
 
 /**
  * This class contains the process metadata used by OrbisGIS. A process metadata is composed of a role and a title.
@@ -48,7 +48,7 @@ package org.orbisgis.orbiswps.serviceapi;
  *
  * @author Sylvain PALOMINOS
  */
-public class ProcessMetadata {
+public interface ProcessMetadata {
 
     /**
      * The DBMS type metadata. It defines with which DBMS the script is compatible. If in the script this metadata isn't

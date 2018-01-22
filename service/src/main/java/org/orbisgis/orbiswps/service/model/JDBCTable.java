@@ -41,6 +41,7 @@ package org.orbisgis.orbiswps.service.model;
 
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.Format;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 

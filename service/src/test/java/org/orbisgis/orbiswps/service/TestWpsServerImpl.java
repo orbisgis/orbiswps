@@ -47,7 +47,7 @@ import net.opengis.wps._2_0.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
-import org.orbisgis.orbiswps.service.utils.WpsServerListener;
+import org.orbisgis.orbiswps.serviceapi.WpsServerListener;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;

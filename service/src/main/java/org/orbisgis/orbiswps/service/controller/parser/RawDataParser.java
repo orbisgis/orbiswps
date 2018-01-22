@@ -48,9 +48,10 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.RawDataAttribute;
 import org.orbisgis.orbiswps.service.controller.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.controller.utils.ObjectAnnotationConverter;
-import org.orbisgis.orbiswps.service.model.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 import org.orbisgis.orbiswps.service.model.ObjectFactory;
 import org.orbisgis.orbiswps.service.model.RawData;
+import org.orbisgis.orbiswps.serviceapi.parser.Parser;
 
 import javax.xml.bind.JAXBElement;
 import java.lang.reflect.Field;

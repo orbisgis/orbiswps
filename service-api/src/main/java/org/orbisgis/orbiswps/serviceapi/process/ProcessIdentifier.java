@@ -37,31 +37,49 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service.model;
+package org.orbisgis.orbiswps.serviceapi.process;
 
+import net.opengis.wps._2_0.ProcessDescriptionType;
+import net.opengis.wps._2_0.ProcessOffering;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import java.net.URL;
+
 /**
- * Exception thrown when a Groovy WPS script is malformed.
+ * Class containing information to identify a process.
  *
  * @author Sylvain PALOMINOS
  **/
 
-public class MalformedScriptException extends Exception {
+public interface ProcessIdentifier {
 
-    /** I18N object */
-    private static final I18n I18N = I18nFactory.getI18n(MalformedScriptException.class);
+    void setI18n(I18n i18n);
 
     /**
-     * Create an exception with a message constructed that way :
-     * "Error on implementing '<wpsModelClass>', the argument '<wrongArgument>'<reason>"
-     * @param wpsModelClass Object that can not be instantiated.
-     * @param wrongArgument Wrong argument.
-     * @param reason Reason why the argument is wrong.
+     * Returns the ProcessDescriptionType object.
+     * @return The ProcessDescriptionType object.
      */
-    public MalformedScriptException(Class wpsModelClass, String wrongArgument, String reason){
-        super(I18N.tr("Error on implementing {0}, the argument {1} {2}.",
-                wpsModelClass.getSimpleName(), wrongArgument, reason));
-    }
+    ProcessDescriptionType getProcessDescriptionType();
+
+
+    /**
+     * Returns the ProcessOffering object.
+     * @return The ProcessOffering object.
+     */
+    ProcessOffering getProcessOffering();
+
+    /**
+     * Returns the process file path.
+     * @return The process file path.
+     */
+    String getFilePath();
+
+    /**
+     * Returns the source URL of the file.
+     * @return The source URL.
+     */
+    URL getSourceUrl();
+
+    I18n getI18n();
 }

@@ -1,5 +1,6 @@
 package org.orbisgis.orbiswps.serviceapi;
 
+import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata;
 import org.xnap.commons.i18n.I18n;
 
 import java.net.URL;

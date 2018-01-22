@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.utils.WpsServerProperties_2_0;
+import org.orbisgis.orbiswps.serviceapi.operations.WPS_2_0_Operations;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;

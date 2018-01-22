@@ -40,7 +40,7 @@
 package org.orbisgis.orbiswps.service.controller.utils;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
-import org.orbisgis.orbiswps.service.execution.ProcessExecutionListener;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.service.utils.ProgressMonitor;
 
 import java.beans.PropertyChangeEvent;

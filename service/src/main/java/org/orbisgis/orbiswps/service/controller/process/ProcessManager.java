@@ -44,15 +44,17 @@ import net.opengis.ows._2.CodeType;
 import net.opengis.ows._2.MetadataType;
 import net.opengis.wps._2_0.*;
 import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
-import org.orbisgis.orbiswps.service.WpsServer;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.WpsServer;
 import org.orbisgis.orbiswps.service.controller.parser.ParserController;
 import org.orbisgis.orbiswps.service.controller.utils.CancelClosure;
 import org.orbisgis.orbiswps.service.controller.utils.WpsSql;
 import org.orbisgis.orbiswps.service.model.*;
 import org.orbisgis.orbiswps.service.model.Enumeration;
-import org.orbisgis.orbiswps.serviceapi.ProcessMetadata;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata;
 import org.orbisgis.orbiswps.service.utils.ProgressMonitor;
-import org.orbisgis.orbiswps.serviceapi.ProcessMetadata.DBMS_TYPE;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata.DBMS_TYPE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
@@ -176,7 +178,7 @@ public class ProcessManager {
                     }
                 }
                 if(!isAcceptedDBMS){
-                    return new ProcessIdentifier(null, "");
+                    return new ProcessIdentifierImpl(null, "");
                 }
             } catch (MalformedScriptException e) {
                 LOGGER.error(I18N.tr("Unable to parse the process {0}.\nCause : {1}", scriptUri, e.getMessage()), e);
@@ -184,7 +186,7 @@ public class ProcessManager {
             //If the process is not already registered
             if(processOffering != null) {
                 //Save the process in a ProcessIdentifier
-                ProcessIdentifier pi = new ProcessIdentifier(processOffering, f.getAbsolutePath());
+                ProcessIdentifier pi = new ProcessIdentifierImpl(processOffering, f.getAbsolutePath());
                 processIdList.add(pi);
                 return pi;
             }
@@ -232,7 +234,7 @@ public class ProcessManager {
                     }
                 }
                 if(!isAcceptedDBMS){
-                    return new ProcessIdentifier(null, "");
+                    return new ProcessIdentifierImpl(null, "");
                 }
             } catch (MalformedScriptException e) {
                 LOGGER.error(I18N.tr("Unable to parse the process {0}.\nCause : {1}", scriptUrl.toString(), e.getMessage()), e);
@@ -240,7 +242,7 @@ public class ProcessManager {
             //If the process is not already registered
             if(processOffering != null) {
                 //Save the process in a ProcessIdentifier
-                ProcessIdentifier pi = new ProcessIdentifier(processOffering, scriptUrl);
+                ProcessIdentifier pi = new ProcessIdentifierImpl(processOffering, scriptUrl);
                 processIdList.add(pi);
                 return pi;
             }

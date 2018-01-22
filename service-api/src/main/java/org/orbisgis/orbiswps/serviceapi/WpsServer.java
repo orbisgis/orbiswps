@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -37,42 +37,54 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service.model;
+package org.orbisgis.orbiswps.serviceapi;
 
-import net.opengis.ows._2.LanguageStringType;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.List;
 
 /**
+ * A WPS Service provides access to simple or complex computational processing services.
+ *
  * @author Sylvain PALOMINOS
  */
-
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TranslatableString",
-        propOrder = {"strings"})
-public class TranslatableString {
-
-    @XmlElement(name = "TranslatedStrings", namespace = "http://orbisgis.org")
-    private LanguageStringType[] strings;
-
-    public TranslatableString(LanguageStringType[] strings){
-        this.strings = strings;
-    }
+public interface WpsServer {
 
     /**
-     * Protected empty constructor used in the ObjectFactory class for JAXB.
+     * Ask the WPS Server to execute the operation contained in the xml argument an returns the xml answer.
+     * The xml is parsed and then the correct WPSService method is called.
+     *
+     * @param xml Xml containing the operation to execute.
+     * @return The xml answer.
      */
-    public TranslatableString(){
-    }
+    OutputStream callOperation(InputStream xml);
 
-    public LanguageStringType[] getStrings() {
-        return strings;
-    }
+    /**
+     * Add a local groovy file or directory of processes to the wps service.
+     * @param f  File object to add to the service.
+     * @return
+     */
+    List<ProcessIdentifier> addProcess(File f);
 
-    public void setStrings(LanguageStringType[] strings) {
-        this.strings = strings;
-    }
+    /**
+     * Remove the process corresponding to the given codeType.
+     * @param identifier URI identifier of the process.
+     */
+    void removeProcess(URI identifier);
+
+    /**
+     * Registers a WpsServerListener.
+     * @param wpsServerListener WpsServerListener to register.
+     */
+    void addWpsServerListener(WpsServerListener wpsServerListener);
+
+    /**
+     * Unregisters a WpsServerListener.
+     * @param wpsServerListener WpsServerListener to unregister.
+     */
+    void removeWpsServerListener(WpsServerListener wpsServerListener);
 }

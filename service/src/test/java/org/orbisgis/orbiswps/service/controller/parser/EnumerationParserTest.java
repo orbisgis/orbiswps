@@ -49,7 +49,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.EnumerationAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute;
 import org.orbisgis.orbiswps.service.model.Enumeration;
-import org.orbisgis.orbiswps.service.model.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 
 import java.lang.reflect.Field;
 import java.math.BigInteger;
@@ -159,14 +159,10 @@ public class EnumerationParserTest {
                 new String[]{"value1", "value2"}, enumeration.getValues());
         Assert.assertEquals("The Enumeration valueNames attribute length should be 2.",
                 2, enumeration.getValuesNames().length);
-        Assert.assertEquals("The Enumeration first valueNames length should be 1.",
-                1, enumeration.getValuesNames()[0].getStrings().length);
         Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",
-                "name1", enumeration.getValuesNames()[0].getStrings()[0].getValue());
-        Assert.assertEquals("The Enumeration second valueNames length should be 1.",
-                1, enumeration.getValuesNames()[1].getStrings().length);
+                "name1", enumeration.getValuesNames()[0]);
         Assert.assertEquals("The Enumeration second valueNames should be 'name2'.",
-                "name2", enumeration.getValuesNames()[1].getStrings()[0].getValue());
+                "name2", enumeration.getValuesNames()[1]);
         Assert.assertTrue("The Enumeration isEditable attribute should be true.", enumeration.isEditable());
         Assert.assertTrue("The Enumeration multiSelection attribute should be true.", enumeration.isMultiSelection());
 
@@ -297,14 +293,10 @@ public class EnumerationParserTest {
                 new String[]{"value1", "value2"}, enumeration.getValues());
         Assert.assertEquals("The Enumeration valueNames attribute length should be 2.",
                 2, enumeration.getValuesNames().length);
-        Assert.assertEquals("The Enumeration first valueNames length should be 1.",
-                1, enumeration.getValuesNames()[0].getStrings().length);
         Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",
-                "name1", enumeration.getValuesNames()[0].getStrings()[0].getValue());
-        Assert.assertEquals("The Enumeration second valueNames length should be 1.",
-                1, enumeration.getValuesNames()[1].getStrings().length);
+                "name1", enumeration.getValuesNames()[0]);
         Assert.assertEquals("The Enumeration second valueNames should be 'name2'.",
-                "name2", enumeration.getValuesNames()[1].getStrings()[0].getValue());
+                "name2", enumeration.getValuesNames()[1]);
         Assert.assertTrue("The Enumeration isEditable attribute should be true.", enumeration.isEditable());
         Assert.assertTrue("The Enumeration multiSelection attribute should be true.", enumeration.isMultiSelection());
 

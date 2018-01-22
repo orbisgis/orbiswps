@@ -43,7 +43,7 @@ import net.opengis.wps._2_0.ProcessOffering;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbisgis.orbiswps.service.model.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 
 /**
  * Test class for the ParserController

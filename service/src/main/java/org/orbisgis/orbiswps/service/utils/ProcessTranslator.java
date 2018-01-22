@@ -45,8 +45,8 @@ import net.opengis.wps._2_0.DescriptionType;
 import net.opengis.wps._2_0.InputDescriptionType;
 import net.opengis.wps._2_0.OutputDescriptionType;
 import net.opengis.wps._2_0.ProcessDescriptionType;
-import org.orbisgis.orbiswps.service.controller.process.ProcessIdentifier;
-import org.orbisgis.orbiswps.service.model.TranslatableComplexData;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.data.TranslatableComplexData;
 import org.xnap.commons.i18n.I18n;
 
 import javax.xml.bind.JAXBElement;
@@ -69,7 +69,7 @@ public class ProcessTranslator {
      * @param defaultLanguage Default language.
      * @return The traduced process.
      */
-    public static final ProcessDescriptionType getTranslatedProcess(
+    public static ProcessDescriptionType getTranslatedProcess(
             ProcessIdentifier pi, String requestedLanguage, String defaultLanguage){
         I18n i18n = pi.getI18n();
         i18n.setLocale(Locale.forLanguageTag(requestedLanguage.substring(0, 2)));
@@ -82,7 +82,7 @@ public class ProcessTranslator {
             JAXBElement jaxbElement = input.getDataDescription();
             if(jaxbElement.getValue() instanceof TranslatableComplexData){
                 TranslatableComplexData translatableComplexData = (TranslatableComplexData)jaxbElement.getValue();
-                jaxbElement.setValue(translatableComplexData.getTranslatedData(defaultLanguage, requestedLanguage));
+                jaxbElement.setValue(translatableComplexData.getTranslatedData(i18n));
             }
             translatedInput.setDataDescription(jaxbElement);
             translatedInput.setMaxOccurs(input.getMaxOccurs());
@@ -98,7 +98,7 @@ public class ProcessTranslator {
             JAXBElement jaxbElement = output.getDataDescription();
             if(jaxbElement.getValue() instanceof TranslatableComplexData){
                 TranslatableComplexData translatableComplexData = (TranslatableComplexData)jaxbElement.getValue();
-                jaxbElement.setValue(translatableComplexData.getTranslatedData(defaultLanguage, requestedLanguage));
+                jaxbElement.setValue(translatableComplexData.getTranslatedData(i18n));
             }
             translatedOutput.setDataDescription(jaxbElement);
             translateDescriptionType(translatedOutput, output, requestedLanguage, i18n);
@@ -117,12 +117,11 @@ public class ProcessTranslator {
      * @param translatedDescriptionType Translated DescriptionType.
      * @param descriptionType Source DescriptionType.
      * @param requestedLanguage Language asked.
-     * @param defaultLanguage Default language.
      */
-    public static final void translateDescriptionType(DescriptionType translatedDescriptionType,
-                                                      DescriptionType descriptionType,
-                                                      String requestedLanguage,
-                                                      I18n i18n){
+    public static void translateDescriptionType(DescriptionType translatedDescriptionType,
+                                                DescriptionType descriptionType,
+                                                String requestedLanguage,
+                                                I18n i18n){
         translatedDescriptionType.setIdentifier(descriptionType.getIdentifier());
         translatedDescriptionType.getMetadata().clear();
         translatedDescriptionType.getMetadata().addAll(descriptionType.getMetadata());

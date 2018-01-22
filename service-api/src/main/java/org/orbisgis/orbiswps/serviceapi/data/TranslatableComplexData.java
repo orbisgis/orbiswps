@@ -37,55 +37,35 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service;
+package org.orbisgis.orbiswps.serviceapi.data;
 
-import org.orbisgis.orbiswps.service.controller.process.ProcessIdentifier;
-import org.orbisgis.orbiswps.service.utils.WpsServerListener;
-
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.util.List;
+import net.opengis.wps._2_0.ComplexDataType;
+import org.xnap.commons.i18n.I18n;
 
 /**
- * A WPS Service provides access to simple or complex computational processing services.
+ * This interface is used to make a WPS ComplexData translatable and gives a method to translate the attributes of
+ * the ComplexData
  *
  * @author Sylvain PALOMINOS
  */
-public interface WpsServer {
+public interface TranslatableComplexData {
 
     /**
-     * Ask the WPS Server to execute the operation contained in the xml argument an returns the xml answer.
-     * The xml is parsed and then the correct WPSService method is called.
+     * Returns a translated version of this object.
+     * The translated version must be the same as the original excepted the human readable strings which can be
+     * translated.
+     * This method receive the default server language, the client asked language. The translated language must be, if
+     * possible, the client language or if not found the server language. It none of the language are found, uses any
+     * language. If the server or the client language is '*', all the languages are accepted.
      *
-     * @param xml Xml containing the operation to execute.
-     * @return The xml answer.
+     * As example :
+     * server language : 'en', client languages : 'fr_FR'
+     * 1) try to get the fr_FR translated language. (first client requested language)
+     * 2) try to get the fr translated language. (first client requested language without the regional one)
+     * 4) try to get the en translated language. (server default language)
+     * 5) any language.
+     *
+     * @return A copy of the object itself but with its attribute translated.
      */
-    OutputStream callOperation(InputStream xml);
-
-    /**
-     * Add a local groovy file or directory of processes to the wps service.
-     * @param f  File object to add to the service.
-     * @return
-     */
-    List<ProcessIdentifier> addProcess(File f);
-
-    /**
-     * Remove the process corresponding to the given codeType.
-     * @param identifier URI identifier of the process.
-     */
-    void removeProcess(URI identifier);
-
-    /**
-     * Registers a WpsServerListener.
-     * @param wpsServerListener WpsServerListener to register.
-     */
-    void addWpsServerListener(WpsServerListener wpsServerListener);
-
-    /**
-     * Unregisters a WpsServerListener.
-     * @param wpsServerListener WpsServerListener to unregister.
-     */
-    void removeWpsServerListener(WpsServerListener wpsServerListener);
+    public ComplexDataType getTranslatedData(I18n i18n);
 }

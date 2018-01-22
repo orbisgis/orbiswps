@@ -44,6 +44,8 @@ import net.opengis.wps._2_0.Format;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;
+
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 

@@ -137,29 +137,17 @@ public class ProcessParserTest {
 
         ProcessDescriptionType processDescriptionType = processOffering.getProcess();
         //Tests the DescriptionTypeAttribute part of the InputDescriptionType
-        Assert.assertEquals("The InputDescriptionType title attribute should have a size of 2", 2,
+        Assert.assertEquals("The InputDescriptionType title attribute should have a size of 1", 1,
                 processDescriptionType.getTitle().size());
         Assert.assertEquals("The InputDescriptionType first title value is not the one expected", "title",
                 processDescriptionType.getTitle().get(0).getValue());
-        Assert.assertEquals("The InputDescriptionType first title language is not the one expected", "en",
-                processDescriptionType.getTitle().get(0).getLang());
-        Assert.assertEquals("The InputDescriptionType second title value is not the one expected", "titre",
-                processDescriptionType.getTitle().get(1).getValue());
-        Assert.assertEquals("The InputDescriptionType second title language is not the one expected", "fr",
-                processDescriptionType.getTitle().get(1).getLang());
 
-        Assert.assertEquals("The InputDescriptionType description attribute should have a size of 2", 2,
+        Assert.assertEquals("The InputDescriptionType description attribute should have a size of 1", 1,
                 processDescriptionType.getAbstract().size());
         Assert.assertEquals("The InputDescriptionType first abstract value is not the one expected", "description",
                 processDescriptionType.getAbstract().get(0).getValue());
-        Assert.assertEquals("The InputDescriptionType first abstract language is not the one expected", "en",
-                processDescriptionType.getAbstract().get(0).getLang());
-        Assert.assertEquals("The InputDescriptionType second abstract value is not the one expected", "description",
-                processDescriptionType.getAbstract().get(1).getValue());
-        Assert.assertEquals("The InputDescriptionType second abstract language is not the one expected", "fr",
-                processDescriptionType.getAbstract().get(1).getLang());
 
-        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 4", 4,
+        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 1", 1,
                 processDescriptionType.getKeywords().size());
 
         Assert.assertEquals("The InputDesciriptionType identifier is incorrect.", "identifier",
@@ -188,7 +176,7 @@ public class ProcessParserTest {
     private class MethodProvider{
         /** The simplest input declaration */
         @ProcessAttribute()
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         public void simplest(){}
 
         /** A complex input declaration */
@@ -198,9 +186,9 @@ public class ProcessParserTest {
                 properties = {"DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"}
         )
         @DescriptionTypeAttribute(
-                title = {"title", "en", "titre", "fr"},
-                description = {"description", "en","description","fr"},
-                keywords = {"keyword", "en", "motclef", "fr"},
+                title = "title",
+                description = "description",
+                keywords = {"keyword"},
                 identifier = "identifier",
                 metadata = {"role","title"}
         )

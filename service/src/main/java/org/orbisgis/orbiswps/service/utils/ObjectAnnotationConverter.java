@@ -126,59 +126,23 @@ public class ObjectAnnotationConverter {
                                           DescriptionType descriptionType, String processIdentifier)
             throws MalformedScriptException {
         //First check if there is at least one title.
-        if(descriptionTypeAttribute.title().length == 0){
-            throw new MalformedScriptException(DescriptionTypeAttribute.class, "title", "The title should be defined.");
-        }
         //Then adds the titles
         List<LanguageStringType> titleList = new ArrayList<>();
-        String[] titles = descriptionTypeAttribute.title();
-        //Case of only one title without language
-        if(titles.length == 1){
-            LanguageStringType string = new LanguageStringType();
-            string.setValue(titles[0].trim());
-            titleList.add(string);
-        }
-        //Case of several titles with their language
-        else if(titles.length%2 == 0){
-            for (int i = 0; i < titles.length; i += 2) {
-                LanguageStringType string = new LanguageStringType();
-                string.setValue(titles[i].trim());
-                string.setLang(titles[i + 1]);
-                titleList.add(string);
-            }
-        }
-        else{
-            throw new MalformedScriptException(DescriptionTypeAttribute.class, "title", "The title should be composed " +
-                    "of pairs of String : the title and its language.");
-        }
+        LanguageStringType string = new LanguageStringType();
+        string.setValue(descriptionTypeAttribute.title().trim());
+        titleList.add(string);
         descriptionType.getTitle().clear();
         descriptionType.getTitle().addAll(titleList);
 
         //Descriptions
-        List<LanguageStringType> descriptionList = new ArrayList<>();
-        String[] descriptions = descriptionTypeAttribute.description();
-        //Case of only one description without language
-        if(descriptions.length == 1){
+        if(!descriptionTypeAttribute.description().isEmpty()) {
+            List<LanguageStringType> descriptionList = new ArrayList<>();
             LanguageStringType resume = new LanguageStringType();
-            resume.setValue(descriptions[0].trim());
+            resume.setValue(descriptionTypeAttribute.description().trim());
             descriptionList.add(resume);
+            descriptionType.getAbstract().clear();
+            descriptionType.getAbstract().addAll(descriptionList);
         }
-        //Case of several description with their language
-        else if(descriptions.length%2 == 0){
-            for (int i = 0; i < descriptions.length; i += 2) {
-                LanguageStringType resume = new LanguageStringType();
-                resume.setValue(descriptions[i].trim());
-                resume.setLang(descriptions[i + 1]);
-                descriptionList.add(resume);
-            }
-        }
-        //Case of more than one description but not well formed (pair of a description with its language)
-        else if(descriptions.length>0){
-            throw new MalformedScriptException(DescriptionTypeAttribute.class, "description", "The description should " +
-                    "be composed of pairs of String : the description and its language.");
-        }
-        descriptionType.getAbstract().clear();
-        descriptionType.getAbstract().addAll(descriptionList);
 
         //Identifier
         if(!descriptionTypeAttribute.identifier().isEmpty()){

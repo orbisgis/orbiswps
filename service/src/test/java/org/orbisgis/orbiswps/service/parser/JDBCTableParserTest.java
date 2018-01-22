@@ -192,29 +192,17 @@ public class JDBCTableParserTest {
                 inputDescriptionType.getMinOccurs());
 
         //Tests the DescriptionTypeAttribute part of the InputDescriptionType
-        Assert.assertEquals("The InputDescriptionType title attribute should have a size of 2", 2,
+        Assert.assertEquals("The InputDescriptionType title attribute should have a size of 1", 1,
                 inputDescriptionType.getTitle().size());
         Assert.assertEquals("The InputDescriptionType first title value is not the one expected", "title",
                 inputDescriptionType.getTitle().get(0).getValue());
-        Assert.assertEquals("The InputDescriptionType first title language is not the one expected", "en",
-                inputDescriptionType.getTitle().get(0).getLang());
-        Assert.assertEquals("The InputDescriptionType second title value is not the one expected", "titre",
-                inputDescriptionType.getTitle().get(1).getValue());
-        Assert.assertEquals("The InputDescriptionType second title language is not the one expected", "fr",
-                inputDescriptionType.getTitle().get(1).getLang());
 
-        Assert.assertEquals("The InputDescriptionType description attribute should have a size of 2", 2,
+        Assert.assertEquals("The InputDescriptionType description attribute should have a size of 1", 1,
                 inputDescriptionType.getAbstract().size());
         Assert.assertEquals("The InputDescriptionType first abstract value is not the one expected", "description",
                 inputDescriptionType.getAbstract().get(0).getValue());
-        Assert.assertEquals("The InputDescriptionType first abstract language is not the one expected", "en",
-                inputDescriptionType.getAbstract().get(0).getLang());
-        Assert.assertEquals("The InputDescriptionType second abstract value is not the one expected", "description",
-                inputDescriptionType.getAbstract().get(1).getValue());
-        Assert.assertEquals("The InputDescriptionType second abstract language is not the one expected", "fr",
-                inputDescriptionType.getAbstract().get(1).getLang());
 
-        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 4", 4,
+        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 1", 1,
                 inputDescriptionType.getKeywords().size());
 
         Assert.assertEquals("The InputDesciriptionType identifier is incorrect.", processId+":"+"identifier",
@@ -316,29 +304,17 @@ public class JDBCTableParserTest {
                 listEqualsNoOrder(jdbcTable.getExcludedTypeList(), validExcludedTypeList));
 
         //Tests the DescriptionTypeAttribute part of the OutputDescriptionType
-        Assert.assertEquals("The OutputDescriptionType title attribute should have a size of 2", 2,
+        Assert.assertEquals("The OutputDescriptionType title attribute should have a size of 1", 1,
                 outputDescriptionType.getTitle().size());
         Assert.assertEquals("The OutputDescriptionType first title value is not the one expected", "title",
                 outputDescriptionType.getTitle().get(0).getValue());
-        Assert.assertEquals("The OutputDescriptionType first title language is not the one expected", "en",
-                outputDescriptionType.getTitle().get(0).getLang());
-        Assert.assertEquals("The OutputDescriptionType second title value is not the one expected", "titre",
-                outputDescriptionType.getTitle().get(1).getValue());
-        Assert.assertEquals("The OutputDescriptionType second title language is not the one expected", "fr",
-                outputDescriptionType.getTitle().get(1).getLang());
 
-        Assert.assertEquals("The OutputDescriptionType description attribute should have a size of 2", 2,
+        Assert.assertEquals("The OutputDescriptionType description attribute should have a size of 1", 1,
                 outputDescriptionType.getAbstract().size());
         Assert.assertEquals("The OutputDescriptionType first abstract value is not the one expected", "description",
                 outputDescriptionType.getAbstract().get(0).getValue());
-        Assert.assertEquals("The OutputDescriptionType first abstract language is not the one expected", "en",
-                outputDescriptionType.getAbstract().get(0).getLang());
-        Assert.assertEquals("The OutputDescriptionType second abstract value is not the one expected", "description",
-                outputDescriptionType.getAbstract().get(1).getValue());
-        Assert.assertEquals("The OutputDescriptionType second abstract language is not the one expected", "fr",
-                outputDescriptionType.getAbstract().get(1).getLang());
 
-        Assert.assertEquals("The OutputDescriptionType keywords attribute should have a size of 4", 4,
+        Assert.assertEquals("The OutputDescriptionType keywords attribute should have a size of 1", 1,
                 outputDescriptionType.getKeywords().size());
         Assert.assertEquals("The InputDesciriptionType identifier is incorrect.", processId+":"+"identifier",
                 outputDescriptionType.getIdentifier().getValue());
@@ -371,7 +347,7 @@ public class JDBCTableParserTest {
         /** The simplest input declaration */
         @JDBCTableAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private String simplestInput = "tableName";
 
         /** A complex input declaration */
@@ -381,9 +357,9 @@ public class JDBCTableParserTest {
         )
         @InputAttribute(maxOccurs = 2, minOccurs = 0)
         @DescriptionTypeAttribute(
-                title = {"title", "en", "titre", "fr"},
-                description = {"description", "en","description","fr"},
-                keywords = {"keyword", "en", "motclef", "fr"},
+                title = "title",
+                description = "description",
+                keywords = {"keyword"},
                 identifier = "identifier",
                 metadata = {"role","title"}
         )
@@ -392,7 +368,7 @@ public class JDBCTableParserTest {
         /** The simplest output declaration */
         @JDBCTableAttribute()
         @OutputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private String simplestOutput = "tableName";
 
         /** A complex output declaration */
@@ -402,9 +378,9 @@ public class JDBCTableParserTest {
         )
         @OutputAttribute
         @DescriptionTypeAttribute(
-                title = {"title", "en", "titre", "fr"},
-                description = {"description", "en","description","fr"},
-                keywords = {"keyword", "en", "motclef", "fr"},
+                title = "title",
+                description = "description",
+                keywords = {"keyword"},
                 identifier = "identifier",
                 metadata = {"role","title"}
         )

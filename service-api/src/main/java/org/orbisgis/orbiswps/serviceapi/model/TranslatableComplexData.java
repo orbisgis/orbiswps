@@ -67,5 +67,5 @@ public interface TranslatableComplexData {
      *
      * @return A copy of the object itself but with its attribute translated.
      */
-    public ComplexDataType getTranslatedData(I18n i18n);
+    ComplexDataType getTranslatedData(I18n i18n);
 }

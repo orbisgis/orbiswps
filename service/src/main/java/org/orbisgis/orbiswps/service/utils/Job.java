@@ -65,7 +65,7 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
     /** Unique identifier of the job */
     private UUID id;
     /** Time when the process has been started */
-    private long startTime;
+    private long startTime = -1;
     /** Map containing all the log messages */
     private Map<String, LogType> logMap;
     /** State of the process running */
@@ -98,11 +98,6 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
         processPollingDelay = basePollingDelay;
     }
 
-    @Override
-    public void setStartTime(long time) {
-        startTime = time;
-    }
-
     /**
      * Returns the start time.
      * @return The start time.
@@ -118,6 +113,9 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
 
     @Override
     public void setProcessState(ProcessState processState) {
+        if(startTime == -1){
+            startTime = System.currentTimeMillis();
+        }
         state = processState;
     }
 

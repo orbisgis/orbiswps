@@ -222,29 +222,17 @@ public class LiteralDataParserTest {
                 inputDescriptionType.getMinOccurs());
 
         //Tests the DescriptionTypeAttribute part of the InputDescriptionType
-        Assert.assertEquals("The InputDescriptionType title attribute should have a size of 2", 2,
+        Assert.assertEquals("The InputDescriptionType title attribute should have a size of 1", 1,
                 inputDescriptionType.getTitle().size());
         Assert.assertEquals("The InputDescriptionType first title value is not the one expected", "title",
                 inputDescriptionType.getTitle().get(0).getValue());
-        Assert.assertEquals("The InputDescriptionType first title language is not the one expected", "en",
-                inputDescriptionType.getTitle().get(0).getLang());
-        Assert.assertEquals("The InputDescriptionType second title value is not the one expected", "titre",
-                inputDescriptionType.getTitle().get(1).getValue());
-        Assert.assertEquals("The InputDescriptionType second title language is not the one expected", "fr",
-                inputDescriptionType.getTitle().get(1).getLang());
 
-        Assert.assertEquals("The InputDescriptionType description attribute should have a size of 2", 2,
+        Assert.assertEquals("The InputDescriptionType description attribute should have a size of 1", 1,
                 inputDescriptionType.getAbstract().size());
         Assert.assertEquals("The InputDescriptionType first abstract value is not the one expected", "description",
                 inputDescriptionType.getAbstract().get(0).getValue());
-        Assert.assertEquals("The InputDescriptionType first abstract language is not the one expected", "en",
-                inputDescriptionType.getAbstract().get(0).getLang());
-        Assert.assertEquals("The InputDescriptionType second abstract value is not the one expected", "description",
-                inputDescriptionType.getAbstract().get(1).getValue());
-        Assert.assertEquals("The InputDescriptionType second abstract language is not the one expected", "fr",
-                inputDescriptionType.getAbstract().get(1).getLang());
 
-        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 4", 4,
+        Assert.assertEquals("The InputDescriptionType keywords attribute should have a size of 1", 1,
                 inputDescriptionType.getKeywords().size());
 
         Assert.assertEquals("The InputDesciriptionType identifier is incorrect.", processId+":"+"identifier",
@@ -385,29 +373,17 @@ public class LiteralDataParserTest {
                 "value2", valueType.getValue());
 
         //Tests the DescriptionTypeAttribute part of the OutputDescriptionType
-        Assert.assertEquals("The OutputDescriptionType title attribute should have a size of 2", 2,
+        Assert.assertEquals("The OutputDescriptionType title attribute should have a size of 1", 1,
                 outputDescriptionType.getTitle().size());
         Assert.assertEquals("The OutputDescriptionType first title value is not the one expected", "title",
                 outputDescriptionType.getTitle().get(0).getValue());
-        Assert.assertEquals("The OutputDescriptionType first title language is not the one expected", "en",
-                outputDescriptionType.getTitle().get(0).getLang());
-        Assert.assertEquals("The OutputDescriptionType second title value is not the one expected", "titre",
-                outputDescriptionType.getTitle().get(1).getValue());
-        Assert.assertEquals("The OutputDescriptionType second title language is not the one expected", "fr",
-                outputDescriptionType.getTitle().get(1).getLang());
 
-        Assert.assertEquals("The OutputDescriptionType description attribute should have a size of 2", 2,
+        Assert.assertEquals("The OutputDescriptionType description attribute should have a size of 1", 1,
                 outputDescriptionType.getAbstract().size());
         Assert.assertEquals("The OutputDescriptionType first abstract value is not the one expected", "description",
                 outputDescriptionType.getAbstract().get(0).getValue());
-        Assert.assertEquals("The OutputDescriptionType first abstract language is not the one expected", "en",
-                outputDescriptionType.getAbstract().get(0).getLang());
-        Assert.assertEquals("The OutputDescriptionType second abstract value is not the one expected", "description",
-                outputDescriptionType.getAbstract().get(1).getValue());
-        Assert.assertEquals("The OutputDescriptionType second abstract language is not the one expected", "fr",
-                outputDescriptionType.getAbstract().get(1).getLang());
 
-        Assert.assertEquals("The OutputDescriptionType keywords attribute should have a size of 4", 4,
+        Assert.assertEquals("The OutputDescriptionType keywords attribute should have a size of 1", 1,
                 outputDescriptionType.getKeywords().size());
 
         Assert.assertEquals("The InputDesciriptionType identifier is incorrect.", processId+":"+"identifier",
@@ -768,7 +744,7 @@ public class LiteralDataParserTest {
         /** The simplest input declaration */
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private String simplestInput = "literal";
 
         /** A complex input declaration */
@@ -778,9 +754,9 @@ public class LiteralDataParserTest {
         )
         @InputAttribute(maxOccurs = 2, minOccurs = 0)
         @DescriptionTypeAttribute(
-                title = {"title", "en", "titre", "fr"},
-                description = {"description", "en","description","fr"},
-                keywords = {"keyword", "en", "motclef", "fr"},
+                title = "title",
+                description = "description",
+                keywords = {"keyword"},
                 identifier = "identifier",
                 metadata = {"role","title"}
         )
@@ -789,7 +765,7 @@ public class LiteralDataParserTest {
         /** The simplest output declaration */
         @LiteralDataAttribute()
         @OutputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private String simplestOutput = "literal";
 
         /** A complex output declaration */
@@ -799,9 +775,9 @@ public class LiteralDataParserTest {
         )
         @OutputAttribute
         @DescriptionTypeAttribute(
-                title = {"title", "en", "titre", "fr"},
-                description = {"description", "en","description","fr"},
-                keywords = {"keyword", "en", "motclef", "fr"},
+                title = "title",
+                description = "description",
+                keywords = {"keyword"},
                 identifier = "identifier",
                 metadata = {"role","title"}
         )
@@ -809,75 +785,75 @@ public class LiteralDataParserTest {
 
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private String f_String;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private int f_int;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private Integer f_Integer;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private float f_float;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private Float f_Float;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private long f_long;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private Long f_Long;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private double f_double;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private Double f_Double;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private char f_char;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private Character f_Character;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private short f_short;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private Short f_Short;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private byte f_byte;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private Byte f_Byte;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private boolean f_boolean;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private Boolean f_Boolean;
         @LiteralDataAttribute()
         @InputAttribute
-        @DescriptionTypeAttribute(title = {"title"})
+        @DescriptionTypeAttribute(title = "title")
         private Object f_Object;
     }
 }

@@ -100,7 +100,6 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
         String title = job.getProcess().getTitle().get(0).getValue();
         progressMonitor.setTaskName(I18N.tr("{0} : Preprocessing", title));
         if(job != null) {
-            job.setStartTime(System.currentTimeMillis());
             job.setProcessState(ProcessExecutionListener.ProcessState.RUNNING);
         }
         ProcessDescriptionType process = processIdentifier.getProcessDescriptionType();

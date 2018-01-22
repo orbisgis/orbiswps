@@ -242,23 +242,4 @@ public class ObjectFactory {
     public JAXBElement<BoundingBoxData> createBoundingBoxData(BoundingBoxData boundingBoxData) {
         return new JAXBElement<>(_BoundingBoxData_QNAME, BoundingBoxData.class, boundingBoxData);
     }
-
-    /**
-     * Create an instance of {@link TranslatableString }
-     *
-     * @return New instance.
-     */
-    public TranslatableString createTranslatableString() { return new TranslatableString(); }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link TranslatableString }{@code >}}
-     *
-     * @param translatableString Class to package inside a JAXBElement.
-     * @return The JAXBElement.
-     */
-    @XmlElementDecl(namespace="http://orbisgis.org",
-            name="TranslatableString")
-    public JAXBElement<TranslatableString> createTranslatableString(TranslatableString translatableString) {
-        return new JAXBElement<>(_TranslatableString_QNAME, TranslatableString.class, translatableString);
-    }
 }

@@ -254,23 +254,10 @@ public class WpsModelTest {
             boolean valid = true;
             errorMessage = "Error, the enumeration 'valuesNames' field should contain three value : " +
                     "'name', 'name' and 'name'.";
-            if(enumeration.getValuesNames().length == 3) {
-                for (TranslatableString translatableString : enumeration.getValuesNames()) {
-                    if(translatableString.getStrings().length != 1 ||
-                            !translatableString.getStrings()[0].getValue().equals("name")){
-                        valid = false;
-                        break;
-                    }
-                }
-            }
-            else{
+            if(enumeration.getValuesNames().length != 3) {
                 valid = false;
             }
             Assert.assertTrue(errorMessage, valid);
-
-            /*errorMessage = "Error, the enumeration 'defaultValues' field should contain two value : " +
-                    "'value1' and 'value2'.";
-            Assert.assertArrayEquals(errorMessage, enumeration.getDefaultValues(), new String[]{"value1, value2"});*/
 
 
         } catch (NoSuchFieldException e) {
@@ -291,7 +278,6 @@ public class WpsModelTest {
 
     /**
      * Test if the decoding and convert of the JDBCValueAttribute annotation into its java object is valid.
-     * @throws org.orbiswps.server.model.MalformedScriptException
      */
     @Test
     public void testFieldValueAttributeConvert() throws MalformedScriptException {
@@ -358,7 +344,6 @@ public class WpsModelTest {
 
     /**
      * Test if the decoding and convert of the Geometry annotation into its java object is valid.
-     * @throws org.orbiswps.server.model.MalformedScriptException
      */
     @Test
     public void testGeometryAttributeConvert() throws MalformedScriptException {
@@ -426,7 +411,6 @@ public class WpsModelTest {
 
     /**
      * Test if the decoding and convert of the RawData annotation into its java object is valid.
-     * @throws org.orbiswps.server.model.MalformedScriptException
      */
     @Test
     public void testRawDataAttributeConvert() throws MalformedScriptException {

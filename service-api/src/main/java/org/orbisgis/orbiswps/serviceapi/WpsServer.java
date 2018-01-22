@@ -37,20 +37,55 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service.utils;
+package org.orbisgis.orbiswps.serviceapi;
+
+import org.orbisgis.orbiswps.serviceapi.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.WpsServerListener;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.List;
 
 /**
- * Interface defining methods which will be used by the OrbisGISWpsServer to indicates changes like the add of scripts.
+ * A WPS Service provides access to simple or complex computational processing services.
+ *
+ * @author Sylvain PALOMINOS
  */
-public interface WpsServerListener {
+public interface WpsServer {
 
     /**
-     * Action to do when a script were add in the WpsServer.
+     * Ask the WPS Server to execute the operation contained in the xml argument an returns the xml answer.
+     * The xml is parsed and then the correct WPSService method is called.
+     *
+     * @param xml Xml containing the operation to execute.
+     * @return The xml answer.
      */
-    void onScriptAdd();
+    OutputStream callOperation(InputStream xml);
 
     /**
-     * Action to do when a script were removed in the WpsServer.
+     * Add a local groovy file or directory of processes to the wps service.
+     * @param f  File object to add to the service.
+     * @return
      */
-    void onScriptRemoved();
+    List<ProcessIdentifier> addProcess(File f);
+
+    /**
+     * Remove the process corresponding to the given codeType.
+     * @param identifier URI identifier of the process.
+     */
+    void removeProcess(URI identifier);
+
+    /**
+     * Registers a WpsServerListener.
+     * @param wpsServerListener WpsServerListener to register.
+     */
+    void addWpsServerListener(WpsServerListener wpsServerListener);
+
+    /**
+     * Unregisters a WpsServerListener.
+     * @param wpsServerListener WpsServerListener to unregister.
+     */
+    void removeWpsServerListener(WpsServerListener wpsServerListener);
 }

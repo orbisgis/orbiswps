@@ -37,42 +37,49 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service.model;
+package org.orbisgis.orbiswps.serviceapi;
 
-import net.opengis.ows._2.LanguageStringType;
+import net.opengis.wps._2_0.ProcessDescriptionType;
+import net.opengis.wps._2_0.ProcessOffering;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import java.net.URL;
 
 /**
+ * Class containing information to identify a process.
+ *
  * @author Sylvain PALOMINOS
- */
+ **/
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TranslatableString",
-        propOrder = {"strings"})
-public class TranslatableString {
+public interface ProcessIdentifier {
 
-    @XmlElement(name = "TranslatedStrings", namespace = "http://orbisgis.org")
-    private LanguageStringType[] strings;
-
-    public TranslatableString(LanguageStringType[] strings){
-        this.strings = strings;
-    }
+    void setI18n(I18n i18n);
 
     /**
-     * Protected empty constructor used in the ObjectFactory class for JAXB.
+     * Returns the ProcessDescriptionType object.
+     * @return The ProcessDescriptionType object.
      */
-    public TranslatableString(){
-    }
+    ProcessDescriptionType getProcessDescriptionType();
 
-    public LanguageStringType[] getStrings() {
-        return strings;
-    }
 
-    public void setStrings(LanguageStringType[] strings) {
-        this.strings = strings;
-    }
+    /**
+     * Returns the ProcessOffering object.
+     * @return The ProcessOffering object.
+     */
+    ProcessOffering getProcessOffering();
+
+    /**
+     * Returns the process file path.
+     * @return The process file path.
+     */
+    String getFilePath();
+
+    /**
+     * Returns the source URL of the file.
+     * @return The source URL.
+     */
+    URL getSourceUrl();
+
+    I18n getI18n();
 }

@@ -48,7 +48,7 @@ package org.orbisgis.orbiswps.serviceapi;
  *
  * @author Sylvain PALOMINOS
  */
-public class ProcessMetadata {
+public interface ProcessMetadata {
 
     /**
      * The DBMS type metadata. It defines with which DBMS the script is compatible. If in the script this metadata isn't

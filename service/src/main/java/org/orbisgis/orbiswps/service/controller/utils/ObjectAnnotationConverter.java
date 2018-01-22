@@ -48,7 +48,6 @@ import org.orbisgis.orbiswps.groovyapi.attributes.*;
 import org.orbisgis.orbiswps.service.model.*;
 import org.orbisgis.orbiswps.service.model.BoundingBoxData;
 import org.orbisgis.orbiswps.service.model.Enumeration;
-import org.orbisgis.orbiswps.service.model.TranslatableString;
 
 import java.math.BigInteger;
 import java.net.URI;
@@ -256,23 +255,7 @@ public class ObjectAnnotationConverter {
 
         //Decodes the Groovy annotation 'names' attribute and store each name in a LanguageStringType with its language
         String[] names = enumAttribute.names();
-        //In the case where is only one language
-        TranslatableString[] translatableStrings = new TranslatableString[names.length];
-        //Populate the TranslatableString array with all the names
-        for(int i=0; i<names.length; i++){
-            //Creates the LanguageStringType Object containing the name
-            LanguageStringType type = new LanguageStringType();
-            type.setValue(names[i].trim());
-            //Store the LanguageStringType Object in an array
-            LanguageStringType[] types = new LanguageStringType[1];
-            types[0] = type;
-            //Store the array in a TranslatableString object
-            TranslatableString string = new TranslatableString();
-            string.setStrings(types);
-            //Store the TranslatableString
-            translatableStrings[i] = string;
-        }
-        enumeration.setValuesNames(translatableStrings);
+        enumeration.setValuesNames(enumAttribute.names());
         return enumeration;
     }
 

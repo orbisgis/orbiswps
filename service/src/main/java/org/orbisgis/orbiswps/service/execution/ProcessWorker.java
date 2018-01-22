@@ -41,7 +41,7 @@ package org.orbisgis.orbiswps.service.execution;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.service.controller.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.ProcessIdentifier;
 import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.service.controller.utils.Job;
 import org.orbisgis.orbiswps.service.utils.ProgressMonitor;

@@ -42,6 +42,7 @@ package org.orbisgis.orbiswps.service.model;
 import net.opengis.ows._2.LanguageStringType;
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.Format;
+import org.xnap.commons.i18n.I18n;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ public class Enumeration extends ComplexDataType implements TranslatableComplexD
     private String[] values;
     /** List of values names.*/
     @XmlElement(name = "Name", namespace = "http://orbisgis.org")
-    private TranslatableString[] names;
+    private String[] names;
     /** Default values.*/
     @XmlElement(name = "DefaultValue", namespace = "http://orbisgis.org")
     private String[] defaultValues;
@@ -151,7 +152,7 @@ public class Enumeration extends ComplexDataType implements TranslatableComplexD
      * Sets the names of the values. The names will be only used for the displaying.
      * @param names String array of the names. It should have the same size of the values array.
      */
-    public void setValuesNames(TranslatableString[] names){
+    public void setValuesNames(String[] names){
         this.names = names;
     }
 
@@ -159,54 +160,22 @@ public class Enumeration extends ComplexDataType implements TranslatableComplexD
      * Returns the array of the values name.
      * @return The array of the values name.
      */
-    public TranslatableString[] getValuesNames(){
+    public String[] getValuesNames(){
         return names;
     }
 
     @Override
-    public ComplexDataType getTranslatedData(String serverLanguage, String clientLanguages) {
+    public ComplexDataType getTranslatedData(I18n i18n) {
         try {
             Enumeration enumeration = new Enumeration(format, values);
             enumeration.setEditable(this.isEditable());
             enumeration.setMultiSelection(this.isMultiSelection());
-            List<TranslatableString> translatedNames = new ArrayList<>();
             if(this.getValuesNames() != null) {
-                for (TranslatableString translatableString : this.getValuesNames()) {
-                    String clientLanguageTranslation = null;
-                    String subClientLanguageTranslation = null;
-                    String serverLanguageTranslation = null;
-                    for (LanguageStringType stringType : translatableString.getStrings()) {
-                        if(stringType.getLang() == null){
-                            serverLanguageTranslation = serverLanguage;
-                        }
-                        else if (stringType.getLang().equals(clientLanguages)) {
-                            clientLanguageTranslation = stringType.getValue();
-                        } else if (stringType.getLang().equals(clientLanguages.substring(0, 2))) {
-                            subClientLanguageTranslation = stringType.getValue();
-                        } else if (stringType.getLang().equals(serverLanguage)) {
-                            serverLanguageTranslation = stringType.getValue();
-                        }
-                    }
-                    LanguageStringType language = new LanguageStringType();
-                    if (clientLanguageTranslation != null) {
-                        language.setValue(clientLanguageTranslation);
-                        language.setLang(clientLanguages);
-                    } else if (subClientLanguageTranslation != null) {
-                        language.setValue(subClientLanguageTranslation);
-                        language.setLang(clientLanguages.substring(0, 2));
-                    } else if (serverLanguageTranslation != null) {
-                        language.setValue(serverLanguageTranslation);
-                        language.setLang(serverLanguage);
-                    }
-                    else {
-                        language.setValue(translatableString.getStrings()[0].getValue());
-                        language.setLang(translatableString.getStrings()[0].getLang());
-                    }
-                    TranslatableString str = new TranslatableString();
-                    str.setStrings(new LanguageStringType[]{language});
-                    translatedNames.add(str);
+                List<String> translatedNames = new ArrayList<>();
+                for (String str : this.getValuesNames()) {
+                    translatedNames.add(i18n.tr(str));
                 }
-                enumeration.setValuesNames(translatedNames.toArray(new TranslatableString[translatedNames.size()]));
+                enumeration.setValuesNames(translatedNames.toArray(new String[translatedNames.size()]));
             }
             return enumeration;
         } catch (MalformedScriptException ignored) {}

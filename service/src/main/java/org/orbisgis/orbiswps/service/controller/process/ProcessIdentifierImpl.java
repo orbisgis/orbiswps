@@ -41,6 +41,7 @@ package org.orbisgis.orbiswps.service.controller.process;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import net.opengis.wps._2_0.ProcessOffering;
+import org.orbisgis.orbiswps.serviceapi.ProcessIdentifier;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
@@ -52,7 +53,7 @@ import java.net.URL;
  * @author Sylvain PALOMINOS
  **/
 
-public class ProcessIdentifier {
+public class ProcessIdentifierImpl implements ProcessIdentifier {
 
     /** ProcessOffering object. */
     private ProcessOffering processOffering;
@@ -69,11 +70,11 @@ public class ProcessIdentifier {
      * @param processOffering ProcessOffering containing all the information about a process.
      * @param filePath String representation of the file path.
      */
-    public ProcessIdentifier(ProcessOffering processOffering, String filePath){
+    public ProcessIdentifierImpl(ProcessOffering processOffering, String filePath){
         this.processOffering = processOffering;
         this.filePath = filePath;
         this.sourceUrl = null;
-        this.i18n = I18nFactory.getI18n(ProcessIdentifier.class);
+        this.i18n = I18nFactory.getI18n(ProcessIdentifierImpl.class);
     }
 
     /**
@@ -82,11 +83,11 @@ public class ProcessIdentifier {
      * @param processOffering ProcessOffering containing all the information about a process.
      * @param sourceUrl Source URL of the file.
      */
-    public ProcessIdentifier(ProcessOffering processOffering, URL sourceUrl){
+    public ProcessIdentifierImpl(ProcessOffering processOffering, URL sourceUrl){
         this.processOffering = processOffering;
         this.filePath = null;
         this.sourceUrl = sourceUrl;
-        this.i18n = I18nFactory.getI18n(ProcessIdentifier.class);
+        this.i18n = I18nFactory.getI18n(ProcessIdentifierImpl.class);
     }
 
     public void setI18n(I18n i18n){

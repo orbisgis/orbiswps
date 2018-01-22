@@ -48,6 +48,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.*;
 import org.orbisgis.orbiswps.service.model.*;
 import org.orbisgis.orbiswps.service.model.BoundingBoxData;
 import org.orbisgis.orbiswps.service.model.Enumeration;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 
 import java.math.BigInteger;
 import java.net.URI;

@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -39,8 +39,7 @@
  */
 package org.orbisgis.orbiswps.serviceapi;
 
-import org.orbisgis.orbiswps.serviceapi.ProcessIdentifier;
-import org.orbisgis.orbiswps.serviceapi.WpsServerListener;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 
 import java.io.File;
 import java.io.InputStream;

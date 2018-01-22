@@ -39,9 +39,10 @@
  */
 package org.orbisgis.orbiswps.service.model;
 
-import net.opengis.ows._2.LanguageStringType;
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.Format;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.data.TranslatableComplexData;
 import org.xnap.commons.i18n.I18n;
 
 import javax.xml.bind.annotation.*;
@@ -56,7 +57,7 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Enumeration",
         propOrder = {"values", "names", "defaultValues", "multiSelection", "isEditable"})
-public class Enumeration extends ComplexDataType implements TranslatableComplexData{
+public class Enumeration extends ComplexDataType implements TranslatableComplexData {
 
     /** List of values.*/
     @XmlElement(name = "Value", namespace = "http://orbisgis.org")

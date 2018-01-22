@@ -39,7 +39,7 @@
  */
 package org.orbisgis.orbiswps.scripts;
 
-import org.orbisgis.orbiswps.serviceapi.ProcessMetadata;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata;
 import org.orbisgis.orbiswps.serviceapi.WpsScriptBundle;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;

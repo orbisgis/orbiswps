@@ -45,8 +45,8 @@ import net.opengis.wps._2_0.DescriptionType;
 import net.opengis.wps._2_0.InputDescriptionType;
 import net.opengis.wps._2_0.OutputDescriptionType;
 import net.opengis.wps._2_0.ProcessDescriptionType;
-import org.orbisgis.orbiswps.serviceapi.ProcessIdentifier;
-import org.orbisgis.orbiswps.service.model.TranslatableComplexData;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.data.TranslatableComplexData;
 import org.xnap.commons.i18n.I18n;
 
 import javax.xml.bind.JAXBElement;

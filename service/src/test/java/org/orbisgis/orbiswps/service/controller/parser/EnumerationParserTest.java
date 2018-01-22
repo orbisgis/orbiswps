@@ -49,7 +49,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.EnumerationAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute;
 import org.orbisgis.orbiswps.service.model.Enumeration;
-import org.orbisgis.orbiswps.service.model.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 
 import java.lang.reflect.Field;
 import java.math.BigInteger;

@@ -41,7 +41,7 @@ package org.orbisgis.orbiswps.service.controller.process;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import net.opengis.wps._2_0.ProcessOffering;
-import org.orbisgis.orbiswps.serviceapi.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 

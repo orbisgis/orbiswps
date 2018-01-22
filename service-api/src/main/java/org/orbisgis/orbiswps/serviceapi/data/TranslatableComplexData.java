@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service.model;
+package org.orbisgis.orbiswps.serviceapi.data;
 
 import net.opengis.wps._2_0.ComplexDataType;
 import org.xnap.commons.i18n.I18n;
@@ -65,8 +65,6 @@ public interface TranslatableComplexData {
      * 4) try to get the en translated language. (server default language)
      * 5) any language.
      *
-     * @param serverLanguage The default server language.
-     * @param clientLanguages The languages requested by the client.
      * @return A copy of the object itself but with its attribute translated.
      */
     public ComplexDataType getTranslatedData(I18n i18n);

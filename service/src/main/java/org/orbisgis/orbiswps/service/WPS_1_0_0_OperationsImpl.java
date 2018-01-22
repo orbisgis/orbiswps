@@ -52,7 +52,7 @@ import net.opengis.wps._1_0_0.WPSCapabilitiesType;
 import net.opengis.wps._2_0.BoundingBoxData;
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.*;
-import org.orbisgis.orbiswps.serviceapi.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.service.controller.utils.Job;
 import org.orbisgis.orbiswps.service.model.Enumeration;
@@ -60,7 +60,7 @@ import org.orbisgis.orbiswps.service.model.*;
 import org.orbisgis.orbiswps.service.utils.ProcessTranslator;
 import org.orbisgis.orbiswps.service.utils.WpsServerProperties_1_0_0;
 import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
-import org.orbisgis.orbiswps.serviceapi.WPS_1_0_0_Operations;
+import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

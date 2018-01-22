@@ -37,49 +37,36 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.serviceapi;
-
-import net.opengis.wps._2_0.ProcessDescriptionType;
-import net.opengis.wps._2_0.ProcessOffering;
-import org.xnap.commons.i18n.I18n;
-import org.xnap.commons.i18n.I18nFactory;
-
-import java.net.URL;
+package org.orbisgis.orbiswps.serviceapi.process;
 
 /**
- * Class containing information to identify a process.
+ * Interface to implement to be able to follow a process execution.
  *
  * @author Sylvain PALOMINOS
- **/
+ */
+public interface ProcessExecutionListener {
 
-public interface ProcessIdentifier {
-
-    void setI18n(I18n i18n);
-
-    /**
-     * Returns the ProcessDescriptionType object.
-     * @return The ProcessDescriptionType object.
-     */
-    ProcessDescriptionType getProcessDescriptionType();
-
+    /** States the process can have. */
+    enum ProcessState{RUNNING, SUCCEEDED, FAILED, ACCEPTED, IDLE}
+    /** Type of the logs. */
+    enum LogType{INFO, WARN, ERROR}
 
     /**
-     * Returns the ProcessOffering object.
-     * @return The ProcessOffering object.
+     * Sets the time when the process is starting.
+     * @param time Time in milliseconds when the process is starting.
      */
-    ProcessOffering getProcessOffering();
+    void setStartTime(long time);
 
     /**
-     * Returns the process file path.
-     * @return The process file path.
+     * Append a log with the given type and the given message.
+     * @param logType Type of the log.
+     * @param message Message of the log.
      */
-    String getFilePath();
+    void appendLog(LogType logType, String message);
 
     /**
-     * Returns the source URL of the file.
-     * @return The source URL.
+     * Sets the state of the process.
+     * @param processState State of the process.
      */
-    URL getSourceUrl();
-
-    I18n getI18n();
+    void setProcessState(ProcessState processState);
 }

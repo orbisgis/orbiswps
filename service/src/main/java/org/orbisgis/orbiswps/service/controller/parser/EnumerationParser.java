@@ -49,8 +49,9 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.service.controller.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.controller.utils.ObjectAnnotationConverter;
 import org.orbisgis.orbiswps.service.model.Enumeration;
-import org.orbisgis.orbiswps.service.model.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 import org.orbisgis.orbiswps.service.model.ObjectFactory;
+import org.orbisgis.orbiswps.serviceapi.parser.Parser;
 
 import javax.xml.bind.JAXBElement;
 import java.lang.reflect.Field;
@@ -62,7 +63,7 @@ import java.net.URI;
  * @author Sylvain PALOMINOS
  **/
 
-public class EnumerationParser implements Parser{
+public class EnumerationParser implements Parser {
 
     @Override
     public InputDescriptionType parseInput(Field f, Object defaultValue, URI processId) throws MalformedScriptException {

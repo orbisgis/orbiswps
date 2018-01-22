@@ -42,14 +42,14 @@ package org.orbisgis.orbiswps.service;
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
-import org.orbisgis.orbiswps.serviceapi.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.service.controller.utils.Job;
-import org.orbisgis.orbiswps.service.execution.ProcessExecutionListener;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.service.utils.ProcessTranslator;
 import org.orbisgis.orbiswps.service.utils.WpsServerProperties_2_0;
 import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
-import org.orbisgis.orbiswps.serviceapi.WPS_2_0_Operations;
+import org.orbisgis.orbiswps.serviceapi.operations.WPS_2_0_Operations;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.Serializable;

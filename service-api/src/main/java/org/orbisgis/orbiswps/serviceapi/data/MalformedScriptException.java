@@ -37,36 +37,24 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service.execution;
+package org.orbisgis.orbiswps.serviceapi.data;
 
 /**
- * Interface to implement to be able to follow a process execution.
+ * Exception thrown when a Groovy WPS script is malformed.
  *
  * @author Sylvain PALOMINOS
- */
-public interface ProcessExecutionListener {
+ **/
 
-    /** States the process can have. */
-    enum ProcessState{RUNNING, SUCCEEDED, FAILED, ACCEPTED, IDLE}
-    /** Type of the logs. */
-    enum LogType{INFO, WARN, ERROR}
+public class MalformedScriptException extends Exception {
 
     /**
-     * Sets the time when the process is starting.
-     * @param time Time in milliseconds when the process is starting.
+     * Create an exception with a message constructed that way :
+     * "Error on implementing '<wpsModelClass>', the argument '<wrongArgument>'<reason>"
+     * @param wpsModelClass Object that can not be instantiated.
+     * @param wrongArgument Wrong argument.
+     * @param reason Reason why the argument is wrong.
      */
-    void setStartTime(long time);
-
-    /**
-     * Append a log with the given type and the given message.
-     * @param logType Type of the log.
-     * @param message Message of the log.
-     */
-    void appendLog(LogType logType, String message);
-
-    /**
-     * Sets the state of the process.
-     * @param processState State of the process.
-     */
-    void setProcessState(ProcessState processState);
+    public MalformedScriptException(Class wpsModelClass, String wrongArgument, String reason){
+        super("Error on implementing "+wpsModelClass.getSimpleName()+", the argument "+wrongArgument+" "+reason+".");
+    }
 }

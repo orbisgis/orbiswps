@@ -49,7 +49,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.RawDataAttribute;
-import org.orbisgis.orbiswps.service.model.MalformedScriptException;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 import org.orbisgis.orbiswps.service.model.RawData;
 
 import java.lang.reflect.Field;

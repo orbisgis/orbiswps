@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.serviceapi;
+package org.orbisgis.orbiswps.serviceapi.operations;
 
 import net.opengis.wps._1_0_0.*;
 

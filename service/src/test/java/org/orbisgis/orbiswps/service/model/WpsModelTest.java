@@ -45,6 +45,7 @@ import org.junit.Test;
 import org.orbisgis.orbiswps.groovyapi.attributes.*;
 import org.orbisgis.orbiswps.service.controller.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.controller.utils.ObjectAnnotationConverter;
+import org.orbisgis.orbiswps.serviceapi.data.MalformedScriptException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

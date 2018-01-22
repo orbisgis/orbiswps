@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.controller.process.ProcessManager;
 import org.orbisgis.orbiswps.service.utils.WpsServerProperties_1_0_0;
-import org.orbisgis.orbiswps.serviceapi.WPS_1_0_0_Operations;
+import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;

@@ -41,7 +41,7 @@ package org.orbisgis.orbiswps.scripts;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.orbisgis.orbiswps.serviceapi.ProcessMetadata.INTERNAL_METADATA;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata.INTERNAL_METADATA;
 import org.osgi.framework.BundleException;
 
 import java.net.URL;

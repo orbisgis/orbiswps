@@ -548,6 +548,17 @@ public class ProcessManager {
             processIdList.remove(toRemove);
         }
     }
+    public void removeProcess(URL processUrl) {
+        ProcessIdentifier toRemove = null;
+        for(ProcessIdentifier pi : processIdList){
+            if(pi.getSourceUrl().equals(processUrl)){
+                toRemove = pi;
+            }
+        }
+        if(toRemove != null){
+            processIdList.remove(toRemove);
+        }
+    }
 
     /**
      * Returns the ProcessIdentifier containing the process with the given CodeType.

@@ -215,7 +215,7 @@ public class WpsServerImpl implements WpsServer {
 
     public void removeWpsScriptBundle(WpsScriptBundle wpsScriptBundle) {
         for(URL url : wpsScriptBundle.getScriptsList()) {
-            this.processManager.addScript(url);
+            this.processManager.removeProcess(url);
         }
         for(WpsServerListener listener : wpsServerListenerList){
             listener.onScriptAdd();

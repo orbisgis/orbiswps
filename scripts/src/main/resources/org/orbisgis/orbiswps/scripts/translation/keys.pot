@@ -1,0 +1,1516 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-18 15:26+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy:72
+msgid "The descriptions have been extracted."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy:73
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy:75
+msgid "Delete done."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy:107
+msgid "Insert done."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy:111
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy:91
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy:86
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy:78
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy:78
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy:84
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/variableExtrudePolygons.groovy:85
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy:77
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy:77
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy:96
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy:129
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/fixedDistanceBuffer.groovy:119
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy:121
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Transform/reprojectGeometries.groovy:99
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy:84
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy:80
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy:86
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy:85
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy:85
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy:85
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy:85
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy:93
+msgid "Process done"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy:69
+msgid "The CSV file has been imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy:68
+msgid "The GPX file has been imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy:70
+msgid "The TSV file has been imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy:74
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportShapeFile.groovy:68
+msgid "The ShapeFile has been created."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy:80
+msgid "The SHP file has been imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy:74
+msgid "The DBF file has been imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy:74
+msgid "The GeoJSON file has been imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy:68
+msgid "The OSM file has been imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy:71
+msgid "The graph network has been created."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy:68
+msgid "The TSV file has been created."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy:68
+msgid "The KML file has been created."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy:69
+msgid "The CSV file has been created."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy:67
+msgid "The DBF file has been created."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy:68
+msgid "The GeoJSON file has been created."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Transform/reprojectGeometries.groovy:72
+msgid "The input table must contains a SRID constraint."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Transform/reprojectGeometries.groovy:73
+msgid "Fail to execute the process"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:96
+msgid "OrbisGIS"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:97
+msgid "Network"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:98
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy8970387694698516942.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:3
+msgid "Table"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:99
+msgid "Geometry2D"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:100
+msgid "Convert"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:101
+msgid "Create"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:102
+msgid "Buffer"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:103
+msgid "Properties"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:104
+msgid "Transform"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:105
+msgid "Import"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:106
+msgid "Export"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:107
+msgid "Select"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:108
+msgid "Indices"
+msgstr ""
+
+#: java/org/orbisgis/orbiswps/scripts/WpsScriptPlugin.java:201
+#, java-format
+msgid "Unable to explore the URL {0}"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:1
+msgid "Describe columns"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:2
+msgid "Extract the name, type and comment from all fields of a table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:4
+msgid "Extract name, type and comments from the selected table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:21
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:13
+msgid "Drop the output table if exists"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:22
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:14
+msgid "Drop the output table if exists."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:18
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:23
+msgid "Output table name"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:8
+msgid "Name of the table containing the descriptions."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy8970387694698516942.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:20
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:20
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:18
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:17
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:17
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:20
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:17
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:27
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:17
+msgid "Output message"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/describeColumns.groovy1656532568719987769.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy8970387694698516942.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:21
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:19
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:18
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:18
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:21
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:18
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:28
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:18
+msgid "The output message."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy8970387694698516942.tmp:1
+msgid "Delete columns"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy8970387694698516942.tmp:2
+msgid "Delete columns from a table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy8970387694698516942.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:4
+msgid "The table to edit."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy8970387694698516942.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:7
+msgid "Columns"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteColumns.groovy8970387694698516942.tmp:6
+msgid "The columns to remove names."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:3
+msgid "Insert values in a table"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:4
+msgid "Insert values into a table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:8
+msgid "The columns concerned by the value insertion."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:9
+msgid "Values"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/insertValues.groovy7531564240464521325.tmp:10
+msgid ""
+"The input values. The values should be separated by a ',' and rows by ';'"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:1
+msgid "Tables join"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:2
+msgid "SQL join between two tables."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:3
+msgid "Left table"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:4
+msgid "The left table used for the join."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:5
+msgid "Right table"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:6
+msgid "The right table  used for the join."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:7
+msgid "Left column identifier"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:8
+msgid "The column name identifier of the left table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:9
+msgid "Right column identifier"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:10
+msgid "The column name identifier of the right table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:9
+msgid "Operation"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:12
+msgid "Types of join."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:13
+msgid "Left join"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:14
+msgid "Create indexes"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:15
+msgid "Create an index on each field identifiers to perform the join."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:16
+msgid "Drop the input tables"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:17
+msgid "Drop the input tables when the script is finished."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/joinTables.groovy780177855223975547.tmp:19
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:17
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:24
+msgid "Name of the table containing the result of the process."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:1
+msgid "Delete rows"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:2
+msgid "Delete rows from a table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:5
+msgid "PKField"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:6
+msgid "The primary key column."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:7
+msgid "Primary key values"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Table/deleteRows.groovy8679766527413034051.tmp:8
+msgid "The array of the primary keys of the rows to remove."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:1
+msgid "Import a CSV file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:2
+msgid "Import in the database a CSV file as a new table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:3
+msgid "Input CSV"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:4
+msgid "The input CSV file to be imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:5
+msgid "CSV separator"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:6
+msgid "The CSV separator."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:16
+msgid "Drop the existing table"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:17
+msgid "Drop the existing table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:10
+msgid ""
+"Table name to store the CSV file. If it is not defined the name of the file "
+"will be used."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importCSVFile.groovy8936180703198610277.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:21
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:10
+msgid "Output message."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:3
+msgid "Import a GPX file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:4
+msgid ""
+"Import a GPX file from path and creates several tables prefixed by tableName "
+"representing the file’s contents.\n"
+" Please go to  http://www.h2gis.org"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:5
+msgid "Input GPX"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:6
+msgid "The input GPX file to be imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:7
+msgid "Prefix for all tables"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGPXFile.groovy5666184873178791594.tmp:8
+msgid "Prefix for all table names to store the GPX file."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:3
+msgid "Import a TSV file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:4
+msgid "Import in the database a TSV file as a new table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:5
+msgid "Input TSV"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:6
+msgid "The input TSV file to be imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importTSVFile.groovy911410701560637971.tmp:10
+msgid ""
+"Table name to store the TSV file. If it is not defined the name of the file "
+"will be used."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:1
+msgid "Import a shapeFile"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:2
+msgid "Import in the database a shapeFile as a new table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:3
+msgid "Input SHP"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:4
+msgid "The input shapeFile to be imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:7
+msgid "File Encoding"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:8
+msgid "The file encoding ."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:9
+msgid "System"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:14
+msgid "Add a spatial index"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:15
+msgid "Add a spatial index on the geometry column."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importShapeFile.groovy2662778411908505506.tmp:13
+msgid ""
+"Table name to store the shapeFile. If it is not defined the name of the file "
+"will be used."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:3
+msgid "Import a DBF file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:4
+msgid "Import in the database a DBF file as a new table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:5
+msgid "Input DBF"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:6
+msgid "The input DBF file to be imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importDBFFile.groovy3831441669991245734.tmp:13
+msgid ""
+"Table name to store the DBF file. If it is not defined the name of the file "
+"will be used."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:3
+msgid "Import a GeoJSON file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:4
+msgid "Import in the database a GeoJSON file as a new table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:5
+msgid "Input GeoJSON"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:6
+msgid "The input GeoJSON file to be imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importGeoJsonFile.groovy3595599258938874604.tmp:12
+msgid ""
+"Table name to store the GeoJSON file. If it is not defined the name of the "
+"file will be used."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:3
+msgid "Import a OSM file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:4
+msgid ""
+"Import a OSM file from path and creates several tables prefixed by tableName "
+"representing the file’s contents.\n"
+" Please go to  http://www.h2gis.org"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:5
+msgid "Input OSM"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:6
+msgid "The input OSM file to be imported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/importOSMFile.groovy1374585394365232231.tmp:8
+msgid "Prefix for all table names to store the OSM file."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:1
+msgid "Point table from CSV"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:2
+msgid ""
+"Creates a point layer from a CSV file containing the id of the point, its X "
+"and Y coordinate."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:3
+msgid "Input csv"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:4
+msgid "The input CSV file containing the point model."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:7
+msgid "Coma"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:8
+msgid "Id field"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:9
+msgid "The point id field."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:10
+msgid "X field"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:11
+msgid "The X coordinate field."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:12
+msgid "Y field"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:13
+msgid "The Y coordinate field."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:18
+msgid "Output points table"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Import/csvToPointsTable.groovy332271563814793638.tmp:19
+msgid ""
+"Name of the output table. If it is not defined the name of the file will be "
+"used."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:1
+msgid "Create a graph"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:2
+msgid ""
+"Create a graph stored in two tables nodes and edges from an input table that "
+"contains Multi or LineString.<br>If the input table has name 'input', then "
+"the output tables are named 'input_nodes' and 'input_edges'."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:3
+msgid "Input spatial model"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:4
+msgid "The spatial model source to create the graphe tables."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:5
+msgid "Geometric column"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:6
+msgid "The geometric column of the model source."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:7
+msgid "Snapping tolerance"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:8
+msgid ""
+"The tolerance value is used specify the side length of a square Envelope "
+"around each node used to snap together other nodes within the same Envelope."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:9
+msgid "Slope orientation ?"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:10
+msgid ""
+"True if edges should be oriented by the z-value of their first and last "
+"coordinates (decreasing)."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:18
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:15
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:25
+msgid "Drop the input table"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Network/createGraph.groovy4747406331076780474.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:19
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:26
+msgid "Drop the input table when the script is finished."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:1
+msgid "Spatial filtering"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:2
+msgid ""
+"Select geometries from one table based on one other table.\n"
+"The criteria for selecting features is based on the spatial relationship "
+"between eachfeature and the features in an additional layer. "
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:4
+msgid "Table to select from"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:5
+msgid "The spatial model source that contains the selected features."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:6
+msgid "Geometric column from"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:7
+msgid "The geometric column of selected table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:7
+msgid "Table to select"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:8
+msgid "The spatial model source used to select the features."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:9
+msgid "Geometric column to"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:10
+msgid "The geometric column of the mask table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:11
+msgid "Spatial relationship"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:12
+msgid "Spatial relationship to select features."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:13
+msgid "Intersects"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:16
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:11
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:13
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:15
+msgid "Output table prefix"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/spatialFiltering.groovy2363487175254543023.tmp:17
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:12
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:14
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:16
+msgid "Prefix of the table containing the result of the process."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:1
+msgid "Expression filtering"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:2
+msgid "Select rows from one table based on a SQL expression. "
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:3
+msgid "Filtering"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:5
+msgid "The model source that contains the selected features."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:6
+msgid "SQL expression"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/expressionFiltering.groovy374828219358679609.tmp:7
+msgid "Write here a valid where SQL expression."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:1
+msgid "Attribut selection"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:2
+msgid ""
+"Select rows from one table based on one column value. SQL expression could "
+"be used to custom the select. "
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:8
+msgid "Operator"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:9
+msgid "Operator to select rows."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:10
+msgid "Equal to"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:11
+msgid "Value"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Select/attributeFiltering.groovy8192798315154695045.tmp:12
+msgid "Value to select or any syntax supported by SQL as function on value."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:1
+msgid "Export TSV file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:2
+msgid "Export a table to a TSV file."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:3
+msgid "Table to export"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:4
+msgid "The table that will be exported in a TSV file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:6
+msgid "Drop the input table when the export is finished."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:7
+msgid "Output TSV"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportTSVFile.groovy1381784213108222427.tmp:8
+msgid "The output TSV file to be exported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportShapeFile.groovy6265706318012538021.tmp:1
+msgid "Export into a SHP file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportShapeFile.groovy6265706318012538021.tmp:2
+msgid "Export a table to a SHP file."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:1
+msgid "Export into a KML file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:2
+msgid "Export a table to a KML file."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:4
+msgid "The table that will be exported in a KML file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:7
+msgid "Output KML"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportKMLFile.groovy8858015944796286854.tmp:8
+msgid "The output KML file to be exported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:1
+msgid "Export CSV file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:2
+msgid "Export a table to a CSV file."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:4
+msgid "The table that will be exported in a CSV file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:7
+msgid "Output CSV"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportCSVFile.groovy8565334281399337946.tmp:8
+msgid "The output CSV file to be exported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:1
+msgid "Export DBF file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:2
+msgid "Export a table to a DBF file."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:4
+msgid "The table that will be exported in a DBF file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:7
+msgid "Output DBF"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportDBFFile.groovy318874728260199206.tmp:8
+msgid "The output DBF file to be exported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:1
+msgid "Export into a GeoJSON"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:2
+msgid "Export a table to a GeoJSON."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:4
+msgid "The table that will be exported in a GeoJSON file"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:7
+msgid "Output GeoJSON"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Export/exportGeoJsonFile.groovy5627642691005624678.tmp:8
+msgid "The output GeoJSON file to be exported."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:1
+msgid "Fixed extrude polygons"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/variableExtrudePolygons.groovy598216249742671184.tmp:2
+msgid ""
+"Extrude a polygon and extends it to a 3D representation, returning a "
+"geometry collection containing floor, ceiling and wall geometries."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:4
+msgid "The spatial model source that must be extruded."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:7
+msgid "Height of the polygons"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:8
+msgid "A numeric value to specify the height of all polygon."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:19
+msgid "Columns to keep"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/fixedExtrudePolygons.groovy4498634511236395795.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:20
+msgid "The columns that will be kept in the output."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/variableExtrudePolygons.groovy598216249742671184.tmp:1
+msgid "Variable extrude polygons"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:1
+msgid "Create a grid of points"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:2
+msgid "Create a grid of points."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:4
+msgid ""
+"The spatial model source to compute the grid. The extend of grid is based on "
+"the full extend of the table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:5
+msgid "X cell size"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:6
+msgid "The X cell size."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:7
+msgid "Y cell size"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPoints.groovy2710000077279262954.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:8
+msgid "The Y cell size."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:1
+msgid "Create a grid of polygons"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Create/createGridOfPolygons.groovy36596059031045974.tmp:2
+msgid "Create a grid of polygons."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:5
+msgid "Extract center"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:6
+msgid "Extract the center of a geometry."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:12
+msgid "Operation to extract the points."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Convert/extractCenter.groovy5688956599345595068.tmp:13
+msgid "Centroid"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:1
+msgid "Geometry properties"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:2
+msgid "Compute some basic geometry properties."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:4
+msgid "The spatial model source to compute the geometry properties."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:7
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:7
+msgid "Column identifier"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:8
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:8
+msgid "A column used as an identifier."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Properties/geometryProperties.groovy4885668390382848325.tmp:10
+msgid "Operation to compute the properties."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/fixedDistanceBuffer.groovy5358747828766750956.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/fixedDistanceBuffer.groovy5358747828766750956.tmp:3
+msgid "Fixed distance buffer"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/fixedDistanceBuffer.groovy5358747828766750956.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/fixedDistanceBuffer.groovy5358747828766750956.tmp:4
+msgid "Execute a buffer on a geometric field with a constant distance."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:3
+msgid "Variable distance buffer"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:4
+msgid ""
+"Execute a buffer on a geometric field using another field to specify the "
+"distance."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:5
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:3
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:3
+msgid "Input table"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:6
+msgid "The input geometry table to compute the buffer."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:8
+msgid "The geometric column of the input table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:9
+msgid "Buffer size"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:10
+msgid "A numeric column to specify the size of the buffer."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:11
+msgid "Mitre limit"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:12
+msgid "Mitre ratio limit (only affects mitered join style)"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:13
+msgid "Segment number for a quarter circle"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:14
+msgid "Number of segments used to approximate a quarter circle."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:15
+msgid "Endcap style"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:16
+msgid "The endcap style."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:17
+msgid "Join style"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Buffer/variableDistanceBuffer.groovy9110958169854865531.tmp:18
+msgid "The join style."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Transform/reprojectGeometries.groovy1265337231825913517.tmp:1
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Transform/reprojectGeometries.groovy1265337231825913517.tmp:3
+msgid "Reproject geometries"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Transform/reprojectGeometries.groovy1265337231825913517.tmp:2
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Geometry2D/Transform/reprojectGeometries.groovy1265337231825913517.tmp:4
+msgid "Reproject geometries from one Coordinate Reference System to another."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:1
+msgid "Concavity indice"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:2
+msgid ""
+"The concavity is equal to the geometry’s area divided by its convex hull’s "
+"area.<p><em>Bibliography:</em></p><p>L. Adolphe, A simplified model of urban "
+"morphology: Application to an analysis of the environmental performance of "
+"cities, Environment and Planning B: Planning and Design 28 (2001) 183–200.</"
+"p><p>A. P. d’URbanisme (APUR), Consommations d'énergie et émissions degaz à "
+"effet de serre liées au chauffage des résidences principales parisiennes, "
+"Technical Report, Atelier Parisien d’URbanisme (APUR), 2007.</p>"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:4
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:4
+msgid "The spatial model source that contains the polygons."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:6
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:6
+msgid "The geometric column of input table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:9
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:9
+msgid "Keep the geometry"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/concavityIndex.groovy1364129727396990771.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:10
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:10
+msgid "Keep the input geometry in the result table."
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:1
+msgid "Equal Area Circle"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/equalAreaCircle.groovy2755310200058999603.tmp:2
+msgid ""
+"It is a circle with an area equal to that of the polygon and centered on the "
+"polygon's centroid. <p><em>Bibliography:</em></p>"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:1
+msgid "Form factor index"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/formFactorIndex.groovy8467098916399312618.tmp:2
+msgid ""
+"The form factor index is a ratio between the polygon’s area and the square "
+"of the polygon’s perimeter. <p><em>Bibliography:</em></p><p>Horton, R. E. "
+"(1932) Drainage-basin characteristics. Eos, Transactions American "
+"Geophysical Union, 13(1):350–361.</p>"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:1
+msgid "Shape index"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/shapeIndex.groovy8539759579701233555.tmp:2
+msgid ""
+"Compute the shape index. It equals the quarter perimeter divided by the "
+"square root of area.<p><em>Bibliography:</em></p>"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:1
+msgid "Perimeter-Area Ratio"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/perimeterAreaRatio.groovy4896656783875725203.tmp:2
+msgid ""
+"Perimeter-area ratio is a measure of shape complexity.It equals the ratio of "
+"the perimeter to area.<p><em>Bibliography:</em></p>"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:1
+msgid "Fractal dimension index"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/fractalDimensionIndex.groovy948034990611561194.tmp:2
+msgid ""
+"Compute the fractal dimension of a polygon. <p><em>Bibliography:</em></"
+"p><p>Herold, M., Scepan, J., and Clarke, K. C. (2002). The use of remote "
+"sensing and landscape metrics to describe structures and changes in urban "
+"land uses. Environment and Planning A, 34(8):1443–1458.</p><p>McGarigal, K. "
+"and Marks, B. J. (1995). Fragstats: spatial pattern analysis program for "
+"quantifying landscape structure. Gen. Tech. Rep. PNW-GTR-351. Portland, OR: "
+"U.S. Department of Agriculture, Forest Service, Pacific Northwest Research "
+"Station. 122 p.</p>"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:1
+msgid "Main direction SMBR"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/maindirectionSMBR.groovy302132365927841015.tmp:2
+msgid ""
+"Compute the main direction (in degree) of a polygon, based on its Smallest "
+"Minimum Bounding Rectangle (SMBR).\n"
+"\\<p>The north is equal to 0°. Values are clockwise, so East = 90°.</p>\n"
+"\\<p>The value is ”modulo pi” expressed → the value is between 0 and 180°(e."
+"g 355° becomes 175°).</p>\n"
+"\\<p><em>Bibliography:</em></p><p>Duchêne, C., Bard, S., Barillot, X., Ruas, "
+"A., Trévisan, J., and Holzapfel, F. (2003). Quantitative and qualitative "
+"description of building orientation, In Fifth workshop on progress in "
+"automated map generalisation, ICA, commission on map generalisation.</p>"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:1
+msgid "Compactness indice(s)"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:2
+msgid ""
+"The compactness indice is based on the geometry properties of a polygon : "
+"perimeter, area and longest line. 3 methods are available  : Miller, Morton "
+"and Gravélius.<p><em>Bibliography:</em></p><p>W. E. Dramstad, Spatial "
+"metrics–useful indicators for society or mainly fun tools for landscape "
+"ecologists?, Norsk Geografisk Tidsskrift-Norwegian Journal of Geography 63 "
+"(2009) 246–254.0</p><p> H. Gravelius, Grundriß der gesamten Gewässerkunde: "
+"in vier Bänden,vol.1, Göschen, 1914.</p>"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:11
+msgid "Indice"
+msgstr ""
+
+#: resources/org/orbisgis/orbiswps/scripts/scripts/Indices/compactnessIndices.groovy5098472672977111523.tmp:12
+msgid "Method to compute the indice."
+msgstr ""

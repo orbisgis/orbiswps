@@ -1,0 +1,298 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-18 11:25+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: org/orbisgis/orbiswps/service/controller/parser/ParserController.java:106
+#: org/orbisgis/orbiswps/service/controller/parser/ParserController.java:118
+#: org/orbisgis/orbiswps/service/controller/parser/ParserController.java:136
+#, java-format
+msgid ""
+"Can not parse the process : {0}\n"
+" Cause : {1}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/parser/ParserController.java:151
+#, java-format
+msgid "unable to generate the URI of the process {0}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/parser/ParserController.java:199
+#, java-format
+msgid ""
+"Unable to create a new instance of the groovy script.\n"
+"Cause : {0}"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/parser/ParserController.java:212
+#: org/orbisgis/orbiswps/service/controller/parser/ParserController.java:245
+#, java-format
+msgid ""
+"Unable to retrieve the default value of the field : {0}.\n"
+"Cause : {1}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/parser/ParserController.java:235
+#, java-format
+msgid "Unable to find the Parser fo the annotation {0}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/parser/ParserController.java:268
+#, java-format
+msgid "Unable to find the Parser for the annotation {0}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:114
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:131
+msgid "Unable detect if the dataSource is H2GIS or Postgresql"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:143
+msgid "The script file doesn't exists."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:154
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:210
+#, java-format
+msgid "Unable to parse the process {0}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:158
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:214
+#, java-format
+msgid "A process with the identifier {0} already exists."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:182
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:238
+#, java-format
+msgid ""
+"Unable to parse the process {0}.\n"
+"Cause : {1}"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:192
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:248
+msgid "The script is not valid."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/controller/process/ProcessManager.java:447
+msgid "Unable to convert the LiteralData to the good script type."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/WpsServerImpl.java:283
+#, java-format
+msgid ""
+"Unable to parse the incoming xml.\n"
+"Cause : {0}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/WpsServerImpl.java:295
+#, java-format
+msgid ""
+"Unable to parse the outcoming xml.\n"
+"Cause : {0}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/execution/ProcessWorker.java:102
+#, java-format
+msgid "{0} : Preprocessing"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/execution/ProcessWorker.java:112
+msgid "Start the process."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/execution/ProcessWorker.java:117
+msgid "Pre-processing."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/execution/ProcessWorker.java:122
+msgid "Execute the script."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/execution/ProcessWorker.java:124
+#, java-format
+msgid "{0} : Execution"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/execution/ProcessWorker.java:126
+#, java-format
+msgid "{0} : Postprocessing"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/execution/ProcessWorker.java:129
+msgid "Post-processing."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/execution/ProcessWorker.java:134
+msgid "End of the process."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/execution/ProcessWorker.java:148
+#, java-format
+msgid ""
+"Error on execution the WPS  process {0}.\n"
+"Cause : {1}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/model/JDBCTable.java:121
+#: org/orbisgis/orbiswps/service/model/JDBCTable.java:146
+#: org/orbisgis/orbiswps/service/model/GeometryData.java:118
+#: org/orbisgis/orbiswps/service/model/JDBCColumn.java:176
+msgid "A same DataType is accepted and excluded."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/model/BoundingBoxData.java:89
+msgid "dimension should be 2 or 3"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/model/BoundingBoxData.java:92
+msgid "3D Bounding Box is not supported yet."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/model/GeometryData.java:86
+msgid "should not be empty or contain null value."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/model/GeometryData.java:90
+msgid "should contain null value."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/model/MalformedScriptException.java:64
+#, java-format
+msgid "Error on implementing {0}, the argument {1} {2}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:91
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:90
+msgid "Unable to restore the wps properties."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:103
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:123
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:102
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:122
+#, java-format
+msgid ""
+"Unable to load the server configuration.\n"
+"Cause : {0}\n"
+"Loading the default configuration."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:112
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:111
+msgid "Unable to find the basic server properties file."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:155
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:154
+msgid "The property 'SUPPORTED_VERSIONS' isn't defined"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:161
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:160
+msgid "The property 'SUPPORTED_LANGUAGES' isn't defined"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:169
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:168
+msgid "The property 'SUPPORTED_FORMATS' isn't defined"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:175
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:174
+msgid "The property 'JOB_CONTROL_OPTIONS' isn't defined"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:207
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:206
+msgid "The property 'SERVICE_TYPE_VERSIONS' isn't defined"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:216
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:215
+msgid "The property 'TITLE' isn't defined"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:221
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:220
+msgid "The property 'TITLE' doesn't contain the good number of string."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:236
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:235
+msgid "The property 'ABSTRACT' isn't defined"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:241
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:240
+msgid "The property 'ABSTRACT' doesn't contain the good number of string."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:257
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:256
+msgid "The property 'KEYWORDS' isn't defined"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:262
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:261
+msgid "The property 'KEYWORDS' doesn't contain the good number of string."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:272
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:271
+msgid ""
+"The property 'KEYWORDS' doesn't contain the same number of keywords for each "
+"languages."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_2_0.java:299
+#: org/orbisgis/orbiswps/service/utils/WpsServerProperties_1_0_0.java:298
+msgid "The property 'ACCESS_CONSTRAINTS' isn't defined"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsServerUtils.java:42
+#, java-format
+msgid ""
+"Unable to generate the XMLGregorianCalendar object.\n"
+"Cause : {0}."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsScriptUtils.java:72
+#, java-format
+msgid "Unable to get the URL of the process {0}"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsScriptUtils.java:79
+msgid "Unable to create the script file."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsScriptUtils.java:83
+#, java-format
+msgid ""
+"Unable to create the icon file.\n"
+" Error : {0}"
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsScriptUtils.java:89
+msgid "Unable to copy the content of the script to the temporary file."
+msgstr ""
+
+#: org/orbisgis/orbiswps/service/utils/WpsDataUtils.java:80
+msgid "Only 2D bounding boxes are supported yet."
+msgstr ""

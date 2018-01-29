@@ -300,8 +300,10 @@ public class ProcessManager {
         if(groovyObject != null) {
             CancelClosure closure = new CancelClosure(this);
             closureMap.put(jobId, closure);
-            for(Map.Entry<String, Object> entry : propertiesMap.entrySet()){
-                groovyObject.setProperty(entry.getKey(), entry.getValue());
+            if(propertiesMap != null) {
+                for (Map.Entry<String, Object> entry : propertiesMap.entrySet()) {
+                    groovyObject.setProperty(entry.getKey(), entry.getValue());
+                }
             }
             if (dataSource != null) {
                 WpsSql sql = new WpsSql(dataSource);

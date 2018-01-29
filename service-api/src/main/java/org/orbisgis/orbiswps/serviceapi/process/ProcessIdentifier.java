@@ -45,6 +45,7 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import java.net.URL;
+import java.util.Map;
 
 /**
  * Class containing information to identify a process.
@@ -82,4 +83,8 @@ public interface ProcessIdentifier {
     URL getSourceUrl();
 
     I18n getI18n();
+
+    void setProperties(Map<String, Object> properties);
+
+    Map<String, Object> getProperties();
 }

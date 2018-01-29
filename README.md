@@ -54,7 +54,7 @@ OSGI mechanism.
 ## Server module
 This module contains the whole WPS mechanism which can be divided into two part : the script parsing and the WPS 
 request execution. The WPS service can be customized by instantiating the `WpsServerImpl` class with a customized 
-version of the [properties file](https://github.com/orbisgis/orbiswps/blob/master/server/src/main/resources/org/orbiswps/server/utils/basicWpsServer.properties)
+version of the [properties file](https://github.com/orbisgis/orbiswps/blob/master/server/src/main/resources/org/orbisgis/orbiswps/service/utils/basicWpsServer.properties)
 
 ### Script parsing
 The script parsing is done in 3 steps :

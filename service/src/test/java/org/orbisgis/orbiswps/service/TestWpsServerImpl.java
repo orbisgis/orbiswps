@@ -469,7 +469,7 @@ public class TestWpsServerImpl {
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the StatusInfo job id should not be null",
                 ((StatusInfo)resultObject).getJobID());
         Assert.assertEquals("Error on unmarshalling the WpsService answer, the StatusInfo status should be 'RUNNING'",
-                ((StatusInfo)resultObject).getStatus(), "RUNNING");
+                "RUNNING", ((StatusInfo)resultObject).getStatus());
 
 
         //Wait to be sure that the process has started. If it is not possible, raise a flag

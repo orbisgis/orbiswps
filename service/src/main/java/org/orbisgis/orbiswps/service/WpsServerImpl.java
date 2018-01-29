@@ -92,9 +92,6 @@ public class WpsServerImpl implements WpsServer {
     private ProcessManager processManager;
     /** ExecutorService of OrbisGIS */
     private ExecutorService executorService;
-    /** Map containing all the properties to give to the groovy object.
-     * The following words are reserved and SHOULD NOT be used as keys : 'logger', 'sql', 'isH2'. */
-    private Map<String, Object> propertiesMap;
     /** True if a process is running, false otherwise. */
     private boolean processRunning = false;
     /** FIFO list of ProcessWorker, it is used to run the processes one by one in the good order. */
@@ -117,7 +114,6 @@ public class WpsServerImpl implements WpsServer {
      * EmptyConstructor which load all its properties from the resource WpsServer properties file.
      */
     public WpsServerImpl(){
-        propertiesMap = new HashMap<>();
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(null, this);
         workerFIFO = new LinkedList<>();
@@ -134,7 +130,6 @@ public class WpsServerImpl implements WpsServer {
      */
     public WpsServerImpl(DataSource dataSource, ExecutorService executorService){
         this.executorService = executorService;
-        propertiesMap = new HashMap<>();
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
         workerFIFO = new LinkedList<>();
@@ -152,7 +147,6 @@ public class WpsServerImpl implements WpsServer {
      */
     public WpsServerImpl(DataSource dataSource, String propertyFileLocation, ExecutorService executorService){
         this.executorService = executorService;
-        propertiesMap = new HashMap<>();
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
         workerFIFO = new LinkedList<>();
@@ -185,6 +179,7 @@ public class WpsServerImpl implements WpsServer {
             ProcessIdentifier pi = this.processManager.addScript(url);
             if(pi != null && pi.getProcessOffering() != null) {
                 pi.setI18n(wpsScriptBundle.getI18n());
+                pi.setProperties(wpsScriptBundle.getGroovyProperties());
                 Map<ProcessMetadata.INTERNAL_METADATA, Object> map = wpsScriptBundle.getScriptMetadata(url);
                 for (Map.Entry<ProcessMetadata.INTERNAL_METADATA, Object> entry : map.entrySet()) {
                     MetadataType metadataType = new MetadataType();
@@ -361,7 +356,7 @@ public class WpsServerImpl implements WpsServer {
      * @return True if a process is running, false otherwise.
      */
     public Future executeNewProcessWorker(Job job, ProcessIdentifier processIdentifier, Map<URI, Object> dataMap){
-        ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this, propertiesMap);
+        ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this);
 
         if(processRunning){
             workerFIFO.push(worker);

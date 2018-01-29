@@ -46,6 +46,8 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class containing information to identify a process.
@@ -63,6 +65,8 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
     private URL sourceUrl;
 
     private I18n i18n;
+
+    private Map<String, Object> properties;
 
     /**
      * Main constructor.
@@ -129,5 +133,15 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
 
     public I18n getI18n() {
         return i18n;
+    }
+
+    @Override
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 }

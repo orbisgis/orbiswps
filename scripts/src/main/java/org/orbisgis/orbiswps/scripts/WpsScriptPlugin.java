@@ -89,7 +89,7 @@ public class WpsScriptPlugin implements WpsScriptBundle {
     @Activate
     public void activate(){
         //Initialize icons and path collections
-        icons = new URL[]{this.getClass().getResource(ICONS_RESOURCE_FOLDER_PATH+File.separator+ICON_NAME)};
+        icons = new URL[]{this.getClass().getResource(ICONS_RESOURCE_FOLDER_PATH+"/"+ICON_NAME)};
         cachedPath = new HashMap<>();
 
         //Mark the path parts to translate
@@ -152,10 +152,10 @@ public class WpsScriptPlugin implements WpsScriptBundle {
             //If the URL is a groovy file, build the node path, cache it and add the url to the list to return.
             if(u.getFile().endsWith(GROOVY_EXTENSION)){
                 int pathStartIndex = this.getClass().getResource(SCRIPTS_RESOURCE_FOLDER_PATH).toString().length();
-                String[] pathArray = new File(u.toString()).getParent().substring(pathStartIndex).split(File.separator);
+                String[] pathArray = new File(u.toString()).getParent().substring(pathStartIndex).split("/");
                 StringBuilder finalPath = new StringBuilder(I18N.tr(BASE_PATH));
                 for(String pathPart : pathArray){
-                    finalPath.append(File.separator).append(I18N.tr(pathPart));
+                    finalPath.append("/").append(I18N.tr(pathPart));
                 }
                 cachedPath.put(u, finalPath.toString());
                 list.add(u);

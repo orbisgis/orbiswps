@@ -95,7 +95,7 @@
         </dependency>
         <dependency>
             <groupId>org.orbisgis</groupId>
-            <artifactId>h2gis-functions</artifactId>
+            <artifactId>h2gis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.orbisgis</groupId>

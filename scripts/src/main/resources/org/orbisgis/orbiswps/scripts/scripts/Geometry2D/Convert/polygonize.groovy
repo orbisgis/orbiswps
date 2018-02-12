@@ -84,7 +84,7 @@ def processing() {
     if(dropInputTable){
         sql.execute "drop table if exists ${inputJDBCTable}"
     }
-    literalOutput = i18n.tr("Process done")
+    //literalOutput = i18n.tr("Process done")
 }
 
 

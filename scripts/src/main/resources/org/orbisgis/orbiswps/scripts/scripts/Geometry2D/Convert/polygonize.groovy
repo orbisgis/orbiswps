@@ -45,10 +45,6 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
  * This process converts geometries to polygons
- * The user has to specify (mandatory):
- *  - The input spatial model source (JDBCTable)
- *  - The geometry column (LiteralData)
- *  - The output model source (JDBCTable)
  *
  * @author Erwan Bocher
  */
@@ -64,11 +60,11 @@ def processing() {
     String query = "CREATE TABLE ${outputTableName} AS SELECT "    
     
     if(isH2){
-        query+= " * from ST_EXPLODE('(SELECT "
+        query+= " explod_id as id, the_geom from ST_EXPLODE('(SELECT "
         if(node){
             query +=  "st_polygonize(st_union(st_precisionreducer(st_node(st_accum(${the_geom})), 3))) as the_geom from ${inputJDBCTable} where st_dimension(${the_geom})>0)')"    
         }else{
-            query +=  "st_polygonize(st_accum(${the_geom}) as the_geom from ${inputJDBCTable} where st_dimension(${the_geom})>0)')"    
+            query +=  "st_polygonize(st_accum(${the_geom})) as the_geom from ${inputJDBCTable} where st_dimension(${the_geom})>0)')"    
         }
     }
     else{
@@ -80,7 +76,7 @@ def processing() {
         }
     }    
     
-    if(dropTable){
+    if(dropOutputTable){
 	sql.execute "drop table if exists ${outputTableName}".toString()
     }
     
@@ -123,7 +119,7 @@ Boolean node
 @LiteralDataInput(
     title = "Drop the output table if exists",
     description = "Drop the output table if exists.")
-Boolean dropTable 
+Boolean dropOutputTable 
 
 @LiteralDataInput(
 		title = "Output table name",

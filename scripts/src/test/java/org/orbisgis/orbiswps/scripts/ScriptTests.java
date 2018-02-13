@@ -74,6 +74,7 @@ public class ScriptTests {
     /** {@link java.sql.Statement} object used to execute Sql queries. */
     private Statement st;
 
+
     @BeforeClass
     public static void tearUp() throws Exception {
         // Keep a connection alive to not close the DataBase on each unit test
@@ -562,6 +563,95 @@ public class ScriptTests {
         assertTrue(rs.next());   
         //polygon
         Assert.assertTrue(rs.getDouble(2)<1);
+        rs.close();
+    }
+    
+    @Test
+    public void testPolygonize1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Convert/polygonize.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomForms");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "polygonize_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);
+        propertyMap.put("isH2", true);
+
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon); "
+                + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 330, 220 330, 220 230, 100 230, 100 330))'))"
+                + ",(ST_GeomFromText('POLYGON ((160 340, 290 340, 290 260, 160 260, 160 340))')),"
+                + "(ST_GeomFromText('POLYGON ((60 270, 140 270, 140 180, 60 180, 60 270))'))");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done", outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM polygonize_res;");
+        assertTrue(rs.next());
+        Assert.assertEquals(3, rs.getInt(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testPolygonize2() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Convert/polygonize.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomForms");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("node", true);
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "polygonize_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);
+        propertyMap.put("isH2", true);
+
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon); "
+                + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 330, 220 330, 220 230, 100 230, 100 330))'))"
+                + ",(ST_GeomFromText('POLYGON ((160 340, 290 340, 290 260, 160 260, 160 340))')),"
+                + "(ST_GeomFromText('POLYGON ((60 270, 140 270, 140 180, 60 180, 60 270))'))");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done", outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM polygonize_res;");
+        assertTrue(rs.next());
+        Assert.assertEquals(5, rs.getInt(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testPolygonize3() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Convert/polygonize.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomForms");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("node", true);
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "polygonize_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);
+        propertyMap.put("isH2", true);
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomForms (the_geom linestring); "
+                + "INSERT INTO geomForms VALUES(ST_GeomFromText('LINESTRING (90 200, 240 330)'))"
+                + ",(ST_GeomFromText('LINESTRING (150 340, 290 240)')),"
+                +" (ST_GeomFromText('LINESTRING (100 290, 190 200, 270 310)')),"
+                + "(ST_GeomFromText('LINESTRING (220 360, 90 260, 140 180)'))");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done", outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM polygonize_res;");
+        assertTrue(rs.next());
+        Assert.assertEquals(3, rs.getInt(1));
         rs.close();
     }
 }

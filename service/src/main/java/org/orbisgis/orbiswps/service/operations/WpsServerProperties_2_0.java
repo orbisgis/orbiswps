@@ -142,8 +142,10 @@ public class WpsServerProperties_2_0 {
         public final String[] SUPPORTED_LANGUAGES;
         /** Supported format for the communication with the client. */
         public final String[] SUPPORTED_FORMATS;
-        /** Default languages. */
+        /** Available job control. */
         public final String[] JOB_CONTROL_OPTIONS;
+        /** Available transmission type. */
+        public final String[] DATA_TRANSMISSION_TYPE;
 
         public GlobalProperties(Properties properties) throws Exception {
             SERVICE = properties.getProperty("SERVICE");
@@ -175,6 +177,7 @@ public class WpsServerProperties_2_0 {
                 throw new Exception(I18N.tr("The property 'JOB_CONTROL_OPTIONS' isn't defined"));
             }
             JOB_CONTROL_OPTIONS = properties.getProperty("JOB_CONTROL_OPTIONS").split(",");
+            DATA_TRANSMISSION_TYPE = properties.getProperty("DATA_TRANSMISSION_TYPE").split(",");
         }
     }
 

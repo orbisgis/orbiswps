@@ -39,14 +39,21 @@
  */
 package org.orbisgis.orbiswps.testsuite;
 
+import net.opengis.wps._2_0.*;
+import net.opengis.wps._2_0.BoundingBoxData;
+import net.opengis.wps._2_0.ObjectFactory;
 import org.h2gis.functions.factory.H2GISDBFactory;
 import org.h2gis.utilities.SFSUtilities;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.orbisgis.orbiswps.scripts.WpsScriptPlugin;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
+import org.orbisgis.orbiswps.service.model.*;
 
 import javax.sql.DataSource;
+import javax.xml.bind.*;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
 
@@ -56,13 +63,22 @@ import java.util.concurrent.Executors;
 public class AbstractTestSuite {
 
     private WpsServerImpl wpsServer;
+    private Unmarshaller unmarshaller;
+    private Marshaller marshaller;
+    private ObjectFactory factory;
 
     @Before
-    public void init() throws SQLException {
+    public void init() throws SQLException, JAXBException {
         DataSource dataSource = SFSUtilities.wrapSpatialDataSource(H2GISDBFactory.createDataSource(
                 AbstractTestSuite.class.getSimpleName(), false));
         wpsServer = new WpsServerImpl(dataSource, Executors.newSingleThreadExecutor());
-        wpsServer.addWpsScriptBundle(new WpsScriptPlugin());
+        WpsScriptPlugin plugin = new WpsScriptPlugin();
+        plugin.activate();
+        wpsServer.addWpsScriptBundle(plugin);
+
+        unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
+        marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
+        factory = new ObjectFactory();
     }
 
     /**
@@ -80,9 +96,45 @@ public class AbstractTestSuite {
      *
      */
     @Test
-    public void A1Test(){
-        A41Test();
-        A43Test();
+    public void A1Test() throws JAXBException {
+        GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        marshaller.marshal(factory.createGetCapabilities(getCapabilities), out);
+        InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsServer.callOperation(in);
+
+        ByteArrayInputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
+        Object resultObject = unmarshaller.unmarshal(resultXml);
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType)((JAXBElement)resultObject).getValue();
+
+        DescribeProcess describeProcess = new DescribeProcess();
+        for(ProcessSummaryType summary : capabilities.getContents().getProcessSummary()){
+            describeProcess.getIdentifier().add(summary.getIdentifier());
+        }
+        describeProcess.setLang("en");
+
+        out = new ByteArrayOutputStream();
+        marshaller.marshal(describeProcess, out);
+        in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
+
+        xml = (ByteArrayOutputStream) wpsServer.callOperation(in);
+
+        resultXml = new ByteArrayInputStream(xml.toByteArray());
+        resultObject = unmarshaller.unmarshal(resultXml);
+
+        //For each processes, try to marshall/unmarshall them to test the compatibility with the model
+        for(ProcessOffering po : ((ProcessOfferings)resultObject).getProcessOffering()) {
+            ProcessDescriptionType process = po.getProcess();
+            A41Test(process);
+            for(InputDescriptionType input : process.getInput()){
+                A43Test(input.getDataDescription().getValue());
+            }
+            for(OutputDescriptionType output : process.getOutput()){
+                A43Test(output.getDataDescription().getValue());
+            }
+        }
+
+
         A2Test();
         A3Test();
     }
@@ -171,8 +223,11 @@ public class AbstractTestSuite {
      * Verify that a given process description is in compliance with the Process XML encoding.
      * Verify that the tested document fulfils all requirements listed in req/native-process/xml-encoding/process.
      */
-    public void A41Test(){
-
+    public void A41Test(ProcessDescriptionType process) throws JAXBException {
+        //If the process is compliant with the model, it should be well marshalled
+        ByteArrayOutputStream testOut = new ByteArrayOutputStream();
+        marshaller.marshal(factory.createProcess(process), testOut);
+        Assert.assertTrue(testOut.size() != 0);
     }
 
     /**
@@ -180,9 +235,9 @@ public class AbstractTestSuite {
      * Verify that the tested document fulfils all requirements listed in
      * req/native-process/xml-encoding/generic-process.
      */
-    @Test
     public void A42Test(){
-
+        //TODO support generic processes/input/output
+        //Not supported yet
     }
 
     /**
@@ -197,8 +252,21 @@ public class AbstractTestSuite {
      * For LiteralData values: Test passes if the tested XML fragment validates against wps:LiteralValue.
      * For BoundingBoxData values: Test passes if the tested XML fragment validates against ows:BoundingBox.
      */
-    public void A43Test(){
-
+    public void A43Test(DataDescriptionType descriptionType) throws JAXBException {
+        if(descriptionType instanceof BoundingBoxData){
+            BoundingBoxData data = (BoundingBoxData)descriptionType;
+            ByteArrayOutputStream testOut = new ByteArrayOutputStream();
+            marshaller.marshal(factory.createBoundingBoxData(data), testOut);
+            Assert.assertTrue(testOut.size() != 0);
+        }
+        if(descriptionType instanceof LiteralDataType){
+            LiteralDataType literalDataType = (LiteralDataType)descriptionType;
+            ByteArrayOutputStream testOut = new ByteArrayOutputStream();
+            marshaller.marshal(factory.createLiteralData(literalDataType), testOut);
+            Assert.assertTrue(testOut.size() != 0);
+        }
+        if(descriptionType instanceof ComplexDataType){
+        }
     }
 
     /**

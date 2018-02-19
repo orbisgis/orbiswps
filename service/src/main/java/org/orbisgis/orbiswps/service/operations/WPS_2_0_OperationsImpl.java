@@ -197,7 +197,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         WPSCapabilitiesType capabilitiesType = new WPSCapabilitiesType();
         capabilitiesType.setExtension(new WPSCapabilitiesType.Extension());
         capabilitiesType.setUpdateSequence(wpsProp.GLOBAL_PROPERTIES.SERVER_VERSION);
-        capabilitiesType.setVersion(wpsProp.GLOBAL_PROPERTIES.SERVER_VERSION);
+        capabilitiesType.setVersion("2.0");
         if(requestedSections.contains(SectionName.All) || requestedSections.contains(SectionName.Languages)) {
             CapabilitiesBaseType.Languages languages = new CapabilitiesBaseType.Languages();
             for(String language : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
@@ -252,12 +252,20 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
             List<ProcessSummaryType> processSummaryTypeList = new ArrayList<>();
             List<ProcessIdentifier> processIdList = processManager.getAllProcessIdentifier();
             for (ProcessIdentifier pId : processIdList) {
-                ProcessDescriptionType process = pId.getProcessDescriptionType();
                 ProcessDescriptionType translatedProcess = ProcessTranslator.getTranslatedProcess(
                         pId, requestLanguage, wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
                 ProcessSummaryType processSummaryType = new ProcessSummaryType();
                 processSummaryType.getJobControlOptions().clear();
                 processSummaryType.getJobControlOptions().addAll(Arrays.asList(wpsProp.GLOBAL_PROPERTIES.JOB_CONTROL_OPTIONS));
+                processSummaryType.getOutputTransmission().clear();
+                for(String str : wpsProp.GLOBAL_PROPERTIES.DATA_TRANSMISSION_TYPE){
+                    if(str.equalsIgnoreCase(DataTransmissionModeType.VALUE.value())){
+                        processSummaryType.getOutputTransmission().add(DataTransmissionModeType.VALUE);
+                    }
+                    else if(str.equalsIgnoreCase(DataTransmissionModeType.REFERENCE.value())){
+                        processSummaryType.getOutputTransmission().add(DataTransmissionModeType.REFERENCE);
+                    }
+                }
                 processSummaryType.setIdentifier(translatedProcess.getIdentifier());
                 processSummaryType.getMetadata().clear();
                 processSummaryType.getMetadata().addAll(translatedProcess.getMetadata());

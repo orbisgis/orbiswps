@@ -74,35 +74,44 @@ def processing() {
                 query+="${the_geom})) as the_geom"
             }   
             
-            query+=" FROM ${inputJDBCTable} "
-        
-            if(groupby!=null){
-            query+= " group by " + groupby.join(",")               
-            } 
-            
+        if(groupby!=null){
+            query+="," +groupby.join(",")+ " FROM ${inputJDBCTable} "
+            query+= " group by " + groupby.join(",")     
             query+=")')"
-            
+        } 
+        else{
+            query+="," +groupby.join(",")+ " FROM ${inputJDBCTable} )')" 
+        }  
     }
     else{
-        query+= "row_number() OVER () AS id,(ST_Dump( ST_Union("
+        query+= "row_number() OVER () AS id, the_geom "
         
+        if(groupby!=null){
+            query+= "," + groupby.join(",")
+        }
+        
+        query+= "from (select (ST_Dump( ST_Union("
         //Use a distance
         if(buffer>0){
-            query+= "st_buffer(${the_geom}, ${buffer})))) as the_geom"
+            query+= "st_buffer(${the_geom}, ${buffer})))).geom as the_geom"
         }
         else{
-            query+="${the_geom}))) as the_geom"
+            query+="${the_geom}))).geom as the_geom"
         }  
-        query+=" FROM ${inputJDBCTable}"
+        
         if(groupby!=null){
+            query+= "," +groupby.join(",") + " FROM ${inputJDBCTable}"
             query+= " group by " + groupby.join(",")
+            query+=" ) as foo"
+        }else{
+            query+= " FROM ${inputJDBCTable}) as foo"
         }
     }    
     
     if(dropOutputTable){
 	sql.execute "drop table if exists ${outputTableName}".toString()
     }
-    
+    System.out.println(query.toString())
     sql.execute(query.toString())
     if(dropInputTable){
         sql.execute "drop table if exists ${inputJDBCTable}"

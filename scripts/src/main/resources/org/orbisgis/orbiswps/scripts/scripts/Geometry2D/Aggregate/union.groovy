@@ -90,7 +90,7 @@ def processing() {
             query+= "," + groupby.join(",")
         }
         
-        query+= "from (select (ST_Dump( ST_Union("
+        query+= " from (select (ST_Dump( ST_Union("
         //Use a distance
         if(buffer>0){
             query+= "st_buffer(${the_geom}, ${buffer})))).geom as the_geom"

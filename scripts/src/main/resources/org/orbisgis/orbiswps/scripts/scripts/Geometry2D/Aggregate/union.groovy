@@ -44,7 +44,7 @@ import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
- * This process converts geometries to polygons
+ * This process aggregate geometries using the union operator
  *
  * @author Erwan Bocher
  */

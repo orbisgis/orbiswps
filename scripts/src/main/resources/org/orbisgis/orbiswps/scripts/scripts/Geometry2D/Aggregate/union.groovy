@@ -81,7 +81,6 @@ def processing() {
             query+=" FROM ${inputJDBCTable} )')" 
         }  
         
-        System.out.println(query.toString())
     }
     else{
         query+= "row_number() OVER () AS id, the_geom "

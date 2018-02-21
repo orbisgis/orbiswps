@@ -118,8 +118,8 @@ def processing() {
 /****************/
 
 @JDBCTableInput(
-		title = "Table to union",
-		description = "The table to polygonize.",
+		title = "Input table",
+		description = "Table that contains the input geometries.",
         dataTypes = ["GEOMETRY"])
 String inputJDBCTable
 

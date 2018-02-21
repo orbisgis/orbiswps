@@ -42,6 +42,8 @@ package org.orbisgis.orbiswps.service.operations;
 import net.opengis.ows._2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3._1999.xlink.ActuateType;
+import org.w3._1999.xlink.ShowType;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
@@ -51,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -311,11 +314,111 @@ public class WpsServerProperties_2_0 {
         public final String PROVIDER_NAME;
         /** Reference to the most relevant web site of the service provider. */
         public final OnlineResourceType PROVIDER_SITE;
+        /** Information for contacting the service provider. he OnlineResource element within this ServiceContact
+         * element should not be used to reference a web site of the service provider.. */
+        public final ResponsiblePartySubsetType SERVICE_CONTACT;
 
         public ServiceProviderProperties(Properties properties) throws Exception {
             PROVIDER_NAME = properties.getProperty("PROVIDER_NAME");
-            PROVIDER_SITE = new OnlineResourceType();
-            PROVIDER_SITE.setHref(properties.getProperty("PROVIDER_SITE"));
+            if(properties.containsKey("PROVIDER_SITE")) {
+                PROVIDER_SITE = new OnlineResourceType();
+                if (properties.containsKey("PROVIDER_SITE_HREF")) {
+                    PROVIDER_SITE.setHref(properties.getProperty("PROVIDER_SITE_HREF"));
+                }
+                if (properties.containsKey("PROVIDER_SITE_ROLE")) {
+                    PROVIDER_SITE.setRole(properties.getProperty("PROVIDER_SITE_ROLE"));
+                }
+                if (properties.containsKey("PROVIDER_SITE_ARCROLE")) {
+                    PROVIDER_SITE.setArcrole(properties.getProperty("PROVIDER_SITE_ARCROLE"));
+                }
+                if (properties.containsKey("PROVIDER_SITE_TITLE")) {
+                    PROVIDER_SITE.setTitle(properties.getProperty("PROVIDER_SITE_TITLE"));
+                }
+                if (properties.containsKey("PROVIDER_SITE_SHOW")) {
+                    PROVIDER_SITE.setShow(ShowType.valueOf(properties.getProperty("PROVIDER_SITE_SHOW").toUpperCase()));
+                }
+                if (properties.containsKey("PROVIDER_SITE_ACTUATE")) {
+                    PROVIDER_SITE.setActuate(ActuateType.valueOf(properties.getProperty("PROVIDER_SITE_ACTUATE").toUpperCase()));
+                }
+            }
+            else{
+                PROVIDER_SITE=null;
+            }
+            if(properties.containsKey("SERVICE_CONTACT")){
+                SERVICE_CONTACT = new ResponsiblePartySubsetType();
+                if(properties.containsKey("SERVICE_CONTACT_INDIVIDUAL_NAME")){
+                    SERVICE_CONTACT.setIndividualName(properties.getProperty("SERVICE_CONTACT_INDIVIDUAL_NAME"));
+                }
+                if(properties.containsKey("SERVICE_CONTACT_POSITION_NAME")){
+                    SERVICE_CONTACT.setPositionName(properties.getProperty("SERVICE_CONTACT_POSITION_NAME"));
+                }
+                if(properties.containsKey("SERVICE_CONTACT_INFO")){
+                    ContactType contactType = new ContactType();
+                    if(properties.containsKey("SERVICE_CONTACT_INFO_ADDRESS")){
+                        AddressType addressType = new AddressType();
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ADDRESS_DELIVERY_POINT")) {
+                            Collections.addAll(addressType.getDeliveryPoint(),
+                                    properties.getProperty("SERVICE_CONTACT_INFO_ADDRESS_DELIVERY_POINT").split(","));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ADDRESS_CITY")) {
+                            addressType.setCity(properties.getProperty("SERVICE_CONTACT_INFO_ADDRESS_CITY"));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ADDRESS_ADMINISTRATIVE_AREA")) {
+                            addressType.setAdministrativeArea(properties.getProperty("SERVICE_CONTACT_INFO_ADDRESS_ADMINISTRATIVE_AREA"));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ADDRESS_POSTAL_CODE")) {
+                            addressType.setPostalCode(properties.getProperty("SERVICE_CONTACT_INFO_ADDRESS_POSTAL_CODE"));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ADDRESS_COUNTRY")) {
+                            addressType.setCountry(properties.getProperty("SERVICE_CONTACT_INFO_ADDRESS_COUNTRY"));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ADDRESS_EMAILS")) {
+                            Collections.addAll(addressType.getElectronicMailAddress(),
+                                    properties.getProperty("SERVICE_CONTACT_INFO_ADDRESS_EMAILS").split(","));
+                        }
+                        contactType.setAddress(addressType);
+                    }
+                    if(properties.containsKey("SERVICE_CONTACT_INFO_ONLINE_RESOURCE")){
+                        OnlineResourceType onlineResourceType = new OnlineResourceType();
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_HREF")) {
+                            onlineResourceType.setHref(properties.getProperty("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_HREF"));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_ROLE")) {
+                            onlineResourceType.setRole(properties.getProperty("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_ROLE"));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_ARCROLE")) {
+                            onlineResourceType.setArcrole(properties.getProperty("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_ARCROLE"));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_TITLE")) {
+                            onlineResourceType.setTitle(properties.getProperty("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_TITLE"));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_SHOW")) {
+                            onlineResourceType.setShow(ShowType.valueOf(properties
+                                    .getProperty("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_SHOW").toUpperCase()));
+                        }
+                        if (properties.containsKey("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_ACTUATE")) {
+                            onlineResourceType.setActuate(ActuateType.valueOf(properties
+                                    .getProperty("SERVICE_CONTACT_INFO_ONLINE_RESOURCE_ACTUATE").toUpperCase()));
+                        }
+                        contactType.setOnlineResource(onlineResourceType);
+                    }
+                    if (properties.containsKey("SERVICE_CONTACT_INFO_HOURS_OF_SERVICE")) {
+                        contactType.setHoursOfService(properties.getProperty("SERVICE_CONTACT_INFO_HOURS_OF_SERVICE"));
+                    }
+                    if (properties.containsKey("SERVICE_CONTACT_INFO_INSTRUCTIONS")) {
+                        contactType.setContactInstructions(properties.getProperty("SERVICE_CONTACT_INFO_INSTRUCTIONS"));
+                    }
+                    SERVICE_CONTACT.setContactInfo(contactType);
+                }
+                if(properties.containsKey("SERVICE_CONTACT_ROLE")){
+                    CodeType codeType = new CodeType();
+                    codeType.setValue(properties.getProperty("SERVICE_CONTACT_ROLE"));
+                    SERVICE_CONTACT.setRole(codeType);
+                }
+            }
+            else{
+                SERVICE_CONTACT=null;
+            }
         }
     }
 

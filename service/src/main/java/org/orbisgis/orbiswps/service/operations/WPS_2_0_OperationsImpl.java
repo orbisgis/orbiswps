@@ -243,6 +243,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
             ServiceProvider serviceProvider = new ServiceProvider();
             serviceProvider.setProviderName(wpsProp.SERVICE_PROVIDER_PROPERTIES.PROVIDER_NAME);
             serviceProvider.setProviderSite(wpsProp.SERVICE_PROVIDER_PROPERTIES.PROVIDER_SITE);
+            serviceProvider.setServiceContact(wpsProp.SERVICE_PROVIDER_PROPERTIES.SERVICE_CONTACT);
             capabilitiesType.setServiceProvider(serviceProvider);
         }
 

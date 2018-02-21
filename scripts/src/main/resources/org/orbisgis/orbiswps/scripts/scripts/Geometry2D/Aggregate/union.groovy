@@ -59,7 +59,11 @@ def processing() {
     String query = "CREATE TABLE ${outputTableName} AS SELECT  "    
     
     if(isH2){        
-            query+= "EXPLOD_ID as id, the_geom FROM st_explode('(select ST_UNION(ST_ACCUM("
+            query+= "EXPLOD_ID as id"            
+            if(groupby?.empty){
+            query+= "," + groupby.join(",")
+            }            
+            query+= ",the_geom FROM st_explode('(select ST_UNION(ST_ACCUM("
             //Use a distance
             if(buffer>0){
                 query+= "st_buffer(${the_geom}, ${buffer}))) as the_geom "
@@ -68,19 +72,21 @@ def processing() {
                 query+="${the_geom})) as the_geom"
             }   
             
-        if(groupby!=null){
+        if(groupby?.empty){
             query+="," +groupby.join(",")+ " FROM ${inputJDBCTable} "
             query+= " group by " + groupby.join(",")     
             query+=")')"
         } 
         else{
-            query+="," +groupby.join(",")+ " FROM ${inputJDBCTable} )')" 
+            query+=" FROM ${inputJDBCTable} )')" 
         }  
+        
+        System.out.println(query.toString())
     }
     else{
         query+= "row_number() OVER () AS id, the_geom "
         
-        if(groupby!=null){
+        if(groupby?.empty){
             query+= "," + groupby.join(",")
         }
         
@@ -93,7 +99,7 @@ def processing() {
             query+="${the_geom}))).geom as the_geom"
         }  
         
-        if(groupby!=null){
+        if(groupby?.empty){
             query+= "," +groupby.join(",") + " FROM ${inputJDBCTable}"
             query+= " group by " + groupby.join(",")
             query+=" ) as foo"

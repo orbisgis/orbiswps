@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.scripts.scripts.Geometry2D.Convert
+package org.orbisgis.orbiswps.scripts.scripts.Geometry2D.Aggregate
 
 import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*

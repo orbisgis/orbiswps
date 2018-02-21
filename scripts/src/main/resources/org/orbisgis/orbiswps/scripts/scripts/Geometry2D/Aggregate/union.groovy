@@ -55,13 +55,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 		properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
                 version = "1.0")
 def processing() {
-    def the_geom;
-    if(geometricField==null){
-        the_geom = SFSUtilities.getFirstGeometryFieldName(sql.executeQuery("select * from $outputTableName"));
-    }
-    else{
-        the_geom = geometricField[0]   
-    }
+    def the_geom = geometricField[0]       
     String query = "CREATE TABLE ${outputTableName} AS SELECT  "    
     
     if(isH2){        

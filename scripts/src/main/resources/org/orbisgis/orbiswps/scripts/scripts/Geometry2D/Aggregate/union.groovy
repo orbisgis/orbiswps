@@ -105,7 +105,6 @@ def processing() {
     if(dropOutputTable){
 	sql.execute "drop table if exists ${outputTableName}".toString()
     }
-    System.out.println(query.toString())
     sql.execute(query.toString())
     if(dropInputTable){
         sql.execute "drop table if exists ${inputJDBCTable}"

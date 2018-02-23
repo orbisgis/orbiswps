@@ -41,8 +41,7 @@ package org.orbisgis.orbiswps.service;
 
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
-import org.orbisgis.orbiswps.service.operations.WPS_1_0_0_OperationsImpl;
-import org.orbisgis.orbiswps.service.operations.WPS_2_0_OperationsImpl;
+import org.orbisgis.orbiswps.service.operations.*;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_2_0_Operations;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
@@ -52,8 +51,6 @@ import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.process.ProcessWorker;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
-import org.orbisgis.orbiswps.service.operations.WpsServerProperties_1_0_0;
-import org.orbisgis.orbiswps.service.operations.WpsServerProperties_2_0;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata;
 import org.osgi.service.component.annotations.*;
 import org.slf4j.Logger;
@@ -73,6 +70,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+
+import static org.orbisgis.orbiswps.service.operations.Converter.convertGetCapabilities1to2;
+import static org.orbisgis.orbiswps.service.operations.Converter.convertGetCapabilities2to1;
 
 /**
  * This class is an implementation of a WPS server.
@@ -100,8 +100,10 @@ public class WpsServerImpl implements WpsServer {
     private List<WpsServerListener> wpsServerListenerList = new ArrayList<>();
     /** Class execution the WPS 2.0 operations. */
     private WPS_2_0_Operations wps20Operations;
+    private WpsServerProperties_2_0 props20;
     /** Class execution the WPS 1.0.0 operations. */
     private WPS_1_0_0_Operations wps100Operations;
+    private WpsServerProperties_1_0_0 props100;
 
     private Map<UUID, Future> workerMap = new HashMap<>();
 
@@ -117,9 +119,9 @@ public class WpsServerImpl implements WpsServer {
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(null, this);
         workerFIFO = new LinkedList<>();
-        WpsServerProperties_2_0 props20 = new WpsServerProperties_2_0(null);
+        props20 = new WpsServerProperties_2_0(null);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
-        WpsServerProperties_1_0_0 props100 = new WpsServerProperties_1_0_0(null);
+        props100 = new WpsServerProperties_1_0_0(null);
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
@@ -133,9 +135,9 @@ public class WpsServerImpl implements WpsServer {
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
         workerFIFO = new LinkedList<>();
-        WpsServerProperties_2_0 props20 = new WpsServerProperties_2_0(null);
+        props20 = new WpsServerProperties_2_0(null);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
-        WpsServerProperties_1_0_0 props100 = new WpsServerProperties_1_0_0(null);
+        props100 = new WpsServerProperties_1_0_0(null);
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
@@ -150,9 +152,9 @@ public class WpsServerImpl implements WpsServer {
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
         workerFIFO = new LinkedList<>();
-        WpsServerProperties_2_0 props20 = new WpsServerProperties_2_0(propertyFileLocation);
+        props20 = new WpsServerProperties_2_0(propertyFileLocation);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
-        WpsServerProperties_1_0_0 props100 = new WpsServerProperties_1_0_0(propertyFileLocation);
+        props100 = new WpsServerProperties_1_0_0(propertyFileLocation);
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
@@ -239,22 +241,65 @@ public class WpsServerImpl implements WpsServer {
                 o = ((JAXBElement) o).getValue();
             }
             //Call the WPS method associated to the unmarshalled object
-            if(o instanceof net.opengis.wps._1_0_0.GetCapabilities){
-                Object answer = wps100Operations.getCapabilities((net.opengis.wps._1_0_0.GetCapabilities)o);
-                if(answer instanceof net.opengis.wps._1_0_0.WPSCapabilitiesType) {
-                    result = factory100.createCapabilities((net.opengis.wps._1_0_0.WPSCapabilitiesType)answer);
+            //Case of the getCapabilities request
+            if(o instanceof net.opengis.wps._1_0_0.GetCapabilities ||
+                    o instanceof net.opengis.wps._2_0.GetCapabilitiesType) {
+                //Get the version accepted
+                List<String> versions = new ArrayList<>();
+                if (o instanceof net.opengis.wps._1_0_0.GetCapabilities) {
+                    net.opengis.wps._1_0_0.GetCapabilities capabilities = (net.opengis.wps._1_0_0.GetCapabilities) o;
+                    if(capabilities.isSetAcceptVersions()) {
+                        versions = capabilities.getAcceptVersions().getVersion();
+                    }
+                } else {
+                    net.opengis.wps._2_0.GetCapabilitiesType capabilities = (net.opengis.wps._2_0.GetCapabilitiesType) o;
+                    if(capabilities.isSetAcceptVersions()) {
+                        versions = capabilities.getAcceptVersions().getVersion();
+                    }
+                }
+                //Get the answer according to the higher version
+                if(versions.contains("2.0")){
+                    net.opengis.wps._2_0.GetCapabilitiesType capabilities;
+                    if (o instanceof net.opengis.wps._1_0_0.GetCapabilities) {
+                        capabilities = convertGetCapabilities1to2((net.opengis.wps._1_0_0.GetCapabilities)o);
+                    } else {
+                        capabilities = (net.opengis.wps._2_0.GetCapabilitiesType)o;
+                    }
+                    Object answer = wps20Operations.getCapabilities(capabilities);
+                    if (answer instanceof net.opengis.wps._2_0.WPSCapabilitiesType) {
+                        result = factory20.createCapabilities((net.opengis.wps._2_0.WPSCapabilitiesType) answer);
+                    } else {
+                        result = answer;
+                    }
+                }
+                else if(versions.contains("1.0.0")){
+                    net.opengis.wps._1_0_0.GetCapabilities capabilities;
+                    if (o instanceof net.opengis.wps._1_0_0.GetCapabilities) {
+                        capabilities = (net.opengis.wps._1_0_0.GetCapabilities)o;
+                    } else {
+                        capabilities = convertGetCapabilities2to1((net.opengis.wps._2_0.GetCapabilitiesType)o,
+                                props100.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+                    }
+                    Object answer = wps100Operations.getCapabilities(capabilities);
+                    if (answer instanceof net.opengis.wps._1_0_0.WPSCapabilitiesType) {
+                        result = factory100.createCapabilities((net.opengis.wps._1_0_0.WPSCapabilitiesType) answer);
+                    } else {
+                        result = answer;
+                    }
                 }
                 else{
-                    result = answer;
-                }
-            }
-            else if(o instanceof net.opengis.wps._2_0.GetCapabilitiesType){
-                Object answer = wps20Operations.getCapabilities((net.opengis.wps._2_0.GetCapabilitiesType)o);
-                if(answer instanceof net.opengis.wps._2_0.WPSCapabilitiesType) {
-                    result = factory20.createCapabilities((net.opengis.wps._2_0.WPSCapabilitiesType)answer);
-                }
-                else{
-                    result = answer;
+                    net.opengis.wps._2_0.GetCapabilitiesType capabilities;
+                    if (o instanceof net.opengis.wps._1_0_0.GetCapabilities) {
+                        capabilities = convertGetCapabilities1to2((net.opengis.wps._1_0_0.GetCapabilities)o);
+                    } else {
+                        capabilities = (net.opengis.wps._2_0.GetCapabilitiesType)o;
+                    }
+                    Object answer = wps20Operations.getCapabilities(capabilities);
+                    if (answer instanceof net.opengis.wps._2_0.WPSCapabilitiesType) {
+                        result = factory20.createCapabilities((net.opengis.wps._2_0.WPSCapabilitiesType) answer);
+                    } else {
+                        result = answer;
+                    }
                 }
             }
             else if(o instanceof net.opengis.wps._1_0_0.DescribeProcess){

@@ -42,6 +42,8 @@ package org.orbisgis.orbiswps.serviceapi.model;
 import net.opengis.wps._2_0.ComplexDataType;
 import org.xnap.commons.i18n.I18n;
 
+import java.util.List;
+
 /**
  * This interface is used to make a WPS ComplexData translatable and gives a method to translate the attributes of
  * the ComplexData
@@ -54,8 +56,8 @@ public interface TranslatableComplexData {
      * Returns a translated version of this object.
      * The translated version must be the same as the original excepted the human readable strings which can be
      * translated.
-     * This method receive the default server language, the client asked language. The translated language must be, if
-     * possible, the client language or if not found the server language. It none of the language are found, uses any
+     * This method receive the list of asked languages by the client. The translated language must be, if
+     * possible, the client language or if not found the server language. If none of the language are found, uses any
      * language. If the server or the client language is '*', all the languages are accepted.
      *
      * As example :
@@ -67,5 +69,5 @@ public interface TranslatableComplexData {
      *
      * @return A copy of the object itself but with its attribute translated.
      */
-    ComplexDataType getTranslatedData(I18n i18n);
+    ComplexDataType getTranslatedData(I18n i18n, List<String> languages);
 }

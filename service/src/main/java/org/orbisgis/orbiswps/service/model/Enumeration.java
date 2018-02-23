@@ -48,6 +48,7 @@ import org.xnap.commons.i18n.I18n;
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Enumeration model class
@@ -166,8 +167,9 @@ public class Enumeration extends ComplexDataType implements TranslatableComplexD
     }
 
     @Override
-    public ComplexDataType getTranslatedData(I18n i18n) {
+    public ComplexDataType getTranslatedData(I18n i18n, List<String> languages) {
         try {
+            i18n.setLocale(Locale.forLanguageTag(languages.get(0).substring(0, 2)));
             Enumeration enumeration = new Enumeration(format, values);
             enumeration.setEditable(this.isEditable());
             enumeration.setMultiSelection(this.isMultiSelection());

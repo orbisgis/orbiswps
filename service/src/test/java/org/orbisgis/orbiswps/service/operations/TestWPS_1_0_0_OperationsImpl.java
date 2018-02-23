@@ -156,7 +156,7 @@ public class TestWPS_1_0_0_OperationsImpl {
         Assert.assertFalse("The wps server service identification keywords 1 keyword should not be empty",
                 capabilities.getServiceIdentification().getKeywords().get(1).getKeyword().isEmpty());
         Assert.assertEquals("The wps server service identification keywords 1 keyword value should be 'WPS'",
-                capabilities.getServiceIdentification().getKeywords().get(1).getKeyword().get(0).getValue(), "WPS");
+                "WPS service", capabilities.getServiceIdentification().getKeywords().get(1).getKeyword().get(0).getValue());
         Assert.assertEquals("The wps server service identification keywords 1 keyword language should be 'en'",
                 capabilities.getServiceIdentification().getKeywords().get(1).getKeyword().get(0).getLang(), "en");
         Assert.assertNotNull("The wps server service identification keywords 2 should not be null",
@@ -180,7 +180,7 @@ public class TestWPS_1_0_0_OperationsImpl {
         Assert.assertNotNull("The wps server service provider site should not be null",
                 capabilities.getServiceProvider().getProviderSite());
         Assert.assertEquals("The wps server service provider site href should be 'http://orbisgis.org/'",
-                capabilities.getServiceProvider().getProviderSite().getHref(), "http://orbisgis.org/");
+                "http://orbisgis.org/", capabilities.getServiceProvider().getProviderSite().getHref());
         Assert.assertNull("The wps server service provider site role should be null",
                 capabilities.getServiceProvider().getProviderSite().getRole());
         Assert.assertNull("The wps server service provider site arcrole should be null",

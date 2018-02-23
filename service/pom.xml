@@ -148,13 +148,6 @@
             <groupId>org.orbisgis</groupId>
             <artifactId>h2gis-api</artifactId>
         </dependency>
-        <!-- Dependency only used to avoid error due to a conflict between Cobertura and Java8 version of JAXB -->
-        <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>2.11.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>

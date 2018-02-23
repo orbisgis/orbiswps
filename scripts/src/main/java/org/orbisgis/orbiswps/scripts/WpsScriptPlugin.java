@@ -39,6 +39,7 @@
  */
 package org.orbisgis.orbiswps.scripts;
 
+import org.apache.commons.io.IOUtils;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata;
 import org.orbisgis.orbiswps.serviceapi.WpsScriptBundle;
 import org.osgi.framework.Bundle;
@@ -52,10 +53,15 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Main class of the plugin which implements the WpsScriptBundle.
@@ -122,6 +128,14 @@ public class WpsScriptPlugin implements WpsScriptBundle {
 
     @Override
     public List<URL> getScriptsList() {
+        File f = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        if(f.isFile()){
+            try {
+                return getAllSubJarUrl(new JarFile(f), "org/orbisgis/orbiswps/scripts/scripts");
+            } catch (IOException e) {
+                LOGGER.error(I18N.tr("Unable to read the scripts inside the jar :\n{0}", e.getMessage()));
+            }
+        }
         return getAllSubUrl(this.getClass().getResource(SCRIPTS_RESOURCE_FOLDER_PATH));
     }
 
@@ -163,6 +177,33 @@ public class WpsScriptPlugin implements WpsScriptBundle {
             //Else, explore the URL
             else{
                 list.addAll(getAllSubUrl(u));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Return the list of the {@link URL} of the Groovy files inside the given root url. It also puts in cache all the
+     * path associated to the script url.
+     * @return List of {@link URL} of the groovy files.
+     */
+    private List<URL> getAllSubJarUrl(JarFile jarFile, String path){
+        List<URL> list = new ArrayList<>();
+        //Iterates over all the file and folder URL contained in the root URL
+        final Enumeration<JarEntry> entries = jarFile.entries(); //gives ALL entries in jar
+        while(entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            if (entry.getName().startsWith(path + "/") && entry.getName().endsWith(".groovy")) { //filter according to the path
+                try {
+                    File file = File.createTempFile("orbisgis", ".groovy");
+                    Writer writer = new FileWriter(file);
+                    IOUtils.copy(jarFile.getInputStream(jarFile.getEntry(entry.getName())), writer);
+                    writer.flush();
+                    writer.close();
+                    list.add(file.toURI().toURL());
+                } catch (IOException e) {
+                    LOGGER.error(I18N.tr("Unable to copy the script {0} from the jar file.", entry.getName()));
+                }
             }
         }
         return list;

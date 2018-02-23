@@ -57,7 +57,7 @@ public class TestWPS_2_0_OperationsImpl {
         acceptLanguages.getLanguage().add("*");
         getCapabilitiesType.setAcceptLanguages(acceptLanguages);
         AcceptVersionsType acceptVersionsType = new AcceptVersionsType();
-        acceptVersionsType.getVersion().add("2.0.0");
+        acceptVersionsType.getVersion().add("2.0");
         getCapabilitiesType.setAcceptVersions(acceptVersionsType);
         SectionsType sectionsType = new SectionsType();
         sectionsType.getSection().add("All");
@@ -163,7 +163,7 @@ public class TestWPS_2_0_OperationsImpl {
         Assert.assertFalse("The wps server service identification keywords 1 keyword should not be empty",
                 capabilities.getServiceIdentification().getKeywords().get(1).getKeyword().isEmpty());
         Assert.assertEquals("The wps server service identification keywords 1 keyword value should be 'WPS'",
-                capabilities.getServiceIdentification().getKeywords().get(1).getKeyword().get(0).getValue(), "WPS");
+                "WPS service", capabilities.getServiceIdentification().getKeywords().get(1).getKeyword().get(0).getValue());
         Assert.assertEquals("The wps server service identification keywords 1 keyword language should be 'en'",
                 capabilities.getServiceIdentification().getKeywords().get(1).getKeyword().get(0).getLang(), "en");
         Assert.assertNotNull("The wps server service identification keywords 2 should not be null",
@@ -244,8 +244,8 @@ public class TestWPS_2_0_OperationsImpl {
                 capabilities.getLanguages().getLanguage().get(0), "en");
 
         //version tests
-        Assert.assertEquals("The wps server version should be '1.0.0'",
-                capabilities.getVersion(), "1.0.0");
+        Assert.assertEquals("The wps server version should be '2.0'",
+                capabilities.getVersion(), "2.0");
 
         //update sequence tests
         Assert.assertNotNull("The wps server update sequence should not be null",
@@ -299,6 +299,9 @@ public class TestWPS_2_0_OperationsImpl {
                 ((ExceptionReport) resultObject).getException().get(0).getExceptionCode(), "VersionNegotiationFailed");
 
         //Bad section
+        AcceptVersionsType goodAcceptVersionsType = new AcceptVersionsType();
+        goodAcceptVersionsType.getVersion().add("2.0");
+        getCapabilitiesType.setAcceptVersions(goodAcceptVersionsType);
         SectionsType badSectionsType = new SectionsType();
         badSectionsType.getSection().add("NotASection");
         getCapabilitiesType.setSections(badSectionsType);
@@ -310,9 +313,9 @@ public class TestWPS_2_0_OperationsImpl {
         Assert.assertTrue("Error on unmarshalling the WpsService answer, the object should be a ExceptionReport",
                 resultObject instanceof ExceptionReport);
         Assert.assertEquals("Error on unmarshalling the WpsService answer, the exception should be 'InvalidParameterValue'",
-                ((ExceptionReport) resultObject).getException().get(0).getExceptionCode(), "InvalidParameterValue");
+                "InvalidParameterValue", ((ExceptionReport) resultObject).getException().get(0).getExceptionCode());
         Assert.assertEquals("Error on unmarshalling the WpsService answer, the exception locator should be 'Sections:NotASection'",
-                ((ExceptionReport) resultObject).getException().get(0).getLocator(), "Sections:NotASection");
+                "Sections:NotASection", ((ExceptionReport) resultObject).getException().get(0).getLocator());
 
         //Bad language
         GetCapabilitiesType.AcceptLanguages badAcceptLanguages = new GetCapabilitiesType.AcceptLanguages();

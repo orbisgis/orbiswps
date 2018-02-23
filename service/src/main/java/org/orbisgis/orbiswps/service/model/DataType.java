@@ -236,8 +236,7 @@ public enum DataType {
      * @return The DataType corresponding to the given database type name.
      */
     public static DataType getDataType(String dbTypeName){
-        dbTypeName = dbTypeName.toUpperCase();
-        switch(dbTypeName) {
+        switch(dbTypeName.toUpperCase()) {
             case "INT":
             case "INTEGER":
             case "MEDIUMINT":
@@ -282,6 +281,8 @@ public enum DataType {
             case "CHARACTER":
             case "NCHAR":
                 return STRING;
+            case "NUMBER":
+            case "NUMERIC": return NUMBER;
             case "OTHER": return OTHER;
             case "GEOMETRY": return GEOMETRY;
             case "POINT": return POINT;

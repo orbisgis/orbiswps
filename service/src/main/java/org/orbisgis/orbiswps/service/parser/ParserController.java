@@ -148,9 +148,10 @@ public class ParserController {
             processOffering = processParser.parseProcess(clazz.getDeclaredMethod("processing"), uri);
             setProcessOffering(processOffering, clazz);
         } catch (NoSuchMethodException e) {
+            LOGGER.error(I18N.tr("No method called 'processing' found."));
             return null;
         } catch (URISyntaxException e) {
-            LOGGER.error(I18N.tr("unable to generate the URI of the process {0}.", processUrl.toString()));
+            LOGGER.error(I18N.tr("Unable to generate the URI of the process {0}.", processUrl.toString()));
             return null;
         }
         return processOffering;

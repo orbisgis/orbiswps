@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -37,53 +37,35 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.serviceapi.process;
+package org.orbisgis.orbiswps.testsuite;
 
-import net.opengis.wps._2_0.ProcessDescriptionType;
-import net.opengis.wps._2_0.ProcessOffering;
-import org.xnap.commons.i18n.I18n;
+import org.h2gis.functions.factory.H2GISDBFactory;
+import org.h2gis.utilities.SFSUtilities;
+import org.orbisgis.orbiswps.scripts.WpsScriptPlugin;
+import org.orbisgis.orbiswps.service.WpsServerImpl;
+import org.orbisgis.orbiswps.serviceapi.WpsServer;
 
-import java.net.URL;
-import java.util.Map;
+import javax.sql.DataSource;
+import java.io.File;
+import java.sql.SQLException;
+import java.util.concurrent.Executors;
 
 /**
- * Class containing information to identify a process.
- *
  * @author Sylvain PALOMINOS
- **/
+ */
+public class WpsServiceFactory {
 
-public interface ProcessIdentifier {
+    public static WpsServer getService() throws SQLException {
+        DataSource dataSource = SFSUtilities.wrapSpatialDataSource(H2GISDBFactory.createDataSource(
+                GetCapabilitiesTest.class.getSimpleName(), false));
+        WpsServerImpl service = new WpsServerImpl(dataSource,
+                WpsServiceFactory.class.getResource("fullWpsService.properties").getFile(),
+                Executors.newSingleThreadExecutor());
 
-    void setI18n(I18n i18n);
+        WpsScriptPlugin plugin = new WpsScriptPlugin();
+        plugin.activate();
+        service.addWpsScriptBundle(plugin);
 
-    /**
-     * Returns the ProcessDescriptionType object.
-     * @return The ProcessDescriptionType object.
-     */
-    ProcessDescriptionType getProcessDescriptionType();
-
-
-    /**
-     * Returns the ProcessOffering object.
-     * @return The ProcessOffering object.
-     */
-    ProcessOffering getProcessOffering();
-
-    /**
-     * Returns the process file path.
-     * @return The process file path.
-     */
-    String getFilePath();
-
-    /**
-     * Returns the source URL of the file.
-     * @return The source URL.
-     */
-    URL getSourceUrl();
-
-    I18n getI18n();
-
-    void setProperties(Map<String, Object> properties);
-
-    Map<String, Object> getProperties();
+        return service;
+    }
 }

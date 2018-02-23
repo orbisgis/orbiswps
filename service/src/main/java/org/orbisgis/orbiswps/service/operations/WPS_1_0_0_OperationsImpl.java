@@ -202,8 +202,10 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         List<ProcessIdentifier> piList = processManager.getAllProcessIdentifier();
         for (ProcessIdentifier pi : piList) {
             ProcessBriefType processBriefType = new ProcessBriefType();
+            List<String> requestLanguages = new ArrayList<>();
+            requestLanguages.add(requestLanguage);
             net.opengis.wps._2_0.ProcessDescriptionType translatedProcess = ProcessTranslator.getTranslatedProcess(
-                    pi, requestLanguage, wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+                    pi, requestLanguages);
             processBriefType.setProcessVersion(pi.getProcessOffering().getProcessVersion());
             processBriefType.setTitle(convertLanguageStringTypeList2to1(translatedProcess.getTitle()).get(0));
             processBriefType.setAbstract(convertLanguageStringTypeList2to1(translatedProcess.getAbstract()).get(0));
@@ -288,8 +290,9 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             net.opengis.wps._2_0.ProcessDescriptionType process = pId.getProcessDescriptionType();
             for(CodeType codeType : codeTypeList){
                 if(process.getIdentifier().getValue().equals(codeType.getValue())) {
-                    process = ProcessTranslator.getTranslatedProcess(pId, language,
-                            wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+                    List<String> languages = new ArrayList<>();
+                    languages.add(language);
+                    process = ProcessTranslator.getTranslatedProcess(pId, languages);
                     ProcessDescriptionType processDescriptionType = convertProcessDescriptionType2to1(process);
                     processDescriptionType.setProcessVersion(pId.getProcessOffering().getProcessVersion());
                     processDescriptionType.setStatusSupported(wpsProp.CUSTOM_PROPERTIES.IS_STATUS_SUPPORTED);

@@ -144,52 +144,55 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         }
         //Languages check
         //If the language is not supported, add an ExceptionType with the error.
-        String requestLanguage = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;
+        List<String> availableLanguages = new ArrayList<>();
         if(getCapabilities.getAcceptLanguages() != null &&
                 getCapabilities.getAcceptLanguages().getLanguage() != null &&
                 !getCapabilities.getAcceptLanguages().getLanguage().isEmpty()) {
             List<String> requestedLanguages = getCapabilities.getAcceptLanguages().getLanguage();
-            boolean isAnyLanguage = requestedLanguages.contains("*");
-            boolean languageFound = false;
-            //First try to find the first languages requested by the client which is supported by the server
-            for (String language1 : requestedLanguages) {
-                for(String language2 : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES)
-                    if (language2.equals(language1)) {
-                        requestLanguage = language1;
-                        languageFound = true;
-                        break;
-                    }
+            if(requestedLanguages.contains("*")){
+                Collections.addAll(availableLanguages, wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES);
             }
-            //If not language was found, try to get one with best-effort semantic
-            if(!languageFound){
-                for (String language : requestedLanguages) {
-                    //avoid to test "*" language
-                    if(!language.equals("*")) {
-                        String baseLanguage = language.substring(0, 2);
-                        for (String serverLanguage : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
-                            if (serverLanguage.substring(0, 2).equals(baseLanguage)) {
-                                requestLanguage = language;
-                                languageFound = true;
-                                break;
-                            }
+            else{
+                for(String requestedLanguage : requestedLanguages){
+                    String exactLanguage = null;
+                    String bestEffortLanguage1 = null;
+                    String bestEffortLanguage2 = null;
+                    for(String serverLanguage : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES){
+                        if(requestedLanguage.equalsIgnoreCase(serverLanguage)){
+                            exactLanguage = requestedLanguage;
                         }
+                        if(requestedLanguage.substring(0, 2).equalsIgnoreCase(serverLanguage)){
+                            bestEffortLanguage1 = serverLanguage;
+                        }
+                        if(requestedLanguage.substring(0, 2).equalsIgnoreCase(serverLanguage.substring(0, 2))){
+                            bestEffortLanguage2 = serverLanguage;
+                        }
+                    }
+                    if(exactLanguage != null){
+                        availableLanguages.add(exactLanguage);
+                    }
+                    else if(bestEffortLanguage1 != null){
+                        availableLanguages.add(bestEffortLanguage1);
+                    }
+                    else if(bestEffortLanguage2 != null){
+                        availableLanguages.add(bestEffortLanguage2);
+                    }
+                    else{
+                        ExceptionType exceptionType = new ExceptionType();
+                        exceptionType.setExceptionCode("InvalidParameterValue");
+                        exceptionType.setLocator("AcceptLanguages");
+                        exceptionReport.getException().add(exceptionType);
+                        return exceptionReport;
                     }
                 }
             }
-            //If not language was found, try to use any language if allowed
-            if(!languageFound  && isAnyLanguage){
-                requestLanguage = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;
-                languageFound = true;
-            }
-            //If no compatible language has been found and not any language are accepted
-            if (!languageFound) {
-                ExceptionType exceptionType = new ExceptionType();
-                exceptionType.setExceptionCode("InvalidParameterValue");
-                exceptionType.setLocator("AcceptLanguages");
-                exceptionReport.getException().add(exceptionType);
-                return exceptionReport;
-            }
         }
+        //If no compatible language has been found, all the service languages are used
+        if (availableLanguages.isEmpty()) {
+            Collections.addAll(availableLanguages, wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES);
+        }
+        //Output format check
+        //Only the text/xml mime type is support for now, so check are needed
 
         /** Building of the WPSCapabilitiesTypeAnswer **/
 
@@ -254,7 +257,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
             List<ProcessIdentifier> processIdList = processManager.getAllProcessIdentifier();
             for (ProcessIdentifier pId : processIdList) {
                 ProcessDescriptionType translatedProcess = ProcessTranslator.getTranslatedProcess(
-                        pId, requestLanguage, wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+                        pId, availableLanguages);
                 ProcessSummaryType processSummaryType = new ProcessSummaryType();
                 processSummaryType.getJobControlOptions().clear();
                 processSummaryType.getJobControlOptions().addAll(Arrays.asList(wpsProp.GLOBAL_PROPERTIES.JOB_CONTROL_OPTIONS));
@@ -314,8 +317,9 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
                         listTransmission.add(DataTransmissionModeType.VALUE);
                         po.getOutputTransmission().clear();
                         po.getOutputTransmission().addAll(listTransmission);
-                        po.setProcess(ProcessTranslator.getTranslatedProcess(pi, describeProcess.getLang(),
-                                wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE));
+                        List<String> languages = new ArrayList<>();
+                        languages.add(describeProcess.getLang());
+                        po.setProcess(ProcessTranslator.getTranslatedProcess(pi, languages));
                         processOfferingList.add(po);
                     }
                 }

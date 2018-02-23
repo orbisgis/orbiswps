@@ -40,10 +40,9 @@
 package org.orbisgis.orbiswps.testsuite;
 
 import net.opengis.ows._2.*;
+import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import net.opengis.wps._2_0.ObjectFactory;
-import net.opengis.wps._2_0.ProcessSummaryType;
-import net.opengis.wps._2_0.WPSCapabilitiesType;
 import org.junit.Before;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
@@ -64,15 +63,17 @@ import java.util.Properties;
 import static org.junit.Assert.*;
 
 /**
+ * Test all the cases of a GetCapabilities request.
+ *
  * @author Sylvain PALOMINOS
  */
-public class TestSuite {
+public class GetCapabilitiesTest {
     private WpsServer service;
     private Unmarshaller unmarshaller;
     private Marshaller marshaller;
     private ObjectFactory factory;
 
-    //Test configuration properties
+    /** Test configuration properties **/
     private Properties props;
 
     @Before
@@ -86,6 +87,11 @@ public class TestSuite {
         props.load(new InputStreamReader(url.openStream()));
     }
 
+    /**
+     * Send the parameter object as request to the WPS service and return the unmarshalled answer.
+     * @param obj Request object to send.
+     * @return The service answer.
+     */
     private Object sendRequest(Object obj) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
@@ -104,20 +110,30 @@ public class TestSuite {
         }
     }
 
-    private Exception getException(Object result){
+    /**
+     * Transform an ExceptionReport object into a throwable IllegalArgumentException.
+     * @param report ExceptionReport object get from the server.
+     * @return A throwable IllegalArgumentException object.
+     */
+    private Exception getException(ExceptionReport report){
         IllegalArgumentException exception = new IllegalArgumentException();
-        ExceptionReport exceptionReport = (ExceptionReport) result;
-        if(exceptionReport.isSetException()) {
+        if(report.isSetException()) {
             String text = "";
-            ExceptionType exceptionType = ((ExceptionReport) result).getException().get(0);
+            ExceptionType exceptionType = (report).getException().get(0);
             if(exceptionType.isSetExceptionText()) {
                 text += exceptionType.getExceptionText().get(0);
             }
             if(exceptionType.isSetExceptionCode()) {
-                if(text.isEmpty()){
+                if(!text.isEmpty()){
                     text += "\n";
                 }
                 text += exceptionType.getExceptionCode();
+            }
+            if(exceptionType.isSetLocator()) {
+                if(!text.isEmpty()){
+                    text += "\n";
+                }
+                text += exceptionType.getLocator();
             }
             if(!text.isEmpty()){
                 exception = new IllegalArgumentException(text);
@@ -126,6 +142,10 @@ public class TestSuite {
         throw exception;
     }
 
+    /**
+     * Tests the basic mandatory properties of a WPSCapabilities.
+     * @param capabilities WPSCapabilities to test.
+     */
     private void testBasicsContent(WPSCapabilitiesType capabilities) {
         assertTrue("The 'version' property should be set", capabilities.isSetContents());
         assertTrue("The 'processSummary' property should be set", capabilities.getContents().isSetProcessSummary());
@@ -162,8 +182,8 @@ public class TestSuite {
      * The process summaries contained inside the content property should contain at least the properties :
      * - title (ows:title)
      * - identifier (ows:identifier)
-     * - jobControlOptions (String 'sync-execute' and/or 'async-execute', {@link TestSuite#props})
-     * - outputTransmission (String 'value' and/or 'reference', {@link TestSuite#props})
+     * - jobControlOptions (String 'sync-execute' and/or 'async-execute', {@link GetCapabilitiesTest#props})
+     * - outputTransmission (String 'value' and/or 'reference', {@link GetCapabilitiesTest#props})
      */
     @Test
     public void testEmptyGetCapabilities() throws Exception {
@@ -184,7 +204,7 @@ public class TestSuite {
 
         //Get the WPSCapabilitiesType object
         if(result instanceof ExceptionReport){
-            throw getException(result);
+            throw getException((ExceptionReport)result);
         }
         else if (!(result instanceof JAXBElement)) {
             fail("The result object should be a JAXBElement");
@@ -227,7 +247,7 @@ public class TestSuite {
 
         //Get the WPSCapabilitiesType object
         if(result instanceof ExceptionReport){
-            throw getException(result);
+            throw getException((ExceptionReport)result);
         }
         else if (!(result instanceof JAXBElement)) {
             fail("The result object should be a JAXBElement");
@@ -276,7 +296,7 @@ public class TestSuite {
 
         //Get the WPSCapabilitiesType object
         if(result instanceof ExceptionReport){
-            throw getException(result);
+            throw getException((ExceptionReport)result);
         }
         else if (!(result instanceof JAXBElement)) {
             fail("The result object should be a JAXBElement");
@@ -336,7 +356,6 @@ public class TestSuite {
         }
     }
 
-
     /**
      * Test the answer of the server to a GetCapabilities request with the 'sections' property set to
      * 'ServiceIdentification'.
@@ -360,7 +379,7 @@ public class TestSuite {
 
         //Get the WPSCapabilitiesType object
         if(result instanceof ExceptionReport){
-            throw getException(result);
+            throw getException((ExceptionReport)result);
         }
         else if (!(result instanceof JAXBElement)) {
             fail("The result object should be a JAXBElement");
@@ -502,7 +521,6 @@ public class TestSuite {
 
     }
 
-
     /**
      * Test the answer of the server to a GetCapabilities request with the 'sections' property set to
      * 'ServiceProvider'.
@@ -526,7 +544,7 @@ public class TestSuite {
 
         //Get the WPSCapabilitiesType object
         if(result instanceof ExceptionReport){
-            throw getException(result);
+            throw getException((ExceptionReport)result);
         }
         else if (!(result instanceof JAXBElement)) {
             fail("The result object should be a JAXBElement");
@@ -888,7 +906,6 @@ public class TestSuite {
         }
     }
 
-
     /**
      * Test the answer of the server to a GetCapabilities request with the 'sections' property set to
      * 'OperationMetadata'.
@@ -912,7 +929,7 @@ public class TestSuite {
 
         //Get the WPSCapabilitiesType object
         if(result instanceof ExceptionReport){
-            throw getException(result);
+            throw getException((ExceptionReport)result);
         }
         else if (!(result instanceof JAXBElement)) {
             fail("The result object should be a JAXBElement");
@@ -967,7 +984,6 @@ public class TestSuite {
         }
     }
 
-
     /**
      * Test the answer of the server to a GetCapabilities request with the 'sections' property set to
      * 'Contents'.
@@ -992,7 +1008,7 @@ public class TestSuite {
 
         //Get the WPSCapabilitiesType object
         if(result instanceof ExceptionReport){
-            throw getException(result);
+            throw getException((ExceptionReport)result);
         }
         else if (!(result instanceof JAXBElement)) {
             fail("The result object should be a JAXBElement");
@@ -1009,8 +1025,36 @@ public class TestSuite {
         assertFalse("The 'operationMetadata' property should not be set.", capabilities.isSetOperationsMetadata());
         assertTrue("The 'contents' property should not be set.", capabilities.isSetContents());
         assertFalse("The 'languages' property should not be set.", capabilities.isSetLanguages());
-    }
 
+        //Test the 'version' property
+        assertTrue("The 'version' property should be set", capabilities.isSetVersion());
+
+        //Test the 'service' property
+        //By default the 'service' property is set to 'WPS'
+        assertTrue(true);
+
+        //Test the 'operationsMetadata' property
+        Contents contents = capabilities.getContents();
+
+        assertTrue("The 'processSummary' property should be set", contents.isSetProcessSummary());
+
+        for(ProcessSummaryType processSummaryType : contents.getProcessSummary()){
+            assertTrue("The process should contains a title", processSummaryType.isSetTitle());
+            assertTrue("The process should contains a identifier", processSummaryType.isSetIdentifier());
+            assertTrue("The process should contains job control options", processSummaryType.isSetJobControlOptions());
+            String[] options = props.getProperty("JOB_CONTROL_OPTIONS").split(",");
+            for(String option : options) {
+                assertTrue("The process should contains the job control option "+option,
+                        processSummaryType.getJobControlOptions().contains(option));
+            }
+            assertTrue("The process should contains output transmission", processSummaryType.isSetOutputTransmission());
+            String[] transmissions = props.getProperty("DATA_TRANSMISSION_TYPE").split(",");
+            for(String transmission : transmissions) {
+                assertTrue("The process should contains the job control option "+transmission.toUpperCase(),
+                        processSummaryType.getOutputTransmission().contains(DataTransmissionModeType.valueOf(transmission.toUpperCase())));
+            }
+        }
+    }
 
     /**
      * Test the answer of the server to a GetCapabilities request with the 'sections' property set to
@@ -1037,7 +1081,7 @@ public class TestSuite {
         //Get the WPSCapabilitiesType object
 
         if(result instanceof ExceptionReport){
-            throw getException(result);
+            throw getException((ExceptionReport)result);
         }
         else if (!(result instanceof JAXBElement)) {
             fail("The result object should be a JAXBElement");
@@ -1054,8 +1098,24 @@ public class TestSuite {
         assertFalse("The 'operationMetadata' property should not be set.", capabilities.isSetOperationsMetadata());
         assertFalse("The 'contents' property should not be set.", capabilities.isSetContents());
         assertTrue("The 'languages' property should not be set.", capabilities.isSetLanguages());
-    }
 
+        //Test the 'version' property
+        assertTrue("The 'version' property should be set", capabilities.isSetVersion());
+
+        //Test the 'service' property
+        //By default the 'service' property is set to 'WPS'
+        assertTrue(true);
+
+        //Test the 'languages' property
+        CapabilitiesBaseType.Languages languages = capabilities.getLanguages();
+
+        assertTrue("At least one language should be set", languages.isSetLanguage());
+        String[] propsLanguages = props.getProperty("SUPPORTED_LANGUAGES").split(",");
+        for(String propsLanguage : propsLanguages) {
+            assertTrue("The 'languages' property should contains the language "+propsLanguage,
+                    languages.getLanguage().contains(propsLanguage));
+        }
+    }
 
     /**
      * Test the answer of the server to a GetCapabilities request with the 'sections' property set to a bad value
@@ -1104,9 +1164,8 @@ public class TestSuite {
         }
     }
 
-
     /**
-     * Test the answer of the server to a GetCapabilities request with the 'sections' property set to
+     * Test the answer of the service to a GetCapabilities request with the 'sections' property set to
      * 'All'.
      * <p>
      * The capabilities answer should contains only the mandatory and 'All' property set.
@@ -1130,7 +1189,7 @@ public class TestSuite {
         //Get the WPSCapabilitiesType object
 
         if(result instanceof ExceptionReport){
-            throw getException(result);
+            throw getException((ExceptionReport)result);
         }
         else if (!(result instanceof JAXBElement)) {
             fail("The result object should be a JAXBElement");
@@ -1147,23 +1206,337 @@ public class TestSuite {
         assertTrue("The 'operationMetadata' property should not be set.", capabilities.isSetOperationsMetadata());
         assertTrue("The 'contents' property should not be set.", capabilities.isSetContents());
         assertTrue("The 'languages' property should not be set.", capabilities.isSetLanguages());
+
+        //Test the 'version' property
+        assertTrue("The 'version' property should be set", capabilities.isSetVersion());
+
+        //Test the 'service' property
+        //By default the 'service' property is set to 'WPS'
+        assertTrue(true);
+
+        //Test the 'content' property
+        testBasicsContent(capabilities);
     }
 
+    /**
+     * Test the answer of the service to a GetCapabilities request with the 'acceptFormat' property set to 'text/xml'
+     *
+     * The capabilities answer should be a valid xml document
+     */
     @Test
-    public void testGetCapabilitiesAcceptFormat() {
+    public void testGetCapabilitiesAcceptFormat() throws Exception {
+
+        //Generate the request object
         GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
-        //getCapabilities.set
+        AcceptFormatsType acceptFormatsType = new AcceptFormatsType();;
+        acceptFormatsType.getOutputFormat().add("text/xml");
+        getCapabilities.setAcceptFormats(acceptFormatsType);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            marshaller.marshal(factory.createGetCapabilities(getCapabilities), out);
+        } catch (JAXBException e) {
+            fail("Exception get on marshalling the request :\n" + e.getLocalizedMessage());
+        }
+        InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) service.callOperation(in);
+        ByteArrayInputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
+        byte[] expectedByteArray = "<?xml version=\"1.0\"".getBytes();
+        byte[] resultByteArray = new byte[expectedByteArray.length];
+        int result = resultXml.read(resultByteArray, 0, expectedByteArray.length);
+        assertTrue("The result document should be readable", result==expectedByteArray.length);
+        assertArrayEquals("The result document does not seems to be an 'text/xml' document",
+                expectedByteArray, resultByteArray);
     }
 
+    /**
+     * Test the answer of the service to a GetCapabilities request with the 'acceptFormat' property set to a wrong
+     * mime type
+     *
+     * The capabilities answer should be a valid xml document
+     */
     @Test
-    public void testGetCapabilitiesLanguage() {
+    public void testGetCapabilitiesBadAcceptFormat() throws Exception {
+
+        //Generate the request object
         GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
-        //getCapabilities.set
+        AcceptFormatsType acceptFormatsType = new AcceptFormatsType();;
+        acceptFormatsType.getOutputFormat().add("unicorn/mime/type");
+        getCapabilities.setAcceptFormats(acceptFormatsType);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            marshaller.marshal(factory.createGetCapabilities(getCapabilities), out);
+        } catch (JAXBException e) {
+            fail("Exception get on marshalling the request :\n" + e.getLocalizedMessage());
+        }
+        InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) service.callOperation(in);
+        ByteArrayInputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
+        byte[] expectedByteArray = "<?xml version=\"1.0\"".getBytes();
+        byte[] resultByteArray = new byte[expectedByteArray.length];
+        int result = resultXml.read(resultByteArray, 0, expectedByteArray.length);
+        assertTrue("The result document should be readable", result==expectedByteArray.length);
+        assertArrayEquals("The result document does not seems to be an 'text/xml' document",
+                expectedByteArray, resultByteArray);
     }
 
+    /**
+     * Test the answer of a service to a GetCapabilities request with the 'language' property set to '*'
+     *
+     * The property 'processSummary' of the answer should contains the human readable text in all the server language
+     */
     @Test
-    public void testGetCapabilitiesExtension() {
+    public void testGetCapabilitiesAllLanguage() throws Exception {
+
+        //Generate the request object
         GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
-        //getCapabilities.set
+        net.opengis.ows._2.GetCapabilitiesType.AcceptLanguages acceptLanguages =
+                new net.opengis.ows._2.GetCapabilitiesType.AcceptLanguages();
+        acceptLanguages.getLanguage().add("*");
+        getCapabilities.setAcceptLanguages(acceptLanguages);
+
+        //Send the request to the service
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        if (result == null) {
+            fail();
+        }
+
+        //Get the WPSCapabilitiesType object
+
+        if(result instanceof ExceptionReport){
+            throw getException((ExceptionReport)result);
+        }
+        else if (!(result instanceof JAXBElement)) {
+            fail("The result object should be a JAXBElement");
+        }
+        JAXBElement element = (JAXBElement) result;
+
+        if (!(element.getValue() instanceof WPSCapabilitiesType)) {
+            fail("The JAXBElement value should be a WPSCapabilitiesType");
+        }
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType) element.getValue();
+
+        //Test the 'version' property
+        assertTrue("The 'version' property should be set", capabilities.isSetVersion());
+
+        //Test the 'service' property
+        //By default the 'service' property is set to 'WPS'
+        assertTrue(true);
+
+        //Test the 'content' property
+        testBasicsContent(capabilities);
+
+        assertTrue("The property 'content' should be set.", capabilities.isSetContents());
+        assertTrue("The property 'processummary' should be set.", capabilities.getContents().isSetProcessSummary());
+        assertTrue("The property 'languages' should be set.", capabilities.isSetLanguages());
+        List<String> languages = capabilities.getLanguages().getLanguage();
+        for(ProcessSummaryType process : capabilities.getContents().getProcessSummary()){
+            assertTrue("The property title should be set.", process.isSetTitle());
+            for(String language : languages){
+                boolean isTitleLanguage = false;
+                for(LanguageStringType stringType : process.getTitle()){
+                    if(language.equalsIgnoreCase(stringType.getLang())){
+                        isTitleLanguage = true;
+                    }
+                }
+                assertTrue("There should be a title with the language "+language, isTitleLanguage);
+
+                boolean isAbstrLanguage = false;
+                for(LanguageStringType stringType : process.getAbstract()){
+                    if(language.equalsIgnoreCase(stringType.getLang())){
+                        isAbstrLanguage = true;
+                    }
+                }
+                assertTrue("There should be an abstract with the language "+language, isAbstrLanguage);
+
+                for(KeywordsType keywordsType : process.getKeywords()){
+                    boolean isKeywordLanguage = false;
+                    for(LanguageStringType stringType : keywordsType.getKeyword()){
+                        if(language.equalsIgnoreCase(stringType.getLang())) {
+                            isKeywordLanguage = true;
+                        }
+                    }
+                    assertTrue("There should be a keyword with the language "+language, isKeywordLanguage);
+                }
+            }
+        }
+    }
+
+    /**
+     * Test the answer of a service to a GetCapabilities request with the 'language' property set to 'en'
+     *
+     * The property 'processSummary' of the answer should contains the human readable text in the language 'en'
+     */
+    @Test
+    public void testGetCapabilitiesOneLanguage() throws Exception {
+
+        //Generate the request object
+        GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
+        net.opengis.ows._2.GetCapabilitiesType.AcceptLanguages acceptLanguages =
+                new net.opengis.ows._2.GetCapabilitiesType.AcceptLanguages();
+        acceptLanguages.getLanguage().add("en");
+        getCapabilities.setAcceptLanguages(acceptLanguages);
+
+        //Send the request to the service
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        if (result == null) {
+            fail();
+        }
+
+        //Get the WPSCapabilitiesType object
+
+        if(result instanceof ExceptionReport){
+            throw getException((ExceptionReport)result);
+        }
+        else if (!(result instanceof JAXBElement)) {
+            fail("The result object should be a JAXBElement");
+        }
+        JAXBElement element = (JAXBElement) result;
+
+        if (!(element.getValue() instanceof WPSCapabilitiesType)) {
+            fail("The JAXBElement value should be a WPSCapabilitiesType");
+        }
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType) element.getValue();
+
+        //Test the 'version' property
+        assertTrue("The 'version' property should be set", capabilities.isSetVersion());
+
+        //Test the 'service' property
+        //By default the 'service' property is set to 'WPS'
+        assertTrue(true);
+
+        //Test the 'content' property
+        testBasicsContent(capabilities);
+
+        assertTrue("The property 'content' should be set.", capabilities.isSetContents());
+        assertTrue("The property 'processummary' should be set.", capabilities.getContents().isSetProcessSummary());
+        assertTrue("The property 'languages' should be set.", capabilities.isSetLanguages());
+        List<String> languages = capabilities.getLanguages().getLanguage();
+        for(ProcessSummaryType process : capabilities.getContents().getProcessSummary()){
+            assertTrue("The property title should be set.", process.isSetTitle());
+
+            assertEquals("There should be only one title", 1,  process.getTitle().size());
+            assertEquals("There should be a title with the language en", "en", process.getTitle().get(0).getLang());
+
+            assertEquals("There should be only one abstract", 1,  process.getAbstract().size());
+            assertEquals("There should be an abstract with the language en", "en", process.getAbstract().get(0).getLang());
+
+            for(KeywordsType keywordsType : process.getKeywords()) {
+                assertEquals("There should be only one keyword language", 1, keywordsType.getKeyword().size());
+                assertEquals("There should be a keyword with the language en", "en", keywordsType.getKeyword().get(0).getLang());
+            }
+        }
+    }
+
+    /**
+     * Test the answer of a service to a GetCapabilities request with the 'language' property set to 'fr'
+     *
+     * The property 'processSummary' of the answer should contains the human readable text in the language 'fr-fr'
+     */
+    @Test
+    public void testGetCapabilitiesBestEffortLanguage() throws Exception {
+
+        //Generate the request object
+        GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
+        net.opengis.ows._2.GetCapabilitiesType.AcceptLanguages acceptLanguages =
+                new net.opengis.ows._2.GetCapabilitiesType.AcceptLanguages();
+        acceptLanguages.getLanguage().add("fr");
+        getCapabilities.setAcceptLanguages(acceptLanguages);
+
+        //Send the request to the service
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        if (result == null) {
+            fail();
+        }
+
+        //Get the WPSCapabilitiesType object
+
+        if(result instanceof ExceptionReport){
+            throw getException((ExceptionReport)result);
+        }
+        else if (!(result instanceof JAXBElement)) {
+            fail("The result object should be a JAXBElement");
+        }
+        JAXBElement element = (JAXBElement) result;
+
+        if (!(element.getValue() instanceof WPSCapabilitiesType)) {
+            fail("The JAXBElement value should be a WPSCapabilitiesType");
+        }
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType) element.getValue();
+
+        //Test the 'version' property
+        assertTrue("The 'version' property should be set", capabilities.isSetVersion());
+
+        //Test the 'service' property
+        //By default the 'service' property is set to 'WPS'
+        assertTrue(true);
+
+        //Test the 'content' property
+        testBasicsContent(capabilities);
+
+        assertTrue("The property 'content' should be set.", capabilities.isSetContents());
+        assertTrue("The property 'processummary' should be set.", capabilities.getContents().isSetProcessSummary());
+        assertTrue("The property 'languages' should be set.", capabilities.isSetLanguages());
+        List<String> languages = capabilities.getLanguages().getLanguage();
+        for(ProcessSummaryType process : capabilities.getContents().getProcessSummary()){
+            assertTrue("The property title should be set.", process.isSetTitle());
+
+            assertEquals("There should be only one title", 1,  process.getTitle().size());
+            assertEquals("There should be a title with the language fr-fr", "fr-fr", process.getTitle().get(0).getLang());
+
+            assertEquals("There should be only one abstract", 1,  process.getAbstract().size());
+            assertEquals("There should be an abstract with the language fr-fr", "fr-fr", process.getAbstract().get(0).getLang());
+
+            for(KeywordsType keywordsType : process.getKeywords()) {
+                assertEquals("There should be only one keyword language", 1, keywordsType.getKeyword().size());
+                assertEquals("There should be a keyword with the language fr-fr", "fr-fr", keywordsType.getKeyword().get(0).getLang());
+            }
+        }
+    }
+
+    /**
+     * Test the answer of a service to a GetCapabilities request
+     *
+     * The property 'extension' of the answer should contains the value 'DISMISS'
+     */
+    @Test
+    public void testGetCapabilitiesExtension() throws Exception {
+
+        //Generate the request object
+        GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
+
+        //Send the request to the service
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        if (result == null) {
+            fail();
+        }
+
+        //Get the WPSCapabilitiesType object
+
+        if(result instanceof ExceptionReport){
+            throw getException((ExceptionReport)result);
+        }
+        else if (!(result instanceof JAXBElement)) {
+            fail("The result object should be a JAXBElement");
+        }
+        JAXBElement element = (JAXBElement) result;
+
+        if (!(element.getValue() instanceof WPSCapabilitiesType)) {
+            fail("The JAXBElement value should be a WPSCapabilitiesType");
+        }
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType) element.getValue();
+
+        //Test the 'version' property
+        assertTrue("The 'version' property should be set", capabilities.isSetVersion());
+
+        //Test the 'service' property
+        //By default the 'service' property is set to 'WPS'
+        assertTrue(true);
+
+        //Test the 'content' property
+        testBasicsContent(capabilities);
+
+        //Nothing more to test
     }
 }

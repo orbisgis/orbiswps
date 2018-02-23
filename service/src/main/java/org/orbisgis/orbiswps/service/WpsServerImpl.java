@@ -41,7 +41,6 @@ package org.orbisgis.orbiswps.service;
 
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
-import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.orbisgis.orbiswps.service.operations.*;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_2_0_Operations;

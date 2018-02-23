@@ -65,29 +65,27 @@ public class ProcessTranslator {
     /**
      * Return the process with the given language translation.
      * If the asked translation doesn't exists, use the english one. If it doesn't exists too, uses one of the others.
-     * @param requestedLanguage Language asked.
-     * @param defaultLanguage Default language.
+     * @param languages Languages asked.
      * @return The traduced process.
      */
     public static ProcessDescriptionType getTranslatedProcess(
-            ProcessIdentifier pi, String requestedLanguage, String defaultLanguage){
+            ProcessIdentifier pi, List<String> languages){
         I18n i18n = pi.getI18n();
-        i18n.setLocale(Locale.forLanguageTag(requestedLanguage.substring(0, 2)));
         ProcessDescriptionType process = pi.getProcessDescriptionType();
         ProcessDescriptionType translatedProcess = new ProcessDescriptionType();
-        translatedProcess.setLang(requestedLanguage);
+        translatedProcess.setLang(languages.get(0));
         List<InputDescriptionType> inputList = new ArrayList<>();
         for(InputDescriptionType input : process.getInput()){
             InputDescriptionType translatedInput = new InputDescriptionType();
             JAXBElement jaxbElement = input.getDataDescription();
             if(jaxbElement.getValue() instanceof TranslatableComplexData){
                 TranslatableComplexData translatableComplexData = (TranslatableComplexData)jaxbElement.getValue();
-                jaxbElement.setValue(translatableComplexData.getTranslatedData(i18n));
+                jaxbElement.setValue(translatableComplexData.getTranslatedData(i18n, languages));
             }
             translatedInput.setDataDescription(jaxbElement);
             translatedInput.setMaxOccurs(input.getMaxOccurs());
             translatedInput.setMinOccurs(input.getMinOccurs());
-            translateDescriptionType(translatedInput, input, requestedLanguage, i18n);
+            translateDescriptionType(translatedInput, input, languages, i18n);
             inputList.add(translatedInput);
         }
         translatedProcess.getInput().clear();
@@ -98,15 +96,15 @@ public class ProcessTranslator {
             JAXBElement jaxbElement = output.getDataDescription();
             if(jaxbElement.getValue() instanceof TranslatableComplexData){
                 TranslatableComplexData translatableComplexData = (TranslatableComplexData)jaxbElement.getValue();
-                jaxbElement.setValue(translatableComplexData.getTranslatedData(i18n));
+                jaxbElement.setValue(translatableComplexData.getTranslatedData(i18n, languages));
             }
             translatedOutput.setDataDescription(jaxbElement);
-            translateDescriptionType(translatedOutput, output, requestedLanguage, i18n);
+            translateDescriptionType(translatedOutput, output, languages, i18n);
             outputList.add(translatedOutput);
         }
         translatedProcess.getOutput().clear();
         translatedProcess.getOutput().addAll(outputList);
-        translateDescriptionType(translatedProcess, process, requestedLanguage, pi.getI18n());
+        translateDescriptionType(translatedProcess, process, languages, pi.getI18n());
         return translatedProcess;
     }
 
@@ -116,69 +114,59 @@ public class ProcessTranslator {
      *
      * @param translatedDescriptionType Translated DescriptionType.
      * @param descriptionType Source DescriptionType.
-     * @param requestedLanguage Language asked.
+     * @param languages Languages asked.
      */
     public static void translateDescriptionType(DescriptionType translatedDescriptionType,
                                                 DescriptionType descriptionType,
-                                                String requestedLanguage,
+                                                List<String> languages,
                                                 I18n i18n){
         translatedDescriptionType.setIdentifier(descriptionType.getIdentifier());
         translatedDescriptionType.getMetadata().clear();
         translatedDescriptionType.getMetadata().addAll(descriptionType.getMetadata());
         //Find the good abstract
-        LanguageStringType translatedAbstract = null;
+        List<LanguageStringType> abstrList = new ArrayList<>();
         for (LanguageStringType abstr : descriptionType.getAbstract()) {
-            if (requestedLanguage.equals(abstr.getLang()) || abstr.getLang() == null) {
-                translatedAbstract = new LanguageStringType();
-                translatedAbstract.setLang(i18n.getLocale().getLanguage());
+            for(String lang : languages) {
+                i18n.setLocale(Locale.forLanguageTag(lang.substring(0, 2)));
+                LanguageStringType translatedAbstract = new LanguageStringType();
+                translatedAbstract.setLang(lang);
                 translatedAbstract.setValue(i18n.tr(abstr.getValue()));
+                abstrList.add(translatedAbstract);
             }
         }
-        if(translatedAbstract == null){
-            translatedAbstract = descriptionType.getTitle().get(0);
-        }
-        List<LanguageStringType> abstrList = new ArrayList<>();
-        abstrList.add(translatedAbstract);
         translatedDescriptionType.getAbstract().clear();
         translatedDescriptionType.getAbstract().addAll(abstrList);
         //Find the good title
-        LanguageStringType translatedTitle = null;
+        List<LanguageStringType> titleList = new ArrayList<>();
         for (LanguageStringType title : descriptionType.getTitle()) {
-            if (requestedLanguage.equals(title.getLang()) || title.getLang() == null) {
-                translatedTitle = new LanguageStringType();
-                translatedTitle.setLang(i18n.getLocale().getLanguage());
+            for(String lang : languages) {
+                i18n.setLocale(Locale.forLanguageTag(lang.substring(0, 2)));
+                LanguageStringType translatedTitle = new LanguageStringType();
+                translatedTitle.setLang(lang);
                 translatedTitle.setValue(i18n.tr(title.getValue()));
+                titleList.add(translatedTitle);
             }
         }
-        if(translatedTitle == null){
-            translatedTitle = descriptionType.getTitle().get(0);
-        }
-        List<LanguageStringType> titleList = new ArrayList<>();
-        titleList.add(translatedTitle);
         translatedDescriptionType.getTitle().clear();
         translatedDescriptionType.getTitle().addAll(titleList);
         //Find the good keywords
         List<KeywordsType> keywordsList = new ArrayList<>();
-        KeywordsType translatedKeywords = new KeywordsType();
-        List<LanguageStringType> keywordList = new ArrayList<>();
         for(KeywordsType keywords : descriptionType.getKeywords()) {
-            LanguageStringType translatedKeyword = null;
-
+            KeywordsType translatedKeywords = new KeywordsType();
             for (LanguageStringType keyword : keywords.getKeyword()) {
-                if (requestedLanguage.equals(keyword.getLang()) || keyword.getLang() == null) {
-                    translatedKeyword = new LanguageStringType();
-                    translatedKeyword.setLang(i18n.getLocale().getLanguage());
+                List<LanguageStringType> keywordList = new ArrayList<>();
+                for(String lang : languages) {
+                    i18n.setLocale(Locale.forLanguageTag(lang.substring(0, 2)));
+                    LanguageStringType translatedKeyword = new LanguageStringType();
+                    translatedKeyword.setLang(lang);
                     translatedKeyword.setValue(i18n.tr(keyword.getValue()));
+                    keywordList.add(translatedKeyword);
                 }
+                translatedKeywords.getKeyword().clear();
+                translatedKeywords.getKeyword().addAll(keywordList);
             }
-            if(translatedKeyword == null){
-                translatedKeyword = keywords.getKeyword().get(0);
-            }
-            keywordList.add(translatedKeyword);
+            keywordsList.add(translatedKeywords);
         }
-        translatedKeywords.getKeyword().clear();
-        translatedKeywords.getKeyword().addAll(keywordList);
-        keywordsList.add(translatedKeywords);
         translatedDescriptionType.getKeywords().clear();
         translatedDescriptionType.getKeywords().addAll(keywordsList);
         translatedDescriptionType.setIdentifier(descriptionType.getIdentifier());

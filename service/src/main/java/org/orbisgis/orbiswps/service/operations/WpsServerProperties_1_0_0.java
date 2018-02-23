@@ -311,7 +311,7 @@ public class WpsServerProperties_1_0_0 {
         public ServiceProviderProperties(Properties properties) throws Exception {
             PROVIDER_NAME = properties.getProperty("PROVIDER_NAME");
             PROVIDER_SITE = new OnlineResourceType();
-            PROVIDER_SITE.setHref(properties.getProperty("PROVIDER_SITE"));
+            PROVIDER_SITE.setHref(properties.getProperty("PROVIDER_SITE_HREF"));
         }
     }
 

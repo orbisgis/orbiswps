@@ -42,7 +42,6 @@ package org.orbisgis.orbiswps.serviceapi.process;
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import net.opengis.wps._2_0.ProcessOffering;
 import org.xnap.commons.i18n.I18n;
-import org.xnap.commons.i18n.I18nFactory;
 
 import java.net.URL;
 import java.util.Map;

@@ -46,6 +46,7 @@ import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.serviceapi.WpsServer;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
 
@@ -56,8 +57,10 @@ public class WpsServiceFactory {
 
     public static WpsServer getService() throws SQLException {
         DataSource dataSource = SFSUtilities.wrapSpatialDataSource(H2GISDBFactory.createDataSource(
-                AbstractTestSuite.class.getSimpleName(), false));
-        WpsServerImpl service = new WpsServerImpl(dataSource, Executors.newSingleThreadExecutor());
+                GetCapabilitiesTest.class.getSimpleName(), false));
+        WpsServerImpl service = new WpsServerImpl(dataSource,
+                WpsServiceFactory.class.getResource("fullWpsService.properties").getFile(),
+                Executors.newSingleThreadExecutor());
 
         WpsScriptPlugin plugin = new WpsScriptPlugin();
         plugin.activate();

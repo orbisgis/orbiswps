@@ -44,6 +44,7 @@ import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import net.opengis.wps._2_0.ObjectFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.operations.WpsServerProperties_2_0;
@@ -68,22 +69,22 @@ import static org.junit.Assert.*;
  * @author Sylvain PALOMINOS
  */
 public class GetCapabilitiesTest {
-    private WpsServer service;
-    private Unmarshaller unmarshaller;
-    private Marshaller marshaller;
-    private ObjectFactory factory;
+    private static WpsServer service;
+    private static Unmarshaller unmarshaller;
+    private static Marshaller marshaller;
+    private static ObjectFactory factory;
 
     /** Test configuration properties **/
-    private Properties props;
+    private static Properties props;
 
-    @Before
-    public void init() throws SQLException, JAXBException, IOException {
+    @BeforeClass
+    public static void init() throws SQLException, JAXBException, IOException {
         service = WpsServiceFactory.getService();
         unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
         marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
         factory = new ObjectFactory();
         props = new Properties();
-        URL url = WpsServerProperties_2_0.class.getResource("basicWpsServer.properties");
+        URL url = GetCapabilitiesTest.class.getResource("fullWpsService.properties");
         props.load(new InputStreamReader(url.openStream()));
     }
 
@@ -971,7 +972,7 @@ public class GetCapabilitiesTest {
                 }
             }
             assertNotNull("The property 'operationMetadata' should contains the operation "+opName, operation);
-            if(props.containsKey(opName+"_GET") || props.containsKey(opName+"_POST")){
+            if(props.containsKey(opName+"_GET_HREF") || props.containsKey(opName+"_POST_HREF")){
                 assertTrue("The property 'dcp' should be set for the operation "+opName, operation.isSetDCP());
                 for(DCP dcp : operation.getDCP()){
                     assertTrue("The 'http' property of the DPC number "+operation.getDCP().indexOf(dcp)+

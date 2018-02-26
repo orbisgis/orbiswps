@@ -43,11 +43,9 @@ import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import net.opengis.wps._2_0.ObjectFactory;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
-import org.orbisgis.orbiswps.service.operations.WpsServerProperties_2_0;
 import org.orbisgis.orbiswps.serviceapi.WpsServer;
 
 import javax.xml.bind.JAXBElement;
@@ -62,6 +60,8 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
+import static org.orbisgis.orbiswps.testsuite.WpsServiceFactory.getException;
+import static org.orbisgis.orbiswps.testsuite.WpsServiceFactory.sendRequest;
 
 /**
  * Test all the cases of a GetCapabilities request.
@@ -86,61 +86,6 @@ public class GetCapabilitiesTest {
         props = new Properties();
         URL url = GetCapabilitiesTest.class.getResource("fullWpsService.properties");
         props.load(new InputStreamReader(url.openStream()));
-    }
-
-    /**
-     * Send the parameter object as request to the WPS service and return the unmarshalled answer.
-     * @param obj Request object to send.
-     * @return The service answer.
-     */
-    private Object sendRequest(Object obj) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            marshaller.marshal(obj, out);
-        } catch (JAXBException e) {
-            fail("Exception get on marshalling the request :\n" + e.getLocalizedMessage());
-        }
-        InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
-        ByteArrayOutputStream xml = (ByteArrayOutputStream) service.callOperation(in);
-        ByteArrayInputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
-        try {
-            return unmarshaller.unmarshal(resultXml);
-        } catch (JAXBException e) {
-            fail("Exception get on sending the request to the service :\n" + e.getLocalizedMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Transform an ExceptionReport object into a throwable IllegalArgumentException.
-     * @param report ExceptionReport object get from the server.
-     * @return A throwable IllegalArgumentException object.
-     */
-    private Exception getException(ExceptionReport report){
-        IllegalArgumentException exception = new IllegalArgumentException();
-        if(report.isSetException()) {
-            String text = "";
-            ExceptionType exceptionType = (report).getException().get(0);
-            if(exceptionType.isSetExceptionText()) {
-                text += exceptionType.getExceptionText().get(0);
-            }
-            if(exceptionType.isSetExceptionCode()) {
-                if(!text.isEmpty()){
-                    text += "\n";
-                }
-                text += exceptionType.getExceptionCode();
-            }
-            if(exceptionType.isSetLocator()) {
-                if(!text.isEmpty()){
-                    text += "\n";
-                }
-                text += exceptionType.getLocator();
-            }
-            if(!text.isEmpty()){
-                exception = new IllegalArgumentException(text);
-            }
-        }
-        throw exception;
     }
 
     /**
@@ -198,7 +143,7 @@ public class GetCapabilitiesTest {
         assertFalse("The field 'UpdateSequence' should not be set.", getCapabilities.isSetUpdateSequence());
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -241,7 +186,7 @@ public class GetCapabilitiesTest {
         GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -290,7 +235,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setAcceptVersions(version);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -331,7 +276,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setAcceptVersions(version);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -373,7 +318,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setSections(sectionsType);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -538,7 +483,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setSections(sectionsType);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -923,7 +868,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setSections(sectionsType);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -1002,7 +947,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setSections(sectionsType);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -1074,7 +1019,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setSections(sectionsType);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -1134,7 +1079,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setSections(sectionsType);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -1182,7 +1127,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setSections(sectionsType);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -1229,7 +1174,7 @@ public class GetCapabilitiesTest {
 
         //Generate the request object
         GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
-        AcceptFormatsType acceptFormatsType = new AcceptFormatsType();;
+        AcceptFormatsType acceptFormatsType = new AcceptFormatsType();
         acceptFormatsType.getOutputFormat().add("text/xml");
         getCapabilities.setAcceptFormats(acceptFormatsType);
 
@@ -1261,7 +1206,7 @@ public class GetCapabilitiesTest {
 
         //Generate the request object
         GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
-        AcceptFormatsType acceptFormatsType = new AcceptFormatsType();;
+        AcceptFormatsType acceptFormatsType = new AcceptFormatsType();
         acceptFormatsType.getOutputFormat().add("unicorn/mime/type");
         getCapabilities.setAcceptFormats(acceptFormatsType);
 
@@ -1298,7 +1243,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setAcceptLanguages(acceptLanguages);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -1380,7 +1325,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setAcceptLanguages(acceptLanguages);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -1413,7 +1358,6 @@ public class GetCapabilitiesTest {
         assertTrue("The property 'content' should be set.", capabilities.isSetContents());
         assertTrue("The property 'processummary' should be set.", capabilities.getContents().isSetProcessSummary());
         assertTrue("The property 'languages' should be set.", capabilities.isSetLanguages());
-        List<String> languages = capabilities.getLanguages().getLanguage();
         for(ProcessSummaryType process : capabilities.getContents().getProcessSummary()){
             assertTrue("The property title should be set.", process.isSetTitle());
 
@@ -1446,7 +1390,7 @@ public class GetCapabilitiesTest {
         getCapabilities.setAcceptLanguages(acceptLanguages);
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }
@@ -1479,7 +1423,6 @@ public class GetCapabilitiesTest {
         assertTrue("The property 'content' should be set.", capabilities.isSetContents());
         assertTrue("The property 'processummary' should be set.", capabilities.getContents().isSetProcessSummary());
         assertTrue("The property 'languages' should be set.", capabilities.isSetLanguages());
-        List<String> languages = capabilities.getLanguages().getLanguage();
         for(ProcessSummaryType process : capabilities.getContents().getProcessSummary()){
             assertTrue("The property title should be set.", process.isSetTitle());
 
@@ -1497,6 +1440,50 @@ public class GetCapabilitiesTest {
     }
 
     /**
+     * Test the answer of a service to a GetCapabilities request with the 'language' property set to a bad value
+     *
+     * The property 'processSummary' of the answer should contains the human readable text in the language 'fr-fr'
+     */
+    @Test
+    public void testGetCapabilitiesBadLanguage() throws Exception {
+
+        //Generate the request object
+        GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
+        net.opengis.ows._2.GetCapabilitiesType.AcceptLanguages acceptLanguages =
+                new net.opengis.ows._2.GetCapabilitiesType.AcceptLanguages();
+        acceptLanguages.getLanguage().add("un-ic-or-n");
+        getCapabilities.setAcceptLanguages(acceptLanguages);
+
+        //Send the request to the service
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
+
+        //Get the ExceptionReport object
+        if (!(result instanceof ExceptionReport)) {
+            fail("The result object should be a ExceptionReport");
+        }
+        ExceptionReport exceptionReport = (ExceptionReport)result;
+        if(exceptionReport.isSetException()){
+            for(ExceptionType exceptionType : exceptionReport.getException()){
+                if(!exceptionType.isSetExceptionCode()){
+                    assertFalse("The ExceptionType should contains an exception code", exceptionType.isSetExceptionCode());
+                }
+                else if(!exceptionType.isSetLocator()){
+                    assertFalse("The ExceptionType should contains a locator", exceptionType.isSetLocator());
+                }
+                else{
+                    assertEquals("The exception code should be InvalidParameterValue",
+                            "InvalidParameterValue", exceptionType.getExceptionCode());
+                    assertEquals("The exception locator should be AcceptLanguages",
+                            "AcceptLanguages", exceptionType.getLocator());
+                }
+            }
+        }
+        else{
+            fail("The ExceptionReport should contains exceptions");
+        }
+    }
+
+    /**
      * Test the answer of a service to a GetCapabilities request
      *
      * The property 'extension' of the answer should contains the value 'DISMISS'
@@ -1508,7 +1495,7 @@ public class GetCapabilitiesTest {
         GetCapabilitiesType getCapabilities = new GetCapabilitiesType();
 
         //Send the request to the service
-        Object result = sendRequest(factory.createGetCapabilities(getCapabilities));
+        Object result = sendRequest(factory.createGetCapabilities(getCapabilities), marshaller, service, unmarshaller);
         if (result == null) {
             fail();
         }

@@ -90,8 +90,8 @@ public class ProcessParserTest {
                 processOffering.getJobControlOptions().isEmpty());
         Assert.assertTrue("The ProcessOffering outputTransmission should be empty",
                 processOffering.getOutputTransmission().isEmpty());
-        Assert.assertTrue("The ProcessOffering version should be empty",
-                processOffering.getProcessVersion().isEmpty());
+        Assert.assertFalse("The ProcessOffering version should not be set",
+                processOffering.isSetProcessVersion());
 
         ProcessDescriptionType processDescriptionType = processOffering.getProcess();
         //Tests the DescriptionTypeAttribute part of the InputDescriptionType

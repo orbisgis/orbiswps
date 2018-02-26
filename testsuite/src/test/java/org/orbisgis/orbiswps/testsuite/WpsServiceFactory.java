@@ -39,6 +39,8 @@
  */
 package org.orbisgis.orbiswps.testsuite;
 
+import net.opengis.ows._2.ExceptionReport;
+import net.opengis.ows._2.ExceptionType;
 import org.h2gis.functions.factory.H2GISDBFactory;
 import org.h2gis.utilities.SFSUtilities;
 import org.orbisgis.orbiswps.scripts.WpsScriptPlugin;
@@ -46,9 +48,14 @@ import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.serviceapi.WpsServer;
 
 import javax.sql.DataSource;
-import java.io.File;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Sylvain PALOMINOS
@@ -67,5 +74,60 @@ public class WpsServiceFactory {
         service.addWpsScriptBundle(plugin);
 
         return service;
+    }
+
+    /**
+     * Send the parameter object as request to the WPS service and return the unmarshalled answer.
+     * @param obj Request object to send.
+     * @return The service answer.
+     */
+    public static Object sendRequest(Object obj, Marshaller marshaller, WpsServer service, Unmarshaller unmarshaller) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            marshaller.marshal(obj, out);
+        } catch (JAXBException e) {
+            fail("Exception get on marshalling the request :\n" + e.getLocalizedMessage());
+        }
+        InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) service.callOperation(in);
+        ByteArrayInputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
+        try {
+            return unmarshaller.unmarshal(resultXml);
+        } catch (JAXBException e) {
+            fail("Exception get on sending the request to the service :\n" + e.getLocalizedMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Transform an ExceptionReport object into a throwable IllegalArgumentException.
+     * @param report ExceptionReport object get from the server.
+     * @return A throwable IllegalArgumentException object.
+     */
+    public static Exception getException(ExceptionReport report){
+        IllegalArgumentException exception = new IllegalArgumentException();
+        if(report.isSetException()) {
+            String text = "";
+            ExceptionType exceptionType = (report).getException().get(0);
+            if(exceptionType.isSetExceptionText()) {
+                text += exceptionType.getExceptionText().get(0);
+            }
+            if(exceptionType.isSetExceptionCode()) {
+                if(!text.isEmpty()){
+                    text += "\n";
+                }
+                text += exceptionType.getExceptionCode();
+            }
+            if(exceptionType.isSetLocator()) {
+                if(!text.isEmpty()){
+                    text += "\n";
+                }
+                text += exceptionType.getLocator();
+            }
+            if(!text.isEmpty()){
+                exception = new IllegalArgumentException(text);
+            }
+        }
+        throw exception;
     }
 }

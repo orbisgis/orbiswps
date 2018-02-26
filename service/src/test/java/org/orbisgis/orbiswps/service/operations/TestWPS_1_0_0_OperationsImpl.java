@@ -445,8 +445,8 @@ public class TestWPS_1_0_0_OperationsImpl {
                 "orbisgis:test:jdbctable", processDescriptions.getProcessDescription().get(0).getIdentifier().getValue());
 
         //Other
-        Assert.assertTrue("The ProcessDescriptions ProcessOutputs version should be empty",
-                processDescriptions.getProcessDescription().get(0).getProcessVersion().isEmpty());
+        Assert.assertFalse("The ProcessDescriptions ProcessOutputs version should be not be set",
+                processDescriptions.getProcessDescription().get(0).isSetProcessVersion());
         Assert.assertEquals("The ProcessDescriptions ProcessOutputs metadata size should be '2'",
                 2, processDescriptions.getProcessDescription().get(0).getMetadata().size());
     }

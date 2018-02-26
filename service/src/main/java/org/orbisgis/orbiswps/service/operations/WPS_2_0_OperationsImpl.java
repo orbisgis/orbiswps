@@ -294,21 +294,50 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
 
     @Override
     public Object describeProcess(DescribeProcess describeProcess) {
+
+        ExceptionReport exceptionReport = new ExceptionReport();
+
+        boolean isLang = Arrays.asList(wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES).contains(describeProcess.getLang());
+        if(!isLang) {
+            for (String suppLang : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES){
+                if(suppLang.substring(0, 2).equalsIgnoreCase(describeProcess.getLang().substring(0, 2))){
+                    isLang = true;
+                }
+            }
+        }
+
+        if(!isLang){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("Lang");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
+        if(describeProcess.getIdentifier().isEmpty()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("Identifier");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
         //Get the list of the ids of the process to describe
         List<CodeType> idList = describeProcess.getIdentifier();
 
         ProcessOfferings processOfferings = new ProcessOfferings();
         List<ProcessOffering> processOfferingList = new ArrayList<>();
+        List<String> wrongId = new ArrayList<>();
         //For each of the processes
         for(CodeType id : idList) {
             List<ProcessIdentifier> piList = processManager.getAllProcessIdentifier();
+            ProcessOffering po = new ProcessOffering();
             //Find the process registered in the server with the same id
             for(ProcessIdentifier pi : piList){
                 if(pi.getProcessDescriptionType().getIdentifier().getValue().equals(id.getValue())){
                     //Once the process found, build the corresponding processOffering to send to the client
                     if(pi.getProcessOffering() != null) {
                         //Build the new ProcessOffering which will be return
-                        ProcessOffering po = new ProcessOffering();
                         po.setProcessVersion(pi.getProcessOffering().getProcessVersion());
                         po.getJobControlOptions().clear();
                         po.getJobControlOptions().addAll(Arrays.asList(wpsProp.GLOBAL_PROPERTIES.JOB_CONTROL_OPTIONS));
@@ -320,17 +349,20 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
                         List<String> languages = new ArrayList<>();
                         languages.add(describeProcess.getLang());
                         po.setProcess(ProcessTranslator.getTranslatedProcess(pi, languages));
-                        processOfferingList.add(po);
                     }
                 }
+            }
+            if(!po.isSetProcess()){
+                wrongId.add(id.getValue());
+            }
+            else {
+                processOfferingList.add(po);
             }
         }
         if(processOfferingList.isEmpty()){
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoSuchProcess ");
-            exceptionType.getExceptionText().add("One of the identifiers passed does not match with any of the " +
-                    "processes offered by this server.");
-            ExceptionReport exceptionReport = new ExceptionReport();
+            exceptionType.setExceptionCode("NoSuchProcess");
+            exceptionType.getExceptionText().addAll(wrongId);
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
         }

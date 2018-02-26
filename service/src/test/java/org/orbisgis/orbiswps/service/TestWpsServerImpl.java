@@ -230,8 +230,8 @@ public class TestWpsServerImpl {
         Assert.assertEquals("Error on unmarshalling the WpsService answer, the process offering output transmission 0 " +
                         " should be '" + DataTransmissionModeType.VALUE + "'",
                 processOffering.getOutputTransmission().get(0), DataTransmissionModeType.VALUE);
-        Assert.assertEquals("Error on unmarshalling the WpsService answer, the process version should be ''",
-                processOffering.getProcessVersion(), "");
+        Assert.assertFalse("Error on unmarshalling the WpsService answer, the process version should not be set",
+                processOffering.isSetProcessVersion());
         Assert.assertEquals("Error on unmarshalling the WpsService answer, the process model should be 'native'",
                 processOffering.getProcessModel(), "native");
     }

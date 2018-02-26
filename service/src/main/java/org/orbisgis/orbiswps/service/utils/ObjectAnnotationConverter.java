@@ -427,7 +427,17 @@ public class ObjectAnnotationConverter {
      */
     public static void annotationToObject(ProcessAttribute processAttribute, ProcessOffering processOffering){
         processOffering.getProcess().setLang(Locale.forLanguageTag(processAttribute.language()).toString());
-        processOffering.setProcessVersion(processAttribute.version());
+        String version = processAttribute.version();
+        if(!version.isEmpty()){
+            String[] split = version.split("\\.");
+            if(split.length<3){
+                version+=".0";
+            }
+            if(split.length<2){
+                version+=".0";
+            }
+            processOffering.setProcessVersion(version);
+        }
         String[] properties = processAttribute.properties();
         List<MetadataType> metadataList = processOffering.getProcess().getMetadata();
         for(int i=0; i<properties.length; i+=2){

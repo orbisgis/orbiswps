@@ -129,7 +129,8 @@ public class WpsScriptPlugin implements WpsScriptBundle {
     @Override
     public List<URL> getScriptsList() {
         File f = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
-        if(f.isFile()){
+        URL url = this.getClass().getResource(SCRIPTS_RESOURCE_FOLDER_PATH);
+        if(!url.toString().startsWith("bundle")){
             try {
                 return getAllSubJarUrl(new JarFile(f), "org/orbisgis/orbiswps/scripts/scripts");
             } catch (IOException e) {

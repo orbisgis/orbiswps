@@ -142,7 +142,6 @@ public class DescribeProcessTest {
     @Test
     public void testEmptyDescribeProcess(){
         DescribeProcess describeProcess = new DescribeProcess();
-        describeProcess.setLang("en");
 
         Object result = sendRequest(describeProcess, marshaller, service, unmarshaller);
 
@@ -174,6 +173,28 @@ public class DescribeProcessTest {
     }
 
     @Test
+    public void testDescribeProcessResultNoLang() throws Exception {
+        DescribeProcess describeProcess = new DescribeProcess();
+        describeProcess.getIdentifier().addAll(codeTypeList);
+
+        Object result = sendRequest(describeProcess, marshaller, service, unmarshaller);
+
+
+        //Get the WPSCapabilitiesType object
+
+        if(result instanceof ExceptionReport){
+            throw getException((ExceptionReport)result);
+        }
+        else if (!(result instanceof ProcessOfferings)) {
+            fail("The JAXBElement value should be a WPSCapabilitiesType");
+        }
+        ProcessOfferings processOfferings = (ProcessOfferings) result;
+
+        testProcessOfferings(processOfferings, null);
+
+    }
+
+    @Test
     public void testDescribeProcessResult() throws Exception {
         DescribeProcess describeProcess = new DescribeProcess();
         describeProcess.setLang("fr-fr");
@@ -192,6 +213,11 @@ public class DescribeProcessTest {
         }
         ProcessOfferings processOfferings = (ProcessOfferings) result;
 
+        testProcessOfferings(processOfferings, "fr-fr");
+
+    }
+
+    private void testProcessOfferings(ProcessOfferings processOfferings, String lang){
         assertTrue("The property 'processOffering' should be set", processOfferings.isSetProcessOffering());
         for(ProcessOffering processOffering : processOfferings.getProcessOffering()){
             assertTrue("The property 'jobControlOption' should be set",
@@ -235,17 +261,23 @@ public class DescribeProcessTest {
 
             assertTrue("The property 'title' should be set", process.isSetTitle());
             assertEquals("There should be 1 title", 1, process.getTitle().size());
-            assertEquals("The language should be fr-fr", "fr-fr", process.getTitle().get(0).getLang());
+            if(lang != null) {
+                assertEquals("The language should be " + lang, lang, process.getTitle().get(0).getLang());
+            }
 
             if(process.isSetAbstract()){
                 assertEquals("There should be 1 abstract", 1, process.getAbstract().size());
-                assertEquals("The language should be fr-fr", "fr-fr", process.getAbstract().get(0).getLang());
+                if(lang != null) {
+                    assertEquals("The language should be " + lang, lang, process.getAbstract().get(0).getLang());
+                }
             }
 
             if(process.isSetKeywords()){
                 for(KeywordsType keyword : process.getKeywords()) {
                     assertEquals("There should be 1 keyword", 1, keyword.getKeyword().size());
-                    assertEquals("The language should be fr-fr", "fr-fr", keyword.getKeyword().get(0).getLang());
+                    if(lang != null) {
+                        assertEquals("The language should be " + lang, lang, keyword.getKeyword().get(0).getLang());
+                    }
                 }
             }
 
@@ -257,17 +289,23 @@ public class DescribeProcessTest {
                 for(InputDescriptionType input : process.getInput()){
                     assertTrue("The property 'title' of the input should be set", input.isSetTitle());
                     assertEquals("There should be 1 title of the input", 1, input.getTitle().size());
-                    assertEquals("The language of the input should be fr-fr", "fr-fr", input.getTitle().get(0).getLang());
+                    if(lang != null) {
+                        assertEquals("The language of the input should be " + lang, lang, input.getTitle().get(0).getLang());
+                    }
 
                     if(input.isSetAbstract()){
                         assertEquals("There should be 1 abstract of the input", 1, input.getAbstract().size());
-                        assertEquals("The language of the input should be fr-fr", "fr-fr", input.getAbstract().get(0).getLang());
+                        if(lang != null) {
+                            assertEquals("The language of the input should be " + lang, lang, input.getAbstract().get(0).getLang());
+                        }
                     }
 
                     if(input.isSetKeywords()){
                         for(KeywordsType keyword : input.getKeywords()) {
                             assertEquals("There should be 1 keyword of the input", 1, keyword.getKeyword().size());
-                            assertEquals("The language of the input should be fr-fr", "fr-fr", keyword.getKeyword().get(0).getLang());
+                            if(lang != null) {
+                                assertEquals("The language of the input should be " + lang, lang, keyword.getKeyword().get(0).getLang());
+                            }
                         }
                     }
 
@@ -295,17 +333,23 @@ public class DescribeProcessTest {
 
                 assertTrue("The property 'title' of the input should be set", output.isSetTitle());
                 assertEquals("There should be 1 title of the input", 1, output.getTitle().size());
-                assertEquals("The language of the input should be fr-fr", "fr-fr", output.getTitle().get(0).getLang());
+                if(lang != null) {
+                    assertEquals("The language of the input should be " + lang, lang, output.getTitle().get(0).getLang());
+                }
 
                 if(output.isSetAbstract()){
                     assertEquals("There should be 1 abstract of the input", 1, output.getAbstract().size());
-                    assertEquals("The language of the input should be fr-fr", "fr-fr", output.getAbstract().get(0).getLang());
+                    if(lang != null) {
+                        assertEquals("The language of the input should be " + lang, lang, output.getAbstract().get(0).getLang());
+                    }
                 }
 
                 if(output.isSetKeywords()){
                     for(KeywordsType keyword : output.getKeywords()) {
                         assertEquals("There should be 1 keyword of the input", 1, keyword.getKeyword().size());
-                        assertEquals("The language of the input should be fr-fr", "fr-fr", keyword.getKeyword().get(0).getLang());
+                        if(lang != null) {
+                            assertEquals("The language of the input should be " + lang, lang, keyword.getKeyword().get(0).getLang());
+                        }
                     }
                 }
 
@@ -316,7 +360,6 @@ public class DescribeProcessTest {
                 testDataDescriptionType(output.getDataDescription().getValue());
             }
         }
-
     }
 
     private void testDataDescriptionType(DataDescriptionType dataDescriptionType){

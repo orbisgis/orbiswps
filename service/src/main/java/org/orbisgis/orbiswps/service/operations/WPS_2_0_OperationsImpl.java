@@ -297,21 +297,23 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
 
         ExceptionReport exceptionReport = new ExceptionReport();
 
-        boolean isLang = Arrays.asList(wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES).contains(describeProcess.getLang());
-        if(!isLang) {
-            for (String suppLang : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES){
-                if(suppLang.substring(0, 2).equalsIgnoreCase(describeProcess.getLang().substring(0, 2))){
-                    isLang = true;
+        if(describeProcess.isSetLang()) {
+            boolean isLang = Arrays.asList(wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES).contains(describeProcess.getLang());
+            if (!isLang) {
+                for (String suppLang : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
+                    if (suppLang.substring(0, 2).equalsIgnoreCase(describeProcess.getLang().substring(0, 2))) {
+                        isLang = true;
+                    }
                 }
             }
-        }
 
-        if(!isLang){
-            ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("InvalidParameterValue");
-            exceptionType.setLocator("Lang");
-            exceptionReport.getException().add(exceptionType);
-            return exceptionReport;
+            if (!isLang) {
+                ExceptionType exceptionType = new ExceptionType();
+                exceptionType.setExceptionCode("InvalidParameterValue");
+                exceptionType.setLocator("Lang");
+                exceptionReport.getException().add(exceptionType);
+                return exceptionReport;
+            }
         }
 
         if(describeProcess.getIdentifier().isEmpty()){
@@ -346,9 +348,14 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
                         listTransmission.add(DataTransmissionModeType.VALUE);
                         po.getOutputTransmission().clear();
                         po.getOutputTransmission().addAll(listTransmission);
-                        List<String> languages = new ArrayList<>();
-                        languages.add(describeProcess.getLang());
-                        po.setProcess(ProcessTranslator.getTranslatedProcess(pi, languages));
+                        if(describeProcess.isSetLang()) {
+                            List<String> languages = new ArrayList<>();
+                            languages.add(describeProcess.getLang());
+                            po.setProcess(ProcessTranslator.getTranslatedProcess(pi, languages));
+                        }
+                        else{
+                            po.setProcess(pi.getProcessDescriptionType());
+                        }
                     }
                 }
             }

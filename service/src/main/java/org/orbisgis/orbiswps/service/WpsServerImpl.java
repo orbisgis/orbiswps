@@ -94,8 +94,6 @@ public class WpsServerImpl implements WpsServer {
     private ExecutorService executorService;
     /** True if a process is running, false otherwise. */
     private boolean processRunning = false;
-    /** FIFO list of ProcessWorker, it is used to run the processes one by one in the good order. */
-    private LinkedList<ProcessWorker> workerFIFO;
     /** List of OrbisGISWpsServerListener. */
     private List<WpsServerListener> wpsServerListenerList = new ArrayList<>();
     /** Class execution the WPS 2.0 operations. */
@@ -118,7 +116,6 @@ public class WpsServerImpl implements WpsServer {
     public WpsServerImpl(){
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(null, this);
-        workerFIFO = new LinkedList<>();
         props20 = new WpsServerProperties_2_0(null);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
         props100 = new WpsServerProperties_1_0_0(null);
@@ -134,7 +131,6 @@ public class WpsServerImpl implements WpsServer {
         this.executorService = executorService;
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
-        workerFIFO = new LinkedList<>();
         props20 = new WpsServerProperties_2_0(null);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
         props100 = new WpsServerProperties_1_0_0(null);
@@ -151,7 +147,6 @@ public class WpsServerImpl implements WpsServer {
         this.executorService = executorService;
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
-        workerFIFO = new LinkedList<>();
         props20 = new WpsServerProperties_2_0(propertyFileLocation);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
         props100 = new WpsServerProperties_1_0_0(propertyFileLocation);
@@ -400,24 +395,17 @@ public class WpsServerImpl implements WpsServer {
      * Indicates if a process is actually running.
      * @return True if a process is running, false otherwise.
      */
-    public Future executeNewProcessWorker(Job job, ProcessIdentifier processIdentifier, Map<URI, Object> dataMap){
+    public Future executeNewProcessWorker(Job job, ProcessIdentifier processIdentifier, Map<URI, Object> dataMap) {
         ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this);
 
-        if(processRunning){
-            workerFIFO.push(worker);
+        if (executorService != null) {
+            Future future = executorService.submit(worker);
+            workerMap.put(worker.getJobId(), future);
+            return future;
+        } else {
+            worker.run();
+            return null;
         }
-        else {
-            //Run the worker
-            processRunning = true;
-            if (executorService != null) {
-                Future future = executorService.submit(worker);
-                workerMap.put(worker.getJobId(), future);
-                return future;
-            } else {
-                worker.run();
-            }
-        }
-        return null;
     }
 
     /**
@@ -434,25 +422,13 @@ public class WpsServerImpl implements WpsServer {
         for(UUID uuid : toRemove){
             workerMap.remove(uuid);
         }
-        processRunning = false;
-        //If other process are waiting, run them
-        if(!processRunning && workerFIFO.size()>0){
-            processRunning = true;
-            if (executorService != null) {
-                ProcessWorker processWorker = workerFIFO.pollFirst();
-                Future future = executorService.submit(processWorker);
-                workerMap.put(processWorker.getJobId(), future);
-            } else {
-                workerFIFO.pollFirst().run();
-            }
-        }
     }
 
     /**
      * Cancel the running process corresponding to the given URI.
      * @param jobId Id of the job to cancel.
      */
-    public void cancelProcess(UUID jobId){
+    public void cancelProcess(UUID jobId) {
         processManager.cancelProcess(jobId);
         workerMap.get(jobId).cancel(true);
     }

@@ -405,6 +405,16 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         statusInfo.setJobID(jobId.toString());
         //Get the Process
         ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(execute.getIdentifier());
+
+        if (processIdentifier == null){
+            ExceptionReport exceptionReport = new ExceptionReport();
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("NoSuchProcess");
+            exceptionType.setLocator(execute.getIdentifier().getValue());
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
         //Generate the processInstance
         Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
                 wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
@@ -422,10 +432,20 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
     }
 
     @Override
-    public StatusInfo getStatus(GetStatus getStatus) {
+    public Object getStatus(GetStatus getStatus) {
         //Get the job concerned by the getStatus request
         UUID jobId = UUID.fromString(getStatus.getJobID());
         Job job = jobMap.get(jobId);
+
+        if (job == null){
+            ExceptionReport exceptionReport = new ExceptionReport();
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("NoSuchJob");
+            exceptionType.setLocator(getStatus.getJobID());
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
         //Generate the StatusInfo to return
         StatusInfo statusInfo = new StatusInfo();
         statusInfo.setJobID(jobId.toString());
@@ -447,7 +467,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
     }
 
     @Override
-    public Result getResult(GetResult getResult) {
+    public Object getResult(GetResult getResult) {
         Result result = new Result();
         //generate the XMLGregorianCalendar Object to put in the Result Object
         long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
@@ -455,6 +475,16 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         //Get the concerned Job
         UUID jobId = UUID.fromString(getResult.getJobID());
         Job job = jobMap.get(jobId);
+
+        if (job == null){
+            ExceptionReport exceptionReport = new ExceptionReport();
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("NoSuchJob");
+            exceptionType.setLocator(getResult.getJobID());
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
         result.setJobID(jobId.toString());
         //Get the list of outputs to transmit
         List<DataOutputType> listOutput = new ArrayList<>();

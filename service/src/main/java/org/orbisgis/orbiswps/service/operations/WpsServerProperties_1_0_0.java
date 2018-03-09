@@ -39,11 +39,16 @@
  */
 package org.orbisgis.orbiswps.service.operations;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.opengis.ows._1.*;
 import org.apache.commons.io.FilenameUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3._1999.xlink.ActuateType;
@@ -86,14 +91,17 @@ public class WpsServerProperties_1_0_0 {
             File propertiesFile = new File(propertyFileLocation);
             if (propertiesFile.exists()) {
                 if(FilenameUtils.getExtension(propertiesFile.getName()).equalsIgnoreCase("json")) {
-                    JSONObject obj = null;
+                    ObjectNode objNode = null;
                     try {
-                        obj = new JSONObject(new JSONTokener(new FileInputStream(propertiesFile)));
-                        GLOBAL_PROPERTIES = new GlobalProperties(obj);
-                        SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(obj);
-                        SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(obj);
-                        /*OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(obj);
-                        CUSTOM_PROPERTIES = new CustomProperties(obj);*/
+                        JsonFactory jsonFactory = new JsonFactory();
+                        jsonFactory.enable(JsonParser.Feature.ALLOW_COMMENTS);
+                        ObjectMapper objMapper = new ObjectMapper(jsonFactory);
+                        objNode = objMapper.readValue(propertiesFile, ObjectNode.class);
+                        GLOBAL_PROPERTIES = new GlobalProperties(objNode);
+                        SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(objNode);
+                        SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(objNode);
+                        /*OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(objNode);
+                        CUSTOM_PROPERTIES = new CustomProperties(objNode);*/
                     } catch (FileNotFoundException e) {
                         LOGGER.warn(I18N.tr("Unable to load the wps properties.\n"+e.getMessage()));
                         GLOBAL_PROPERTIES = null;
@@ -102,7 +110,7 @@ public class WpsServerProperties_1_0_0 {
                                 "default configuration.", ex.getMessage()));
                         GLOBAL_PROPERTIES = null;
                     }
-                    if (obj != null) {
+                    if (objNode == null) {
                         wpsProperties = new Properties();
                         URL url = this.getClass().getResource(BASIC_SERVER_PROPERTIES);
                         if(url == null){
@@ -233,13 +241,13 @@ public class WpsServerProperties_1_0_0 {
             SUPPORTED_FORMATS = properties.getProperty("SUPPORTED_FORMATS").split(",");
         }
 
-        public GlobalProperties(JSONObject jsonObj) throws Exception {
-            SERVICE = jsonObj.getString("service");
-            SERVER_VERSION = jsonObj.getString("server_version");
-            SUPPORTED_VERSIONS = jsonObj.getJSONArray("supported_version").toList().toArray(new String[]{});
-            SUPPORTED_LANGUAGES = jsonObj.getJSONArray("supported_language").toList().toArray(new String[]{});
-            DEFAULT_LANGUAGE = jsonObj.getString("default_language");
-            SUPPORTED_FORMATS = jsonObj.getJSONArray("supported_format").toList().toArray(new String[]{});
+        public GlobalProperties(ObjectNode objNode) throws Exception {
+            SERVICE = objNode.get("service").asText();
+            SERVER_VERSION = objNode.get("service_version").asText();
+            SUPPORTED_VERSIONS = nodeToArray(objNode.get("supported_versions"));
+            SUPPORTED_LANGUAGES = nodeToArray(objNode.get("supported_languages"));
+            DEFAULT_LANGUAGE = objNode.get("default_language").asText();
+            SUPPORTED_FORMATS = nodeToArray(objNode.get("supported_format"));
         }
     }
 
@@ -370,40 +378,41 @@ public class WpsServerProperties_1_0_0 {
             ACCESS_CONSTRAINTS = properties.getProperty("ACCESS_CONSTRAINTS").split(",");
         }
 
-        public ServiceIdentificationProperties(JSONObject jsonObj) throws Exception {
+        public ServiceIdentificationProperties(ObjectNode objNode) throws Exception {
+            JsonNode jsonNode = objNode.get("service_identification");
             // Sets the service type property
             SERVICE_TYPE = new CodeType();
-            SERVICE_TYPE.setValue(jsonObj.getString("service_type"));
+            SERVICE_TYPE.setValue(jsonNode.get("service_type").asText());
 
             // Sets the service type version which is an array of values.
-            SERVICE_TYPE_VERSIONS = jsonObj.getJSONArray("service_type_version").toList().toArray(new String[]{});
+            SERVICE_TYPE_VERSIONS = nodeToArray(jsonNode.get("service_type_version"));
 
             // Sets the service type version which is an array of values.
-            if(jsonObj.optJSONArray("profile") != null) {
-                PROFILE = jsonObj.optJSONArray("profile").toList().toArray(new String[]{});
+            if(jsonNode.has("profile")) {
+                PROFILE = nodeToArray(jsonNode.get("profile"));
             }
             else{
                 PROFILE = null;
             }
 
             // Sets the title which is an array of LanguageStringType.
-            JSONArray titles = jsonObj.getJSONArray("title");
-            TITLE = new LanguageStringType[titles.length()];
-            for(int i=0; i<titles.length(); i++){
+            JsonNode titles = jsonNode.get("title");
+            TITLE = new LanguageStringType[titles.size()];
+            for(int i=0; i<titles.size(); i++){
                 LanguageStringType type = new LanguageStringType();
-                type.setValue(titles.getJSONObject(i).getString("value"));
-                type.setLang(titles.getJSONObject(i).getString("lang"));
+                type.setValue(titles.get(i).get("value").asText());
+                type.setLang(titles.get(i).get("lang").asText());
                 TITLE[i] = type;
             }
 
             //Sets the abstract which, like the title, is composed of an array of LanguageStringType.
-            JSONArray abstracts = jsonObj.optJSONArray("abstract");
-            if(abstracts != null) {
-                ABSTRACT = new LanguageStringType[abstracts.length()];
-                for (int i = 0; i < abstracts.length(); i++) {
+            if(jsonNode.has("abstract")) {
+                JsonNode abstracts = jsonNode.get("abstract");
+                ABSTRACT = new LanguageStringType[abstracts.size()];
+                for (int i = 0; i < abstracts.size(); i++) {
                     LanguageStringType type = new LanguageStringType();
-                    type.setValue(abstracts.getJSONObject(i).getString("value"));
-                    type.setLang(abstracts.getJSONObject(i).getString("lang"));
+                    type.setValue(abstracts.get(i).get("value").asText());
+                    type.setLang(abstracts.get(i).get("lang").asText());
                     ABSTRACT[i] = type;
                 }
             }
@@ -413,17 +422,16 @@ public class WpsServerProperties_1_0_0 {
 
             //Sets the keywords which, is composed of an array (which represent one keyword) of arrays of
             //LanguageStringType (which represents all the translation).
-
-            JSONArray keywords = jsonObj.optJSONArray("keywords");
-            if(keywords != null) {
-                KEYWORDS = new KeywordsType[keywords.length()];
-                for (int i = 0; i < keywords.length(); i++) {
-                    JSONArray keyword = keywords.getJSONObject(i).getJSONArray("keyword");
+            if(jsonNode.has("keywords")){
+                JsonNode keywords = jsonNode.get("keywords");
+                KEYWORDS = new KeywordsType[keywords.size()];
+                for (int i = 0; i < keywords.size(); i++) {
+                    JsonNode keyword = keywords.get(i).get("keyword");
                     KEYWORDS[i] = new KeywordsType();
-                    for (int j = 0; j < keyword.length(); j++) {
+                    for (int j = 0; j < keyword.size(); j++) {
                         LanguageStringType type = new LanguageStringType();
-                        type.setValue(keyword.getJSONObject(i).getString("value"));
-                        type.setLang(keyword.getJSONObject(i).getString("lang"));
+                        type.setValue(keyword.get(j).get("value").asText());
+                        type.setLang(keyword.get(j).get("lang").asText());
                         KEYWORDS[i].getKeyword().add(type);
                     }
                 }
@@ -432,10 +440,10 @@ public class WpsServerProperties_1_0_0 {
                 KEYWORDS = null;
             }
 
-            FEES = jsonObj.optString("fees");
+            FEES = jsonNode.get("fees").asText();
 
-            if(jsonObj.optJSONArray("access_constraint") != null) {
-                ACCESS_CONSTRAINTS = jsonObj.optJSONArray("access_constraint").toList().toArray(new String[]{});
+            if(jsonNode.has("access_constraints")) {
+                ACCESS_CONSTRAINTS = nodeToArray(jsonNode.get("access_constraints"));
             }
             else{
                 ACCESS_CONSTRAINTS = null;
@@ -459,99 +467,102 @@ public class WpsServerProperties_1_0_0 {
             SERVICE_CONTACT = null;
         }
 
-        public ServiceProviderProperties(JSONObject jsonObj) throws Exception {
-            PROVIDER_NAME = jsonObj.getString("provider_name");
+        public ServiceProviderProperties(ObjectNode objNode) throws Exception {
 
-            JSONObject obj = jsonObj.getJSONObject("provider_site");
+            JsonNode jsonObj = objNode.get("service_provider");
+
+            PROVIDER_NAME = jsonObj.get("provider_name").asText();
+
+            JsonNode obj = jsonObj.get("provider_site");
             if(obj != null) {
                 PROVIDER_SITE = new OnlineResourceType();
-                PROVIDER_SITE.setHref(obj.optString("href"));
-                PROVIDER_SITE.setRole(obj.optString("role"));
-                PROVIDER_SITE.setArcrole(obj.optString("arcrole"));
-                PROVIDER_SITE.setTitle(obj.optString("title"));
-                String str = obj.optString("actuate");
+                PROVIDER_SITE.setHref(obj.get("href").asText());
+                PROVIDER_SITE.setRole(obj.get("role").asText());
+                PROVIDER_SITE.setArcrole(obj.get("arcrole").asText());
+                PROVIDER_SITE.setTitle(obj.get("title").asText());
+                String str = obj.get("actuate").asText();
                 if (str != null) {
-                    PROVIDER_SITE.setActuate(ActuateType.fromValue(str.toUpperCase()));
+                    PROVIDER_SITE.setActuate(ActuateType.fromValue(str.toLowerCase()));
                 }
-                str = obj.optString("show");
+                str = obj.get("show").asText();
                 if (str != null) {
-                    PROVIDER_SITE.setShow(ShowType.fromValue(str.toUpperCase()));
+                    PROVIDER_SITE.setShow(ShowType.fromValue(str.toLowerCase()));
                 }
             }
             else{
                 PROVIDER_SITE = null;
             }
 
-            obj = jsonObj.getJSONObject("service_contact");
+            obj = jsonObj.get("service_contact");
             if(obj != null) {
                 SERVICE_CONTACT = new ResponsiblePartySubsetType();
-                SERVICE_CONTACT.setIndividualName(obj.optString("individual_name"));
-                SERVICE_CONTACT.setPositionName(obj.optString("position_name"));
-                if(obj.optJSONObject("contact_info") != null) {
-                    JSONObject objContact = obj.optJSONObject("contact_info");
+                SERVICE_CONTACT.setIndividualName(obj.get("individual_name").asText());
+                SERVICE_CONTACT.setPositionName(obj.get("position_name").asText());
+                if(obj.get("contact_info") != null) {
+                    JsonNode objContact = obj.get("contact_info");
                     ContactType contactType = new ContactType();
-                    if (objContact.optJSONObject("phone") != null) {
-                        JSONObject objPhone = objContact.optJSONObject("phone");
+                    if (objContact.get("phone") != null) {
+                        JsonNode objPhone = objContact.get("phone");
                         TelephoneType telephoneType = new TelephoneType();
-                        JSONArray voiceArray = objPhone.optJSONArray("voice");
+                        JsonNode voiceArray = objPhone.get("voice");
                         if(voiceArray != null){
-                            for(int i=0; i<voiceArray.length(); i++) {
-                                telephoneType.getVoice().add(voiceArray.getString(i));
+                            for(int i=0; i<voiceArray.size(); i++) {
+                                telephoneType.getVoice().add(voiceArray.get(i).asText());
                             }
                         }
-                        JSONArray facsimArray = objPhone.optJSONArray("facsimile");
+                        JsonNode facsimArray = objPhone.get("facsimile");
                         if(facsimArray != null){
-                            for(int i=0; i<facsimArray.length(); i++) {
-                                telephoneType.getFacsimile().add(facsimArray.getString(i));
+                            for(int i=0; i<facsimArray.size(); i++) {
+                                telephoneType.getFacsimile().add(facsimArray.get(i).asText());
                             }
                         }
                         contactType.setPhone(telephoneType);
                     }
-                    if(objContact.optJSONObject("address") != null) {
-                        JSONObject objAddress = objContact.optJSONObject("address");
+                    if(objContact.get("address") != null) {
+                        JsonNode objAddress = objContact.get("address");
                         AddressType addressType = new AddressType();
-                        JSONArray deliveryArray = objAddress.optJSONArray("delivery_point");
+                        JsonNode deliveryArray = objAddress.get("delivery_point");
                         if (deliveryArray != null) {
-                            for (int i = 0; i < deliveryArray.length(); i++) {
-                                addressType.getDeliveryPoint().add(deliveryArray.getString(i));
+                            for (int i = 0; i < deliveryArray.size(); i++) {
+                                addressType.getDeliveryPoint().add(deliveryArray.get(i).asText());
                             }
                         }
-                        addressType.setCity(objAddress.optString("city"));
-                        addressType.setAdministrativeArea(objAddress.optString("administrative_area"));
-                        addressType.setPostalCode(objAddress.optString("postal_code"));
-                        addressType.setCountry(objAddress.optString("country"));
+                        addressType.setCity(objAddress.get("city").asText());
+                        addressType.setAdministrativeArea(objAddress.get("administrative_area").asText());
+                        addressType.setPostalCode(objAddress.get("postal_code").asText());
+                        addressType.setCountry(objAddress.get("country").asText());
                         contactType.setAddress(addressType);
-                        JSONArray emailArray = objAddress.optJSONArray("emails");
+                        JsonNode emailArray = objAddress.get("emails");
                         if (emailArray != null) {
-                            for (int i = 0; i < emailArray.length(); i++) {
-                                addressType.getElectronicMailAddress().add(emailArray.getString(i));
+                            for (int i = 0; i < emailArray.size(); i++) {
+                                addressType.getElectronicMailAddress().add(emailArray.get(i).asText());
                             }
                         }
                     }
-                    if(objContact.optJSONObject("online_resource") != null) {
+                    if(objContact.get("online_resource") != null) {
                         OnlineResourceType onlineResourceType = new OnlineResourceType();
-                        JSONObject onlineObj = objContact.optJSONObject("online_resource");
-                        onlineResourceType.setHref(onlineObj.optString("href"));
-                        onlineResourceType.setRole(onlineObj.optString("role"));
-                        onlineResourceType.setArcrole(onlineObj.optString("arcrole"));
-                        onlineResourceType.setTitle(onlineObj.optString("title"));
-                        String str = onlineObj.optString("actuate");
+                        JsonNode onlineObj = objContact.get("online_resource");
+                        onlineResourceType.setHref(onlineObj.get("href").asText());
+                        onlineResourceType.setRole(onlineObj.get("role").asText());
+                        onlineResourceType.setArcrole(onlineObj.get("arcrole").asText());
+                        onlineResourceType.setTitle(onlineObj.get("title").asText());
+                        String str = onlineObj.get("actuate").asText();
                         if (str != null) {
-                            onlineResourceType.setActuate(ActuateType.fromValue(str.toUpperCase()));
+                            onlineResourceType.setActuate(ActuateType.fromValue(str.toLowerCase()));
                         }
-                        str = onlineObj.optString("show");
+                        str = onlineObj.get("show").asText();
                         if (str != null) {
-                            onlineResourceType.setShow(ShowType.fromValue(str.toUpperCase()));
+                            onlineResourceType.setShow(ShowType.fromValue(str.toLowerCase()));
                         }
                         contactType.setOnlineResource(onlineResourceType);
                     }
-                    contactType.setHoursOfService(objContact.optString("hours_of_service"));
-                    contactType.setContactInstructions(objContact.optString("instructions"));
+                    contactType.setHoursOfService(objContact.get("hours_of_service").asText());
+                    contactType.setContactInstructions(objContact.get("instructions").asText());
                     SERVICE_CONTACT.setContactInfo(contactType);
                 }
-                if(obj.optString("role") != null) {
+                if(obj.get("role") != null) {
                     CodeType codeType = new CodeType();
-                    codeType.setValue(obj.optString("role"));
+                    codeType.setValue(obj.get("role").asText());
                     SERVICE_CONTACT.setRole(codeType);
                 }
             }
@@ -738,5 +749,18 @@ public class WpsServerProperties_1_0_0 {
             int seconds = Integer.decode(destroyDelay.substring(destroyDelay.indexOf("M")+1, destroyDelay.indexOf("S")));
             return seconds*secondsToMillis + minutes*minutesToMillis + hours*hoursToMillis + days*daysToMillis + years*yearsToMillis;
         }
+    }
+
+    /**
+     * Convert an JsonNode to a String array
+     * @param jsonNode JsonNode to convert
+     * @return String array
+     */
+    private String[] nodeToArray(JsonNode jsonNode) {
+        List<String> list = new ArrayList<>();
+        for(JsonNode node : jsonNode){
+            list.add(node.asText());
+        }
+        return list.toArray(new String[]{});
     }
 }

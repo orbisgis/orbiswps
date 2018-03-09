@@ -130,4 +130,36 @@ public class WpsServiceFactory {
         }
         throw exception;
     }
+
+    /**
+     * Transform an ExceptionReport object into a throwable IllegalArgumentException.
+     * @param report ExceptionReport object get from the server.
+     * @return A throwable IllegalArgumentException object.
+     */
+    public static Exception getException(net.opengis.ows._1.ExceptionReport report){
+        IllegalArgumentException exception = new IllegalArgumentException();
+        if(report.isSetException()) {
+            String text = "";
+            net.opengis.ows._1.ExceptionType exceptionType = (report).getException().get(0);
+            if(exceptionType.isSetExceptionText()) {
+                text += exceptionType.getExceptionText().get(0);
+            }
+            if(exceptionType.isSetExceptionCode()) {
+                if(!text.isEmpty()){
+                    text += "\n";
+                }
+                text += exceptionType.getExceptionCode();
+            }
+            if(exceptionType.isSetLocator()) {
+                if(!text.isEmpty()){
+                    text += "\n";
+                }
+                text += exceptionType.getLocator();
+            }
+            if(!text.isEmpty()){
+                exception = new IllegalArgumentException(text);
+            }
+        }
+        throw exception;
+    }
 }

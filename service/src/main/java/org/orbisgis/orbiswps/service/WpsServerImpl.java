@@ -158,6 +158,23 @@ public class WpsServerImpl implements WpsServer {
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
+    /**
+     * Initialization of the WpsServer with the given properties.
+     *
+     * @param dataSource DataSource to be used by the server.
+     */
+    public WpsServerImpl(DataSource dataSource, String property100FileLocation, String property20FileLocation,
+                         ExecutorService executorService){
+        this.executorService = executorService;
+        //Creates the attribute for the processes execution
+        processManager = new ProcessManager(dataSource, this);
+        workerFIFO = new LinkedList<>();
+        props20 = new WpsServerProperties_2_0(property20FileLocation);
+        wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
+        props100 = new WpsServerProperties_1_0_0(property100FileLocation);
+        wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
+    }
+
     @Reference
     public void setDataSource(DataSource dataSource) {
         processManager.setDataSource(dataSource);
@@ -251,10 +268,16 @@ public class WpsServerImpl implements WpsServer {
                     if(capabilities.isSetAcceptVersions()) {
                         versions = capabilities.getAcceptVersions().getVersion();
                     }
+                    else{
+                        versions.add("1.0.0");
+                    }
                 } else {
                     net.opengis.wps._2_0.GetCapabilitiesType capabilities = (net.opengis.wps._2_0.GetCapabilitiesType) o;
                     if(capabilities.isSetAcceptVersions()) {
                         versions = capabilities.getAcceptVersions().getVersion();
+                    }
+                    else{
+                        versions.add("2.0");
                     }
                 }
                 //Get the answer according to the higher version

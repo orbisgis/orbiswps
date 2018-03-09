@@ -41,26 +41,13 @@ package org.orbisgis.orbiswps.service.operations;
 
 import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
-import net.opengis.wps._1_0_0.DataType;
-import net.opengis.wps._1_0_0.DescribeProcess;
-import net.opengis.wps._1_0_0.InputDescriptionType;
-import net.opengis.wps._1_0_0.LiteralDataType;
-import net.opengis.wps._1_0_0.OutputDescriptionType;
-import net.opengis.wps._1_0_0.ProcessDescriptionType;
-import net.opengis.wps._1_0_0.ProcessOfferings;
-import net.opengis.wps._1_0_0.WPSCapabilitiesType;
-import net.opengis.wps._2_0.BoundingBoxData;
-import net.opengis.wps._2_0.ComplexDataType;
-import net.opengis.wps._2_0.*;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
-import org.orbisgis.orbiswps.service.utils.Job;
-import org.orbisgis.orbiswps.service.model.Enumeration;
-import org.orbisgis.orbiswps.service.model.*;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
+import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -269,12 +256,12 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         List<CodeType> codeTypeList = describeProcess.getIdentifier();
         ProcessDescriptions processDescriptions = new ProcessDescriptions();
 
-        if(language.equals(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE)){
+        if(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE.equals(language)){
             processDescriptions.setLang(language);
         }
         else {
             for(String lang : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
-                if (language.equals(lang)) {
+                if (lang.equals(language)) {
                     processDescriptions.setLang(language);
 
                 }

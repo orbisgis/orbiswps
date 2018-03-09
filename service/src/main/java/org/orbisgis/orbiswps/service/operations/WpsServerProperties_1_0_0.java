@@ -39,20 +39,26 @@
  */
 package org.orbisgis.orbiswps.service.operations;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.opengis.ows._1.*;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3._1999.xlink.ActuateType;
+import org.w3._1999.xlink.ShowType;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Properties of the wps server.
@@ -82,29 +88,95 @@ public class WpsServerProperties_1_0_0 {
         Properties wpsProperties = null;
         if(propertyFileLocation != null) {
             //Load the property file
-            File propertiesFile = new File(propertyFileLocation + File.separator + SERVER_PROPERTIES);
+            File propertiesFile = new File(propertyFileLocation);
             if (propertiesFile.exists()) {
-                try {
-                    wpsProperties.load(new FileInputStream(propertiesFile));
-                } catch (IOException e) {
-                    LOGGER.warn(I18N.tr("Unable to restore the wps properties."));
-                    wpsProperties = null;
+                if(FilenameUtils.getExtension(propertiesFile.getName()).equalsIgnoreCase("json")) {
+                    ObjectNode objNode = null;
+                    try {
+                        JsonFactory jsonFactory = new JsonFactory();
+                        jsonFactory.enable(JsonParser.Feature.ALLOW_COMMENTS);
+                        ObjectMapper objMapper = new ObjectMapper(jsonFactory);
+                        objNode = objMapper.readValue(propertiesFile, ObjectNode.class);
+                        GLOBAL_PROPERTIES = new GlobalProperties(objNode);
+                        SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(objNode);
+                        SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(objNode);
+                        /*OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(objNode);
+                        CUSTOM_PROPERTIES = new CustomProperties(objNode);*/
+                    } catch (FileNotFoundException e) {
+                        LOGGER.warn(I18N.tr("Unable to load the wps properties.\n"+e.getMessage()));
+                        GLOBAL_PROPERTIES = null;
+                    } catch (Exception ex) {
+                        LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
+                                "default configuration.", ex.getMessage()));
+                        GLOBAL_PROPERTIES = null;
+                    }
+                    if (objNode == null) {
+                        wpsProperties = new Properties();
+                        URL url = this.getClass().getResource(BASIC_SERVER_PROPERTIES);
+                        if(url == null){
+                            LOGGER.error(I18N.tr("Unable to find the basic server properties file."));
+                        }
+                        else {
+                            try {
+                                wpsProperties.load(new InputStreamReader(url.openStream()));
+                                GLOBAL_PROPERTIES = new GlobalProperties(wpsProperties);
+                                SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
+                                SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
+                                OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
+                                CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
+                            } catch (Exception ex) {
+                                LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
+                                        "default configuration.", ex.getMessage()));
+                                GLOBAL_PROPERTIES = null;
+                            }
+                        }
+                    }
                 }
-            }
-            if (wpsProperties != null) {
-                try {
-                    GLOBAL_PROPERTIES = new GlobalProperties(wpsProperties);
-                    SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
-                    SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
-                    OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
-                    CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
-                } catch (Exception e) {
-                    LOGGER.warn(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the default configuration.", e.getMessage()));
-                    wpsProperties = null;
+                else if(FilenameUtils.getExtension(propertiesFile.getName()).equalsIgnoreCase("properties")) {
+                    try {
+                        wpsProperties = new Properties();
+                        wpsProperties.load(new FileInputStream(propertiesFile));
+                    } catch (IOException e) {
+                        LOGGER.warn(I18N.tr("Unable to restore the wps properties."));
+                        wpsProperties = null;
+                    }
+                    if (wpsProperties != null) {
+                        try {
+                            GLOBAL_PROPERTIES = new GlobalProperties(wpsProperties);
+                            SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
+                            SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
+                            OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
+                            CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
+                        } catch (Exception e) {
+                            LOGGER.warn(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the default " +
+                                    "configuration.", e.getMessage()));
+                        }
+                    }
+                    else{
+                        wpsProperties = new Properties();
+                        URL url = this.getClass().getResource(BASIC_SERVER_PROPERTIES);
+                        if(url == null){
+                            LOGGER.error(I18N.tr("Unable to find the basic server properties file."));
+                        }
+                        else {
+                            try {
+                                wpsProperties.load(new InputStreamReader(url.openStream()));
+                                GLOBAL_PROPERTIES = new GlobalProperties(wpsProperties);
+                                SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
+                                SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
+                                OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
+                                CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
+                            } catch (Exception ex) {
+                                LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
+                                        "default configuration.", ex.getMessage()));
+                                GLOBAL_PROPERTIES = null;
+                            }
+                        }
+                    }
                 }
             }
         }
-        if(wpsProperties == null){
+        else{
             wpsProperties = new Properties();
             URL url = this.getClass().getResource(BASIC_SERVER_PROPERTIES);
             if(url == null){
@@ -119,7 +191,8 @@ public class WpsServerProperties_1_0_0 {
                     OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
                     CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
                 } catch (Exception ex) {
-                    LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the default configuration.", ex.getMessage()));
+                    LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
+                            "default configuration.", ex.getMessage()));
                     GLOBAL_PROPERTIES = null;
                 }
             }
@@ -141,8 +214,6 @@ public class WpsServerProperties_1_0_0 {
         public final String[] SUPPORTED_LANGUAGES;
         /** Supported format for the communication with the client. */
         public final String[] SUPPORTED_FORMATS;
-        /** Default languages. */
-        public final String[] JOB_CONTROL_OPTIONS;
 
         public GlobalProperties(Properties properties) throws Exception {
             SERVICE = properties.getProperty("SERVICE");
@@ -168,12 +239,15 @@ public class WpsServerProperties_1_0_0 {
                 throw new Exception(I18N.tr("The property 'SUPPORTED_FORMATS' isn't defined"));
             }
             SUPPORTED_FORMATS = properties.getProperty("SUPPORTED_FORMATS").split(",");
+        }
 
-            String jobControlOptions = properties.getProperty("JOB_CONTROL_OPTIONS");
-            if(jobControlOptions == null || jobControlOptions.isEmpty()){
-                throw new Exception(I18N.tr("The property 'JOB_CONTROL_OPTIONS' isn't defined"));
-            }
-            JOB_CONTROL_OPTIONS = properties.getProperty("JOB_CONTROL_OPTIONS").split(",");
+        public GlobalProperties(ObjectNode objNode) throws Exception {
+            SERVICE = objNode.get("service").asText();
+            SERVER_VERSION = objNode.get("service_version").asText();
+            SUPPORTED_VERSIONS = nodeToArray(objNode.get("supported_versions"));
+            SUPPORTED_LANGUAGES = nodeToArray(objNode.get("supported_languages"));
+            DEFAULT_LANGUAGE = objNode.get("default_language").asText();
+            SUPPORTED_FORMATS = nodeToArray(objNode.get("supported_format"));
         }
     }
 
@@ -181,13 +255,15 @@ public class WpsServerProperties_1_0_0 {
     public class ServiceIdentificationProperties{
         /** Service provided by the server, WPS by default */
         public final CodeType SERVICE_TYPE;
-        /** Version of the server. */
+        /** Supported version of the WPS (1.0.0, 2.0 ...). */
         public final String[] SERVICE_TYPE_VERSIONS;
-        /** Supported version of the WPS (1.0.0, 2.0.0 ...). */
+        /** Available profiles */
+        public final String[] PROFILE;
+        /** Title of the service */
         public final LanguageStringType[] TITLE;
-        /** Default languages. */
+        /** description of the service. */
         public final LanguageStringType[] ABSTRACT;
-        /** Supported languages. */
+        /** Keywords of the service. */
         public final KeywordsType[] KEYWORDS;
         /** Supported format for the communication with the client. */
         public final String FEES;
@@ -206,6 +282,8 @@ public class WpsServerProperties_1_0_0 {
                 throw new Exception(I18N.tr("The property 'SERVICE_TYPE_VERSIONS' isn't defined"));
             }
             SERVICE_TYPE_VERSIONS = properties.getProperty("SERVICE_TYPE_VERSIONS").split(",");
+
+            PROFILE = new String[]{"NONE"};
 
             // Sets the title which is an array of LanguageStringType. So the property is split with the ';' character
             // and the first string is under the first language, the second one in the second language ...
@@ -299,6 +377,78 @@ public class WpsServerProperties_1_0_0 {
             }
             ACCESS_CONSTRAINTS = properties.getProperty("ACCESS_CONSTRAINTS").split(",");
         }
+
+        public ServiceIdentificationProperties(ObjectNode objNode) throws Exception {
+            JsonNode jsonNode = objNode.get("service_identification");
+            // Sets the service type property
+            SERVICE_TYPE = new CodeType();
+            SERVICE_TYPE.setValue(jsonNode.get("service_type").asText());
+
+            // Sets the service type version which is an array of values.
+            SERVICE_TYPE_VERSIONS = nodeToArray(jsonNode.get("service_type_version"));
+
+            // Sets the service type version which is an array of values.
+            if(jsonNode.has("profile")) {
+                PROFILE = nodeToArray(jsonNode.get("profile"));
+            }
+            else{
+                PROFILE = null;
+            }
+
+            // Sets the title which is an array of LanguageStringType.
+            JsonNode titles = jsonNode.get("title");
+            TITLE = new LanguageStringType[titles.size()];
+            for(int i=0; i<titles.size(); i++){
+                LanguageStringType type = new LanguageStringType();
+                type.setValue(titles.get(i).get("value").asText());
+                type.setLang(titles.get(i).get("lang").asText());
+                TITLE[i] = type;
+            }
+
+            //Sets the abstract which, like the title, is composed of an array of LanguageStringType.
+            if(jsonNode.has("abstract")) {
+                JsonNode abstracts = jsonNode.get("abstract");
+                ABSTRACT = new LanguageStringType[abstracts.size()];
+                for (int i = 0; i < abstracts.size(); i++) {
+                    LanguageStringType type = new LanguageStringType();
+                    type.setValue(abstracts.get(i).get("value").asText());
+                    type.setLang(abstracts.get(i).get("lang").asText());
+                    ABSTRACT[i] = type;
+                }
+            }
+            else{
+                ABSTRACT = null;
+            }
+
+            //Sets the keywords which, is composed of an array (which represent one keyword) of arrays of
+            //LanguageStringType (which represents all the translation).
+            if(jsonNode.has("keywords")){
+                JsonNode keywords = jsonNode.get("keywords");
+                KEYWORDS = new KeywordsType[keywords.size()];
+                for (int i = 0; i < keywords.size(); i++) {
+                    JsonNode keyword = keywords.get(i).get("keyword");
+                    KEYWORDS[i] = new KeywordsType();
+                    for (int j = 0; j < keyword.size(); j++) {
+                        LanguageStringType type = new LanguageStringType();
+                        type.setValue(keyword.get(j).get("value").asText());
+                        type.setLang(keyword.get(j).get("lang").asText());
+                        KEYWORDS[i].getKeyword().add(type);
+                    }
+                }
+            }
+            else{
+                KEYWORDS = null;
+            }
+
+            FEES = jsonNode.get("fees").asText();
+
+            if(jsonNode.has("access_constraints")) {
+                ACCESS_CONSTRAINTS = nodeToArray(jsonNode.get("access_constraints"));
+            }
+            else{
+                ACCESS_CONSTRAINTS = null;
+            }
+        }
     }
 
     /** Properties associated to the service provider part of the server */
@@ -307,11 +457,118 @@ public class WpsServerProperties_1_0_0 {
         public final String PROVIDER_NAME;
         /** Reference to the most relevant web site of the service provider. */
         public final OnlineResourceType PROVIDER_SITE;
+        /** Information for contacting the service provider. */
+        public final ResponsiblePartySubsetType SERVICE_CONTACT;
 
         public ServiceProviderProperties(Properties properties) throws Exception {
             PROVIDER_NAME = properties.getProperty("PROVIDER_NAME");
             PROVIDER_SITE = new OnlineResourceType();
             PROVIDER_SITE.setHref(properties.getProperty("PROVIDER_SITE_HREF"));
+            SERVICE_CONTACT = null;
+        }
+
+        public ServiceProviderProperties(ObjectNode objNode) throws Exception {
+
+            JsonNode jsonObj = objNode.get("service_provider");
+
+            PROVIDER_NAME = jsonObj.get("provider_name").asText();
+
+            JsonNode obj = jsonObj.get("provider_site");
+            if(obj != null) {
+                PROVIDER_SITE = new OnlineResourceType();
+                PROVIDER_SITE.setHref(obj.get("href").asText());
+                PROVIDER_SITE.setRole(obj.get("role").asText());
+                PROVIDER_SITE.setArcrole(obj.get("arcrole").asText());
+                PROVIDER_SITE.setTitle(obj.get("title").asText());
+                String str = obj.get("actuate").asText();
+                if (str != null) {
+                    PROVIDER_SITE.setActuate(ActuateType.fromValue(str.toLowerCase()));
+                }
+                str = obj.get("show").asText();
+                if (str != null) {
+                    PROVIDER_SITE.setShow(ShowType.fromValue(str.toLowerCase()));
+                }
+            }
+            else{
+                PROVIDER_SITE = null;
+            }
+
+            obj = jsonObj.get("service_contact");
+            if(obj != null) {
+                SERVICE_CONTACT = new ResponsiblePartySubsetType();
+                SERVICE_CONTACT.setIndividualName(obj.get("individual_name").asText());
+                SERVICE_CONTACT.setPositionName(obj.get("position_name").asText());
+                if(obj.get("contact_info") != null) {
+                    JsonNode objContact = obj.get("contact_info");
+                    ContactType contactType = new ContactType();
+                    if (objContact.get("phone") != null) {
+                        JsonNode objPhone = objContact.get("phone");
+                        TelephoneType telephoneType = new TelephoneType();
+                        JsonNode voiceArray = objPhone.get("voice");
+                        if(voiceArray != null){
+                            for(int i=0; i<voiceArray.size(); i++) {
+                                telephoneType.getVoice().add(voiceArray.get(i).asText());
+                            }
+                        }
+                        JsonNode facsimArray = objPhone.get("facsimile");
+                        if(facsimArray != null){
+                            for(int i=0; i<facsimArray.size(); i++) {
+                                telephoneType.getFacsimile().add(facsimArray.get(i).asText());
+                            }
+                        }
+                        contactType.setPhone(telephoneType);
+                    }
+                    if(objContact.get("address") != null) {
+                        JsonNode objAddress = objContact.get("address");
+                        AddressType addressType = new AddressType();
+                        JsonNode deliveryArray = objAddress.get("delivery_point");
+                        if (deliveryArray != null) {
+                            for (int i = 0; i < deliveryArray.size(); i++) {
+                                addressType.getDeliveryPoint().add(deliveryArray.get(i).asText());
+                            }
+                        }
+                        addressType.setCity(objAddress.get("city").asText());
+                        addressType.setAdministrativeArea(objAddress.get("administrative_area").asText());
+                        addressType.setPostalCode(objAddress.get("postal_code").asText());
+                        addressType.setCountry(objAddress.get("country").asText());
+                        contactType.setAddress(addressType);
+                        JsonNode emailArray = objAddress.get("emails");
+                        if (emailArray != null) {
+                            for (int i = 0; i < emailArray.size(); i++) {
+                                addressType.getElectronicMailAddress().add(emailArray.get(i).asText());
+                            }
+                        }
+                    }
+                    if(objContact.get("online_resource") != null) {
+                        OnlineResourceType onlineResourceType = new OnlineResourceType();
+                        JsonNode onlineObj = objContact.get("online_resource");
+                        onlineResourceType.setHref(onlineObj.get("href").asText());
+                        onlineResourceType.setRole(onlineObj.get("role").asText());
+                        onlineResourceType.setArcrole(onlineObj.get("arcrole").asText());
+                        onlineResourceType.setTitle(onlineObj.get("title").asText());
+                        String str = onlineObj.get("actuate").asText();
+                        if (str != null) {
+                            onlineResourceType.setActuate(ActuateType.fromValue(str.toLowerCase()));
+                        }
+                        str = onlineObj.get("show").asText();
+                        if (str != null) {
+                            onlineResourceType.setShow(ShowType.fromValue(str.toLowerCase()));
+                        }
+                        contactType.setOnlineResource(onlineResourceType);
+                    }
+                    contactType.setHoursOfService(objContact.get("hours_of_service").asText());
+                    contactType.setContactInstructions(objContact.get("instructions").asText());
+                    SERVICE_CONTACT.setContactInfo(contactType);
+                }
+                if(obj.get("role") != null) {
+                    CodeType codeType = new CodeType();
+                    codeType.setValue(obj.get("role").asText());
+                    SERVICE_CONTACT.setRole(codeType);
+                }
+            }
+            else{
+                SERVICE_CONTACT = null;
+            }
         }
     }
 
@@ -492,5 +749,18 @@ public class WpsServerProperties_1_0_0 {
             int seconds = Integer.decode(destroyDelay.substring(destroyDelay.indexOf("M")+1, destroyDelay.indexOf("S")));
             return seconds*secondsToMillis + minutes*minutesToMillis + hours*hoursToMillis + days*daysToMillis + years*yearsToMillis;
         }
+    }
+
+    /**
+     * Convert an JsonNode to a String array
+     * @param jsonNode JsonNode to convert
+     * @return String array
+     */
+    private String[] nodeToArray(JsonNode jsonNode) {
+        List<String> list = new ArrayList<>();
+        for(JsonNode node : jsonNode){
+            list.add(node.asText());
+        }
+        return list.toArray(new String[]{});
     }
 }

@@ -126,6 +126,7 @@ public class WpsServerProperties_1_0_0 {
                 }
                 else if(FilenameUtils.getExtension(propertiesFile.getName()).equalsIgnoreCase("properties")) {
                     try {
+                        wpsProperties = new Properties();
                         wpsProperties.load(new FileInputStream(propertiesFile));
                     } catch (IOException e) {
                         LOGGER.warn(I18N.tr("Unable to restore the wps properties."));

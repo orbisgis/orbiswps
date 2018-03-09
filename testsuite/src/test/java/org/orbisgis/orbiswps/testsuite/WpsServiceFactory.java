@@ -66,7 +66,6 @@ public class WpsServiceFactory {
         DataSource dataSource = SFSUtilities.wrapSpatialDataSource(H2GISDBFactory.createDataSource(
                 GetCapabilitiesTest.class.getSimpleName(), false));
         WpsServerImpl service = new WpsServerImpl(dataSource,
-                WpsServiceFactory.class.getResource("fullWpsService100.json").getFile(),
                 WpsServiceFactory.class.getResource("fullWpsService.properties").getFile(),
                 Executors.newSingleThreadExecutor());
 

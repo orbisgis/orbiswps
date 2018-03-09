@@ -40,19 +40,20 @@
 package org.orbisgis.orbiswps.service.operations;
 
 import net.opengis.ows._1.*;
+import org.apache.commons.io.FilenameUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3._1999.xlink.ActuateType;
+import org.w3._1999.xlink.ShowType;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Properties of the wps server.
@@ -82,29 +83,91 @@ public class WpsServerProperties_1_0_0 {
         Properties wpsProperties = null;
         if(propertyFileLocation != null) {
             //Load the property file
-            File propertiesFile = new File(propertyFileLocation + File.separator + SERVER_PROPERTIES);
+            File propertiesFile = new File(propertyFileLocation);
             if (propertiesFile.exists()) {
-                try {
-                    wpsProperties.load(new FileInputStream(propertiesFile));
-                } catch (IOException e) {
-                    LOGGER.warn(I18N.tr("Unable to restore the wps properties."));
-                    wpsProperties = null;
+                if(FilenameUtils.getExtension(propertiesFile.getName()).equalsIgnoreCase("json")) {
+                    JSONObject obj = null;
+                    try {
+                        obj = new JSONObject(new JSONTokener(new FileInputStream(propertiesFile)));
+                        GLOBAL_PROPERTIES = new GlobalProperties(obj);
+                        SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(obj);
+                        SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(obj);
+                        /*OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(obj);
+                        CUSTOM_PROPERTIES = new CustomProperties(obj);*/
+                    } catch (FileNotFoundException e) {
+                        LOGGER.warn(I18N.tr("Unable to load the wps properties.\n"+e.getMessage()));
+                        GLOBAL_PROPERTIES = null;
+                    } catch (Exception ex) {
+                        LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
+                                "default configuration.", ex.getMessage()));
+                        GLOBAL_PROPERTIES = null;
+                    }
+                    if (obj != null) {
+                        wpsProperties = new Properties();
+                        URL url = this.getClass().getResource(BASIC_SERVER_PROPERTIES);
+                        if(url == null){
+                            LOGGER.error(I18N.tr("Unable to find the basic server properties file."));
+                        }
+                        else {
+                            try {
+                                wpsProperties.load(new InputStreamReader(url.openStream()));
+                                GLOBAL_PROPERTIES = new GlobalProperties(wpsProperties);
+                                SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
+                                SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
+                                OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
+                                CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
+                            } catch (Exception ex) {
+                                LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
+                                        "default configuration.", ex.getMessage()));
+                                GLOBAL_PROPERTIES = null;
+                            }
+                        }
+                    }
                 }
-            }
-            if (wpsProperties != null) {
-                try {
-                    GLOBAL_PROPERTIES = new GlobalProperties(wpsProperties);
-                    SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
-                    SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
-                    OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
-                    CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
-                } catch (Exception e) {
-                    LOGGER.warn(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the default configuration.", e.getMessage()));
-                    wpsProperties = null;
+                else if(FilenameUtils.getExtension(propertiesFile.getName()).equalsIgnoreCase("properties")) {
+                    try {
+                        wpsProperties.load(new FileInputStream(propertiesFile));
+                    } catch (IOException e) {
+                        LOGGER.warn(I18N.tr("Unable to restore the wps properties."));
+                        wpsProperties = null;
+                    }
+                    if (wpsProperties != null) {
+                        try {
+                            GLOBAL_PROPERTIES = new GlobalProperties(wpsProperties);
+                            SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
+                            SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
+                            OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
+                            CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
+                        } catch (Exception e) {
+                            LOGGER.warn(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the default " +
+                                    "configuration.", e.getMessage()));
+                        }
+                    }
+                    else{
+                        wpsProperties = new Properties();
+                        URL url = this.getClass().getResource(BASIC_SERVER_PROPERTIES);
+                        if(url == null){
+                            LOGGER.error(I18N.tr("Unable to find the basic server properties file."));
+                        }
+                        else {
+                            try {
+                                wpsProperties.load(new InputStreamReader(url.openStream()));
+                                GLOBAL_PROPERTIES = new GlobalProperties(wpsProperties);
+                                SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
+                                SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
+                                OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
+                                CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
+                            } catch (Exception ex) {
+                                LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
+                                        "default configuration.", ex.getMessage()));
+                                GLOBAL_PROPERTIES = null;
+                            }
+                        }
+                    }
                 }
             }
         }
-        if(wpsProperties == null){
+        else{
             wpsProperties = new Properties();
             URL url = this.getClass().getResource(BASIC_SERVER_PROPERTIES);
             if(url == null){
@@ -119,7 +182,8 @@ public class WpsServerProperties_1_0_0 {
                     OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
                     CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
                 } catch (Exception ex) {
-                    LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the default configuration.", ex.getMessage()));
+                    LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
+                            "default configuration.", ex.getMessage()));
                     GLOBAL_PROPERTIES = null;
                 }
             }
@@ -141,8 +205,6 @@ public class WpsServerProperties_1_0_0 {
         public final String[] SUPPORTED_LANGUAGES;
         /** Supported format for the communication with the client. */
         public final String[] SUPPORTED_FORMATS;
-        /** Default languages. */
-        public final String[] JOB_CONTROL_OPTIONS;
 
         public GlobalProperties(Properties properties) throws Exception {
             SERVICE = properties.getProperty("SERVICE");
@@ -168,12 +230,15 @@ public class WpsServerProperties_1_0_0 {
                 throw new Exception(I18N.tr("The property 'SUPPORTED_FORMATS' isn't defined"));
             }
             SUPPORTED_FORMATS = properties.getProperty("SUPPORTED_FORMATS").split(",");
+        }
 
-            String jobControlOptions = properties.getProperty("JOB_CONTROL_OPTIONS");
-            if(jobControlOptions == null || jobControlOptions.isEmpty()){
-                throw new Exception(I18N.tr("The property 'JOB_CONTROL_OPTIONS' isn't defined"));
-            }
-            JOB_CONTROL_OPTIONS = properties.getProperty("JOB_CONTROL_OPTIONS").split(",");
+        public GlobalProperties(JSONObject jsonObj) throws Exception {
+            SERVICE = jsonObj.getString("service");
+            SERVER_VERSION = jsonObj.getString("server_version");
+            SUPPORTED_VERSIONS = jsonObj.getJSONArray("supported_version").toList().toArray(new String[]{});
+            SUPPORTED_LANGUAGES = jsonObj.getJSONArray("supported_language").toList().toArray(new String[]{});
+            DEFAULT_LANGUAGE = jsonObj.getString("default_language");
+            SUPPORTED_FORMATS = jsonObj.getJSONArray("supported_format").toList().toArray(new String[]{});
         }
     }
 
@@ -181,13 +246,15 @@ public class WpsServerProperties_1_0_0 {
     public class ServiceIdentificationProperties{
         /** Service provided by the server, WPS by default */
         public final CodeType SERVICE_TYPE;
-        /** Version of the server. */
+        /** Supported version of the WPS (1.0.0, 2.0 ...). */
         public final String[] SERVICE_TYPE_VERSIONS;
-        /** Supported version of the WPS (1.0.0, 2.0.0 ...). */
+        /** Available profiles */
+        public final String[] PROFILE;
+        /** Title of the service */
         public final LanguageStringType[] TITLE;
-        /** Default languages. */
+        /** description of the service. */
         public final LanguageStringType[] ABSTRACT;
-        /** Supported languages. */
+        /** Keywords of the service. */
         public final KeywordsType[] KEYWORDS;
         /** Supported format for the communication with the client. */
         public final String FEES;
@@ -206,6 +273,8 @@ public class WpsServerProperties_1_0_0 {
                 throw new Exception(I18N.tr("The property 'SERVICE_TYPE_VERSIONS' isn't defined"));
             }
             SERVICE_TYPE_VERSIONS = properties.getProperty("SERVICE_TYPE_VERSIONS").split(",");
+
+            PROFILE = new String[]{"NONE"};
 
             // Sets the title which is an array of LanguageStringType. So the property is split with the ';' character
             // and the first string is under the first language, the second one in the second language ...
@@ -299,6 +368,78 @@ public class WpsServerProperties_1_0_0 {
             }
             ACCESS_CONSTRAINTS = properties.getProperty("ACCESS_CONSTRAINTS").split(",");
         }
+
+        public ServiceIdentificationProperties(JSONObject jsonObj) throws Exception {
+            // Sets the service type property
+            SERVICE_TYPE = new CodeType();
+            SERVICE_TYPE.setValue(jsonObj.getString("service_type"));
+
+            // Sets the service type version which is an array of values.
+            SERVICE_TYPE_VERSIONS = jsonObj.getJSONArray("service_type_version").toList().toArray(new String[]{});
+
+            // Sets the service type version which is an array of values.
+            if(jsonObj.optJSONArray("profile") != null) {
+                PROFILE = jsonObj.optJSONArray("profile").toList().toArray(new String[]{});
+            }
+            else{
+                PROFILE = null;
+            }
+
+            // Sets the title which is an array of LanguageStringType.
+            JSONArray titles = jsonObj.getJSONArray("title");
+            TITLE = new LanguageStringType[titles.length()];
+            for(int i=0; i<titles.length(); i++){
+                LanguageStringType type = new LanguageStringType();
+                type.setValue(titles.getJSONObject(i).getString("value"));
+                type.setLang(titles.getJSONObject(i).getString("lang"));
+                TITLE[i] = type;
+            }
+
+            //Sets the abstract which, like the title, is composed of an array of LanguageStringType.
+            JSONArray abstracts = jsonObj.optJSONArray("abstract");
+            if(abstracts != null) {
+                ABSTRACT = new LanguageStringType[abstracts.length()];
+                for (int i = 0; i < abstracts.length(); i++) {
+                    LanguageStringType type = new LanguageStringType();
+                    type.setValue(abstracts.getJSONObject(i).getString("value"));
+                    type.setLang(abstracts.getJSONObject(i).getString("lang"));
+                    ABSTRACT[i] = type;
+                }
+            }
+            else{
+                ABSTRACT = null;
+            }
+
+            //Sets the keywords which, is composed of an array (which represent one keyword) of arrays of
+            //LanguageStringType (which represents all the translation).
+
+            JSONArray keywords = jsonObj.optJSONArray("keywords");
+            if(keywords != null) {
+                KEYWORDS = new KeywordsType[keywords.length()];
+                for (int i = 0; i < keywords.length(); i++) {
+                    JSONArray keyword = keywords.getJSONObject(i).getJSONArray("keyword");
+                    KEYWORDS[i] = new KeywordsType();
+                    for (int j = 0; j < keyword.length(); j++) {
+                        LanguageStringType type = new LanguageStringType();
+                        type.setValue(keyword.getJSONObject(i).getString("value"));
+                        type.setLang(keyword.getJSONObject(i).getString("lang"));
+                        KEYWORDS[i].getKeyword().add(type);
+                    }
+                }
+            }
+            else{
+                KEYWORDS = null;
+            }
+
+            FEES = jsonObj.optString("fees");
+
+            if(jsonObj.optJSONArray("access_constraint") != null) {
+                ACCESS_CONSTRAINTS = jsonObj.optJSONArray("access_constraint").toList().toArray(new String[]{});
+            }
+            else{
+                ACCESS_CONSTRAINTS = null;
+            }
+        }
     }
 
     /** Properties associated to the service provider part of the server */
@@ -307,11 +448,115 @@ public class WpsServerProperties_1_0_0 {
         public final String PROVIDER_NAME;
         /** Reference to the most relevant web site of the service provider. */
         public final OnlineResourceType PROVIDER_SITE;
+        /** Information for contacting the service provider. */
+        public final ResponsiblePartySubsetType SERVICE_CONTACT;
 
         public ServiceProviderProperties(Properties properties) throws Exception {
             PROVIDER_NAME = properties.getProperty("PROVIDER_NAME");
             PROVIDER_SITE = new OnlineResourceType();
             PROVIDER_SITE.setHref(properties.getProperty("PROVIDER_SITE_HREF"));
+            SERVICE_CONTACT = null;
+        }
+
+        public ServiceProviderProperties(JSONObject jsonObj) throws Exception {
+            PROVIDER_NAME = jsonObj.getString("provider_name");
+
+            JSONObject obj = jsonObj.getJSONObject("provider_site");
+            if(obj != null) {
+                PROVIDER_SITE = new OnlineResourceType();
+                PROVIDER_SITE.setHref(obj.optString("href"));
+                PROVIDER_SITE.setRole(obj.optString("role"));
+                PROVIDER_SITE.setArcrole(obj.optString("arcrole"));
+                PROVIDER_SITE.setTitle(obj.optString("title"));
+                String str = obj.optString("actuate");
+                if (str != null) {
+                    PROVIDER_SITE.setActuate(ActuateType.fromValue(str.toUpperCase()));
+                }
+                str = obj.optString("show");
+                if (str != null) {
+                    PROVIDER_SITE.setShow(ShowType.fromValue(str.toUpperCase()));
+                }
+            }
+            else{
+                PROVIDER_SITE = null;
+            }
+
+            obj = jsonObj.getJSONObject("service_contact");
+            if(obj != null) {
+                SERVICE_CONTACT = new ResponsiblePartySubsetType();
+                SERVICE_CONTACT.setIndividualName(obj.optString("individual_name"));
+                SERVICE_CONTACT.setPositionName(obj.optString("position_name"));
+                if(obj.optJSONObject("contact_info") != null) {
+                    JSONObject objContact = obj.optJSONObject("contact_info");
+                    ContactType contactType = new ContactType();
+                    if (objContact.optJSONObject("phone") != null) {
+                        JSONObject objPhone = objContact.optJSONObject("phone");
+                        TelephoneType telephoneType = new TelephoneType();
+                        JSONArray voiceArray = objPhone.optJSONArray("voice");
+                        if(voiceArray != null){
+                            for(int i=0; i<voiceArray.length(); i++) {
+                                telephoneType.getVoice().add(voiceArray.getString(i));
+                            }
+                        }
+                        JSONArray facsimArray = objPhone.optJSONArray("facsimile");
+                        if(facsimArray != null){
+                            for(int i=0; i<facsimArray.length(); i++) {
+                                telephoneType.getFacsimile().add(facsimArray.getString(i));
+                            }
+                        }
+                        contactType.setPhone(telephoneType);
+                    }
+                    if(objContact.optJSONObject("address") != null) {
+                        JSONObject objAddress = objContact.optJSONObject("address");
+                        AddressType addressType = new AddressType();
+                        JSONArray deliveryArray = objAddress.optJSONArray("delivery_point");
+                        if (deliveryArray != null) {
+                            for (int i = 0; i < deliveryArray.length(); i++) {
+                                addressType.getDeliveryPoint().add(deliveryArray.getString(i));
+                            }
+                        }
+                        addressType.setCity(objAddress.optString("city"));
+                        addressType.setAdministrativeArea(objAddress.optString("administrative_area"));
+                        addressType.setPostalCode(objAddress.optString("postal_code"));
+                        addressType.setCountry(objAddress.optString("country"));
+                        contactType.setAddress(addressType);
+                        JSONArray emailArray = objAddress.optJSONArray("emails");
+                        if (emailArray != null) {
+                            for (int i = 0; i < emailArray.length(); i++) {
+                                addressType.getElectronicMailAddress().add(emailArray.getString(i));
+                            }
+                        }
+                    }
+                    if(objContact.optJSONObject("online_resource") != null) {
+                        OnlineResourceType onlineResourceType = new OnlineResourceType();
+                        JSONObject onlineObj = objContact.optJSONObject("online_resource");
+                        onlineResourceType.setHref(onlineObj.optString("href"));
+                        onlineResourceType.setRole(onlineObj.optString("role"));
+                        onlineResourceType.setArcrole(onlineObj.optString("arcrole"));
+                        onlineResourceType.setTitle(onlineObj.optString("title"));
+                        String str = onlineObj.optString("actuate");
+                        if (str != null) {
+                            onlineResourceType.setActuate(ActuateType.fromValue(str.toUpperCase()));
+                        }
+                        str = onlineObj.optString("show");
+                        if (str != null) {
+                            onlineResourceType.setShow(ShowType.fromValue(str.toUpperCase()));
+                        }
+                        contactType.setOnlineResource(onlineResourceType);
+                    }
+                    contactType.setHoursOfService(objContact.optString("hours_of_service"));
+                    contactType.setContactInstructions(objContact.optString("instructions"));
+                    SERVICE_CONTACT.setContactInfo(contactType);
+                }
+                if(obj.optString("role") != null) {
+                    CodeType codeType = new CodeType();
+                    codeType.setValue(obj.optString("role"));
+                    SERVICE_CONTACT.setRole(codeType);
+                }
+            }
+            else{
+                SERVICE_CONTACT = null;
+            }
         }
     }
 

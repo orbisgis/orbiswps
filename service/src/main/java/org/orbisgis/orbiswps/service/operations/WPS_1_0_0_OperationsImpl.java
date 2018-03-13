@@ -95,7 +95,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
     public Object getCapabilities(GetCapabilities getCapabilities) {
         // First check the getCapabilities for exceptions
         ExceptionReport exceptionReport = new ExceptionReport();
-        if(getCapabilities == null){
+        if (getCapabilities == null) {
             ExceptionType exceptionType = new ExceptionType();
             exceptionType.setExceptionCode("NoApplicableCode");
             exceptionReport.getException().add(exceptionType);
@@ -104,17 +104,24 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
         //Accepted versions check
         //If the version is not supported, add an ExceptionType with the error.
-        if(getCapabilities.getAcceptVersions() != null &&
-                getCapabilities.getAcceptVersions().getVersion() != null){
+        if (getCapabilities.getAcceptVersions() != null &&
+                getCapabilities.getAcceptVersions().getVersion() != null) {
             boolean isVersionAccepted = false;
-            for(String version1 : getCapabilities.getAcceptVersions().getVersion()){
-                for(String version2 : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_VERSIONS){
-                    if(version1.equals(version2)){
+            for (String version1 : getCapabilities.getAcceptVersions().getVersion()) {
+                if(wpsProp.GLOBAL_PROPERTIES.SUPPORTED_VERSIONS == null){
+                    if("1.0.0".equals(version1)){
                         isVersionAccepted = true;
                     }
                 }
+                else {
+                    for (String version2 : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_VERSIONS) {
+                        if (version1.equals(version2)) {
+                            isVersionAccepted = true;
+                        }
+                    }
+                }
             }
-            if(!isVersionAccepted) {
+            if (!isVersionAccepted) {
                 ExceptionType exceptionType = new ExceptionType();
                 exceptionType.setExceptionCode("VersionNegotiationFailed");
                 exceptionReport.getException().add(exceptionType);
@@ -126,7 +133,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         //Languages check
         //If the language is not supported, add an ExceptionType with the error.
         String requestLanguage = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;
-        if(getCapabilities.getLanguage() != null && !getCapabilities.getLanguage().isEmpty()) {
+        if (getCapabilities.getLanguage() != null && !getCapabilities.getLanguage().isEmpty()) {
             String requestedLanguage = getCapabilities.getLanguage();
             boolean isAnyLanguage = requestedLanguage.contains("*");
             boolean languageFound = false;
@@ -139,9 +146,9 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 }
             }
             //If not language was found, try to get one with best-effort semantic
-            if(!languageFound){
+            if (!languageFound) {
                 //avoid to test "*" language
-                if(!requestedLanguage.equals("*")) {
+                if (!requestedLanguage.equals("*")) {
                     String baseLanguage = requestedLanguage.substring(0, 2);
                     for (String serverLanguage : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
                         if (serverLanguage.substring(0, 2).equals(baseLanguage)) {
@@ -153,7 +160,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 }
             }
             //If not language was found, try to use any language if allowed
-            if(!languageFound  && isAnyLanguage){
+            if (!languageFound && isAnyLanguage) {
                 requestLanguage = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;
                 languageFound = true;
             }
@@ -197,46 +204,54 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             processBriefType.setTitle(convertLanguageStringTypeList2to1(translatedProcess.getTitle()).get(0));
             processBriefType.setAbstract(convertLanguageStringTypeList2to1(translatedProcess.getAbstract()).get(0));
             processBriefType.setIdentifier(convertCodeType2to1(translatedProcess.getIdentifier()));
-            for(net.opengis.ows._2.MetadataType metadataType : translatedProcess.getMetadata()) {
+            for (net.opengis.ows._2.MetadataType metadataType : translatedProcess.getMetadata()) {
                 processBriefType.getMetadata().add(convertMetadataType2to1(metadataType));
             }
             processOfferings.getProcess().add(processBriefType);
         }
         wpsCapabilitiesType.setProcessOfferings(processOfferings);
 
-        WSDL wsdl = new WSDL();
-        wsdl.setHref(wpsProp.SERVICE_PROVIDER_PROPERTIES.PROVIDER_SITE.getHref());
-        wpsCapabilitiesType.setWSDL(wsdl);
+        if (wpsProp.WSDL_PROPERTIES.HREF != null) {
+            WSDL wsdl = new WSDL();
+            wsdl.setHref(wpsProp.WSDL_PROPERTIES.HREF);
+            wpsCapabilitiesType.setWSDL(wsdl);
+        }
 
         OperationsMetadata operationsMetadata = new OperationsMetadata();
         List<Operation> operationList = new ArrayList<>();
-        operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.DESCRIBE_PROCESS_OPERATION);
-        operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.DISMISS_OPERATION);
-        operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.EXECUTE_OPERATION);
-        operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.GET_CAPABILITIES_OPERATION);
-        operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.GET_RESULT_OPERATION);
-        operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.GET_STATUS_OPERATION);
+        operationList.addAll(wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS);
         operationList.removeAll(Collections.singleton(null));
         operationsMetadata.getOperation().addAll(operationList);
         wpsCapabilitiesType.setOperationsMetadata(operationsMetadata);
 
         ServiceIdentification serviceIdentification = new ServiceIdentification();
-        serviceIdentification.setFees(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.FEES);
+        if(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.FEES!=null) {
+            serviceIdentification.setFees(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.FEES);
+        }
+        if(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.PROFILE!=null) {
+            Collections.addAll(serviceIdentification.getProfile(), wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.PROFILE);
+        }
         serviceIdentification.setServiceType(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.SERVICE_TYPE);
-        for(String version : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.SERVICE_TYPE_VERSIONS) {
+        for (String version : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.SERVICE_TYPE_VERSIONS) {
             serviceIdentification.getServiceTypeVersion().add(version);
         }
-        for(LanguageStringType title : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.TITLE) {
+        for (LanguageStringType title : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.TITLE) {
             serviceIdentification.getTitle().add(title);
         }
-        for(LanguageStringType abstract_ : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ABSTRACT) {
-            serviceIdentification.getAbstract().add(abstract_);
+        if (wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ABSTRACT != null) {
+            for (LanguageStringType abstract_ : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ABSTRACT) {
+                serviceIdentification.getAbstract().add(abstract_);
+            }
         }
-        for(KeywordsType keywords : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.KEYWORDS) {
-            serviceIdentification.getKeywords().add(keywords);
+        if (wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.KEYWORDS != null){
+            for (KeywordsType keywords : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.KEYWORDS) {
+                serviceIdentification.getKeywords().add(keywords);
+            }
         }
-        for(String constraint : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ACCESS_CONSTRAINTS) {
-            serviceIdentification.getAccessConstraints().add(constraint);
+        if(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ACCESS_CONSTRAINTS != null) {
+            for (String constraint : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ACCESS_CONSTRAINTS) {
+                serviceIdentification.getAccessConstraints().add(constraint);
+            }
         }
         wpsCapabilitiesType.setServiceIdentification(serviceIdentification);
 
@@ -282,8 +297,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     process = ProcessTranslator.getTranslatedProcess(pId, languages);
                     ProcessDescriptionType processDescriptionType = convertProcessDescriptionType2to1(process);
                     processDescriptionType.setProcessVersion(pId.getProcessOffering().getProcessVersion());
-                    processDescriptionType.setStatusSupported(wpsProp.CUSTOM_PROPERTIES.IS_STATUS_SUPPORTED);
-                    processDescriptionType.setStoreSupported(wpsProp.CUSTOM_PROPERTIES.IS_STORE_SUPPORTED);
+                    processDescriptionType.setStatusSupported(wpsProp.GLOBAL_PROPERTIES.STATUS_SUPPORTED);
+                    processDescriptionType.setStoreSupported(wpsProp.GLOBAL_PROPERTIES.STORE_SUPPORTED);
                     ProcessDescriptionType.DataInputs dataInputs = new ProcessDescriptionType.DataInputs();
                     dataInputs.getInput().addAll(convertInputDescriptionTypeList2to1(process.getInput(),
                             wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE, language,

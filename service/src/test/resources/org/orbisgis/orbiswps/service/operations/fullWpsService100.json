@@ -248,12 +248,14 @@
           //Optional
           "country": "country",
           //Addresses of the electronic mailbox of the responsible organization or individual
+          //Optional
           "emails": [
             "email1",
             "email2"
           ]
         },
         //On-line information that can be used to contact the individual or organization
+        //Optional
         "online_resource": {
           //Any URL
           //Optional

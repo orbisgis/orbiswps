@@ -154,7 +154,13 @@ public class WpsServerProperties_1_0_0 {
         public final boolean STATUS_SUPPORTED;
 
         public GlobalProperties(ObjectNode objNode) throws Exception {
+            if(!objNode.has("service")){
+                throw new Exception("The property file should contains a field 'service'");
+            }
             SERVICE = objNode.get("service").asText();
+            if(!objNode.has("service_version")){
+                throw new Exception("The property file should contains a field 'service_version'");
+            }
             SERVER_VERSION = objNode.get("service_version").asText();
             if(objNode.has("supported_versions")) {
                 SUPPORTED_VERSIONS = nodeToArray(objNode.get("supported_versions"));
@@ -168,7 +174,13 @@ public class WpsServerProperties_1_0_0 {
             else{
                 UPDATE_SEQUENCE = null;
             }
+            if(!objNode.has("supported_languages")){
+                throw new Exception("The property file should contains a field 'supported_languages'");
+            }
             SUPPORTED_LANGUAGES = nodeToArray(objNode.get("supported_languages"));
+            if(!objNode.has("default_language")){
+                throw new Exception("The property file should contains a field 'default_language'");
+            }
             DEFAULT_LANGUAGE = objNode.get("default_language").asText();
             if(objNode.has("supported_format")) {
                 SUPPORTED_FORMATS = nodeToArray(objNode.get("supported_format"));
@@ -201,12 +213,21 @@ public class WpsServerProperties_1_0_0 {
         public final String[] ACCESS_CONSTRAINTS;
 
         public ServiceIdentificationProperties(ObjectNode objNode) throws Exception {
+            if(!objNode.has("service_identification")){
+                throw new Exception("The property file should contains a field 'service_identification'");
+            }
             JsonNode jsonNode = objNode.get("service_identification");
             // Sets the service type property
             SERVICE_TYPE = new CodeType();
+            if(!jsonNode.has("service_type")){
+                throw new Exception("The property file should contains a field 'service_type'");
+            }
             SERVICE_TYPE.setValue(jsonNode.get("service_type").asText());
 
             // Sets the service type version which is an array of values.
+            if(!jsonNode.has("service_type_version")){
+                throw new Exception("The property file should contains a field 'service_type_version'");
+            }
             SERVICE_TYPE_VERSIONS = nodeToArray(jsonNode.get("service_type_version"));
 
             // Sets the service type version which is an array of values.
@@ -218,11 +239,20 @@ public class WpsServerProperties_1_0_0 {
             }
 
             // Sets the title which is an array of LanguageStringType.
+            if(!jsonNode.has("title")){
+                throw new Exception("The property file should contains a field 'title'");
+            }
             JsonNode titles = jsonNode.get("title");
             TITLE = new LanguageStringType[titles.size()];
             for(int i=0; i<titles.size(); i++){
                 LanguageStringType type = new LanguageStringType();
+                if(!titles.get(i).has("value")){
+                    throw new Exception("A language string should contains a field 'value'");
+                }
                 type.setValue(titles.get(i).get("value").asText());
+                if(!titles.get(i).has("lang")){
+                    throw new Exception("A language string should contains a field 'lang'");
+                }
                 type.setLang(titles.get(i).get("lang").asText());
                 TITLE[i] = type;
             }
@@ -233,7 +263,13 @@ public class WpsServerProperties_1_0_0 {
                 ABSTRACT = new LanguageStringType[abstracts.size()];
                 for (int i = 0; i < abstracts.size(); i++) {
                     LanguageStringType type = new LanguageStringType();
+                    if(!abstracts.get(i).has("lang")){
+                        throw new Exception("A language string should contains a field 'lang'");
+                    }
                     type.setValue(abstracts.get(i).get("value").asText());
+                    if(!abstracts.get(i).has("lang")){
+                        throw new Exception("A language string should contains a field 'lang'");
+                    }
                     type.setLang(abstracts.get(i).get("lang").asText());
                     ABSTRACT[i] = type;
                 }
@@ -248,11 +284,20 @@ public class WpsServerProperties_1_0_0 {
                 JsonNode keywords = jsonNode.get("keywords");
                 KEYWORDS = new KeywordsType[keywords.size()];
                 for (int i = 0; i < keywords.size(); i++) {
+                    if(!keywords.get(i).has("keyword")){
+                        throw new Exception("A keywords should contains a field 'keyword'");
+                    }
                     JsonNode keyword = keywords.get(i).get("keyword");
                     KEYWORDS[i] = new KeywordsType();
                     for (int j = 0; j < keyword.size(); j++) {
                         LanguageStringType type = new LanguageStringType();
+                        if(!keyword.get(j).has("value")){
+                            throw new Exception("A language string should contains a field 'value'");
+                        }
                         type.setValue(keyword.get(j).get("value").asText());
+                        if(!keyword.get(j).has("lang")){
+                            throw new Exception("A language string should contains a field 'lang'");
+                        }
                         type.setLang(keyword.get(j).get("lang").asText());
                         KEYWORDS[i].getKeyword().add(type);
                     }
@@ -289,98 +334,130 @@ public class WpsServerProperties_1_0_0 {
 
         public ServiceProviderProperties(ObjectNode objNode) throws Exception {
 
+            if(!objNode.has("service_provider")){
+                throw new Exception("The property file should contains a field 'service_provider'");
+            }
             JsonNode jsonObj = objNode.get("service_provider");
 
+            if(!jsonObj.has("provider_name")){
+                throw new Exception("The property file should contains a field 'provider_name'");
+            }
             PROVIDER_NAME = jsonObj.get("provider_name").asText();
 
-            JsonNode obj = jsonObj.get("provider_site");
-            if(obj != null) {
+
+            if(jsonObj.has("provider_site")) {
+                JsonNode obj = jsonObj.get("provider_site");
                 PROVIDER_SITE = new OnlineResourceType();
-                PROVIDER_SITE.setHref(obj.get("href").asText());
-                PROVIDER_SITE.setRole(obj.get("role").asText());
-                PROVIDER_SITE.setArcrole(obj.get("arcrole").asText());
-                PROVIDER_SITE.setTitle(obj.get("title").asText());
-                String str = obj.get("actuate").asText();
-                if (str != null) {
-                    PROVIDER_SITE.setActuate(ActuateType.fromValue(str.toLowerCase()));
+                if(obj.has("href")) {
+                    PROVIDER_SITE.setHref(obj.get("href").asText());
                 }
-                str = obj.get("show").asText();
-                if (str != null) {
-                    PROVIDER_SITE.setShow(ShowType.fromValue(str.toLowerCase()));
+                if(obj.has("role")) {
+                    PROVIDER_SITE.setRole(obj.get("role").asText());
+                }
+                if(obj.has("arcrole")) {
+                    PROVIDER_SITE.setArcrole(obj.get("arcrole").asText());
+                }
+                if(obj.has("title")) {
+                    PROVIDER_SITE.setTitle(obj.get("title").asText());
+                }
+                if(obj.has("actuate")) {
+                    String str = obj.get("actuate").asText();
+                    if (str != null) {
+                        PROVIDER_SITE.setActuate(ActuateType.fromValue(str.toLowerCase()));
+                    }
+                }
+                if(obj.has("show")) {
+                    String str = obj.get("show").asText();
+                    if (str != null) {
+                        PROVIDER_SITE.setShow(ShowType.fromValue(str.toLowerCase()));
+                    }
                 }
             }
             else{
                 PROVIDER_SITE = null;
             }
 
-            obj = jsonObj.get("service_contact");
-            if(obj != null) {
+            if(jsonObj.has("service_contact")) {
+                JsonNode obj = jsonObj.get("service_contact");
                 SERVICE_CONTACT = new ResponsiblePartySubsetType();
-                SERVICE_CONTACT.setIndividualName(obj.get("individual_name").asText());
-                SERVICE_CONTACT.setPositionName(obj.get("position_name").asText());
-                if(obj.get("contact_info") != null) {
+                if(obj.has("individual_name")) {
+                    SERVICE_CONTACT.setIndividualName(obj.get("individual_name").asText());
+                }
+                if(obj.has("position_name")) {
+                    SERVICE_CONTACT.setPositionName(obj.get("position_name").asText());
+                }
+                if(obj.has("contact_info")) {
                     JsonNode objContact = obj.get("contact_info");
                     ContactType contactType = new ContactType();
-                    if (objContact.get("phone") != null) {
+                    if (objContact.has("phone")) {
                         JsonNode objPhone = objContact.get("phone");
                         TelephoneType telephoneType = new TelephoneType();
-                        JsonNode voiceArray = objPhone.get("voice");
-                        if(voiceArray != null){
-                            for(int i=0; i<voiceArray.size(); i++) {
-                                telephoneType.getVoice().add(voiceArray.get(i).asText());
+                        if(objPhone.has("voice")) {
+                            JsonNode voiceArray = objPhone.get("voice");
+                            if(voiceArray != null){
+                                for(int i=0; i<voiceArray.size(); i++) {
+                                    telephoneType.getVoice().add(voiceArray.get(i).asText());
+                                }
                             }
                         }
-                        JsonNode facsimArray = objPhone.get("facsimile");
-                        if(facsimArray != null){
-                            for(int i=0; i<facsimArray.size(); i++) {
-                                telephoneType.getFacsimile().add(facsimArray.get(i).asText());
+                        if(objPhone.has("facsimile")) {
+                            JsonNode facsimArray = objPhone.get("facsimile");
+                            if (facsimArray != null) {
+                                for (int i = 0; i < facsimArray.size(); i++) {
+                                    telephoneType.getFacsimile().add(facsimArray.get(i).asText());
+                                }
                             }
                         }
                         contactType.setPhone(telephoneType);
                     }
-                    if(objContact.get("address") != null) {
+                    if(objContact.has("address")) {
                         JsonNode objAddress = objContact.get("address");
                         AddressType addressType = new AddressType();
-                        JsonNode deliveryArray = objAddress.get("delivery_point");
-                        if (deliveryArray != null) {
-                            for (int i = 0; i < deliveryArray.size(); i++) {
-                                addressType.getDeliveryPoint().add(deliveryArray.get(i).asText());
+                        if(objAddress.has("delivery_point")) {
+                            JsonNode deliveryArray = objAddress.get("delivery_point");
+                            if (deliveryArray != null) {
+                                for (int i = 0; i < deliveryArray.size(); i++) {
+                                    addressType.getDeliveryPoint().add(deliveryArray.get(i).asText());
+                                }
                             }
                         }
-                        addressType.setCity(objAddress.get("city").asText());
-                        addressType.setAdministrativeArea(objAddress.get("administrative_area").asText());
-                        addressType.setPostalCode(objAddress.get("postal_code").asText());
-                        addressType.setCountry(objAddress.get("country").asText());
+                        if(objAddress.has("city")) {
+                            addressType.setCity(objAddress.get("city").asText());
+                        }
+                        if(objAddress.has("administrative_area")) {
+                            addressType.setAdministrativeArea(objAddress.get("administrative_area").asText());
+                        }
+                        if(objAddress.has("postal_code")) {
+                            addressType.setPostalCode(objAddress.get("postal_code").asText());
+                        }
+                        if(objAddress.has("country")) {
+                            addressType.setCountry(objAddress.get("country").asText());
+                        }
+                        if(objAddress.has("emails")) {
+                            JsonNode emailArray = objAddress.get("emails");
+                            if (emailArray != null) {
+                                for (int i = 0; i < emailArray.size(); i++) {
+                                    addressType.getElectronicMailAddress().add(emailArray.get(i).asText());
+                                }
+                            }
+                        }
                         contactType.setAddress(addressType);
-                        JsonNode emailArray = objAddress.get("emails");
-                        if (emailArray != null) {
-                            for (int i = 0; i < emailArray.size(); i++) {
-                                addressType.getElectronicMailAddress().add(emailArray.get(i).asText());
-                            }
-                        }
                     }
-                    if(objContact.get("online_resource") != null) {
+                    if(objContact.has("online_resource")) {
                         OnlineResourceType onlineResourceType = new OnlineResourceType();
                         JsonNode onlineObj = objContact.get("online_resource");
-                        onlineResourceType.setHref(onlineObj.get("href").asText());
-                        onlineResourceType.setRole(onlineObj.get("role").asText());
-                        onlineResourceType.setArcrole(onlineObj.get("arcrole").asText());
-                        onlineResourceType.setTitle(onlineObj.get("title").asText());
-                        String str = onlineObj.get("actuate").asText();
-                        if (str != null) {
-                            onlineResourceType.setActuate(ActuateType.fromValue(str.toLowerCase()));
-                        }
-                        str = onlineObj.get("show").asText();
-                        if (str != null) {
-                            onlineResourceType.setShow(ShowType.fromValue(str.toLowerCase()));
-                        }
+                        setOnlineResourceType(onlineObj, onlineResourceType);
                         contactType.setOnlineResource(onlineResourceType);
                     }
-                    contactType.setHoursOfService(objContact.get("hours_of_service").asText());
-                    contactType.setContactInstructions(objContact.get("instructions").asText());
+                    if(objContact.has("hours_of_service")) {
+                        contactType.setHoursOfService(objContact.get("hours_of_service").asText());
+                    }
+                    if(objContact.has("instructions")) {
+                        contactType.setContactInstructions(objContact.get("instructions").asText());
+                    }
                     SERVICE_CONTACT.setContactInfo(contactType);
                 }
-                if(obj.get("role") != null) {
+                if(obj.has("role")) {
                     CodeType codeType = new CodeType();
                     codeType.setValue(obj.get("role").asText());
                     SERVICE_CONTACT.setRole(codeType);
@@ -404,15 +481,34 @@ public class WpsServerProperties_1_0_0 {
         public final Object EXTENDED_CAPABILITIES;
 
         public OperationsMetadataProperties(ObjectNode objNode) throws Exception {
+
+            if(!objNode.has("operation_metadata")){
+                throw new Exception("The property file should contains a field 'operation_metadata'");
+            }
             JsonNode jsonNode = objNode.get("operation_metadata");
             OPERATIONS = new ArrayList<>();
+            if(!jsonNode.has("operation")){
+                throw new Exception("The operation metadata should contains a field 'operation'");
+            }
             for(JsonNode node : jsonNode.get("operation")){
                 Operation op = new Operation();
+                if(!node.has("name")){
+                    throw new Exception("The operation should contains a field 'name'");
+                }
                 op.setName(node.get("name").asText());
+                if(!node.has("dcp")){
+                    throw new Exception("The operation "+op.getName()+" should contains a field 'dcp'");
+                }
                 for(JsonNode dcpNode : node.get("dcp")) {
                     DCP dcp = new DCP();
                     HTTP http = new HTTP();
+                    if(!dcpNode.has("http")){
+                        throw new Exception("The operation "+op.getName()+" should contains a field 'http'");
+                    }
                     JsonNode httpNode = dcpNode.get("http");
+                    if(!httpNode.has("get_or_post")){
+                        throw new Exception("The operation "+op.getName()+" should contains a field 'get_or_post'");
+                    }
                     for(JsonNode getNode : httpNode.get("get_or_post")){
                         http.getGetOrPost().add(new ObjectFactory().createHTTPGet(getRequestMethodType(getNode)));
                     }
@@ -470,9 +566,12 @@ public class WpsServerProperties_1_0_0 {
 
         public final String HREF;
 
-        public WSDLProperties(JsonNode jsonNode){
+        public WSDLProperties(JsonNode jsonNode) throws Exception {
             if(jsonNode.has("wsdl")) {
                 JsonNode customNode = jsonNode.get("wsdl");
+                if(!customNode.has("href")){
+                    throw new Exception("The WSDL should contains a field 'dcp'");
+                }
                 HREF = customNode.get("href").asText();
             }
             else{
@@ -507,11 +606,26 @@ public class WpsServerProperties_1_0_0 {
          * Properties which are not defined in the WPS standard.
          * @param jsonNode JsonNode.
          */
-        public CustomProperties(JsonNode jsonNode){
+        public CustomProperties(JsonNode jsonNode) throws Exception {
+            if(!jsonNode.has("custom_properties")){
+                throw new Exception("The property file should contains a field 'custom_properties'");
+            }
             JsonNode customNode = jsonNode.get("custom_properties");
+            if(!customNode.has("destroy_duration")){
+                throw new Exception("The property file should contains a field 'destroy_duration'");
+            }
             destroyDelay = customNode.get("destroy_duration").asText();
+            if(!customNode.has("base_process_polling_delay")){
+                throw new Exception("The property file should contains a field 'base_process_polling_delay'");
+            }
             BASE_PROCESS_POLLING_DELAY = customNode.get("base_process_polling_delay").asLong();
+            if(!customNode.has("max_process_polling_delay")){
+                throw new Exception("The property file should contains a field 'max_process_polling_delay'");
+            }
             MAX_PROCESS_POLLING_DELAY = customNode.get("max_process_polling_delay").asLong();
+            if(!customNode.has("maximum_megabytes")){
+                throw new Exception("The property file should contains a field 'maximum_megabytes'");
+            }
             MAXIMUM_MEGABYTES = customNode.get("maximum_megabytes").asText();
         }
 
@@ -529,9 +643,15 @@ public class WpsServerProperties_1_0_0 {
         }
     }
 
-    private DomainType getDomainType(JsonNode jsonNode){
+    private DomainType getDomainType(JsonNode jsonNode) throws Exception {
         DomainType domainType = new DomainType();
+        if(!jsonNode.has("name")){
+            throw new Exception("The DomainType should contains a field 'name'");
+        }
         domainType.setName(jsonNode.get("name").asText());
+        if(!jsonNode.has("possible_value")){
+            throw new Exception("The DomainType "+domainType.getName()+" should contains a field 'possible_value'");
+        }
         JsonNode possNode = jsonNode.get("possible_value");
         if(possNode.has("allowed_values")){
             JsonNode allowNode = possNode.get("allowed_values");
@@ -569,20 +689,26 @@ public class WpsServerProperties_1_0_0 {
             }
             domainType.setAllowedValues(allowedValues);
         }
-        if(possNode.has("any_value")){
+        else if(possNode.has("any_value")){
             domainType.setAnyValue(new AnyValue());
         }
-        if(possNode.has("no_values")){
+        else if(possNode.has("no_values")){
             domainType.setNoValues(new NoValues());
         }
-        if(possNode.has("values_reference")){
+        else if(possNode.has("values_reference")){
             JsonNode valNode = possNode.get("values_reference");
             ValuesReference valuesReference = new ValuesReference();
+            if(!valNode.has("name")){
+                throw new Exception("The values_reference of "+domainType.getName()+" should contains a field 'name'");
+            }
             valuesReference.setValue(valNode.get("name").asText());
             if(valNode.has("reference")){
                 valuesReference.setReference(valNode.get("reference").asText());
             }
             domainType.setValuesReference(valuesReference);
+        }
+        else{
+            throw new Exception("The DomainType "+domainType.getName()+" should have a 'possibleValue' set.");
         }
         if(jsonNode.has("default_value")){
             ValueType valueType = new ValueType();
@@ -592,15 +718,25 @@ public class WpsServerProperties_1_0_0 {
         if(jsonNode.has("meaning")){
             JsonNode meanNode = jsonNode.get("meaning");
             DomainMetadataType domainMetadataType = new DomainMetadataType();
+            if(!meanNode.has("name")){
+                throw new Exception("The meaning of "+domainType.getName()+" should contains a field 'name'");
+            }
             domainMetadataType.setValue(meanNode.get("name").asText());
-            domainMetadataType.setReference(meanNode.get("reference").asText());
+            if(meanNode.has("reference")) {
+                domainMetadataType.setReference(meanNode.get("reference").asText());
+            }
             domainType.setMeaning(domainMetadataType);
         }
         if(jsonNode.has("data_type")){
             JsonNode dataNode = jsonNode.get("data_type");
             DomainMetadataType domainMetadataType = new DomainMetadataType();
+            if(!dataNode.has("name")){
+                throw new Exception("The data_type of "+domainType.getName()+" should contains a field 'name'");
+            }
             domainMetadataType.setValue(dataNode.get("name").asText());
-            domainMetadataType.setReference(dataNode.get("reference").asText());
+            if(dataNode.has("reference")) {
+                domainMetadataType.setReference(dataNode.get("reference").asText());
+            }
             domainType.setDataType(domainMetadataType);
         }
         if(jsonNode.has("values_unit")) {
@@ -608,16 +744,29 @@ public class WpsServerProperties_1_0_0 {
             if(unitNode.has("uom")){
                 JsonNode uomNode = unitNode.get("uom");
                 DomainMetadataType domainMetadataType = new DomainMetadataType();
+                if(!uomNode.has("name")){
+                    throw new Exception("The uom of "+domainType.getName()+" should contains a field 'name'");
+                }
                 domainMetadataType.setValue(uomNode.get("name").asText());
-                domainMetadataType.setReference(uomNode.get("reference").asText());
+                if(uomNode.has("reference")) {
+                    domainMetadataType.setReference(uomNode.get("reference").asText());
+                }
                 domainType.setUOM(domainMetadataType);
             }
-            if(unitNode.has("reference_system")){
+            else if(unitNode.has("reference_system")){
                 JsonNode systemNode = unitNode.get("reference_system");
                 DomainMetadataType domainMetadataType = new DomainMetadataType();
+                if(!systemNode.has("name")){
+                    throw new Exception("The reference system of "+domainType.getName()+" should contains a field 'name'");
+                }
                 domainMetadataType.setValue(systemNode.get("name").asText());
-                domainMetadataType.setReference(systemNode.get("reference").asText());
+                if(systemNode.has("reference")) {
+                    domainMetadataType.setReference(systemNode.get("reference").asText());
+                }
                 domainType.setReferenceSystem(domainMetadataType);
+            }
+            else{
+                throw new Exception("The values unit should have a UOM or a reference system set.");
             }
         }
         if(jsonNode.has("metadata")) {
@@ -700,8 +849,11 @@ public class WpsServerProperties_1_0_0 {
         }
     }
 
-    private RequestMethodType getRequestMethodType(JsonNode jsonNode){
+    private RequestMethodType getRequestMethodType(JsonNode jsonNode) throws Exception {
         RequestMethodType requestMethodType = new RequestMethodType();
+        if(!jsonNode.has("url")){
+            throw new Exception("The MethodType should contains a field 'url'");
+        }
         setOnlineResourceType(jsonNode.get("url"), requestMethodType);
         if(jsonNode.has("constraint")) {
             for (JsonNode cstrNode : jsonNode.get("constraint")) {

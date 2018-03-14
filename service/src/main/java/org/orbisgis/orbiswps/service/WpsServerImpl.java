@@ -163,7 +163,6 @@ public class WpsServerImpl implements WpsServer {
         this.executorService = executorService;
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
-        workerFIFO = new LinkedList<>();
         props20 = new WpsServerProperties_2_0(property20FileLocation);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
         props100 = new WpsServerProperties_1_0_0(property100FileLocation);

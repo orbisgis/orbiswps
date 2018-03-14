@@ -60,11 +60,19 @@ public class TestWpsServiceProperty_1_0_0 {
 
     private static WpsServerProperties_1_0_0 fullProps;
 
+    private static WpsServerProperties_1_0_0 minProps;
+
     @BeforeClass
     public static void init(){
         fullProps = new WpsServerProperties_1_0_0(
                 TestWpsServiceProperty_1_0_0.class.getResource("fullWpsService100.json").getFile());
+        minProps = new WpsServerProperties_1_0_0(
+                TestWpsServiceProperty_1_0_0.class.getResource("minWpsService100.json").getFile());
     }
+
+    ////
+    //Test of full properties
+    ////
 
     @Test
     public void testFullGlobalProperties(){
@@ -100,6 +108,8 @@ public class TestWpsServiceProperty_1_0_0 {
                 new String[]{"1.0.0"}, fullProps.SERVICE_IDENTIFICATION_PROPERTIES.SERVICE_TYPE_VERSIONS);
         assertArrayEquals("The 'PROFILE' property of 'SERVICE_IDENTIFICATION_PROPERTIES' should be set to '[NONE]'",
                 new String[]{"NONE"}, fullProps.SERVICE_IDENTIFICATION_PROPERTIES.PROFILE);
+        assertNotNull("The property 'TITLE' of 'SERVICE_IDENTIFICATION_PROPERTIES' should not be null",
+                fullProps.SERVICE_IDENTIFICATION_PROPERTIES.TITLE);
         for(LanguageStringType languageStringType : fullProps.SERVICE_IDENTIFICATION_PROPERTIES.TITLE){
             if(languageStringType.getLang().equals("en")){
                 assertEquals("Wrong value for the 'en' title", "Local WPS Service", languageStringType.getValue());
@@ -154,6 +164,8 @@ public class TestWpsServiceProperty_1_0_0 {
 
     @Test
     public void testFullServiceProviderProperties(){
+        assertNotNull("The 'SERVICE_PROVIDER_PROPERTIES' property should not be null'",
+                fullProps.SERVICE_PROVIDER_PROPERTIES);
         assertEquals("The 'PROVIDER_NAME' property of 'SERVICE_PROVIDER_PROPERTIES' should be 'OrbisGIS'",
                 "OrbisGIS", fullProps.SERVICE_PROVIDER_PROPERTIES.PROVIDER_NAME);
 
@@ -225,7 +237,7 @@ public class TestWpsServiceProperty_1_0_0 {
     }
 
     @Test
-    public void testOperationMetadataProperties(){
+    public void testFullOperationMetadataProperties(){
         boolean isGetCapabilities = false;
         boolean isDescribeProcess = false;
         boolean isExecute = false;
@@ -701,13 +713,13 @@ public class TestWpsServiceProperty_1_0_0 {
     }
 
     @Test
-    public void testWsdl() {
+    public void testFullWsdl() {
         assertNotNull("The 'WSDL' should be set", fullProps.WSDL_PROPERTIES);
         assertEquals("The 'href' property of 'WSDL' should be set to 'href'", "href", fullProps.WSDL_PROPERTIES.HREF);
     }
 
     @Test
-    public void testCustomProperties() {
+    public void testFullCustomProperties() {
         assertNotNull("The 'CUSTOM_PROPERTIES' should be set", fullProps.CUSTOM_PROPERTIES);
         assertEquals("The 'MAXIMUM_MEGABYTES' property of 'CUSTOM_PROPERTIES' should be set to '2000'", "2000",
                 fullProps.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES);
@@ -715,5 +727,246 @@ public class TestWpsServiceProperty_1_0_0 {
                 fullProps.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY);
         assertEquals("The 'BASE_PROCESS_POLLING_DELAY' property of 'CUSTOM_PROPERTIES' should be set to '1000'", 1000,
                 fullProps.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
+    }
+
+    ////
+    //Test of minimal properties
+    ////
+
+    @Test
+    public void testMinGlobalProperties(){
+        assertNotNull("The property 'GLOBAL_PROPERTIES' should not be null", minProps.GLOBAL_PROPERTIES);
+        assertEquals("The 'SERVICE' property of 'GLOBAL_PROPERTIES' should be 'WPS'",
+                "WPS", minProps.GLOBAL_PROPERTIES.SERVICE);
+        assertEquals("The 'SERVER_VERSION' property of 'GLOBAL_PROPERTIES' should be '1.0.0'",
+                "1.0.0", minProps.GLOBAL_PROPERTIES.SERVER_VERSION);
+        assertNull("The 'SUPPORTED_VERSION' property of 'GLOBAL_PROPERTIES' should be null",
+                minProps.GLOBAL_PROPERTIES.SUPPORTED_VERSIONS);
+        assertNull("The 'UPDATE_SEQUENCE' property of 'GLOBAL_PROPERTIES' should be null",
+                minProps.GLOBAL_PROPERTIES.UPDATE_SEQUENCE);
+        assertEquals("The 'DEFAULT_LANGUAGE' property of 'GLOBAL_PROPERTIES' should be 'en'",
+                "en", minProps.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+        assertArrayEquals("The 'SUPPORTED_LANGUAGES' property of 'GLOBAL_PROPERTIES' should be set to '[en, fr-fr]'",
+                new String[]{"en", "fr-fr"}, minProps.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES);
+        assertNull("The 'SUPPORTED_FORMATS' property of 'GLOBAL_PROPERTIES' should be null",
+                minProps.GLOBAL_PROPERTIES.SUPPORTED_FORMATS);
+        assertFalse("The 'STORE_SUPPORTED' property of 'GLOBAL_PROPERTIES' should be 'false'",
+                minProps.GLOBAL_PROPERTIES.STORE_SUPPORTED);
+        assertFalse("The 'STATUS_SUPPORTED' property of 'GLOBAL_PROPERTIES' should be 'false'",
+                minProps.GLOBAL_PROPERTIES.STATUS_SUPPORTED);
+    }
+
+    @Test
+    public void testMinServiceIdentificationProperties(){
+        assertNotNull("The property 'SERVICE_IDENTIFICATION_PROPERTIES' should not be null",
+                minProps.SERVICE_IDENTIFICATION_PROPERTIES);
+        assertEquals("The 'SERVICE_TYPE' property of 'SERVICE_IDENTIFICATION_PROPERTIES' should be 'WPS'",
+                "WPS", minProps.SERVICE_IDENTIFICATION_PROPERTIES.SERVICE_TYPE.getValue());
+        assertArrayEquals("The 'SERVICE_TYPE_VERSIONS' property of 'SERVICE_IDENTIFICATION_PROPERTIES' should be set " +
+                        "to '[1.0.0]'",
+                new String[]{"1.0.0"}, minProps.SERVICE_IDENTIFICATION_PROPERTIES.SERVICE_TYPE_VERSIONS);
+        assertNull("The 'PROFILE' property of 'SERVICE_IDENTIFICATION_PROPERTIES' should be null",
+                minProps.SERVICE_IDENTIFICATION_PROPERTIES.PROFILE);
+        assertNotNull("The property 'TITLE' of 'SERVICE_IDENTIFICATION_PROPERTIES' should not be null",
+                minProps.SERVICE_IDENTIFICATION_PROPERTIES.TITLE);
+        for(LanguageStringType languageStringType : minProps.SERVICE_IDENTIFICATION_PROPERTIES.TITLE){
+            if(languageStringType.getLang().equals("en")){
+                assertEquals("Wrong value for the 'en' title", "Local WPS Service", languageStringType.getValue());
+            }
+            else if(languageStringType.getLang().equals("fr-fr")){
+                assertEquals("Wrong value for the 'fr-fr' title", "Service WPS locale", languageStringType.getValue());
+            }
+            else{
+                fail("No titles with the language "+languageStringType.getLang());
+            }
+        }
+        assertNull("The property 'ABSTRACT' of 'SERVICE_IDENTIFICATION_PROPERTIES' should be null",
+                minProps.SERVICE_IDENTIFICATION_PROPERTIES.ABSTRACT);
+        assertNull("The property 'KEYWORDS' of 'SERVICE_IDENTIFICATION_PROPERTIES' should be null",
+                minProps.SERVICE_IDENTIFICATION_PROPERTIES.KEYWORDS);
+        assertNull("The 'FEES' property of 'SERVICE_IDENTIFICATION_PROPERTIES' should be null",
+                minProps.SERVICE_IDENTIFICATION_PROPERTIES.FEES);
+        assertNull("The 'SERVICE_TYPE_VERSIONS' property of 'SERVICE_IDENTIFICATION_PROPERTIES' should be null",
+                minProps.SERVICE_IDENTIFICATION_PROPERTIES.ACCESS_CONSTRAINTS);
+    }
+
+    @Test
+    public void testMinServiceProviderProperties(){
+        assertNotNull("The 'SERVICE_PROVIDER_PROPERTIES' property should not be null'",
+                minProps.SERVICE_PROVIDER_PROPERTIES);
+        assertEquals("The 'PROVIDER_NAME' property of 'SERVICE_PROVIDER_PROPERTIES' should be 'OrbisGIS'",
+                "OrbisGIS", minProps.SERVICE_PROVIDER_PROPERTIES.PROVIDER_NAME);
+
+        assertNull("The 'PROVIDER_SITE' property of 'SERVICE_PROVIDER_PROPERTIES' should be null",
+                minProps.SERVICE_PROVIDER_PROPERTIES.PROVIDER_SITE);
+        assertNull("The 'SERVICE_CONTACT' property of 'SERVICE_PROVIDER_PROPERTIES' should be null",
+                minProps.SERVICE_PROVIDER_PROPERTIES.SERVICE_CONTACT);
+    }
+
+    @Test
+    public void testMinOperationMetadataProperties(){
+        boolean isGetCapabilities = false;
+        boolean isDescribeProcess = false;
+        boolean isExecute = false;
+        for(Operation operation : minProps.OPERATIONS_METADATA_PROPERTIES.OPERATIONS){
+            if(operation.getName().equals("GetCapabilities")){
+                assertTrue("The 'DCP' property of 'GetCapabilities' should be set", operation.isSetDCP());
+                assertEquals("The 'DCP' property of 'GetCapabilities' should contains only one value", 1,
+                        operation.getDCP().size());
+                for(DCP dcp : operation.getDCP()){
+                    assertTrue("The 'http' property of 'GetCapabilities' should be set", dcp.isSetHTTP());
+                    assertTrue("The 'getOrPost' property of 'GetCapabilities' should be set",
+                            dcp.getHTTP().isSetGetOrPost());
+                    assertEquals("The 'getOrPost' property of 'GetCapabilities' should contains at least one value", 1,
+                            dcp.getHTTP().getGetOrPost().size());
+                    for(JAXBElement<RequestMethodType> element : dcp.getHTTP().getGetOrPost()){
+                        if("getcapabilitiesurl1".equals(element.getValue().getHref())) {
+                            assertEquals("The 'href' property of 'GetCapabilities.getOrPost' should be set to 'getcapabilitiesurl1'",
+                                    "getcapabilitiesurl1", element.getValue().getHref());
+                            assertFalse("The 'role' property of 'GetCapabilities.getOrPost' should not be set",
+                                    element.getValue().isSetRole());
+                            assertFalse("The 'arcrole' property of 'GetCapabilities.getOrPost' should not be set",
+                                    element.getValue().isSetArcrole());
+                            assertFalse("The 'title' property of 'GetCapabilities.getOrPost' should not be set",
+                                    element.getValue().isSetTitle());
+                            assertFalse("The 'show' property of 'GetCapabilities.getOrPost' should not be set",
+                                    element.getValue().isSetShow());
+                            assertFalse("The 'actuate' property of 'GetCapabilities.getOrPost' should not be set",
+                                    element.getValue().isSetActuate());
+
+                            assertFalse("The 'constraint' property of 'GetCapabilities.getOrPost' should not be set",
+                                    element.getValue().isSetConstraint());
+                        }
+                        else{
+                            fail("Unknown getOrPost");
+                        }
+                    }
+                }
+
+
+                assertFalse("The 'parameter' property of 'GetCapabilities' should not be set",
+                        operation.isSetParameter());
+                assertFalse("The 'constraint' property of 'GetCapabilities' should not be set",
+                        operation.isSetConstraint());
+                assertFalse("The 'metadata' property of 'GetCapabilities' should not be set",
+                        operation.isSetMetadata());
+                isGetCapabilities = true;
+            }
+            else if(operation.getName().equals("DescribeProcess")){
+                assertTrue("The 'DCP' property of 'DescribeProcess' should be set", operation.isSetDCP());
+                assertEquals("The 'DCP' property of 'DescribeProcess' should contains only one value", 1,
+                        operation.getDCP().size());
+                for(DCP dcp : operation.getDCP()){
+                    assertTrue("The 'http' property of 'DescribeProcess' should be set", dcp.isSetHTTP());
+                    assertTrue("The 'getOrPost' property of 'DescribeProcess' should be set",
+                            dcp.getHTTP().isSetGetOrPost());
+                    assertEquals("The 'getOrPost' property of 'DescribeProcess' should contains one value", 1,
+                            dcp.getHTTP().getGetOrPost().size());
+                    for(JAXBElement<RequestMethodType> element : dcp.getHTTP().getGetOrPost()){
+                        if("describeprocessurl1".equals(element.getValue().getHref())) {
+                            assertEquals("The 'href' property of 'DescribeProcess.getOrPost' should be set to 'describeprocessurl1'",
+                                    "describeprocessurl1", element.getValue().getHref());
+                            assertFalse("The 'role' property of 'DescribeProcess.getOrPost' should not be set",
+                                    element.getValue().isSetRole());
+                            assertFalse("The 'actuate' property of 'DescribeProcess.getOrPost' should not be set",
+                                    element.getValue().isSetActuate());
+                            assertFalse("The 'show' property of 'DescribeProcess.getOrPost' should not be set",
+                                    element.getValue().isSetShow());
+                            assertFalse("The 'arcrole' property of 'DescribeProcess.getOrPost' should not be set",
+                                    element.getValue().isSetArcrole());
+                            assertFalse("The 'title' property of 'DescribeProcess.getOrPost' should not be set",
+                                    element.getValue().isSetTitle());
+
+                            assertFalse("The 'constraint' property of 'DescribeProcess.getOrPost' should not be set",
+                                    element.getValue().isSetConstraint());
+                        }
+                        else{
+                            fail("Unknown getOrPost");
+                        }
+                    }
+                }
+                assertFalse("The 'parameter' property of 'DescribeProcess' should not be set",
+                        operation.isSetParameter());
+                assertFalse("The 'constraint' property of 'DescribeProcess' should not be set",
+                        operation.isSetConstraint());
+                assertFalse("The 'metadata' property of 'DescribeProcess' should not be set",
+                        operation.isSetMetadata());
+                isDescribeProcess = true;
+            }
+            else if(operation.getName().equals("Execute")){
+                assertTrue("The 'DCP' property of 'Execute' should be set", operation.isSetDCP());
+                assertEquals("The 'DCP' property of 'Execute' should contains only one value", 1,
+                        operation.getDCP().size());
+                for(DCP dcp : operation.getDCP()){
+                    assertTrue("The 'http' property of 'Execute' should be set", dcp.isSetHTTP());
+                    assertTrue("The 'getOrPost' property of 'Execute' should be set",
+                            dcp.getHTTP().isSetGetOrPost());
+                    assertEquals("The 'getOrPost' property of 'Execute' should contains at least one value", 1,
+                            dcp.getHTTP().getGetOrPost().size());
+                    for(JAXBElement<RequestMethodType> element : dcp.getHTTP().getGetOrPost()){
+                        if("executeurl1".equals(element.getValue().getHref())) {
+                            assertEquals("The 'href' property of 'Execute.getOrPost' should be set to 'executeurl1'",
+                                    "executeurl1", element.getValue().getHref());
+                            assertFalse("The 'role' property of 'Execute.getOrPost' should not be set",
+                                    element.getValue().isSetRole());
+                            assertFalse("The 'actuate' property of 'Execute.getOrPost' should not be set",
+                                    element.getValue().isSetActuate());
+                            assertFalse("The 'show' property of 'Execute.getOrPost' should not be set",
+                                    element.getValue().isSetShow());
+                            assertFalse("The 'arcrole' property of 'Execute.getOrPost' should not be set",
+                                    element.getValue().isSetArcrole());
+                            assertFalse("The 'title' property of 'Execute.getOrPost' should not be set",
+                                    element.getValue().isSetTitle());
+
+                            assertFalse("The 'constraint' property of 'Execute.getOrPost' should not be set",
+                                    element.getValue().isSetConstraint());
+                        }
+                        else{
+                            fail("Unknown getOrPost");
+                        }
+                    }
+                }
+                assertFalse("The 'parameter' property of 'Execute' should not be set",
+                        operation.isSetParameter());
+                assertFalse("The 'constraint' property of 'Execute' should not be set",
+                        operation.isSetConstraint());
+                assertFalse("The 'metadata' property of 'Execute' should not be set",
+                        operation.isSetMetadata());
+                isExecute = true;
+            }
+            else{
+                fail("Unknown operation");
+            }
+        }
+        if(!isGetCapabilities){
+            fail("No 'GetCapabilities' operation found");
+        }
+        if(!isDescribeProcess){
+            fail("No 'DescribeProcess' operation found");
+        }
+        if(!isExecute){
+            fail("No 'Execute' operation found");
+        }
+        assertNull("The 'PARAMETERS' property of 'OPERATIONS_METADATA_PROPERTIES' should be null",
+                minProps.OPERATIONS_METADATA_PROPERTIES.PARAMETERS);
+        assertNull("The 'CONSTRAINTS' property of 'OPERATIONS_METADATA_PROPERTIES' should be null",
+                minProps.OPERATIONS_METADATA_PROPERTIES.CONSTRAINTS);
+    }
+
+    @Test
+    public void testMinWsdl() {
+        assertNotNull("The 'WSDL' should be set", minProps.WSDL_PROPERTIES);
+        assertNull("The 'href' property of 'WSDL' should be nul", minProps.WSDL_PROPERTIES.HREF);
+    }
+
+    @Test
+    public void testMinCustomProperties() {
+        assertNotNull("The 'CUSTOM_PROPERTIES' should be set", minProps.CUSTOM_PROPERTIES);
+        assertEquals("The 'MAXIMUM_MEGABYTES' property of 'CUSTOM_PROPERTIES' should be set to '2000'", "2000",
+                minProps.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES);
+        assertEquals("The 'MAX_PROCESS_POLLING_DELAY' property of 'CUSTOM_PROPERTIES' should be set to '10000'", 10000,
+                minProps.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY);
+        assertEquals("The 'BASE_PROCESS_POLLING_DELAY' property of 'CUSTOM_PROPERTIES' should be set to '1000'", 1000,
+                minProps.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
     }
 }

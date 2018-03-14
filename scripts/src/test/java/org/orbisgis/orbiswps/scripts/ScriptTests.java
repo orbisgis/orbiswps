@@ -74,6 +74,7 @@ public class ScriptTests {
     /** {@link java.sql.Statement} object used to execute Sql queries. */
     private Statement st;
 
+
     @BeforeClass
     public static void tearUp() throws Exception {
         // Keep a connection alive to not close the DataBase on each unit test
@@ -562,6 +563,271 @@ public class ScriptTests {
         assertTrue(rs.next());   
         //polygon
         Assert.assertTrue(rs.getDouble(2)<1);
+        rs.close();
+    }
+    
+    @Test
+    public void testPolygonize1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Convert/polygonize.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomForms");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "polygonize_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);
+        propertyMap.put("isH2", true);
+
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon); "
+                + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 330, 220 330, 220 230, 100 230, 100 330))'))"
+                + ",(ST_GeomFromText('POLYGON ((160 340, 290 340, 290 260, 160 260, 160 340))')),"
+                + "(ST_GeomFromText('POLYGON ((60 270, 140 270, 140 180, 60 180, 60 270))'))");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done", outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM polygonize_res;");
+        assertTrue(rs.next());
+        Assert.assertEquals(3, rs.getInt(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testPolygonize2() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Convert/polygonize.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomForms");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("node", true);
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "polygonize_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);
+        propertyMap.put("isH2", true);
+
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomForms (the_geom polygon); "
+                + "INSERT INTO geomForms VALUES(ST_GeomFromText('POLYGON ((100 330, 220 330, 220 230, 100 230, 100 330))'))"
+                + ",(ST_GeomFromText('POLYGON ((160 340, 290 340, 290 260, 160 260, 160 340))')),"
+                + "(ST_GeomFromText('POLYGON ((60 270, 140 270, 140 180, 60 180, 60 270))'))");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done", outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM polygonize_res;");
+        assertTrue(rs.next());
+        Assert.assertEquals(5, rs.getInt(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testPolygonize3() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Convert/polygonize.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomForms");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("node", true);
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "polygonize_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);
+        propertyMap.put("isH2", true);
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomForms (the_geom linestring); "
+                + "INSERT INTO geomForms VALUES(ST_GeomFromText('LINESTRING (90 200, 240 330)'))"
+                + ",(ST_GeomFromText('LINESTRING (150 340, 290 240)')),"
+                +" (ST_GeomFromText('LINESTRING (100 290, 190 200, 270 310)')),"
+                + "(ST_GeomFromText('LINESTRING (220 360, 90 260, 140 180)'))");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done", outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT count(*) FROM polygonize_res;");
+        assertTrue(rs.next());
+        Assert.assertEquals(3, rs.getInt(1));
+        rs.close();
+    }
+    
+    
+    @Test
+    public void testUnion1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Aggregate/union.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomUnion");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "geomUnion_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);        
+        propertyMap.put("isH2", true);
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomUnion (the_geom polygon, id int, form varchar); "
+                + "INSERT INTO geomUnion VALUES(ST_GeomFromText('POLYGON ((100 400, 200 400, 200 300, 100 300, 100 400))'), 1,'square')"
+                + ",(ST_GeomFromText('POLYGON ((200 350, 280 350, 280 250, 200 250, 200 350))'), 2,'rectangle'),"
+                + "(ST_GeomFromText('POLYGON ((60 220, 150 220, 150 170, 60 170, 60 220))'), 3,'rectangle'),"
+                + "(ST_GeomFromText('POLYGON ((100 170, 220 170, 220 120, 100 120, 100 170))'), 4,'rectangle'),"
+                + "(ST_GeomFromText('POLYGON ((250 250, 338 250, 338 195, 250 195, 250 250))'), 5,'square')");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT st_accum(the_geom) FROM geomUnion_res;");
+        assertTrue(rs.next());  
+        assertGeometryEquals("MULTIPOLYGON (((100 400, 200 400, 200 350, 280 350, 280 250, 338 250, 338 195, 250 195, 250 250, 200 250, 200 300, 100 300, 100 400)), ((150 170, 220 170, 220 120, 100 120, 100 170, 60 170, 60 220, 150 220, 150 170)))", rs.getObject(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testUnion2() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Aggregate/union.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomUnion");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("groupby", new String[]{"form"});
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "geomUnion_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);        
+        propertyMap.put("isH2", true);
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomUnion (the_geom polygon, id int, form varchar); "
+                + "INSERT INTO geomUnion VALUES(ST_GeomFromText('POLYGON ((100 400, 200 400, 200 300, 100 300, 100 400))'), 1,'square')"
+                + ",(ST_GeomFromText('POLYGON ((200 350, 280 350, 280 250, 200 250, 200 350))'), 2,'rectangle'),"
+                + "(ST_GeomFromText('POLYGON ((60 220, 150 220, 150 170, 60 170, 60 220))'), 3,'rectangle'),"
+                + "(ST_GeomFromText('POLYGON ((100 170, 220 170, 220 120, 100 120, 100 170))'), 4,'rectangle'),"
+                + "(ST_GeomFromText('POLYGON ((250 250, 338 250, 338 195, 250 195, 250 250))'), 5,'square')");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT st_accum(the_geom) FROM geomUnion_res;");
+        assertTrue(rs.next());  
+        assertGeometryEquals("MULTIPOLYGON (((250 250, 338 250, 338 195, 250 195, 250 250)), ((100 400, 200 400, 200 300, 100 300, 100 400)), ((200 350, 280 350, 280 250, 200 250, 200 350)), ((150 170, 220 170, 220 120, 100 120, 100 170, 60 170, 60 220, 150 220, 150 170)))", rs.getObject(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testUnion3() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Aggregate/union.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomUnion");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("buffer", 1.0);
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "geomUnion_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);        
+        propertyMap.put("isH2", true);
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomUnion (the_geom polygon, id int, form varchar); "
+                + "INSERT INTO geomUnion VALUES(ST_GeomFromText('POLYGON ((10 20, 20 20, 20 7, 10 7, 10 20))'), 1,'square')"
+                + ",(ST_GeomFromText('POLYGON ((21 20, 30 20, 30 7, 21 7, 21 20))'), 2,'rectangle'),"
+                + "(ST_GeomFromText('POLYGON ((10 4, 30 4, 30 2, 10 2, 10 4))'), 3,'rectangle')");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT st_accum(the_geom) FROM geomUnion_res;");
+        assertTrue(rs.next()); 
+        assertGeometryEquals("MULTIPOLYGON (((9 4, 9.01921471959677 4.195090322016129, 9.076120467488714 4.38268343236509, 9.168530387697455 4.555570233019602, 9.292893218813452 4.707106781186548, 9.444429766980399 4.831469612302545, 9.61731656763491 4.923879532511287, 9.804909677983872 4.98078528040323, 10 5, 30 5, 30.195090322016128 4.98078528040323, 30.38268343236509 4.923879532511287, 30.5555702330196 4.831469612302545, 30.707106781186546 4.707106781186548, 30.831469612302545 4.555570233019602, 30.923879532511286 4.38268343236509, 30.980785280403232 4.195090322016128, 31 4, 31 2, 30.980785280403232 1.8049096779838718, 30.923879532511286 1.6173165676349102, 30.831469612302545 1.4444297669803978, 30.707106781186546 1.2928932188134525, 30.5555702330196 1.1685303876974547, 30.38268343236509 1.0761204674887133, 30.195090322016128 1.0192147195967696, 30 1, 10 1, 9.804909677983872 1.0192147195967696, 9.61731656763491 1.0761204674887135, 9.444429766980399 1.1685303876974547, 9.292893218813452 1.2928932188134525, 9.168530387697455 1.444429766980398, 9.076120467488714 1.6173165676349104, 9.01921471959677 1.8049096779838716, 9 2, 9 4)), ((9 20, 9.01921471959677 20.195090322016128, 9.076120467488714 20.38268343236509, 9.168530387697455 20.5555702330196, 9.292893218813452 20.707106781186546, 9.444429766980399 20.831469612302545, 9.61731656763491 20.923879532511286, 9.804909677983872 20.980785280403232, 10 21, 20 21, 20.195090322016128 20.980785280403232, 20.38268343236509 20.923879532511286, 20.5 20.861172520678902, 20.61731656763491 20.923879532511286, 20.804909677983872 20.980785280403232, 21 21, 30 21, 30.195090322016128 20.980785280403232, 30.38268343236509 20.923879532511286, 30.5555702330196 20.831469612302545, 30.707106781186546 20.707106781186546, 30.831469612302545 20.5555702330196, 30.923879532511286 20.38268343236509, 30.980785280403232 20.195090322016128, 31 20, 31 7, 30.980785280403232 6.804909677983872, 30.923879532511286 6.61731656763491, 30.831469612302545 6.444429766980398, 30.707106781186546 6.292893218813452, 30.5555702330196 6.168530387697455, 30.38268343236509 6.076120467488713, 30.195090322016128 6.01921471959677, 30 6, 21 6, 20.804909677983872 6.01921471959677, 20.61731656763491 6.076120467488714, 20.5 6.1388274793210975, 20.38268343236509 6.076120467488713, 20.195090322016128 6.01921471959677, 20 6, 10 6, 9.804909677983872 6.01921471959677, 9.61731656763491 6.076120467488714, 9.444429766980399 6.168530387697455, 9.292893218813452 6.292893218813452, 9.168530387697455 6.444429766980398, 9.076120467488714 6.61731656763491, 9.01921471959677 6.804909677983872, 9 7, 9 20)))", rs.getObject(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testSharedPart1() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Topology/sharedPart.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomshared");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "geomshared_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);        
+        propertyMap.put("isH2", true);
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomshared (the_geom polygon, id int); "
+                + "INSERT INTO geomshared VALUES(ST_GeomFromText('POLYGON ((100 400, 200 400, 200 300, 100 300, 100 400))'), 1)"
+                + ",(ST_GeomFromText('POLYGON ((100 300, 200 300, 200 220, 100 220, 100 300))'), 2),"
+                + "(ST_GeomFromText('POLYGON ((200 170, 290 170, 290 110, 200 110, 200 170))'), 3)");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT st_accum(the_geom) FROM geomshared_res;");
+        assertTrue(rs.next()); 
+        assertGeometryEquals("MULTILINESTRING ((200 300, 100 300))", rs.getObject(1));
+        rs.close();
+    }
+    
+    @Test
+    public void testSharedPart2() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Topology/sharedPart.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomshared");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "geomshared_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);        
+        propertyMap.put("isH2", true);
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomshared (the_geom POINT, id int); "
+                + "INSERT INTO geomshared VALUES(ST_GeomFromText('POINT (100 100)'), 1)"
+                + ",(ST_GeomFromText('POINT (100 100)'), 2),"
+                + "(ST_GeomFromText('POINT (12 100)'), 3)");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT st_accum(the_geom) FROM geomshared_res;");
+        assertTrue(rs.next()); 
+        assertGeometryEquals("MULTIPOINT ((100 100))", rs.getObject(1));
+        rs.close();
+    }
+    
+     @Test
+    public void testSharedPart3() throws Exception {
+        String scriptPath = WPSScriptExecute.class.getResource("scripts/Geometry2D/Topology/sharedPart.groovy").getPath();
+        //Prepare input and output values
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("inputJDBCTable", "geomshared");
+        inputMap.put("geometricField", new String[]{"the_geom"});
+        inputMap.put("dropOutputTable", true);
+        inputMap.put("outputTableName", "geomshared_res");
+        Map<String, Object> propertyMap = new HashMap<>();
+        propertyMap.put("sql", sql);        
+        propertyMap.put("isH2", true);
+        //Add data
+        st.execute("drop table if exists geomForms; create table geomshared (the_geom LINESTRING, id int); "
+                + "INSERT INTO geomshared VALUES(ST_GeomFromText('LINESTRING (100 300, 200 300))'), 1)"
+                + ",(ST_GeomFromText('LINESTRING (150 300, 300 300)'), 2),"
+                + "(ST_GeomFromText('LINESTRING (100 200, 300 200)'), 3),"
+                + "(ST_GeomFromText('LINESTRING (200 140, 200 240)'), 4)");
+
+        //Execute
+        Map<String, Object> outputMap = WPSScriptExecute.run(groovyClassLoader, scriptPath, propertyMap, inputMap);
+        Assert.assertEquals("Process done",outputMap.get("literalOutput"));
+        ResultSet rs = st.executeQuery(
+                "SELECT st_accum(the_geom) FROM geomshared_res;");
+        assertTrue(rs.next()); 
+        assertGeometryEquals("GEOMETRYCOLLECTION (POINT (200 200), LINESTRING (150 300, 200 300))", rs.getObject(1));
         rs.close();
     }
 }

@@ -17,6 +17,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import static java.lang.Thread.sleep;
 
@@ -392,7 +393,7 @@ public class TestWPS_2_0_OperationsImpl {
 
         GetResult getResult = new GetResult();
         getResult.setJobID(statusInfo.getJobID());
-        Result result = wps20Operations.getResult(getResult);
+        Result result = (Result)wps20Operations.getResult(getResult);
         Assert.assertFalse("The process result should contain outputs.", result.getOutput().isEmpty());
     }
 
@@ -452,5 +453,66 @@ public class TestWPS_2_0_OperationsImpl {
             error = "The wps operation metadata operation '"+name+"' name should be "+name;
         }
         return error;
+    }
+
+    /**
+     * Test that GetStatus will return an error (according to the WPS standard) when queried by an unknown UUID
+     */
+    @Test
+    public void testGetStatusWithUnknownUuid(){
+        GetStatus getStatus = new GetStatus();
+        String value = UUID.randomUUID().toString();
+        getStatus.setJobID(value);
+
+        Object status = wps20Operations.getStatus(getStatus);
+
+        assert (status instanceof ExceptionReport);
+
+        ExceptionReport report = (ExceptionReport) status;
+        ExceptionType exceptionType = report.getException().get(0);
+        assert (exceptionType.getExceptionCode().equals("NoSuchJob"));
+
+        assert (exceptionType.getLocator().equals(value));
+
+    }
+
+    /**
+     * Test that GetResult will return an error (according to the WPS standard) when queried by an unknown UUID
+     */
+    @Test
+    public void testGetResultWithUnknownUuid(){
+        GetResult getResult = new GetResult();
+        String value = UUID.randomUUID().toString();
+        getResult.setJobID(value);
+
+        Object status = wps20Operations.getResult(getResult);
+
+        assert (status instanceof ExceptionReport);
+
+        ExceptionReport report = (ExceptionReport) status;
+        ExceptionType exceptionType = report.getException().get(0);
+        assert (exceptionType.getExceptionCode().equals("NoSuchJob"));
+        assert (exceptionType.getLocator().equals(value));
+    }
+
+    /**
+     * Test that execute will return an error (according to the WPS standard) when queried with an unknown process
+     * identifier
+     */
+    @Test
+    public void testExecuteWithUnknownProcessIdentifier(){
+        ExecuteRequestType execute = new ExecuteRequestType();
+        CodeType codeType = new CodeType();
+        String falsyIdentifier = "thisprocessidentifierdoesnotexist";
+        codeType.setValue(falsyIdentifier);
+        execute.setIdentifier(codeType);
+        Object status = wps20Operations.execute(execute);
+
+        assert (status instanceof ExceptionReport);
+
+        ExceptionReport report = (ExceptionReport) status;
+        ExceptionType exceptionType = report.getException().get(0);
+        assert (exceptionType.getExceptionCode().equals("NoSuchProcess"));
+        assert (exceptionType.getLocator().equals(falsyIdentifier));
     }
 }

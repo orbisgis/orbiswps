@@ -63,7 +63,6 @@ public class TestWPS_1_0_0_GetCapabilities {
         fullWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, fullWpsProps, processManager);
     }
 
-
     /**
      * Test an empty GetCapabilities request with a full WPS property
      */
@@ -123,6 +122,73 @@ public class TestWPS_1_0_0_GetCapabilities {
         }
     }
 
+    /**
+     * Test a GetCapabilities request with a full WPS property
+     */
+    @Test
+    public void testFullGetCapabilities(){
+        //Ask for the GetCapabilities
+        GetCapabilities getCapabilities = new GetCapabilities();
+        getCapabilities.setLanguage("en");
+        AcceptVersionsType acceptVersionsType = new AcceptVersionsType();
+        acceptVersionsType.getVersion().add("1.0.0");
+        getCapabilities.setAcceptVersions(acceptVersionsType);
+        Object object = fullWps100Operations.getCapabilities(getCapabilities);
+        assertTrue("The wps service answer should be 'WPSCapabilitiesType",object instanceof WPSCapabilitiesType);
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType)object;
+
+        //version tests
+        assertTrue("The wps service 'version' should be set", capabilities.isSetVersion());
+        assertEquals("The wps service 'version' should be '1.0.0'", "1.0.0", capabilities.getVersion());
+
+        //update sequence tests
+        assertTrue("The wps service 'updateSequence' should be set", capabilities.isSetUpdateSequence());
+        assertEquals("The wps service 'updateSequence' should be '1.0.0'", "1.0.0", capabilities.getUpdateSequence());
+
+        //lang tests
+        assertTrue("The wps service 'lang' should be set", capabilities.isSetLang());
+        assertEquals("The wps service 'lang' should be 'en'", "en", capabilities.getLang());
+
+        testFullServiceIdentification(capabilities);
+        testFullServiceProvider(capabilities);
+        testFullOperationMetadata(capabilities);
+
+        //WSDL test
+        assertTrue("The wps service 'WSDL' should be set", capabilities.isSetWSDL());
+        assertTrue("The wps service 'WSDL' 'href' should be set", capabilities.getWSDL().isSetHref());
+        assertEquals("The wps service 'WSDL' 'href' should be set to 'href'", "href", capabilities.getWSDL().getHref());
+
+        //operation metadata tests
+
+        //language tests
+        assertTrue("The wps service 'languages' should be set",
+                capabilities.isSetLanguages());
+        assertTrue("The wps service 'languages' 'default' should be set",
+                capabilities.getLanguages().isSetDefault());
+        assertTrue("The wps service 'languages' 'default' 'language' should be set",
+                capabilities.getLanguages().getDefault().isSetLanguage());
+        assertEquals("The wps service 'languages' 'default' 'language' should be 'en'",
+                "en", capabilities.getLanguages().getDefault().getLanguage());
+        assertTrue("The wps service 'languages' 'supported' should be set",
+                capabilities.getLanguages().isSetSupported());
+        assertTrue("The wps service 'languages' 'supported' 'language' should be set",
+                capabilities.getLanguages().getSupported().isSetLanguage());
+        assertArrayEquals("The wps service 'languages' 'supported' 'language' should be set to [en, fr-fr]",
+                new String[]{"en", "fr-fr"}, capabilities.getLanguages().getSupported().getLanguage().toArray());
+
+        //ProcessOffering test
+        assertTrue("The wps service 'processOffering' should be set", capabilities.isSetProcessOfferings());
+        assertTrue("The wps service 'processOffering' should be set", capabilities.getProcessOfferings().isSetProcess());
+        for(ProcessBriefType process : capabilities.getProcessOfferings().getProcess()){
+            assertTrue("The process 'id' should be set", process.isSetIdentifier());
+            assertTrue("The process 'title' should be set", process.isSetTitle());
+        }
+    }
+
+    /**
+     * Test the given getCapabilities OperationMetadata sections.
+     * @param capabilities Object to test
+     */
     private void testFullOperationMetadata(WPSCapabilitiesType capabilities){
         assertTrue("The wps service 'operationMetadata' should be set",
                 capabilities.isSetOperationsMetadata());
@@ -720,6 +786,11 @@ public class TestWPS_1_0_0_GetCapabilities {
                 capabilities.getOperationsMetadata().isSetExtendedCapabilities());
     }
 
+
+    /**
+     * Test the given getCapabilities ServiceProvider sections.
+     * @param capabilities Object to test
+     */
     private void testFullServiceProvider(WPSCapabilitiesType capabilities){
 
         assertTrue("The wps service 'serviceProvider' should be set", capabilities.isSetServiceProvider());
@@ -849,6 +920,11 @@ public class TestWPS_1_0_0_GetCapabilities {
                 "role", serviceContact.getRole().getValue());
     }
 
+
+    /**
+     * Test the given getCapabilities ServiceIdentification sections.
+     * @param capabilities Object to test
+     */
     private void testFullServiceIdentification(WPSCapabilitiesType capabilities){
         assertTrue("The wps service 'serviceIdentification' should be set",
                 capabilities.isSetServiceIdentification());
@@ -1032,6 +1108,9 @@ public class TestWPS_1_0_0_GetCapabilities {
         assertTrue("The 'OrbisGIS' keyword should be set", isOrbisgis);
     }
 
+    /**
+     * Test an empty GetCapabilities request with a minimal WPS property
+     */
     @Test
     public void testMinEmptyGetCapabilities(){
         //Ask for the GetCapabilities
@@ -1117,7 +1196,261 @@ public class TestWPS_1_0_0_GetCapabilities {
 
         //OperationMetadata test
         assertTrue("The wps service 'operationMetadata' should be set",
-        capabilities.isSetOperationsMetadata());
+                capabilities.isSetOperationsMetadata());
+        assertTrue("The wps service operation metadata operation should be set",
+                capabilities.getOperationsMetadata().isSetOperation());
+        assertEquals("The wps service operation metadata operation should contains three elements",
+                3, capabilities.getOperationsMetadata().getOperation().size());
+        boolean isGetCapabilities = false;
+        boolean isDescribeProcess = false;
+        boolean isExecute = false;
+        for(Operation operation : capabilities.getOperationsMetadata().getOperation()){
+            assertTrue(operation.isSetName());
+            if("GetCapabilities".equals(operation.getName())) {
+                assertTrue("The operation 'GetCapabilities' 'dcp' should be set", operation.isSetDCP());
+                assertFalse("The operation 'GetCapabilities' 'dcp' should not be empty", operation.getDCP().isEmpty());
+                for (DCP dcp : operation.getDCP()) {
+                    assertTrue("The operation 'GetCapabilities' 'dcp' 'http' should be set", dcp.isSetHTTP());
+                    assertTrue("The operation 'GetCapabilities' 'dcp' 'http' 'getOrPost' should be set",
+                            dcp.getHTTP().isSetGetOrPost());
+                    assertFalse("The operation 'GetCapabilities' 'dcp' 'http' 'getOrPost' should not be empty",
+                            dcp.getHTTP().getGetOrPost().isEmpty());
+                    JAXBElement<RequestMethodType> element = dcp.getHTTP().getGetOrPost().get(0);
+                    RequestMethodType requestMethodType = element.getValue();
+                    assertTrue("The operation 'GetCapabilities' 'dcp' 'http' 'getOrPost' 'href' should be set",
+                            requestMethodType.isSetHref());
+                    if ("getcapabilitiesurl1".equals(requestMethodType.getHref())) {
+                        assertFalse("The operation 'GetCapabilities' 'dcp' 'http' 'getOrPost' 'role' should not be set",
+                                requestMethodType.isSetRole());
+                        assertFalse("The operation 'GetCapabilities' 'dcp' 'http' 'getOrPost' 'arcrole' should not be set",
+                                requestMethodType.isSetArcrole());
+                        assertFalse("The operation 'GetCapabilities' 'dcp' 'http' 'getOrPost' 'show' should not be set",
+                                requestMethodType.isSetShow());
+                        assertFalse("The operation 'GetCapabilities' 'dcp' 'http' 'getOrPost' 'actuate' should not be set",
+                                requestMethodType.isSetActuate());
+                        assertFalse("The operation 'GetCapabilities' 'dcp' 'http' 'getOrPost' 'title' should not be set",
+                                requestMethodType.isSetTitle());
+                        assertFalse("The operation 'GetCapabilities' 'dcp' 'http' 'getOrPost' 'constraint' should not be set",
+                                requestMethodType.isSetConstraint());
+                    } else {
+                        fail("Unknowm Get or Post");
+                    }
+                }
+                assertFalse("The operation 'DescribeProcess' 'constraint' should not be set", operation.isSetConstraint());
+                assertFalse("The operation 'DescribeProcess' 'parameter' should not be set", operation.isSetParameter());
+                assertFalse("The operation 'DescribeProcess' 'metadata' should not be set", operation.isSetMetadata());
+                isGetCapabilities = true;
+            }
+            else if("DescribeProcess".equals(operation.getName())){
+                assertTrue("The operation 'DescribeProcess' 'dcp' should be set", operation.isSetDCP());
+                assertFalse("The operation 'DescribeProcess' 'dcp' should not be empty", operation.getDCP().isEmpty());
+                for(DCP dcp : operation.getDCP()){
+                    assertTrue("The operation 'DescribeProcess' 'dcp' 'http' should be set", dcp.isSetHTTP());
+                    assertTrue("The operation 'DescribeProcess' 'dcp' 'http' 'getOrPost' should be set",
+                            dcp.getHTTP().isSetGetOrPost());
+                    assertFalse("The operation 'DescribeProcess' 'dcp' 'http' 'getOrPost' should not be empty",
+                            dcp.getHTTP().getGetOrPost().isEmpty());
+                    JAXBElement<RequestMethodType> element = dcp.getHTTP().getGetOrPost().get(0);
+                    RequestMethodType requestMethodType = element.getValue();
+                    assertTrue("The operation 'DescribeProcess' 'dcp' 'http' 'getOrPost' 'href' should be set",
+                            requestMethodType.isSetHref());
+                    if("describeprocessurl1".equals(requestMethodType.getHref())){
+                        assertFalse("The operation 'DescribeProcess' 'dcp' 'http' 'getOrPost' 'role' should not be set",
+                                requestMethodType.isSetRole());
+                        assertFalse("The operation 'DescribeProcess' 'dcp' 'http' 'getOrPost' 'arcrole' should not be set",
+                                requestMethodType.isSetArcrole());
+                        assertFalse("The operation 'DescribeProcess' 'dcp' 'http' 'getOrPost' 'show' should not be set",
+                                requestMethodType.isSetShow());
+                        assertFalse("The operation 'DescribeProcess' 'dcp' 'http' 'getOrPost' 'actuate' should not be set",
+                                requestMethodType.isSetActuate());
+                        assertFalse("The operation 'DescribeProcess' 'dcp' 'http' 'getOrPost' 'title' should not be set",
+                                requestMethodType.isSetTitle());
+                        assertFalse("The operation 'DescribeProcess' 'dcp' 'http' 'getOrPost' 'constraint' should not be set",
+                                requestMethodType.isSetConstraint());
+                    }
+                    else{
+                        fail("Unknowm Get or Post");
+                    }
+                }
+                assertFalse("The operation 'DescribeProcess' 'constraint' should not be set", operation.isSetConstraint());
+                assertFalse("The operation 'DescribeProcess' 'parameter' should not be set", operation.isSetParameter());
+                assertFalse("The operation 'DescribeProcess' 'metadata' should not be set", operation.isSetMetadata());
+                isDescribeProcess = true;
+            }
+            else if("Execute".equals(operation.getName())){
+                assertTrue("The operation 'Execute' 'dcp' should be set", operation.isSetDCP());
+                assertFalse("The operation 'Execute' 'dcp' should not be empty", operation.getDCP().isEmpty());
+                for(DCP dcp : operation.getDCP()){
+                    assertTrue("The operation 'Execute' 'dcp' 'http' should be set", dcp.isSetHTTP());
+                    assertTrue("The operation 'Execute' 'dcp' 'http' 'getOrPost' should be set",
+                            dcp.getHTTP().isSetGetOrPost());
+                    assertFalse("The operation 'Execute' 'dcp' 'http' 'getOrPost' should not be empty",
+                            dcp.getHTTP().getGetOrPost().isEmpty());
+                    JAXBElement<RequestMethodType> element = dcp.getHTTP().getGetOrPost().get(0);
+                    RequestMethodType requestMethodType = element.getValue();
+                    assertTrue("The operation 'Execute' 'dcp' 'http' 'getOrPost' 'href' should be set",
+                            requestMethodType.isSetHref());
+                    if("executeurl1".equals(requestMethodType.getHref())){
+                        assertFalse("The operation 'Execute' 'dcp' 'http' 'getOrPost' 'role' should not be set",
+                                requestMethodType.isSetRole());
+                        assertFalse("The operation 'Execute' 'dcp' 'http' 'getOrPost' 'arcrole' should not be set",
+                                requestMethodType.isSetArcrole());
+                        assertFalse("The operation 'Execute' 'dcp' 'http' 'getOrPost' 'show' should not be set",
+                                requestMethodType.isSetShow());
+                        assertFalse("The operation 'Execute' 'dcp' 'http' 'getOrPost' 'actuate' should not be set",
+                                requestMethodType.isSetActuate());
+                        assertFalse("The operation 'Execute' 'dcp' 'http' 'getOrPost' 'title' should not be set",
+                                requestMethodType.isSetTitle());
+                        assertFalse("The operation 'Execute' 'dcp' 'http' 'getOrPost' 'constraint' should not be set",
+                                requestMethodType.isSetConstraint());
+                    }
+                    else{
+                        fail("Unknowm Get or Post");
+                    }
+                }
+
+                assertFalse("The operation 'Execute' 'constraint' should not be set", operation.isSetConstraint());
+                assertFalse("The operation 'Execute' 'parameter' should not be set", operation.isSetParameter());
+                assertFalse("The operation 'Execute' 'metadata' should not be set", operation.isSetMetadata());
+                isExecute = true;
+            }
+            else {
+                fail("Operation not found");
+            }
+        }
+        assertTrue("The wps service 'operationMetadata' should contains the operation 'GetCapabilities", isGetCapabilities);
+        assertTrue("The wps service 'operationMetadata' should contains the operation 'DescribeProcess", isDescribeProcess);
+        assertTrue("The wps service 'operationMetadata' should contains the operation 'Execute", isExecute);
+
+        assertFalse("The 'operationMetadata' 'constraint' should not be set",
+                capabilities.getOperationsMetadata().isSetConstraint());
+        assertFalse("The 'operationMetadata' 'parameter' should not be set",
+                capabilities.getOperationsMetadata().isSetParameter());
+        assertFalse("The 'operationMetadata' 'extendedCapabilities' should not be set",
+                capabilities.getOperationsMetadata().isSetExtendedCapabilities());
+
+        //WSDL test
+        assertFalse("The wps service 'WSDL' should not be set", capabilities.isSetWSDL());
+
+        //language tests
+        assertTrue("The wps service 'languages' should be set",
+                capabilities.isSetLanguages());
+        assertTrue("The wps service 'languages' 'default' should be set",
+                capabilities.getLanguages().isSetDefault());
+        assertTrue("The wps service 'languages' 'default' 'language' should be set",
+                capabilities.getLanguages().getDefault().isSetLanguage());
+        assertEquals("The wps service 'languages' 'default' 'language' should be 'en'",
+                "en", capabilities.getLanguages().getDefault().getLanguage());
+        assertTrue("The wps service 'languages' 'supported' should be set",
+                capabilities.getLanguages().isSetSupported());
+        assertTrue("The wps service 'languages' 'supported' 'language' should be set",
+                capabilities.getLanguages().getSupported().isSetLanguage());
+        assertArrayEquals("The wps service 'languages' 'supported' 'language' should be set to [en, fr-fr]",
+                new String[]{"en", "fr-fr"}, capabilities.getLanguages().getSupported().getLanguage().toArray());
+
+        //ProcessOffering test
+        assertTrue("The wps service 'processOffering' should be set", capabilities.isSetProcessOfferings());
+        assertTrue("The wps service 'processOffering' should be set", capabilities.getProcessOfferings().isSetProcess());
+        for(ProcessBriefType process : capabilities.getProcessOfferings().getProcess()){
+            assertTrue("The process 'id' should be set", process.isSetIdentifier());
+            assertTrue("The process 'title' should be set", process.isSetTitle());
+        }
+    }
+
+
+    /**
+     * Test a GetCapabilities request with a minimal WPS property
+     */
+    @Test
+    public void testMinGetCapabilities(){
+        //Ask for the GetCapabilities
+        GetCapabilities getCapabilities = new GetCapabilities();
+        getCapabilities.setLanguage("en");
+        AcceptVersionsType acceptVersionsType = new AcceptVersionsType();
+        acceptVersionsType.getVersion().add("1.0.0");
+        getCapabilities.setAcceptVersions(acceptVersionsType);
+        Object object = minWps100Operations.getCapabilities(getCapabilities);
+        assertTrue("The wps service answer should be 'WPSCapabilitiesType",object instanceof WPSCapabilitiesType);
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType)object;
+
+        //version tests
+        assertTrue("The wps service 'version' should be set", capabilities.isSetVersion());
+        assertEquals("The wps service 'version' should be '1.0.0'", "1.0.0", capabilities.getVersion());
+
+        //update sequence tests
+        assertFalse("The wps service 'updateSequence' should not be set", capabilities.isSetUpdateSequence());
+
+        //lang tests
+        assertTrue("The wps service 'lang' should be set", capabilities.isSetLang());
+        assertEquals("The wps service 'lang' should be 'en'", "en", capabilities.getLang());
+
+        //ServiceIdentification tests
+        assertTrue("The wps service 'serviceIdentification' should be set",
+                capabilities.isSetServiceIdentification());
+        assertTrue("The wps service 'serviceIdentification' 'serviceType' should be set",
+                capabilities.getServiceIdentification().isSetServiceType());
+        assertEquals("The wps service 'serviceIdentification' 'serviceType' should 'WPS'",
+                capabilities.getServiceIdentification().getServiceType().getValue(), "WPS");
+
+        assertTrue("The wps service 'serviceIdentification' 'serviceTypeVersion' should be set",
+                capabilities.getServiceIdentification().isSetServiceTypeVersion());
+        assertFalse("The wps service 'serviceIdentification' 'serviceTypeVersion' should not be empty",
+                capabilities.getServiceIdentification().getServiceTypeVersion().isEmpty());
+        assertEquals("The wps service 'serviceIdentification' 'serviceTypeVersion' should be '1.0.0'",
+                capabilities.getServiceIdentification().getServiceTypeVersion().get(0), "1.0.0");
+
+        assertFalse("The wps service 'serviceIdentification' 'profile' should not be set",
+                capabilities.getServiceIdentification().isSetProfile());
+        assertFalse("The wps service 'serviceIdentification' 'fees' should not be set",
+                capabilities.getServiceIdentification().isSetFees());
+        assertFalse("The wps service 'serviceIdentification' 'constraint' should not be set",
+                capabilities.getServiceIdentification().isSetAccessConstraints());
+
+        assertTrue("The wps service 'serviceIdentification' 'title' should be set",
+                capabilities.getServiceIdentification().isSetTitle());
+        assertFalse("The wps service 'serviceIdentification' 'title' should not be empty",
+                capabilities.getServiceIdentification().getTitle().isEmpty());
+        boolean isSetEnTitle = false;
+        boolean isSetFrTitle = false;
+        for(LanguageStringType languageStringType : capabilities.getServiceIdentification().getTitle()){
+            if(languageStringType.getLang().equals("en")){
+                assertEquals("The wps service 'serviceIdentification' 'title' value should be 'Local WPS Service'",
+                        languageStringType.getValue(), "Local WPS Service");
+                assertEquals("The wps service 'serviceIdentification' 'title' language should be 'en'",
+                        languageStringType.getLang(), "en");
+                isSetEnTitle = true;
+            }
+            else if(languageStringType.getLang().equals("fr-fr")){
+                assertEquals("The wps service 'serviceIdentification' 'title' value should be 'Service WPS locale'",
+                        languageStringType.getValue(), "Service WPS locale");
+                assertEquals("The wps service 'serviceIdentification' 'title' language should be 'fr-fr'",
+                        languageStringType.getLang(), "fr-fr");
+                isSetFrTitle = true;
+            }
+            else{
+                fail("Unknown title");
+            }
+        }
+        assertTrue("The 'en' title should be set", isSetEnTitle);
+        assertTrue("The 'fr-fr' title should be set", isSetFrTitle);
+
+        assertFalse("The wps service 'serviceIdentification' 'abstract' should not be set",
+                capabilities.getServiceIdentification().isSetAbstract());
+        assertFalse("The wps service 'serviceIdentification' 'keywords' should not be set",
+                capabilities.getServiceIdentification().isSetKeywords());
+
+        //Test ServiceProvider
+        assertTrue("The wps service 'serviceProvider' should be set", capabilities.isSetServiceProvider());
+        assertEquals("The wps service 'serviceProvider' 'name' should be 'OrbisGIS'",
+                capabilities.getServiceProvider().getProviderName(), "OrbisGIS");
+        assertFalse("The wps service 'serviceProvider' 'site' should not be set",
+                capabilities.getServiceProvider().isSetProviderSite());
+        assertFalse("The wps service 'serviceProvider' 'serviceContact' should not be set",
+                capabilities.getServiceProvider().isSetServiceContact());
+
+        //OperationMetadata test
+        assertTrue("The wps service 'operationMetadata' should be set",
+                capabilities.isSetOperationsMetadata());
         assertTrue("The wps service operation metadata operation should be set",
                 capabilities.getOperationsMetadata().isSetOperation());
         assertEquals("The wps service operation metadata operation should contains three elements",

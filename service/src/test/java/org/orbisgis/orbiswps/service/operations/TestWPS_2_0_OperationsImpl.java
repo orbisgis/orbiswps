@@ -342,7 +342,7 @@ public class TestWPS_2_0_OperationsImpl {
          */
     @Test
     public void testBadExecution() throws InterruptedException {
-        File file = new File(TestWPS_2_0_OperationsImpl.class.getResource("Enumeration.groovy").getFile());
+        File file = new File(TestWPS_2_0_OperationsImpl.class.getResource("simpleScript.groovy").getFile());
         wpsServer.addProcess(file);
         processManager.addScript(file.toURI());
         //Test process execution with an input model without any content
@@ -380,7 +380,7 @@ public class TestWPS_2_0_OperationsImpl {
      */
     @Test
     public void testExecuteWithoutExecutionService() throws JAXBException, IOException, InterruptedException {
-        File file = new File(TestWPS_2_0_OperationsImpl.class.getResource("Enumeration.groovy").getFile());
+        File file = new File(TestWPS_2_0_OperationsImpl.class.getResource("simpleScript.groovy").getFile());
         wpsServer.addProcess(file);
         processManager.addScript(file.toURI());
 

@@ -551,7 +551,15 @@ public class WpsServerProperties_1_0_0 {
                 CONSTRAINTS = null;
             }
             if(jsonNode.has("extended_capabilities")) {
-                EXTENDED_CAPABILITIES = jsonNode.get("extended_capabilities");
+                if(jsonNode.get("extended_capabilities").isTextual()) {
+                    EXTENDED_CAPABILITIES = jsonNode.get("extended_capabilities").asText();
+                }
+                else if(jsonNode.get("extended_capabilities").isNumber()) {
+                    EXTENDED_CAPABILITIES = jsonNode.get("extended_capabilities").asDouble();
+                }
+                else{
+                    EXTENDED_CAPABILITIES = null;
+                }
             }
             else{
                 EXTENDED_CAPABILITIES = null;

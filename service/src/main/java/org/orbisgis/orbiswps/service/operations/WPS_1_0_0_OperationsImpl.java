@@ -104,8 +104,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
         //Accepted versions check
         //If the version is not supported, add an ExceptionType with the error.
-        if (getCapabilities.getAcceptVersions() != null &&
-                getCapabilities.getAcceptVersions().getVersion() != null) {
+        if (getCapabilities.isSetAcceptVersions() && getCapabilities.getAcceptVersions().isSetVersion()) {
             boolean isVersionAccepted = false;
             for (String version1 : getCapabilities.getAcceptVersions().getVersion()) {
                 if(wpsProp.GLOBAL_PROPERTIES.SUPPORTED_VERSIONS == null){
@@ -222,6 +221,13 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         operationList.addAll(wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS);
         operationList.removeAll(Collections.singleton(null));
         operationsMetadata.getOperation().addAll(operationList);
+        if(wpsProp.OPERATIONS_METADATA_PROPERTIES.CONSTRAINTS != null) {
+            operationsMetadata.getConstraint().addAll(wpsProp.OPERATIONS_METADATA_PROPERTIES.CONSTRAINTS);
+        }
+        if(wpsProp.OPERATIONS_METADATA_PROPERTIES.PARAMETERS != null) {
+            operationsMetadata.getParameter().addAll(wpsProp.OPERATIONS_METADATA_PROPERTIES.PARAMETERS);
+        }
+        operationsMetadata.setExtendedCapabilities(wpsProp.OPERATIONS_METADATA_PROPERTIES.EXTENDED_CAPABILITIES);
         wpsCapabilitiesType.setOperationsMetadata(operationsMetadata);
 
         ServiceIdentification serviceIdentification = new ServiceIdentification();
@@ -258,9 +264,12 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         ServiceProvider serviceProvider = new ServiceProvider();
         serviceProvider.setProviderName(wpsProp.SERVICE_PROVIDER_PROPERTIES.PROVIDER_NAME);
         serviceProvider.setProviderSite(wpsProp.SERVICE_PROVIDER_PROPERTIES.PROVIDER_SITE);
+        serviceProvider.setServiceContact(wpsProp.SERVICE_PROVIDER_PROPERTIES.SERVICE_CONTACT);
         wpsCapabilitiesType.setServiceProvider(serviceProvider);
 
-        wpsCapabilitiesType.setUpdateSequence(wpsProp.GLOBAL_PROPERTIES.SERVER_VERSION);
+        if(wpsProp.GLOBAL_PROPERTIES.UPDATE_SEQUENCE != null) {
+            wpsCapabilitiesType.setUpdateSequence(wpsProp.GLOBAL_PROPERTIES.UPDATE_SEQUENCE);
+        }
 
         return wpsCapabilitiesType;
     }

@@ -269,17 +269,19 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         List<CodeType> codeTypeList = describeProcess.getIdentifier();
         ProcessDescriptions processDescriptions = new ProcessDescriptions();
 
-        if(language.equals(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE)){
-            processDescriptions.setLang(language);
-        }
-        else {
-            for(String lang : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
-                if (language.equals(lang)) {
-                    processDescriptions.setLang(language);
+        if(describeProcess.isSetLanguage()) {
+            if (language.equals(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE)) {
+                processDescriptions.setLang(language);
+            } else {
+                for (String lang : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
+                    if (language.equals(lang)) {
+                        processDescriptions.setLang(language);
 
+                    }
                 }
             }
         }
+
         if(!processDescriptions.isSetLang()){
             processDescriptions.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
             language = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;

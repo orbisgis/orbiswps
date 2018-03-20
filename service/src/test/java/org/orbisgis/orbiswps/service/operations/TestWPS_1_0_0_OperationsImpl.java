@@ -301,6 +301,21 @@ public class TestWPS_1_0_0_OperationsImpl {
     }
 
     /**
+     * Tests the DescribeProcessOperation without language
+     */
+    @Test
+    public void testDescribeProcessWithoutLanguageShouldNotFail(){
+        DescribeProcess describeProcess = new DescribeProcess();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:jdbctable");
+        describeProcess.getIdentifier().add(codeType);
+        ProcessDescriptions processDescriptions = wps100Operations.describeProcess(describeProcess);
+
+        Assert.assertNotNull("The wps ProcessDescriptions should not be null", processDescriptions);
+    }
+
+
+    /**
      * Tests the DescribeProcessOperation
      */
     @Test

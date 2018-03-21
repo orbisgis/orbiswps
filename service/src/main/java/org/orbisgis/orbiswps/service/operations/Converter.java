@@ -40,22 +40,13 @@
 package org.orbisgis.orbiswps.service.operations;
 
 import net.opengis.ows._1.*;
-import net.opengis.ows._1.AcceptVersionsType;
-import net.opengis.ows._1.AllowedValues;
-import net.opengis.ows._1.AnyValue;
-import net.opengis.ows._1.CodeType;
-import net.opengis.ows._1.DomainMetadataType;
-import net.opengis.ows._1.LanguageStringType;
-import net.opengis.ows._1.MetadataType;
-import net.opengis.ows._1.ValueType;
-import net.opengis.ows._2.*;
 import net.opengis.wps._1_0_0.*;
 import net.opengis.wps._1_0_0.InputDescriptionType;
 import net.opengis.wps._1_0_0.OutputDescriptionType;
 import net.opengis.wps._1_0_0.ProcessDescriptionType;
-import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.BoundingBoxData;
 import net.opengis.wps._2_0.ComplexDataType;
+import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.orbisgis.orbiswps.service.model.*;
 
@@ -172,18 +163,9 @@ public class Converter {
             BoundingBoxData bBox = (BoundingBoxData)dataDescriptionType;
             inputDescriptionType1.setBoundingBoxData(convertComplexDataTypeToSupportedCrssType(bBox));
         }
-        else if(dataDescriptionType instanceof JDBCTable){
+        else if(dataDescriptionType instanceof ComplexDataType){
             ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
             inputDescriptionType1.setComplexData(convertComplexDataTypeToSupportedComplexDataInputType(complexData, maxMb));
-        }
-        else if(dataDescriptionType instanceof Enumeration ||
-                dataDescriptionType instanceof GeometryData ||
-                dataDescriptionType instanceof JDBCColumn ||
-                dataDescriptionType instanceof JDBCValue ||
-                dataDescriptionType instanceof Password ||
-                dataDescriptionType instanceof RawData){
-            ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
-            inputDescriptionType1.setLiteralData(convertComplexDataTypeToLiteralData(complexData));
         }
         else {
             ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
@@ -364,9 +346,7 @@ public class Converter {
                 dflt.setCRS(supportedCRS.getValue());
                 supportedCRSsType.setDefault(dflt);
             }
-            else{
-                crSsType.getCRS().add(supportedCRS.getValue());
-            }
+            crSsType.getCRS().add(supportedCRS.getValue());
         }
         supportedCRSsType.setSupported(crSsType);
         return supportedCRSsType;
@@ -546,6 +526,7 @@ public class Converter {
                 descriptionType.setTitle(convertLanguageStringType2to1(outputDescriptionType.getTitle().get(0)));
             }
             descriptionType.setTitle(convertLanguageStringType2to1(outputDescriptionType.getTitle().get(0)));
+            descriptionType.getMetadata().addAll(convertMetadataTypeList2to1(outputDescriptionType.getMetadata()));
             processOutputs.getOutput().add(descriptionType);
         }
         return processOutputs;

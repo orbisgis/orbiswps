@@ -39,17 +39,13 @@
  */
 package org.orbisgis.orbiswps.service.parser;
 
-import net.opengis.wps._2_0.DataDescriptionType;
-import net.opengis.wps._2_0.InputDescriptionType;
-import net.opengis.wps._2_0.OutputDescriptionType;
+import net.opengis.wps._2_0.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.orbisgis.orbiswps.groovyapi.attributes.BoundingBoxAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute;
-import org.orbisgis.orbiswps.service.model.BoundingBoxData;
-import org.orbisgis.orbiswps.service.parser.BoundingBoxParser;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 
 import java.lang.reflect.Field;
@@ -94,13 +90,14 @@ public class BoundingBoxParserTest {
         Assert.assertTrue("The DataDescriptionType from the InputDescriptionType should be an instance of " +
                 "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
         BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
+        SupportedCRS defaultCrs = new SupportedCRS();
+        for(SupportedCRS crs : boundingBoxData.getSupportedCRS()){
+            if(crs.isDefault()){
+                defaultCrs = crs;
+            }
+        }
         Assert.assertEquals("The BoundingBoxData defaultCrs attribute should be 'EPSG:4326.", "EPSG:4326",
-                boundingBoxData.getDefaultCrs());
-        Assert.assertArrayEquals("The BoundingBoxData supportedCrs attribute should be empty.", new String[]{},
-                boundingBoxData.getSupportedCrs());
-        Assert.assertEquals("The BoundingBoxData dimension attribute should be 2.", 2, boundingBoxData.getDimension());
-        Assert.assertEquals("The BoundingBoxData defaultValue attribute is not the one expected.", "0,0,1,1",
-                boundingBoxData.getDefaultValue());
+                defaultCrs.getValue());
 
         //Tests the InputAttribute part of the InputDescriptionType
         Assert.assertEquals("The InputDescriptionType maxOccurs attribute should be 1", "1",
@@ -150,13 +147,14 @@ public class BoundingBoxParserTest {
         Assert.assertTrue("The DataDescriptionType from the InputDescriptionType should be an instance of " +
                 "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
         BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
+        SupportedCRS defaultCrs = new SupportedCRS();
+        for(SupportedCRS crs : boundingBoxData.getSupportedCRS()){
+            if(crs.isDefault()){
+                defaultCrs = crs;
+            }
+        }
         Assert.assertEquals("The BoundingBoxData defaultCrs attribute should be 'EPSG:4326.", "EPSG:4326",
-                boundingBoxData.getDefaultCrs());
-        Assert.assertArrayEquals("The BoundingBoxData supportedCrs attribute should be empty.",
-                new String[]{"EPSG:4326", "EPSG:2000", "EPSG:2001"}, boundingBoxData.getSupportedCrs());
-        Assert.assertEquals("The BoundingBoxData dimension attribute should be 2.", 2, boundingBoxData.getDimension());
-        Assert.assertEquals("The BoundingBoxData defaultValue attribute is not the one expected.", "0,0,1,1",
-                boundingBoxData.getDefaultValue());
+                defaultCrs.getValue());
 
         //Tests the InputAttribute part of the InputDescriptionType
         Assert.assertEquals("The InputDescriptionType maxOccurs attribute should be 1", "2",
@@ -219,11 +217,14 @@ public class BoundingBoxParserTest {
         Assert.assertTrue("The DataDescriptionType from the OutputDescriptionType should be an instance of " +
                 "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
         BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
+        SupportedCRS defaultCrs = new SupportedCRS();
+        for(SupportedCRS crs : boundingBoxData.getSupportedCRS()){
+            if(crs.isDefault()){
+                defaultCrs = crs;
+            }
+        }
         Assert.assertEquals("The BoundingBoxData defaultCrs attribute should be 'EPSG:4326.", "EPSG:4326",
-                boundingBoxData.getDefaultCrs());
-        Assert.assertArrayEquals("The BoundingBoxData supportedCrs attribute should be empty.", new String[]{},
-                boundingBoxData.getSupportedCrs());
-        Assert.assertEquals("The BoundingBoxData dimension attribute should be 2.", 2, boundingBoxData.getDimension());
+                defaultCrs.getValue());
 
         //Tests the DescriptionTypeAttribute part of the OutputDescriptionType
         Assert.assertFalse("The OutputDescriptionType title attribute should not be empty",
@@ -267,11 +268,14 @@ public class BoundingBoxParserTest {
         Assert.assertTrue("The DataDescriptionType from the OutputDescriptionType should be an instance of " +
                 "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
         BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
+        SupportedCRS defaultCrs = new SupportedCRS();
+        for(SupportedCRS crs : boundingBoxData.getSupportedCRS()){
+            if(crs.isDefault()){
+                defaultCrs = crs;
+            }
+        }
         Assert.assertEquals("The BoundingBoxData defaultCrs attribute should be 'EPSG:4326.", "EPSG:4326",
-                boundingBoxData.getDefaultCrs());
-        Assert.assertArrayEquals("The BoundingBoxData supportedCrs attribute should be empty.",
-                new String[]{"EPSG:4326", "EPSG:2000", "EPSG:2001"}, boundingBoxData.getSupportedCrs());
-        Assert.assertEquals("The BoundingBoxData dimension attribute should be 2.", 2, boundingBoxData.getDimension());
+                defaultCrs.getValue());
 
         //Tests the DescriptionTypeAttribute part of the OutputDescriptionType
         Assert.assertEquals("The OutputDescriptionType title attribute should have a size of 1", 1,
@@ -303,13 +307,13 @@ public class BoundingBoxParserTest {
      */
     private class FieldProvider{
         /** The simplest BoundingBox input declaration */
-        @BoundingBoxAttribute
+        @BoundingBoxAttribute(defaultCrs = "EPSG:4326")
         @InputAttribute
         @DescriptionTypeAttribute(title = "title")
         private String simplestBoundingBoxInput = "0,0,1,1;EPSG:4326";
 
         /** A complex BoundingBox input declaration */
-        @BoundingBoxAttribute(supportedCRS = {"EPSG:4326", "EPSG:2000", "EPSG:2001"}, dimension = 2)
+        @BoundingBoxAttribute(supportedCRS = {"EPSG:4326", "EPSG:2000", "EPSG:2001"}, defaultCrs = "EPSG:4326")
         @InputAttribute(maxOccurs = 2, minOccurs = 0)
         @DescriptionTypeAttribute(
                 title = "title",
@@ -321,13 +325,13 @@ public class BoundingBoxParserTest {
         private String complexBoundingBoxInput = "EPSG:4326;0, 0, 1 ,1";
 
         /** The simplest BoundingBox output declaration */
-        @BoundingBoxAttribute
+        @BoundingBoxAttribute(defaultCrs = "EPSG:4326")
         @OutputAttribute
         @DescriptionTypeAttribute(title = "title")
         private String simplestBoundingBoxOutput;
 
         /** A complex BoundingBox output declaration */
-        @BoundingBoxAttribute(supportedCRS = {"EPSG:4326", "EPSG:2000", "EPSG:2001"}, dimension = 2)
+        @BoundingBoxAttribute(supportedCRS = {"EPSG:4326", "EPSG:2000", "EPSG:2001"}, defaultCrs = "EPSG:4326")
         @OutputAttribute
         @DescriptionTypeAttribute(
                 title = "title",

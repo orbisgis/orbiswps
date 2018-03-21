@@ -210,7 +210,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         }
         wpsCapabilitiesType.setProcessOfferings(processOfferings);
 
-        if (wpsProp.WSDL_PROPERTIES.HREF != null) {
+        if(wpsProp.WSDL_PROPERTIES != null && wpsProp.WSDL_PROPERTIES.HREF != null) {
             WSDL wsdl = new WSDL();
             wsdl.setHref(wpsProp.WSDL_PROPERTIES.HREF);
             wpsCapabilitiesType.setWSDL(wsdl);
@@ -316,6 +316,13 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     processDescriptionType.setProcessOutputs(convertOutputDescriptionTypeList2to1(process.getOutput(),
                             wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE, language,
                             new BigInteger(wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES)));
+
+                    if(wpsProp.WSDL_PROPERTIES != null && wpsProp.WSDL_PROPERTIES.HREF != null) {
+                        WSDL wsdl = new WSDL();
+                        wsdl.setHref(wpsProp.WSDL_PROPERTIES.HREF);
+                        processDescriptionType.setWSDL(wsdl);
+                    }
+
                     processDescriptions.getProcessDescription().add(processDescriptionType);
                 }
             }

@@ -86,6 +86,11 @@ public class WpsServerProperties_2_0 {
         if(propertyFileLocation != null) {
             //Load the property file
             File propertiesFile = new File(propertyFileLocation);
+
+            if (propertiesFile.isDirectory()){
+                propertiesFile = new File(propertyFileLocation + File.separator + SERVER_PROPERTIES);
+            }
+
             if (propertiesFile.exists()) {
                 try {
                     wpsProperties = new Properties();

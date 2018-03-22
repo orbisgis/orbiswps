@@ -609,6 +609,8 @@ public class WpsServerProperties_1_0_0 {
         public final long BASE_PROCESS_POLLING_DELAY;
         public final long MAX_PROCESS_POLLING_DELAY;
         public final String MAXIMUM_MEGABYTES;
+        public final String DEFAULT_JDBCTABLE_FORMAT;
+        public final String[] AVAILABLE_JDBCTABLE_FORMAT;
 
         /**
          * Properties which are not defined in the WPS standard.
@@ -635,6 +637,18 @@ public class WpsServerProperties_1_0_0 {
                 throw new Exception("The property file should contains a field 'maximum_megabytes'");
             }
             MAXIMUM_MEGABYTES = customNode.get("maximum_megabytes").asText();
+            if(!customNode.has("default_jdbctable_format")){
+                DEFAULT_JDBCTABLE_FORMAT = null;
+            }
+            else {
+                DEFAULT_JDBCTABLE_FORMAT = customNode.get("default_jdbctable_format").asText();
+            }
+            if(!customNode.has("available_jdbctable_format")){
+                AVAILABLE_JDBCTABLE_FORMAT = null;
+            }
+            else {
+                AVAILABLE_JDBCTABLE_FORMAT = nodeToArray(customNode.get("available_jdbctable_format"));
+            }
         }
 
         /**

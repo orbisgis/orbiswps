@@ -41,9 +41,11 @@ package org.orbisgis.orbiswps.service.operations;
 
 import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
+import net.opengis.wps._2_0.Format;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
+import org.orbisgis.orbiswps.service.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;

@@ -454,4 +454,8 @@ public class WpsServerImpl implements WpsServer {
         processManager.cancelProcess(jobId);
         workerMap.get(jobId).cancel(true);
     }
+
+    public WpsServerProperties_1_0_0 get100Properties(){
+        return props100;
+    }
 }

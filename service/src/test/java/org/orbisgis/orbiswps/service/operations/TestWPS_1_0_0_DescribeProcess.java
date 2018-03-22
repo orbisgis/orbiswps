@@ -1,23 +1,17 @@
 package org.orbisgis.orbiswps.service.operations;
 
-import net.opengis.ows._1.*;
+import net.opengis.ows._1.CodeType;
+import net.opengis.ows._1.MetadataType;
+import net.opengis.ows._1.RangeType;
+import net.opengis.ows._1.ValueType;
 import net.opengis.wps._1_0_0.*;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Polygon;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
-import org.w3._1999.xlink.ActuateType;
-import org.w3._1999.xlink.ShowType;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -338,11 +332,11 @@ public class TestWPS_1_0_0_DescribeProcess {
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'mimeType' should be set",
                         input.getComplexData().getDefault().getFormat().isSetMimeType());
                 assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'mimeType' should be set to 'text/plain'",
-                        "application/geo+json", input.getComplexData().getDefault().getFormat().getMimeType());
+                        "text/xml", input.getComplexData().getDefault().getFormat().getMimeType());
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'schema' should be set",
                         input.getComplexData().getDefault().getFormat().isSetSchema());
-                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'schema' should be 'https://tools.ietf.org/html/rfc7946'",
-                        "https://tools.ietf.org/html/rfc7946", input.getComplexData().getDefault().getFormat().getSchema());
+                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'schema' should be ''",
+                        "", input.getComplexData().getDefault().getFormat().getSchema());
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'encoding' should be set",
                         input.getComplexData().getDefault().getFormat().isSetEncoding());
                 assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'encoding' should be set to 'simple'",
@@ -356,6 +350,7 @@ public class TestWPS_1_0_0_DescribeProcess {
                 boolean isPlain = false;
                 boolean isGeojson = false;
                 boolean isGml = false;
+                boolean isXml = false;
                 for(ComplexDataDescriptionType descriptionType : input.getComplexData().getSupported().getFormat()) {
                     assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' 'mimeType' should be set",
                             descriptionType.isSetMimeType());
@@ -386,6 +381,15 @@ public class TestWPS_1_0_0_DescribeProcess {
                                 descriptionType.getSchema());
                         isGml = true;
                     }
+                    else if("text/xml".equals(descriptionType.getMimeType())){
+                        assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
+                                        "'mimeType' should be set to 'text/xml'", "text/xml",
+                                descriptionType.getMimeType());
+                        assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
+                                        "'schema' should be set to ''", "",
+                                descriptionType.getSchema());
+                        isXml = true;
+                    }
                 }
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
                         "should contains 'text/plain", isPlain);
@@ -393,6 +397,8 @@ public class TestWPS_1_0_0_DescribeProcess {
                         "should contains 'application/vnd.geo+json", isGeojson);
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
                         "should contains 'application/gml+xml", isGml);
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
+                        "should contains 'text/xml", isXml);
             }
             else if("LiteralDataDouble".equals(type)){
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' should be set",
@@ -666,12 +672,12 @@ public class TestWPS_1_0_0_DescribeProcess {
                         output.getComplexOutput().getDefault().isSetFormat());
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'mimeType' should be set",
                         output.getComplexOutput().getDefault().getFormat().isSetMimeType());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'mimeType' should be set to 'text/plain'",
-                        "application/geo+json", output.getComplexOutput().getDefault().getFormat().getMimeType());
+                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'mimeType' should be set to 'text/xml'",
+                        "text/xml", output.getComplexOutput().getDefault().getFormat().getMimeType());
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'schema' should be set",
                         output.getComplexOutput().getDefault().getFormat().isSetSchema());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'schema' should be set to 'https://tools.ietf.org/html/rfc7946'",
-                        "https://tools.ietf.org/html/rfc7946", output.getComplexOutput().getDefault().getFormat().getSchema());
+                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'schema' should be set to ''",
+                        "", output.getComplexOutput().getDefault().getFormat().getSchema());
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'encoding' should be set",
                         output.getComplexOutput().getDefault().getFormat().isSetEncoding());
                 assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'encoding' should be set 'simple'",

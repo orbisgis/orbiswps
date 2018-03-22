@@ -171,6 +171,9 @@
     //Base value  of the process polling delay in milliseconds
     //The process polling delay will be incremented by the base after each polling until it reaches the max one.
     "base_process_polling_delay": 1000,
-    "maximum_megabytes": 2000
+    "maximum_megabytes": 2000,
+    //
+    "default_jdbctable_format": "xml",
+    "available_jdbctable_format": ["xml", "geojson", "txt", "gml"]
   }
 }

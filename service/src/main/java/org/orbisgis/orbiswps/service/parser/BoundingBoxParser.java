@@ -47,8 +47,6 @@ import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.service.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.utils.ObjectAnnotationConverter;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
-import org.orbisgis.orbiswps.service.model.BoundingBoxData;
-import org.orbisgis.orbiswps.service.model.ObjectFactory;
 import org.orbisgis.orbiswps.serviceapi.parser.Parser;
 
 import javax.xml.bind.JAXBElement;
@@ -72,32 +70,6 @@ public class BoundingBoxParser implements Parser {
         List<Format> formatList = new ArrayList<>();
         formatList.add(format);
         BoundingBoxData boundingBoxData = ObjectAnnotationConverter.annotationToObject(boundingBoxAttribute, formatList);
-        if(defaultValue != null && defaultValue instanceof String) {
-            String str = (String)defaultValue;
-            String srid = null;
-            String box = null;
-            if(str.contains(";")){
-                String[] split = str.split(";");
-                if(split[0].contains(":")){
-                    srid = split[0];
-                    box = split[1];
-                }
-                else if(split[1].contains(":")){
-                    srid = split[1];
-                    box = split[0];
-                }
-            }
-            else{
-                if(str.contains(":")){
-                    srid = str;
-                }
-                else{
-                    box = str;
-                }
-            }
-            boundingBoxData.setDefaultValue(box);
-            boundingBoxData.setDefaultCrs(srid);
-        }
 
         InputDescriptionType input = new InputDescriptionType();
         JAXBElement<BoundingBoxData> jaxbElement = new ObjectFactory().createBoundingBoxData(boundingBoxData);
@@ -123,32 +95,6 @@ public class BoundingBoxParser implements Parser {
         List<Format> formatList = new ArrayList<>();
         formatList.add(format);
         BoundingBoxData boundingBoxData = ObjectAnnotationConverter.annotationToObject(boundingBoxAttribute, formatList);
-        if(defaultValue != null && defaultValue instanceof String) {
-            String str = (String)defaultValue;
-            String srid = null;
-            String box = null;
-            if(str.contains(";")){
-                String[] split = str.split(";");
-                if(split[0].contains(":")){
-                    srid = split[0];
-                    box = split[1];
-                }
-                else if(split[1].contains(":")){
-                    srid = split[1];
-                    box = split[0];
-                }
-            }
-            else{
-                if(str.contains(":")){
-                    srid = str;
-                }
-                else{
-                    box = str;
-                }
-            }
-            boundingBoxData.setDefaultValue(box);
-            boundingBoxData.setDefaultCrs(srid);
-        }
 
         OutputDescriptionType output = new OutputDescriptionType();
         JAXBElement<BoundingBoxData> jaxbElement = new ObjectFactory().createBoundingBoxData(boundingBoxData);

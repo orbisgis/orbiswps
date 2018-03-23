@@ -578,19 +578,19 @@ public class TestWPS_1_0_0_GetCapabilities {
                 assertTrue("The operation 'GetCapabilities' 'metadata' should be set", operation.isSetMetadata());
                 assertEquals("The operation 'GetCapabilities' 'metadata' should have only one value",
                         1, operation.getMetadata().size());
-                assertFalse("The operation 'GetCapabilities' 'metadata' 'about' should not be set",
+                assertTrue("The operation 'GetCapabilities' 'metadata' 'about' should not be set",
                         operation.getMetadata().get(0).isSetAbout());
-                assertFalse("The operation 'GetCapabilities' 'metadata' 'title' should not be set",
+                assertTrue("The operation 'GetCapabilities' 'metadata' 'title' should not be set",
                         operation.getMetadata().get(0).isSetTitle());
-                assertFalse("The operation 'GetCapabilities' 'metadata' 'show' should not be set",
+                assertTrue("The operation 'GetCapabilities' 'metadata' 'show' should not be set",
                         operation.getMetadata().get(0).isSetShow());
-                assertFalse("The operation 'GetCapabilities' 'metadata' 'arcrole' should not be set",
+                assertTrue("The operation 'GetCapabilities' 'metadata' 'arcrole' should not be set",
                         operation.getMetadata().get(0).isSetArcrole());
-                assertFalse("The operation 'GetCapabilities' 'metadata' 'actuate' should not be set",
+                assertTrue("The operation 'GetCapabilities' 'metadata' 'actuate' should not be set",
                         operation.getMetadata().get(0).isSetActuate());
-                assertFalse("The operation 'GetCapabilities' 'metadata' 'role' should not be set",
+                assertTrue("The operation 'GetCapabilities' 'metadata' 'role' should not be set",
                         operation.getMetadata().get(0).isSetRole());
-                assertFalse("The operation 'GetCapabilities' 'metadata' 'abstractMedatada' should not be set",
+                assertTrue("The operation 'GetCapabilities' 'metadata' 'abstractMedatada' should not be set",
                         operation.getMetadata().get(0).isSetAbstractMetaData());
                 assertTrue("The operation 'GetCapabilities' 'metadata' 'href' should be set",
                         operation.getMetadata().get(0).isSetHref());

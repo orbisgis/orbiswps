@@ -44,6 +44,8 @@ import net.opengis.wps._2_0.ProcessOfferings;
 import org.junit.Assert;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
+import org.orbisgis.orbiswps.service.operations.WpsServerProperties_1_0_0;
+import org.orbisgis.orbiswps.service.operations.WpsServerProperties_2_0;
 import org.orbisgis.orbiswps.serviceapi.WpsServer;
 
 import javax.xml.bind.JAXBException;
@@ -286,6 +288,8 @@ public class TestWpsServerGetProcesses {
         if (wpsServer == null) {
             //Start the WpsService
             WpsServerImpl localWpsService = new WpsServerImpl();
+            localWpsService.setWpsProperties(new WpsServerProperties_1_0_0());
+            localWpsService.setWpsProperties(new WpsServerProperties_2_0());
             //Try to load the groovy scripts
             try {
                 URL url = this.getClass().getResource("JDBCTable.groovy");

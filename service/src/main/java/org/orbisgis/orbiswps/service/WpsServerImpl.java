@@ -44,6 +44,7 @@ import net.opengis.wps._2_0.*;
 import org.orbisgis.orbiswps.service.operations.*;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_2_0_Operations;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.serviceapi.WpsServerListener;
 import org.orbisgis.orbiswps.serviceapi.*;
@@ -111,14 +112,12 @@ public class WpsServerImpl implements WpsServer {
     /**********************************************/
 
     /**
-     * EmptyConstructor which load all its properties from the resource WpsServer properties file.
+     * EmptyConstructor which load all its properties thanks to the set method setWpsProperties().
      */
     public WpsServerImpl(){
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(null, this);
-        props20 = new WpsServerProperties_2_0(null);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
-        props100 = new WpsServerProperties_1_0_0(null);
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
@@ -131,9 +130,7 @@ public class WpsServerImpl implements WpsServer {
         this.executorService = executorService;
         //Creates the attribute for the processes execution
         processManager = new ProcessManager(dataSource, this);
-        props20 = new WpsServerProperties_2_0(null);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
-        props100 = new WpsServerProperties_1_0_0(null);
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
     }
 
@@ -175,6 +172,36 @@ public class WpsServerImpl implements WpsServer {
     }
     public void unsetDataSource(DataSource dataSource) {
         processManager.setDataSource(null);
+    }
+
+    @Reference
+    public void setWpsProperties(WpsProperties wpsProperties) {
+        if(wpsProperties.getWpsVersion().equals("1.0.0")){
+            props100 = (WpsServerProperties_1_0_0)wpsProperties;
+            if(wps100Operations != null){
+                wps100Operations.setWpsProperties(props100);
+            }
+        }
+        else if(wpsProperties.getWpsVersion().equals("2.0")){
+            props20 = (WpsServerProperties_2_0)wpsProperties;
+            if(wps20Operations != null){
+                wps20Operations.setWpsProperties(props20);
+            }
+        }
+    }
+    public void unsetWpsProperties(WpsProperties wpsProperties) {
+        if(wpsProperties.getWpsVersion().equals("1.0.0")){
+            props100 = null;
+            if(wps100Operations != null){
+                wps100Operations.setWpsProperties(null);
+            }
+        }
+        else if(wpsProperties.getWpsVersion().equals("2.0")){
+            props20 = null;
+            if(wps20Operations != null){
+                wps20Operations.setWpsProperties(null);
+            }
+        }
     }
 
     @Reference

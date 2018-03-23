@@ -46,7 +46,7 @@ import net.opengis.wps._1_0_0.*;
  *
  * @author Sylvain PALOMINOS
  */
-public interface WPS_1_0_0_Operations {
+public interface WPS_1_0_0_Operations extends WpsOperations {
 
     /**
      * The mandatory GetCapabilities operation allows clients to retrieve service metadata from a server.

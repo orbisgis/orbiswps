@@ -39,6 +39,10 @@
  */
 package org.orbisgis.orbiswps.service.operations;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.opengis.ows._1.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,6 +50,9 @@ import org.w3._1999.xlink.ActuateType;
 import org.w3._1999.xlink.ShowType;
 
 import javax.xml.bind.JAXBElement;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
 
 import static org.junit.Assert.*;
 
@@ -62,18 +69,386 @@ public class TestWpsServiceProperty_1_0_0 {
 
     private static WpsServerProperties_1_0_0 minProps;
 
+    private static JsonNodeFactory jsonFactory = new JsonNodeFactory(true);
+
     @BeforeClass
-    public static void init(){
+    public static void init() {
         fullProps = new WpsServerProperties_1_0_0(
                 TestWpsServiceProperty_1_0_0.class.getResource("fullWpsService100.json").getFile());
         minProps = new WpsServerProperties_1_0_0(
                 TestWpsServiceProperty_1_0_0.class.getResource("minWpsService100.json").getFile());
     }
 
+    /**
+     * Tests the constructors.
+     * @throws IOException
+     */
+    @Test
+    public void testConstruction() throws IOException {
+        //Test with property file which doesn't exists
+        File f = new File("file.json");
+        f.deleteOnExit();
+        f.createNewFile();
+        WpsServerProperties_1_0_0 test1 = new WpsServerProperties_1_0_0("./file.json");
+        assertNotNull("The 'GLOBAL_PROPERTIES' object should not be null", test1.GLOBAL_PROPERTIES);
+        assertNotNull("The 'CUSTOM_PROPERTIES' object should not be null", test1.CUSTOM_PROPERTIES);
+        assertNotNull("The 'SERVICE_IDENTIFICATION_PROPERTIES' object should not be null", test1.SERVICE_IDENTIFICATION_PROPERTIES);
+        assertNotNull("The 'OPERATIONS_METADATA_PROPERTIES' object should not be null", test1.OPERATIONS_METADATA_PROPERTIES);
+        assertNotNull("The 'SERVICE_PROVIDER_PROPERTIES' object should not be null", test1.SERVICE_PROVIDER_PROPERTIES);
+        assertNotNull("The 'WSDL_PROPERTIES' object should not be null", test1.WSDL_PROPERTIES);
+
+        WpsServerProperties_1_0_0 test2 = new WpsServerProperties_1_0_0();
+        assertNotNull("The 'GLOBAL_PROPERTIES' object should not be null", test2.GLOBAL_PROPERTIES);
+        assertNotNull("The 'CUSTOM_PROPERTIES' object should not be null", test2.CUSTOM_PROPERTIES);
+        assertNotNull("The 'SERVICE_IDENTIFICATION_PROPERTIES' object should not be null", test2.SERVICE_IDENTIFICATION_PROPERTIES);
+        assertNotNull("The 'OPERATIONS_METADATA_PROPERTIES' object should not be null", test2.OPERATIONS_METADATA_PROPERTIES);
+        assertNotNull("The 'SERVICE_PROVIDER_PROPERTIES' object should not be null", test2.SERVICE_PROVIDER_PROPERTIES);
+        assertNotNull("The 'WSDL_PROPERTIES' object should not be null", test2.WSDL_PROPERTIES);
+    }
+
+    /**
+     * Test that the WPS version is set to '1.0.0'
+     */
+    @Test
+    public void testWpsVersion(){
+        assertEquals("The WPS version should be '1.0.0'", "1.0.0", fullProps.getWpsVersion());
+        assertEquals("The WPS version should be '1.0.0'", "1.0.0", minProps.getWpsVersion());
+    }
+
+    ////
+    //Test bad property object
+    ////
+
+    /**
+     * Test that GlobalProperties constructor returns an Exception if the ObjectNode doesn't contains the mandatory
+     * values.
+     */
+    @Test
+    public void testBadGlobalProperties() {
+        ObjectNode obj = new ObjectNode(jsonFactory);
+        assertExceptionOnGlobalProperties(obj);
+        obj.put("service", "service");
+        assertExceptionOnGlobalProperties(obj);
+        obj.put("service_version", "service_version");
+        assertExceptionOnGlobalProperties(obj);
+        obj.put("supported_languages", "supported_languages");
+        assertExceptionOnGlobalProperties(obj);
+        obj.put("default_language", "default_language");
+        try {
+            new WpsServerProperties_1_0_0.GlobalProperties(obj);
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+    }
+
+    /**
+     * Test if the construction of 'GlobalProperties' throw an error.
+     * @param objectNode ObjectNode to parse to construct the 'GlobalProperties'.
+     */
+    private void assertExceptionOnGlobalProperties(ObjectNode objectNode){
+        try {
+            new WpsServerProperties_1_0_0.GlobalProperties(objectNode);
+            fail("An exception should have been thrown");
+        } catch (Exception ignore) {}
+    }
+
+    /**
+     * Test that ServiceIdentification constructor returns an Exception if the ObjectNode doesn't contains the mandatory
+     * values.
+     */
+    @Test
+    public void testBadServiceIdentification() {
+        ObjectNode obj = new ObjectNode(jsonFactory);
+        assertExceptionOnServiceIdentification(obj);
+        ObjectNode idNode = new ObjectNode(jsonFactory);
+        obj.put("service_identification", idNode);
+        assertExceptionOnServiceIdentification(obj);
+        idNode.put("service_type", "service_type");
+        assertExceptionOnServiceIdentification(obj);
+        idNode.put("service_type_version", "service_type_version");
+        assertExceptionOnServiceIdentification(obj);
+
+        ArrayNode arrayTitle = new ArrayNode(jsonFactory);
+        idNode.put("title", arrayTitle);
+        assertExceptionOnServiceIdentification(obj);
+        ObjectNode nodeTitle = new ObjectNode(jsonFactory);
+        arrayTitle.add(nodeTitle);
+        assertExceptionOnServiceIdentification(obj);
+        nodeTitle.put("value", "value");
+        assertExceptionOnServiceIdentification(obj);
+        nodeTitle.put("lang", "lang");
+        try {
+            new WpsServerProperties_1_0_0.ServiceIdentificationProperties(obj);
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+
+        ArrayNode arrayAbst = new ArrayNode(jsonFactory);
+        idNode.put("abstract", arrayAbst);
+        ObjectNode nodeAbst = new ObjectNode(jsonFactory);
+        arrayAbst.add(nodeAbst);
+        assertExceptionOnServiceIdentification(obj);
+        nodeAbst.put("value", "value");
+        assertExceptionOnServiceIdentification(obj);
+        nodeAbst.put("lang", "lang");
+        try {
+            new WpsServerProperties_1_0_0.ServiceIdentificationProperties(obj);
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+
+        ArrayNode arrayKey = new ArrayNode(jsonFactory);
+        idNode.put("keywords", arrayKey);
+        ObjectNode nodeKey = new ObjectNode(jsonFactory);
+        arrayKey.add(nodeKey);
+        assertExceptionOnServiceIdentification(obj);
+        ArrayNode arrayK = new ArrayNode(jsonFactory);
+        nodeKey.put("keyword", arrayK);
+        ObjectNode nodeK = new ObjectNode(jsonFactory);
+        arrayK.add(nodeK);
+        assertExceptionOnServiceIdentification(obj);
+        nodeK.put("value", "value");
+        assertExceptionOnServiceIdentification(obj);
+        nodeK.put("lang", "lang");
+        try {
+            new WpsServerProperties_1_0_0.ServiceIdentificationProperties(obj);
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+    }
+
+    /**
+     * Test if the construction of 'ServiceIdentification' throw an error.
+     * @param objectNode ObjectNode to parse to construct the 'ServiceIdentification'.
+     */
+    private void assertExceptionOnServiceIdentification(ObjectNode objectNode){
+        try {
+            new WpsServerProperties_1_0_0.ServiceIdentificationProperties(objectNode);
+            fail("An exception should have been thrown");
+        } catch (Exception ignore) {}
+    }
+
+    /**
+     * Test that ServiceProvider constructor returns an Exception if the ObjectNode doesn't contains the mandatory
+     * values.
+     */
+    @Test
+    public void testBadServiceProviderProperties() {
+        ObjectNode obj = new ObjectNode(jsonFactory);
+        assertExceptionOnServiceProviderProperties(obj);
+        ObjectNode providerNode = new ObjectNode(jsonFactory);
+        obj.put("service_provider", providerNode);
+        assertExceptionOnServiceProviderProperties(obj);
+        providerNode.put("provider_name", "provider_name");
+        try {
+            new WpsServerProperties_1_0_0.ServiceProviderProperties(obj);
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+    }
+
+    /**
+     * Test if the construction of 'ServiceProviderProperties' throw an error.
+     * @param objectNode ObjectNode to parse to construct the 'ServiceProviderProperties'.
+     */
+    private void assertExceptionOnServiceProviderProperties(ObjectNode objectNode){
+        try {
+            new WpsServerProperties_1_0_0.ServiceProviderProperties(objectNode);
+            fail("An exception should have been thrown");
+        } catch (Exception ignore) {}
+    }
+
+    /**
+     * Test that OperationsMetadata constructor returns an Exception if the ObjectNode doesn't contains the mandatory
+     * values.
+     */
+    @Test
+    public void testBadOperationsMetadataProperties() {
+        ObjectNode obj = new ObjectNode(jsonFactory);
+        assertExceptionOnOperationsMetadataProperties(obj);
+        ObjectNode metaNode = new ObjectNode(jsonFactory);
+        obj.put("operation_metadata", metaNode);
+        assertExceptionOnOperationsMetadataProperties(obj);
+
+        ArrayNode operationArray = new ArrayNode(jsonFactory);
+        ObjectNode operationNode = new ObjectNode(jsonFactory);
+        operationArray.add(operationNode);
+        metaNode.put("operation", operationArray);
+        assertExceptionOnOperationsMetadataProperties(obj);
+        operationNode.put("name", "name");
+        assertExceptionOnOperationsMetadataProperties(obj);
+        ArrayNode dcpArray = new ArrayNode(jsonFactory);
+        ObjectNode dcpNode = new ObjectNode(jsonFactory);
+        dcpArray.add(dcpNode);
+        operationNode.put("dcp", dcpArray);
+        assertExceptionOnOperationsMetadataProperties(obj);
+        ObjectNode httpNode = new ObjectNode(jsonFactory);
+        dcpNode.put("http", httpNode);
+        assertExceptionOnOperationsMetadataProperties(obj);
+        ArrayNode getArray = new ArrayNode(jsonFactory);
+        httpNode.put("get_or_post", getArray);
+        ObjectNode getNode = new ObjectNode(jsonFactory);
+        getArray.add(getNode);
+        assertExceptionOnOperationsMetadataProperties(obj);
+        getNode.put("url", "url");
+
+        metaNode.put("extended_capabilities", "txt");
+        try {
+            new WpsServerProperties_1_0_0.OperationsMetadataProperties(obj);
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+
+        metaNode.remove("extended_capabilities");
+        metaNode.put("extended_capabilities", 0.0);
+        try {
+            new WpsServerProperties_1_0_0.OperationsMetadataProperties(obj);
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+    }
+
+    /**
+     * Test if the construction of 'OperationsMetadataProperties' throw an error.
+     * @param objectNode ObjectNode to parse to construct the 'OperationsMetadataProperties'.
+     */
+    private void assertExceptionOnOperationsMetadataProperties(ObjectNode objectNode){
+        try {
+            new WpsServerProperties_1_0_0.OperationsMetadataProperties(objectNode);
+            fail("An exception should have been thrown");
+        } catch (Exception ignore) {}
+    }
+
+    /**
+     * Test that WSDLProperties constructor returns an Exception if the ObjectNode doesn't contains the mandatory
+     * values.
+     */
+    @Test
+    public void testBadWSDLProperties() {
+        ObjectNode obj = new ObjectNode(jsonFactory);
+        ObjectNode wsdlNode = new ObjectNode(jsonFactory);
+        obj.put("wsdl", wsdlNode);
+        assertExceptionOnWSDLProperties(obj);
+        wsdlNode.put("href", "href");
+        try {
+            new WpsServerProperties_1_0_0.WSDLProperties(obj);
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+    }
+
+    /**
+     * Test if the construction of 'WSDLProperties' throw an error.
+     * @param objectNode ObjectNode to parse to construct the 'WSDLProperties'.
+     */
+    private void assertExceptionOnWSDLProperties(ObjectNode objectNode){
+        try {
+            new WpsServerProperties_1_0_0.WSDLProperties(objectNode);
+            fail("An exception should have been thrown");
+        } catch (Exception ignore) {}
+    }
+
+    /**
+     * Test that CustomProperties constructor returns an Exception if the ObjectNode doesn't contains the mandatory
+     * values.
+     */
+    @Test
+    public void testBadCustomProperties() {
+        ObjectNode obj = new ObjectNode(jsonFactory);
+        ObjectNode customNode = new ObjectNode(jsonFactory);
+        assertExceptionOnCustomProperties(obj);
+        obj.put("custom_properties", customNode);
+        assertExceptionOnCustomProperties(obj);
+        customNode.put("destroy_duration", "0Y5D3H45M30S");
+        assertExceptionOnCustomProperties(obj);
+        customNode.put("base_process_polling_delay", 75);
+        assertExceptionOnCustomProperties(obj);
+        customNode.put("max_process_polling_delay", 500);
+        assertExceptionOnCustomProperties(obj);
+        customNode.put("maximum_megabytes", "maximum_megabytes");
+        try {
+            assertEquals("The destroy delay in millis should be '445530000'", 445530000, new WpsServerProperties_1_0_0.CustomProperties(obj).getDestroyDelayInMillis());
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+    }
+
+    /**
+     * Test if the construction of 'CustomProperties' throw an error.
+     * @param objectNode ObjectNode to parse to construct the 'CustomProperties'.
+     */
+    private void assertExceptionOnCustomProperties(ObjectNode objectNode){
+        try {
+            new WpsServerProperties_1_0_0.CustomProperties(objectNode);
+            fail("An exception should have been thrown");
+        } catch (Exception ignore) {}
+    }
+
+    /**
+     * Test that DomainType function returns an Exception if the ObjectNode doesn't contains the mandatory
+     * values.
+     */
+    @Test
+    public void testBadDomainType() throws NoSuchMethodException {
+        Method method = WpsServerProperties_1_0_0.class.getDeclaredMethod("getDomainType", JsonNode.class);
+        method.setAccessible(true);
+        ObjectNode obj = new ObjectNode(jsonFactory);
+        assertExceptionOnMethod(obj, method);
+        obj.put("name", "name");
+        assertExceptionOnMethod(obj, method);
+        ObjectNode value = new ObjectNode(jsonFactory);
+        obj.put("possible_value", value);
+        assertExceptionOnMethod(obj, method);
+        ObjectNode ref = new ObjectNode(jsonFactory);
+        value.put("values_reference", ref);
+        assertExceptionOnMethod(obj, method);
+        ref.put("name", "name");
+
+        ObjectNode mean = new ObjectNode(jsonFactory);
+        obj.put("meaning", mean);
+        assertExceptionOnMethod(obj, method);
+        mean.put("name", "name");
+
+        ObjectNode type = new ObjectNode(jsonFactory);
+        obj.put("data_type", type);
+        assertExceptionOnMethod(obj, method);
+        type.put("name", "name");
+
+        ObjectNode unit = new ObjectNode(jsonFactory);
+        obj.put("values_unit", unit);
+        assertExceptionOnMethod(obj, method);
+        ObjectNode uom = new ObjectNode(jsonFactory);
+        unit.put("uom", uom);
+        assertExceptionOnMethod(obj, method);
+        unit.remove("uom");
+        ObjectNode refe = new ObjectNode(jsonFactory);
+        unit.put("reference_system", refe);
+        assertExceptionOnMethod(obj, method);
+        refe.put("name", "name");
+        try {
+            //method.invoke(minProps, obj);
+        } catch (Exception ignored) {
+            fail("The exception should have not been thrown");
+        }
+    }
+
+    /**
+     * Test if the construction of 'DomainType' throw an error.
+     * @param objectNode ObjectNode to parse to construct the 'DomainType'.
+     */
+    private void assertExceptionOnMethod(ObjectNode objectNode, Method m){
+        try {
+            m.invoke(minProps, objectNode);
+            fail("An exception should have been thrown");
+        } catch (IllegalAccessException | IllegalArgumentException ex) {
+            fail("Unable to call the method "+m.getName());
+        }
+        catch (Exception ignore) {}
+    }
+
     ////
     //Test of full properties
     ////
-
     @Test
     public void testFullGlobalProperties(){
         assertNotNull("The property 'GLOBAL_PROPERTIES' should not be null", fullProps.GLOBAL_PROPERTIES);
@@ -496,20 +871,36 @@ public class TestWpsServiceProperty_1_0_0 {
                         operation.isSetMetadata());
                 assertEquals("The 'metadata' property of 'GetCapabilities' should contain only one value",
                         1, operation.getMetadata().size());
-                assertEquals("The 'constraint' property name of 'GetCapabilities' should be set to 'href'",
+                assertEquals("The 'constraint' property name of 'GetCapabilities' 'metadata' should be set to 'href'",
                         "href", operation.getMetadata().get(0).getHref());
-                assertFalse("The 'role' property name of 'GetCapabilities' should not be set",
+                assertTrue("The 'role' property name of 'GetCapabilities' 'metadata' should be set",
                         operation.getMetadata().get(0).isSetRole());
-                assertFalse("The 'about' property name of 'GetCapabilities' should not be set",
+                assertEquals("The 'role' property of 'GetCapabilities' 'metadata' should be 'role'", "role",
+                        operation.getMetadata().get(0).getRole());
+                assertTrue("The 'about' property name of 'GetCapabilities' 'metadata' should be set",
                         operation.getMetadata().get(0).isSetAbout());
-                assertFalse("The 'actuate' property name of 'GetCapabilities' should not be set",
-                        operation.getMetadata().get(0).isSetActuate());
-                assertFalse("The 'arcrole' property name of 'GetCapabilities' should not be set",
+                assertEquals("The 'about' property of 'GetCapabilities' 'metadata' should be 'about'", "about",
+                        operation.getMetadata().get(0).getAbout());
+                assertTrue("The 'about' property name of 'GetCapabilities' 'metadata' should be set",
                         operation.getMetadata().get(0).isSetArcrole());
-                assertFalse("The 'show' property name of 'GetCapabilities' should not be set",
+                assertEquals("The 'arcrole' property of 'GetCapabilities' 'metadata' should be 'arcrole'", "arcrole",
+                        operation.getMetadata().get(0).getArcrole());
+                assertTrue("The 'actuate' property name of 'GetCapabilities' 'metadata' should be set",
+                        operation.getMetadata().get(0).isSetActuate());
+                assertEquals("The 'actuate' property of 'GetCapabilities' 'metadata' should be 'NONE'", ActuateType.NONE,
+                        operation.getMetadata().get(0).getActuate());
+                assertTrue("The 'show' property name of 'GetCapabilities' 'metadata' should be set",
                         operation.getMetadata().get(0).isSetShow());
-                assertFalse("The 'title' property name of 'GetCapabilities' should not be set",
+                assertEquals("The 'show' property of 'GetCapabilities' 'metadata' should be 'NONE'", ShowType.NONE,
+                        operation.getMetadata().get(0).getShow());
+                assertTrue("The 'title' property name of 'GetCapabilities' 'metadata' should be set",
                         operation.getMetadata().get(0).isSetTitle());
+                assertEquals("The 'title' property of 'GetCapabilities' 'metadata' should be 'title'", "title",
+                        operation.getMetadata().get(0).getTitle());
+                assertTrue("The 'abstractMetadata' property name of 'GetCapabilities' 'metadata' should be set",
+                        operation.getMetadata().get(0).isSetAbstractMetaData());
+                assertEquals("The 'abstractMetadata' property of 'GetCapabilities' 'metadata' should be 'abstractMetadata'", "abstractMetadata",
+                        operation.getMetadata().get(0).getAbstractMetaData());
                 isGetCapabilities = true;
             }
             else if(operation.getName().equals("DescribeProcess")){
@@ -732,7 +1123,6 @@ public class TestWpsServiceProperty_1_0_0 {
     ////
     //Test of minimal properties
     ////
-
     @Test
     public void testMinGlobalProperties(){
         assertNotNull("The property 'GLOBAL_PROPERTIES' should not be null", minProps.GLOBAL_PROPERTIES);

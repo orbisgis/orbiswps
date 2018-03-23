@@ -503,6 +503,7 @@
                 {
                   //Connect point URL for this operation request
                   "url": {
+                    //Any URI
                     "href": "getcapabilitiesurl2"
                   }
                 }
@@ -542,7 +543,28 @@
         //Optional
         "metadata": [
           {
-            "href": "href"
+            //Any URI
+            "href": "href",
+            //Any URI
+            //Optional
+            "role": "role",
+            //Any URI
+            //Optional
+            "arcrole": "arcrole",
+            //String value
+            //Optional
+            "title": "title",
+            //String value
+            //Optional
+            "about": "about",
+            //Possible values : "new", "replace", "embed", "other", "none"
+            //Optional
+            "show": "none",
+            //Possible values : "onLoad", "onRequest", "other", "none"
+            //Optional
+            "actuate": "none",
+            //Optional
+            "abstract_metadata": "abstractMetadata"
           }
         ]
       },

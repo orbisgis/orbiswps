@@ -46,7 +46,7 @@ import net.opengis.wps._2_0.*;
  *
  * @author Sylvain PALOMINOS
  */
-public interface WPS_2_0_Operations {
+public interface WPS_2_0_Operations extends WpsOperations {
 
     /**
      * This operation allows a client to retrieve service metadata, basic process offerings, and the available

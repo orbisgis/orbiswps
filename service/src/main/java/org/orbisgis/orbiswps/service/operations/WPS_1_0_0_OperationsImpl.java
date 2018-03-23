@@ -41,14 +41,13 @@ package org.orbisgis.orbiswps.service.operations;
 
 import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
-import net.opengis.wps._2_0.Format;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
-import org.orbisgis.orbiswps.service.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -495,5 +494,12 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             return response;
         }
         return null;
+    }
+
+    @Override
+    public void setWpsProperties(WpsProperties wpsProperties) {
+        if(wpsProperties.getWpsVersion().equals("1.0.0")){
+            this.wpsProp = (WpsServerProperties_1_0_0) wpsProperties;
+        }
     }
 }

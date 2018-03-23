@@ -1,9 +1,6 @@
 package org.orbisgis.orbiswps.service.operations;
 
-import net.opengis.ows._1.CodeType;
-import net.opengis.ows._1.MetadataType;
-import net.opengis.ows._1.RangeType;
-import net.opengis.ows._1.ValueType;
+import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -815,5 +812,190 @@ public class TestWPS_1_0_0_DescribeProcess {
             assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'abstract' 'lang' should be set to 'en'",
                     "en", output.getAbstract().getLang());
         }
+    }
+
+    /**
+     * Test an empty DescribeProcess request with a full WPS property and a full wps script
+     */
+    @Test
+    public void testMinPropsFullScriptEmptyDescribeProcess(){
+        //Ask for the DescribeProcess
+        DescribeProcess describeProcess = new DescribeProcess();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        describeProcess.getIdentifier().add(codeType);
+        Object object = minWps100Operations.describeProcess(describeProcess);
+        assertTrue("The wps service answer should be 'ProcessDescriptions",object instanceof ProcessDescriptions);
+        ProcessDescriptions processDescriptions = (ProcessDescriptions)object;
+
+        //lang tests
+        assertTrue("The wps service 'processDescriptions' 'lang' should be set", processDescriptions.isSetLang());
+        assertEquals("The wps service 'processDescriptions' 'lang' should be 'en'", "en", processDescriptions.getLang());
+
+        //ProcessOffering test
+        assertTrue("The wps service 'processDescriptions' 'processDescription' should be set",
+                processDescriptions.isSetProcessDescription());
+        for(ProcessDescriptionType process : processDescriptions.getProcessDescription()){
+            assertTrue("The 'processDescriptions' 'processDescription' 'process' 'id' should be set",
+                    process.isSetIdentifier());
+
+            assertFalse("The 'orbisgis:test:full' 'profile' should not be set", process.isSetProfile());
+
+            assertFalse("The 'orbisgis:test:full' 'WSDL' should be set", process.isSetWSDL());
+
+            assertTrue("The 'orbisgis:test:full' 'statusSupported' should be set", process.isSetStatusSupported());
+            assertFalse("The 'orbisgis:test:full' 'statusSupported' should be set to 'false'",
+                    process.isStatusSupported());
+
+            assertTrue("The 'orbisgis:test:full' 'storeSupported' should be set", process.isSetStoreSupported());
+            assertFalse("The 'orbisgis:test:full' 'storeSupported' should be set to 'false'",
+                    process.isStoreSupported());
+        }
+    }
+
+    /**
+     * Test an empty DescribeProcess request with a full WPS property and a full wps script
+     */
+    @Test
+    public void testMinPropsFullScriptFrDescribeProcess(){
+        //Ask for the DescribeProcess
+        DescribeProcess describeProcess = new DescribeProcess();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        describeProcess.getIdentifier().add(codeType);
+        describeProcess.setLanguage("fr-fr");
+        Object object = minWps100Operations.describeProcess(describeProcess);
+        assertTrue("The wps service answer should be 'ProcessDescriptions",object instanceof ProcessDescriptions);
+        ProcessDescriptions processDescriptions = (ProcessDescriptions)object;
+
+        //lang tests
+        assertTrue("The wps service 'processDescriptions' 'lang' should be set", processDescriptions.isSetLang());
+        assertEquals("The wps service 'processDescriptions' 'lang' should be 'en'", "fr-fr", processDescriptions.getLang());
+
+        //ProcessOffering test
+        assertTrue("The wps service 'processDescriptions' 'processDescription' should be set",
+                processDescriptions.isSetProcessDescription());
+        for(ProcessDescriptionType process : processDescriptions.getProcessDescription()){
+            assertTrue("The 'processDescriptions' 'processDescription' 'process' 'id' should be set",
+                    process.isSetIdentifier());
+            if("orbisgis:test:full".equals(process.getIdentifier().getValue())) {
+                assertTrue("The 'orbisgis:test:full' 'title' should be set", process.isSetTitle());
+                assertTrue("The 'orbisgis:test:full' 'title' 'value' should be set", process.getTitle().isSetValue());
+                assertEquals("The 'orbisgis:test:full' 'title' 'value' should be set to",
+                        "full test script", process.getTitle().getValue());
+                assertTrue("The 'orbisgis:test:full' 'title' 'value' should be set", process.getTitle().isSetLang());
+                assertEquals("The 'orbisgis:test:full' 'title' 'value' should be set to",
+                        "fr-fr", process.getTitle().getLang());
+
+                assertTrue("The 'orbisgis:test:full' 'abstract' should be set", process.isSetAbstract());
+                assertTrue("The 'orbisgis:test:full' 'abstract' 'value' should be set",
+                        process.getAbstract().isSetValue());
+                assertEquals("The 'orbisgis:test:full' 'abstract' 'value' should be set to",
+                        "Full test script descr.", process.getAbstract().getValue());
+                assertTrue("The 'orbisgis:test:full' 'abstract' 'value' should be set",
+                        process.getAbstract().isSetLang());
+                assertEquals("The 'orbisgis:test:full' 'abstract' 'value' should be set to",
+                        "fr-fr", process.getAbstract().getLang());
+
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' should be set", process.isSetDataInputs());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' should be set",
+                        process.getDataInputs().isSetInput());
+                for(InputDescriptionType input : process.getDataInputs().getInput()){
+                    assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'identifier' should be set",
+                            input.isSetIdentifier());
+                    assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'title' should be set",
+                            input.isSetTitle());
+
+
+                    assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'title' 'value' should be set",
+                            input.getTitle().isSetValue());
+                    assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'title' 'lang' should be set",
+                            input.getTitle().isSetLang());
+                    assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'title' 'lang' should be set to 'en'",
+                            "fr-fr", input.getTitle().getLang());
+
+                    assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'abstract' should be set",
+                            input.isSetAbstract());
+                    assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'abstract' 'value' should be set",
+                            input.getAbstract().isSetValue());
+                    assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'abstract' 'lang' should be set",
+                            input.getAbstract().isSetLang());
+                    assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'abstract' 'lang' should be set to 'en'",
+                            "fr-fr", input.getAbstract().getLang());
+                }
+                assertTrue("The 'orbisgis:test:full' 'dataOutputs' should be set", process.isSetProcessOutputs());
+                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' should be set",
+                        process.getProcessOutputs().isSetOutput());
+                for(OutputDescriptionType output : process.getProcessOutputs().getOutput()){
+                    assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'title' 'value' should be set",
+                            output.getTitle().isSetValue());
+                    assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'title' 'lang' should be set",
+                            output.getTitle().isSetLang());
+                    assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'title' 'lang' should be set to 'en'",
+                            "fr-fr", output.getTitle().getLang());
+
+                    assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'abstract' should be set",
+                            output.isSetAbstract());
+                    assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'abstract' 'value' should be set",
+                            output.getAbstract().isSetValue());
+                    assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'abstract' 'lang' should be set",
+                            output.getAbstract().isSetLang());
+                    assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'abstract' 'lang' should be set to 'en'",
+                            "fr-fr", output.getAbstract().getLang());
+                }
+            }
+            else{
+                fail("Unknown process");
+            }
+        }
+    }
+
+    /**
+     * Test an empty DescribeProcess request with a full WPS property and a full wps script
+     */
+    @Test
+    public void testBadDescribeProcess(){
+        //Ask for the DescribeProcess without code type
+        DescribeProcess describeProcess = new DescribeProcess();
+        Object object = minWps100Operations.describeProcess(describeProcess);
+        assertTrue("The wps service answer should be 'ExceptionReport",object instanceof ExceptionReport);
+        ExceptionReport exceptionReport = (ExceptionReport)object;
+        assertTrue("The ExceptionReport should contains an exception", exceptionReport.isSetException());
+        assertEquals("The ExceptionReport should contains one exception", 1, exceptionReport.getException().size());
+        assertTrue("The Exception code should be set", exceptionReport.getException().get(0).isSetExceptionCode());
+        assertEquals("The Exception code should be set", "MissingParameterValue", exceptionReport.getException().get(0).getExceptionCode());
+        assertTrue("The Exception locator should be set", exceptionReport.getException().get(0).isSetLocator());
+        assertEquals("The Exception locator should be set", "Identifier", exceptionReport.getException().get(0).getLocator());
+
+        //Ask for the DescribeProcess with a bad code type
+        describeProcess = new DescribeProcess();
+        CodeType codeType = new CodeType();
+        codeType.setValue("UnicornId");
+        describeProcess.getIdentifier().add(codeType);
+        object = minWps100Operations.describeProcess(describeProcess);
+        assertTrue("The wps service answer should be 'ExceptionReport",object instanceof ExceptionReport);
+        exceptionReport = (ExceptionReport)object;
+        assertTrue("The ExceptionReport should contains an exception", exceptionReport.isSetException());
+        assertEquals("The ExceptionReport should contains one exception", 1, exceptionReport.getException().size());
+        assertTrue("The Exception code should be set", exceptionReport.getException().get(0).isSetExceptionCode());
+        assertEquals("The Exception code should be set", "InvalidParameterValue", exceptionReport.getException().get(0).getExceptionCode());
+        assertTrue("The Exception locator should be set", exceptionReport.getException().get(0).isSetLocator());
+        assertEquals("The Exception locator should be set", "Identifier+UnicornId", exceptionReport.getException().get(0).getLocator());
+
+        //Ask for the DescribeProcess with a bad language
+        describeProcess = new DescribeProcess();
+        codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        describeProcess.getIdentifier().add(codeType);
+        describeProcess.setLanguage("Uni-co-rn");
+        object = minWps100Operations.describeProcess(describeProcess);
+        assertTrue("The wps service answer should be 'ExceptionReport",object instanceof ExceptionReport);
+        exceptionReport = (ExceptionReport)object;
+        assertTrue("The ExceptionReport should contains an exception", exceptionReport.isSetException());
+        assertEquals("The ExceptionReport should contains one exception", 1, exceptionReport.getException().size());
+        assertTrue("The Exception code should be set", exceptionReport.getException().get(0).isSetExceptionCode());
+        assertEquals("The Exception code should be set", "InvalidParameterValue", exceptionReport.getException().get(0).getExceptionCode());
+        assertTrue("The Exception locator should be set", exceptionReport.getException().get(0).isSetLocator());
+        assertEquals("The Exception locator should be set", "Language+Uni-co-rn", exceptionReport.getException().get(0).getLocator());
     }
 }

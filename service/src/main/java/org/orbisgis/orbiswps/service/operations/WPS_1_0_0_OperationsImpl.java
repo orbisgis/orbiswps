@@ -276,7 +276,17 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
     }
 
     @Override
-    public ProcessDescriptions describeProcess(DescribeProcess describeProcess) {
+    public Object describeProcess(DescribeProcess describeProcess) {
+        ExceptionReport exceptionReport = new ExceptionReport();
+
+        if(!describeProcess.isSetIdentifier() || describeProcess.getIdentifier().isEmpty()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("MissingParameterValue");
+            exceptionType.setLocator("Identifier");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
         String language = describeProcess.getLanguage();
         List<CodeType> codeTypeList = describeProcess.getIdentifier();
         ProcessDescriptions processDescriptions = new ProcessDescriptions();
@@ -292,9 +302,18 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 }
             }
         }
-        if(!processDescriptions.isSetLang()){
-            processDescriptions.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
-            language = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;
+        if(!processDescriptions.isSetLang()) {
+            if(describeProcess.isSetLanguage()){
+                ExceptionType exceptionType = new ExceptionType();
+                exceptionType.setExceptionCode("InvalidParameterValue");
+                exceptionType.setLocator("Language+"+describeProcess.getLanguage());
+                exceptionReport.getException().add(exceptionType);
+                return exceptionReport;
+            }
+            else {
+                processDescriptions.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+                language = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;
+            }
         }
 
         List<ProcessIdentifier> processList = processManager.getAllProcessIdentifier();
@@ -327,6 +346,20 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     processDescriptions.getProcessDescription().add(processDescriptionType);
                 }
             }
+        }
+        if(processDescriptions.getProcessDescription().isEmpty()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            StringBuilder locator = new StringBuilder();
+            for(CodeType codeType : describeProcess.getIdentifier()){
+                if(locator.length() > 0){
+                    locator.append(",");
+                }
+                locator.append(codeType.getValue());
+            }
+            exceptionType.setLocator("Identifier+"+locator);
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
         }
         return processDescriptions;
     }

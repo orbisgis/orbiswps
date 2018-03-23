@@ -43,6 +43,7 @@ import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.utils.Job;
@@ -81,6 +82,13 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         this.wpsProp = wpsProp;
         this.processManager = processManager;
         jobMap = new HashMap<>();
+    }
+
+    @Override
+    public void setWpsProperties(WpsProperties wpsProperties) {
+        if(wpsProperties.getWpsVersion().equals("2.0")){
+            this.wpsProp = (WpsServerProperties_2_0) wpsProperties;
+        }
     }
 
     /** Enumeration of the section names. */

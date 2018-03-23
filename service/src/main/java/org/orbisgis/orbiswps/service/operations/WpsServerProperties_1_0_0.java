@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -46,6 +46,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.opengis.ows._1.*;
 import org.apache.commons.io.FilenameUtils;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3._1999.xlink.ActuateType;
@@ -54,6 +56,7 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,11 +67,14 @@ import java.util.Properties;
  *
  * @author Sylvain PALOMINOS
  */
-public class WpsServerProperties_1_0_0 {
+@Component(service = WpsProperties.class)
+public class WpsServerProperties_1_0_0 implements WpsProperties {
 
-    /** CoreWorkspace of OrbisGIS */
+    /** Logger */
     private static final Logger LOGGER = LoggerFactory.getLogger(WpsServerProperties_1_0_0.class);
+    /** I18N */
     private static final I18n I18N = I18nFactory.getI18n(WpsServerProperties_1_0_0.class);
+    /** Name of the default server properties file */
     private static final String BASIC_SERVER_PROPERTIES = "wps_1_0_0_conf.json";
 
     /** Properties objects */
@@ -80,8 +86,8 @@ public class WpsServerProperties_1_0_0 {
     public CustomProperties CUSTOM_PROPERTIES;
 
     /**
-     * Creates a WpsServerProperties_2_0 object which contains all the properties used in a WpsServer.
-     * @param propertyFileLocation Location of the properties file. If null, it uses the default properties file.
+     * Creates a WpsServerProperties_1_0_0 object which contains all the properties used in a WpsServer.
+     * @param propertyFileLocation Location of the properties file. If null or invalid, uses the default properties file.
      */
     public WpsServerProperties_1_0_0(String propertyFileLocation){
         boolean propertiesLoaded = false;
@@ -92,10 +98,6 @@ public class WpsServerProperties_1_0_0 {
                 if (FilenameUtils.getExtension(propertiesFile.getName()).equalsIgnoreCase("json")) {
                     try {
                         loadProperties(propertiesFile.toURI().toURL());
-                        propertiesLoaded = true;
-                    } catch (FileNotFoundException e) {
-                        LOGGER.warn(I18N.tr("Unable to load the wps properties.\n"+e.getMessage()));
-                        GLOBAL_PROPERTIES = null;
                     } catch (Exception ex) {
                         LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
                                 "default configuration.", ex.getMessage()));
@@ -104,35 +106,54 @@ public class WpsServerProperties_1_0_0 {
                 }
             }
         }
-        if(!propertiesLoaded) {
-            try {
-                loadProperties(WpsServerProperties_1_0_0.class.getResource(BASIC_SERVER_PROPERTIES));
-            } catch (FileNotFoundException e) {
-                LOGGER.warn(I18N.tr("Unable to load the wps properties.\n"+e.getMessage()));
-                GLOBAL_PROPERTIES = null;
-            } catch (Exception ex) {
-                LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
-                        "default configuration.", ex.getMessage()));
-                GLOBAL_PROPERTIES = null;
-            }
+        if(GLOBAL_PROPERTIES == null) {
+            loadProperties(WpsServerProperties_1_0_0.class.getResource(BASIC_SERVER_PROPERTIES));
         }
     }
 
-    private void loadProperties(URL propertiesFileUrl) throws Exception {
+    /**
+     * Creates a WpsServerProperties_1_0_0 object which contains all the properties used in a WpsServer with the
+     * default properties file.
+     */
+    public WpsServerProperties_1_0_0(){
+        loadProperties(WpsServerProperties_1_0_0.class.getResource(BASIC_SERVER_PROPERTIES));
+    }
+
+    /**
+     * Open and parse the given URL in order to set the different properties objects.
+     * @param propertiesFileUrl Url of the properties file
+     * @throws Exception Instance of IOException if the URL is invalid or instance of Exception of the properties
+     * file is malformed.
+     */
+    private void loadProperties(URL propertiesFileUrl){
         JsonFactory jsonFactory = new JsonFactory();
         jsonFactory.enable(JsonParser.Feature.ALLOW_COMMENTS);
         ObjectMapper objMapper = new ObjectMapper(jsonFactory);
-        ObjectNode objNode = objMapper.readValue(propertiesFileUrl, ObjectNode.class);
-        GLOBAL_PROPERTIES = new GlobalProperties(objNode);
-        SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(objNode);
-        SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(objNode);
-        OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(objNode);
-        WSDL_PROPERTIES = new WSDLProperties(objNode);
-        CUSTOM_PROPERTIES = new CustomProperties(objNode);
+        try {
+            ObjectNode objNode = objMapper.readValue(propertiesFileUrl, ObjectNode.class);
+            GLOBAL_PROPERTIES = new GlobalProperties(objNode);
+            SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(objNode);
+            SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(objNode);
+            OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(objNode);
+            WSDL_PROPERTIES = new WSDLProperties(objNode);
+            CUSTOM_PROPERTIES = new CustomProperties(objNode);
+        } catch (IOException e) {
+            LOGGER.warn(I18N.tr("Unable to load the wps properties.\n"+e.getMessage()));
+            GLOBAL_PROPERTIES = null;
+        } catch (Exception e) {
+            LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the " +
+                    "default configuration.", e.getMessage()));
+            GLOBAL_PROPERTIES = null;
+        }
+    }
+
+    @Override
+    public String getWpsVersion() {
+        return "1.0.0";
     }
 
     /** Global properties of the server */
-    public class GlobalProperties{
+    public static class GlobalProperties{
         /** Service provided by the server, WPS by default */
         public final String SERVICE;
         /** Version of the server. */
@@ -194,7 +215,7 @@ public class WpsServerProperties_1_0_0 {
     }
 
     /** Properties associated to the service identification part of the server */
-    public class ServiceIdentificationProperties{
+    public static class ServiceIdentificationProperties{
         /** Service provided by the server, WPS by default */
         public final CodeType SERVICE_TYPE;
         /** Supported version of the WPS (1.0.0, 2.0 ...). */
@@ -244,6 +265,9 @@ public class WpsServerProperties_1_0_0 {
             }
             JsonNode titles = jsonNode.get("title");
             TITLE = new LanguageStringType[titles.size()];
+            if(titles.size() == 0){
+                throw new Exception("The 'title' property should ne be empty");
+            }
             for(int i=0; i<titles.size(); i++){
                 LanguageStringType type = new LanguageStringType();
                 if(!titles.get(i).has("value")){
@@ -263,8 +287,8 @@ public class WpsServerProperties_1_0_0 {
                 ABSTRACT = new LanguageStringType[abstracts.size()];
                 for (int i = 0; i < abstracts.size(); i++) {
                     LanguageStringType type = new LanguageStringType();
-                    if(!abstracts.get(i).has("lang")){
-                        throw new Exception("A language string should contains a field 'lang'");
+                    if(!abstracts.get(i).has("value")){
+                        throw new Exception("A language string should contains a field 'value'");
                     }
                     type.setValue(abstracts.get(i).get("value").asText());
                     if(!abstracts.get(i).has("lang")){
@@ -324,7 +348,7 @@ public class WpsServerProperties_1_0_0 {
     }
 
     /** Properties associated to the service provider part of the server */
-    public class ServiceProviderProperties{
+    public static class ServiceProviderProperties{
         /** Service provider name. */
         public final String PROVIDER_NAME;
         /** Reference to the most relevant web site of the service provider. */
@@ -470,7 +494,7 @@ public class WpsServerProperties_1_0_0 {
     }
 
     /** Properties associated to the operations metadata part of the server */
-    public class OperationsMetadataProperties{
+    public static class OperationsMetadataProperties{
         /** Operation list. */
         public final List<Operation> OPERATIONS;
         /**List of valid parameter domain. */
@@ -570,7 +594,7 @@ public class WpsServerProperties_1_0_0 {
     /**
      * Class containing WSDL properties which are not defined in the WPS standard.
      */
-    public class WSDLProperties{
+    public static class WSDLProperties{
 
         public final String HREF;
 
@@ -591,7 +615,7 @@ public class WpsServerProperties_1_0_0 {
     /**
      * Class containing custom properties which are not defined in the WPS standard.
      */
-    public class CustomProperties{
+    public static class CustomProperties{
         /** Static value to convert seconds into milliseconds.*/
         private static final int secondsToMillis = 1000;
         /** Static value to convert minutes into milliseconds.*/
@@ -665,7 +689,13 @@ public class WpsServerProperties_1_0_0 {
         }
     }
 
-    private DomainType getDomainType(JsonNode jsonNode) throws Exception {
+    /**
+     * Parse a JsonNode in order to build a DomainType object.
+     * @param jsonNode JsonNode to parse.
+     * @return A DomainType object.
+     * @throws Exception Exception thrown if the JsonNode doesn't contains all the properties to build the DomainType.
+     */
+    private static DomainType getDomainType(JsonNode jsonNode) throws Exception {
         DomainType domainType = new DomainType();
         if(!jsonNode.has("name")){
             throw new Exception("The DomainType should contains a field 'name'");
@@ -821,7 +851,12 @@ public class WpsServerProperties_1_0_0 {
         return domainType;
     }
 
-    private MetadataType getMetaDataType(JsonNode jsonNode){
+    /**
+     * Parse a JsonNode in order to build a MetadataType object.
+     * @param jsonNode JsonNode to parse.
+     * @return A MetadataType object.
+     */
+    private static MetadataType getMetaDataType(JsonNode jsonNode){
         MetadataType metadataType = new MetadataType();
         if(jsonNode.has("href")){
             metadataType.setHref(jsonNode.get("href").asText());
@@ -850,7 +885,12 @@ public class WpsServerProperties_1_0_0 {
         return metadataType;
     }
 
-    private void setOnlineResourceType(JsonNode jsonNode, OnlineResourceType onlineResourceType){
+    /**
+     * Sets the given OnlineResource with the data of the given JsonNode.
+     * @param jsonNode JsonNode to parse.
+     * @param onlineResourceType OnlineResource to set.
+     */
+    private static void setOnlineResourceType(JsonNode jsonNode, OnlineResourceType onlineResourceType){
         if(jsonNode.has("href")){
             onlineResourceType.setHref(jsonNode.get("href").asText());
         }
@@ -871,7 +911,13 @@ public class WpsServerProperties_1_0_0 {
         }
     }
 
-    private RequestMethodType getRequestMethodType(JsonNode jsonNode) throws Exception {
+    /**
+     * Parse a JsonNode in order to build a RequestMethodType object.
+     * @param jsonNode JsonNode to parse.
+     * @return A RequestMethodType object.
+     * @throws Exception Exception thrown if the JsonNode doesn't contains all the properties to build the RequestMethodType.
+     */
+    private static RequestMethodType getRequestMethodType(JsonNode jsonNode) throws Exception {
         RequestMethodType requestMethodType = new RequestMethodType();
         if(!jsonNode.has("url")){
             throw new Exception("The MethodType should contains a field 'url'");
@@ -890,7 +936,7 @@ public class WpsServerProperties_1_0_0 {
      * @param jsonNode JsonNode to convert
      * @return String array
      */
-    private String[] nodeToArray(JsonNode jsonNode) {
+    private static String[] nodeToArray(JsonNode jsonNode) {
         List<String> list = new ArrayList<>();
         for(JsonNode node : jsonNode){
             list.add(node.asText());

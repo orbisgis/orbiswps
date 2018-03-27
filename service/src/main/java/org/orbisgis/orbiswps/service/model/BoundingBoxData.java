@@ -43,6 +43,7 @@ import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.Format;
 
 import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.opengis.wps._2_0.SupportedCRS;
@@ -63,11 +64,11 @@ public class BoundingBoxData extends ComplexDataType {
 
     /** Default CRS of the BoundingBox. Should be a string with the pattern : authority:code, like EPSG:2000.*/
     @XmlAttribute(name = "defaultCrs", namespace = "http://orbisgis.org")
-    private SupportedCRS defaultCrs;
+    private String defaultCrs;
     /** List of CRS supported by the BoundingBox model without the default one. Should be a string with the pattern :
      *      authority:code, like EPSG:2000.*/
     @XmlAttribute(name = "supportedCrs", namespace = "http://orbisgis.org")
-    SupportedCRS[] supportedCrs;
+    String[] supportedCrs;
     /** Dimension of the bounding box.*/
     @XmlAttribute(name = "dimension", namespace = "http://orbisgis.org")
     private int dimension;
@@ -84,10 +85,10 @@ public class BoundingBoxData extends ComplexDataType {
      * @param dimension Dimension of the bounding box.
      * @throws MalformedScriptException
      */
-    public BoundingBoxData(List<Format> formatList, List<SupportedCRS> supportedCrs, int dimension)
+    public BoundingBoxData(List<Format> formatList, List<String> supportedCrs, int dimension)
             throws MalformedScriptException {
         format = formatList;
-        this.supportedCrs = supportedCrs.toArray(new SupportedCRS[]{});
+        this.supportedCrs = supportedCrs.toArray(new String[]{});
         if(dimension != 2 && dimension != 3){
             throw new MalformedScriptException(BoundingBoxData.class, "dimension",  I18N.tr("dimension should be 2 or 3"));
         }
@@ -124,7 +125,7 @@ public class BoundingBoxData extends ComplexDataType {
      * Sets the default CRS.
      * @param defaultCrs The default CRS.
      */
-    public void setDefaultCrs(SupportedCRS defaultCrs) {
+    public void setDefaultCrs(String defaultCrs) {
         this.defaultCrs = defaultCrs;
     }
 
@@ -133,14 +134,14 @@ public class BoundingBoxData extends ComplexDataType {
      * @return The default CRS.
      */
     public SupportedCRS getDefaultCrs() {
-        return defaultCrs;
+        return getCRS(defaultCrs, true);
     }
 
     /**
      * Sets the list of the supported CRS.
      * @param supportedCrs The list of the supported CRS.
      */
-    public void setSupportedCrs(SupportedCRS[] supportedCrs) {
+    public void setSupportedCrs(String[] supportedCrs) {
         this.supportedCrs = supportedCrs;
     }
 
@@ -149,7 +150,11 @@ public class BoundingBoxData extends ComplexDataType {
      * @return The list of the supported CRS.
      */
     public SupportedCRS[] getSupportedCrs() {
-        return supportedCrs;
+        List<SupportedCRS> supportedCrs = new ArrayList<>();
+        for(String crs : this.supportedCrs){
+            supportedCrs.add(getCRS(crs, crs.equals(this.defaultCrs)));
+        }
+        return supportedCrs.toArray(new SupportedCRS[supportedCrs.size()]);
     }
 
     /**
@@ -166,5 +171,44 @@ public class BoundingBoxData extends ComplexDataType {
      */
     public int getDimension() {
         return dimension;
+    }
+
+    /**
+     * Create the {@link SupportedCRS} object from a string representation of a CRS like EPSG:2041.
+     *
+     * @param crs {@link String} representation of the CRS.
+     * @param isDefault True if the {@link SupportedCRS} is the default one.
+     * @return The supported CRS.
+     */
+    private static SupportedCRS getCRS(String crs, boolean isDefault){
+        if(crs == null || crs.isEmpty()){
+            return null;
+        }
+        SupportedCRS supportedCRS = new SupportedCRS();
+        supportedCRS.setDefault(isDefault);
+        supportedCRS.setValue(crs);
+        /*
+        String[] splitCrs = crs.split(":");
+        String authority = splitCrs[0].toUpperCase();
+        switch(authority){
+            case "EPSG":
+                supportedCRS.setValue("http://www.opengis.net/def/crs/EPSG/8.9.2/"+splitCrs[1]);
+                break;
+            case "IAU":
+                supportedCRS.setValue("http://www.opengis.net/def/crs/IAU/0/"+splitCrs[1]);
+                break;
+            case "AUTO":
+                supportedCRS.setValue("http://www.opengis.net/def/crs/AUTO/1.3/"+splitCrs[1]);
+                break;
+            case "OGC":
+                supportedCRS.setValue("http://www.opengis.net/def/crs/OGC/0/"+splitCrs[1]);
+                break;
+            case "IGNF":
+                supportedCRS.setValue("http://registre.ign.fr/ign/IGNF/crs/IGNF/"+splitCrs[1]);
+                break;
+            default:
+                return null;
+        }*/
+        return supportedCRS;
     }
 }

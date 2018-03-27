@@ -50,7 +50,6 @@ import net.opengis.wps._1_0_0.ProcessOfferings;
 import net.opengis.wps._1_0_0.WPSCapabilitiesType;
 import net.opengis.wps._2_0.*;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.service.model.*;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
 import org.orbisgis.orbiswps.service.utils.Job;

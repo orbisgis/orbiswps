@@ -72,56 +72,19 @@ public class ObjectAnnotationConverter {
      */
     public static BoundingBoxData annotationToObject(BoundingBoxAttribute boundingBoxAttribute, List<Format> formatList)
             throws MalformedScriptException {
-        List<SupportedCRS> supportedCRSList = new ArrayList<>();
+        List<String> supportedCRSList = new ArrayList<>();
         if(boundingBoxAttribute.supportedCRS().length>0) {
-            for (String crs : boundingBoxAttribute.supportedCRS()) {
-                supportedCRSList.add(getCRS(crs, crs.equals(boundingBoxAttribute.defaultCrs())));
-            }
+            supportedCRSList.addAll(Arrays.asList(boundingBoxAttribute.supportedCRS()));
         }
         else{
-            supportedCRSList.add(getCRS(boundingBoxAttribute.defaultCrs(), true));
+            supportedCRSList.add(boundingBoxAttribute.defaultCrs());
+        }
+        if(!supportedCRSList.contains(boundingBoxAttribute.defaultCrs())){
+            supportedCRSList.add(boundingBoxAttribute.defaultCrs());
         }
         BoundingBoxData bbox = new BoundingBoxData(formatList, supportedCRSList, boundingBoxAttribute.dimension());
-        bbox.setDefaultCrs(getCRS(boundingBoxAttribute.defaultCrs(), true));
+        bbox.setDefaultCrs(boundingBoxAttribute.defaultCrs());
         return bbox;
-    }
-
-    /**
-     * Create the {@link SupportedCRS} object from a string representation of a CRS like EPSG:2041.
-     *
-     * @param crs {@link String} representation of the CRS.
-     * @param isDefault True if the {@link SupportedCRS} is the default one.
-     * @return The supported CRS.
-     */
-    private static SupportedCRS getCRS(String crs, boolean isDefault){
-        if(crs == null || crs.isEmpty()){
-            return null;
-        }
-        SupportedCRS supportedCRS = new SupportedCRS();
-        supportedCRS.setDefault(isDefault);
-
-        String[] splitCrs = crs.split(":");
-        String authority = splitCrs[0].toUpperCase();
-        switch(authority){
-            case "EPSG":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/EPSG/8.9.2/"+splitCrs[1]);
-                break;
-            case "IAU":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/IAU/0/"+splitCrs[1]);
-                break;
-            case "AUTO":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/AUTO/1.3/"+splitCrs[1]);
-                break;
-            case "OGC":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/OGC/0/"+splitCrs[1]);
-                break;
-            case "IGNF":
-                supportedCRS.setValue("http://registre.ign.fr/ign/IGNF/crs/IGNF/"+splitCrs[1]);
-                break;
-            default:
-                return null;
-        }
-        return supportedCRS;
     }
 
     /**

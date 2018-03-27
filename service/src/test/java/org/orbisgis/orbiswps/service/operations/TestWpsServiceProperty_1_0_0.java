@@ -1352,7 +1352,7 @@ public class TestWpsServiceProperty_1_0_0 {
     @Test
     public void testMinCustomProperties() {
         assertNotNull("The 'CUSTOM_PROPERTIES' should be set", minProps.CUSTOM_PROPERTIES);
-        assertEquals("The 'MAXIMUM_MEGABYTES' property of 'CUSTOM_PROPERTIES' should be set to '2000'", "2000",
+        assertEquals("The 'MAXIMUM_MEGABYTES' property of 'CUSTOM_PROPERTIES' should be set to '1'", "1",
                 minProps.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES);
         assertEquals("The 'MAX_PROCESS_POLLING_DELAY' property of 'CUSTOM_PROPERTIES' should be set to '10000'", 10000,
                 minProps.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY);

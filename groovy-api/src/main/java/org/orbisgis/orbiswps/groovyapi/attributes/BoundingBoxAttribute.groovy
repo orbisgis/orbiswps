@@ -57,6 +57,8 @@ import java.lang.annotation.RetentionPolicy
  *  - supportedCRS : String[]
  *      List of CRS supported by the BoundingBox model without the default one. Should be a string with the pattern :
  *      authority:code, like EPSG:2000.
+ *  - dimension : int
+ *      Dimension of the bounding box.
  *
  * @author Sylvain PALOMINOS
  */
@@ -66,6 +68,9 @@ import java.lang.annotation.RetentionPolicy
     /** List of CRS supported by the BoundingBox model without the default one. Should be a string with the pattern :
      *  authority:code, like EPSG:2000. */
     String[] supportedCRS() default []
+
+    /** Dimension of the bounding box. */
+    int dimension() default 2
 
     /** Default CRS. */
     String defaultCrs()

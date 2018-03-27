@@ -46,6 +46,8 @@ import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.service.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.utils.ObjectAnnotationConverter;
+import org.orbisgis.orbiswps.service.model.BoundingBoxData;
+import org.orbisgis.orbiswps.service.model.ObjectFactory;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import org.orbisgis.orbiswps.serviceapi.parser.Parser;
 

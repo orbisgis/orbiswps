@@ -45,6 +45,7 @@ import net.opengis.wps._2_0.Format;
 import javax.xml.bind.annotation.*;
 import java.util.List;
 
+import net.opengis.wps._2_0.SupportedCRS;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
@@ -62,11 +63,11 @@ public class BoundingBoxData extends ComplexDataType {
 
     /** Default CRS of the BoundingBox. Should be a string with the pattern : authority:code, like EPSG:2000.*/
     @XmlAttribute(name = "defaultCrs", namespace = "http://orbisgis.org")
-    private String defaultCrs;
+    private SupportedCRS defaultCrs;
     /** List of CRS supported by the BoundingBox model without the default one. Should be a string with the pattern :
      *      authority:code, like EPSG:2000.*/
     @XmlAttribute(name = "supportedCrs", namespace = "http://orbisgis.org")
-    String[] supportedCrs;
+    SupportedCRS[] supportedCrs;
     /** Dimension of the bounding box.*/
     @XmlAttribute(name = "dimension", namespace = "http://orbisgis.org")
     private int dimension;
@@ -83,10 +84,10 @@ public class BoundingBoxData extends ComplexDataType {
      * @param dimension Dimension of the bounding box.
      * @throws MalformedScriptException
      */
-    public BoundingBoxData(List<Format> formatList, String[] supportedCrs, int dimension)
+    public BoundingBoxData(List<Format> formatList, List<SupportedCRS> supportedCrs, int dimension)
             throws MalformedScriptException {
         format = formatList;
-        this.supportedCrs = supportedCrs;
+        this.supportedCrs = supportedCrs.toArray(new SupportedCRS[]{});
         if(dimension != 2 && dimension != 3){
             throw new MalformedScriptException(BoundingBoxData.class, "dimension",  I18N.tr("dimension should be 2 or 3"));
         }
@@ -123,7 +124,7 @@ public class BoundingBoxData extends ComplexDataType {
      * Sets the default CRS.
      * @param defaultCrs The default CRS.
      */
-    public void setDefaultCrs(String defaultCrs) {
+    public void setDefaultCrs(SupportedCRS defaultCrs) {
         this.defaultCrs = defaultCrs;
     }
 
@@ -131,7 +132,7 @@ public class BoundingBoxData extends ComplexDataType {
      * Returns the default CRS.
      * @return The default CRS.
      */
-    public String getDefaultCrs() {
+    public SupportedCRS getDefaultCrs() {
         return defaultCrs;
     }
 
@@ -139,7 +140,7 @@ public class BoundingBoxData extends ComplexDataType {
      * Sets the list of the supported CRS.
      * @param supportedCrs The list of the supported CRS.
      */
-    public void setSupportedCrs(String[] supportedCrs) {
+    public void setSupportedCrs(SupportedCRS[] supportedCrs) {
         this.supportedCrs = supportedCrs;
     }
 
@@ -147,7 +148,7 @@ public class BoundingBoxData extends ComplexDataType {
      * Returns the list of the supported CRS.
      * @return The list of the supported CRS.
      */
-    public String[] getSupportedCrs() {
+    public SupportedCRS[] getSupportedCrs() {
         return supportedCrs;
     }
 

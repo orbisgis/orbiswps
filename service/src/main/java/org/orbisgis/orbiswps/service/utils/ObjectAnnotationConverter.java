@@ -41,12 +41,12 @@ package org.orbisgis.orbiswps.service.utils;
 
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
-import net.opengis.wps._2_0.BoundingBoxData;
 import net.opengis.wps._2_0.DescriptionType;
 import net.opengis.wps._2_0.Format;
 import net.opengis.wps._2_0.LiteralDataType.LiteralDataDomain;
 import org.orbisgis.orbiswps.groovyapi.attributes.*;
 import org.orbisgis.orbiswps.service.model.*;
+import org.orbisgis.orbiswps.service.model.BoundingBoxData;
 import org.orbisgis.orbiswps.service.model.Enumeration;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 
@@ -70,25 +70,20 @@ public class ObjectAnnotationConverter {
      * @return A {@link BoundingBoxData} object with the model from the {@link BoundingBoxAttribute} annotation.
      * @throws MalformedScriptException Exception thrown in case of a malformed Groovy annotation.
      */
-    public static net.opengis.wps._2_0.BoundingBoxData annotationToObject(BoundingBoxAttribute boundingBoxAttribute, List<Format> formatList)
+    public static BoundingBoxData annotationToObject(BoundingBoxAttribute boundingBoxAttribute, List<Format> formatList)
             throws MalformedScriptException {
-        BoundingBoxData boundingBoxData = new BoundingBoxData();
-        if(boundingBoxAttribute.supportedCRS().length != 0) {
-            for (String supportedCrs : boundingBoxAttribute.supportedCRS()) {
-                SupportedCRS crs = new SupportedCRS();
-                crs.setValue(supportedCrs);
-                crs.setDefault(supportedCrs.equals(boundingBoxAttribute.defaultCrs()));
-                boundingBoxData.getSupportedCRS().add(crs);
+        List<SupportedCRS> supportedCRSList = new ArrayList<>();
+        if(boundingBoxAttribute.supportedCRS().length>0) {
+            for (String crs : boundingBoxAttribute.supportedCRS()) {
+                supportedCRSList.add(getCRS(crs, crs.equals(boundingBoxAttribute.defaultCrs())));
             }
         }
         else{
-            SupportedCRS crs = new SupportedCRS();
-            crs.setValue(boundingBoxAttribute.defaultCrs());
-            crs.setDefault(true);
-            boundingBoxData.getSupportedCRS().add(crs);
+            supportedCRSList.add(getCRS(boundingBoxAttribute.defaultCrs(), true));
         }
-        boundingBoxData.getFormat().addAll(formatList);
-        return boundingBoxData;
+        BoundingBoxData bbox = new BoundingBoxData(formatList, supportedCRSList, boundingBoxAttribute.dimension());
+        bbox.setDefaultCrs(getCRS(boundingBoxAttribute.defaultCrs(), true));
+        return bbox;
     }
 
     /**
@@ -109,16 +104,16 @@ public class ObjectAnnotationConverter {
         String authority = splitCrs[0].toUpperCase();
         switch(authority){
             case "EPSG":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/8.9.2/"+splitCrs[1]);
+                supportedCRS.setValue("http://www.opengis.net/def/crs/EPSG/8.9.2/"+splitCrs[1]);
                 break;
             case "IAU":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/0/"+splitCrs[1]);
+                supportedCRS.setValue("http://www.opengis.net/def/crs/IAU/0/"+splitCrs[1]);
                 break;
             case "AUTO":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/1.3/"+splitCrs[1]);
+                supportedCRS.setValue("http://www.opengis.net/def/crs/AUTO/1.3/"+splitCrs[1]);
                 break;
             case "OGC":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/0/"+splitCrs[1]);
+                supportedCRS.setValue("http://www.opengis.net/def/crs/OGC/0/"+splitCrs[1]);
                 break;
             case "IGNF":
                 supportedCRS.setValue("http://registre.ign.fr/ign/IGNF/crs/IGNF/"+splitCrs[1]);

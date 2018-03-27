@@ -53,7 +53,7 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
 @Process(title = "Enumeration test",
         description = "Test script using the Enumeration ComplexData.",
         keywords = ["test","script","wps"],
-        identifier = "orbisgis:test:enumeration",
+        identifier = "orbisgis:test:simple",
         metadata = ["website","metadata"]
 )
 def processing() {
@@ -75,9 +75,8 @@ def processing() {
         isEditable = true,
         values = "value1",
         names = ["name","name"],
-        minOccurs = 0,
         maxOccurs = 2,
-        identifier = "input",
+        identifier = "input:enumeration",
         metadata = ["website","metadata"]
         )
 String[] inputEnumeration = ["value2"]
@@ -92,7 +91,7 @@ String[] inputEnumeration = ["value2"]
         description = "A Enumeration output.",
         keywords = "output",
         values = "value1",
-        identifier = "output",
+        identifier = "output:enumeration",
         metadata = ["website","metadata"]
 )
 String[] enumerationOutput

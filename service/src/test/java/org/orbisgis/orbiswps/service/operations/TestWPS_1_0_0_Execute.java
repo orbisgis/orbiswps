@@ -12,10 +12,11 @@ import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 
 import javax.xml.namespace.QName;
 import java.io.File;
+import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 

@@ -173,6 +173,7 @@ public class Enumeration extends ComplexDataType implements TranslatableComplexD
             Enumeration enumeration = new Enumeration(format, values);
             enumeration.setEditable(this.isEditable());
             enumeration.setMultiSelection(this.isMultiSelection());
+            enumeration.setDefaultValues(this.getDefaultValues());
             if(this.getValuesNames() != null) {
                 List<String> translatedNames = new ArrayList<>();
                 for (String str : this.getValuesNames()) {

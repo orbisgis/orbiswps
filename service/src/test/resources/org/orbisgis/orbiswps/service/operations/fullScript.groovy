@@ -76,8 +76,16 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
         version = "1.0.1"
 )
 def processing() {
-    sleep(500)
-    enumerationOutput = inputEnumeration;
+    outputEnumeration = inputEnumeration;
+    outputGeometry = inputGeometry;
+    outputJDBCTable = inputJDBCTable;
+    outputJDBCColumn = inputJDBCColumn;
+    outputJDBCValue = inputJDBCValue;
+    outputRawData = inputRawData;
+    outputPassword = inputPassword;
+    outputLiteralDouble = inputLiteralDouble;
+    outputLiteralString = inputLiteralString;
+    outputBoundingBox = inputBoundingBox;
 }
 
 
@@ -209,7 +217,7 @@ String inputLiteralString = "dflt"
         dimension = 2,
         metadata = ["website","metadata"]
 )
-String inputboundingBox
+String inputBoundingBox
 
 /*****************/
 /** OUTPUT Data **/
@@ -253,7 +261,7 @@ String outputJDBCTable
         title = "Output JDBCColumn",
         description = "A JDBCColumn output.",
         keywords = "output",
-        jdbcTableReference = "orbisgis:output:full:jdbctable",
+        jdbcTableReference = "orbisgis:test:full:output:jdbctable",
         excludedTypes = ["BOOLEAN"],
         identifier = "output:jdbccolumn",
         metadata = ["website","metadata"]
@@ -264,7 +272,7 @@ String outputJDBCColumn
         title = "Output JDBCValue",
         description = "A JDBCValue output.",
         keywords = "output",
-        jdbcColumnReference = "orbisgis:output:full:jdbccolumn",
+        jdbcColumnReference = "orbisgis:test:full:output:jdbccolumn",
         identifier = "output:jdbcvalue",
         metadata = ["website","metadata"]
 )
@@ -319,5 +327,5 @@ String outputLiteralString = "dflt"
         dimension = 2,
         metadata = ["website","metadata"]
 )
-String outputboundingBox
+String outputBoundingBox
 

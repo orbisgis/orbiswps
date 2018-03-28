@@ -164,9 +164,9 @@ public class Converter {
                     (org.orbisgis.orbiswps.service.model.BoundingBoxData)dataDescriptionType;
             inputDescriptionType1.setBoundingBoxData(convertComplexDataTypeToSupportedCrssType(bBox));
         }
-        else if(dataDescriptionType instanceof ComplexDataType){
+        else if(dataDescriptionType instanceof ComplexDataType && !(dataDescriptionType instanceof JDBCTable)){
             ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
-            inputDescriptionType1.setComplexData(convertComplexDataTypeToSupportedComplexDataInputType(complexData, maxMb));
+            inputDescriptionType1.setLiteralData(convertComplexDataTypeToLiteralData(complexData));
         }
         else {
             ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
@@ -232,7 +232,7 @@ public class Converter {
         net.opengis.wps._2_0.LiteralDataType.LiteralDataDomain domain =
                 literalDataType.getLiteralDataDomain().get(0);
         //Particular case of boolean
-        if(domain.getDataType().getValue().equalsIgnoreCase("boolean")) {
+        /*if(domain.getDataType().getValue().equalsIgnoreCase("boolean")) {
             AllowedValues allowedValues = new AllowedValues();
             ValueType valueTrue = new ValueType();
             valueTrue.setValue("true");
@@ -243,12 +243,12 @@ public class Converter {
             literalInputType.setAllowedValues(allowedValues);
             DomainMetadataType domainMetadataType = new DomainMetadataType();
             domainMetadataType.setValue("string");
-            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            domainMetadataType.setReference("https://www.w3.org/2001/XMLSchema#string");
             literalInputType.setDataType(domainMetadataType);
             return literalInputType;
         }
         //General case
-        else {
+        else {*/
             if (domain.getAllowedValues() != null) {
                 literalInputType.setAllowedValues(convertAllowedValues2to1(domain.getAllowedValues()));
             }
@@ -268,7 +268,7 @@ public class Converter {
                 literalInputType.setUOMs(convertUOM2to1(domain.getUOM()));
             }
             return literalInputType;
-        }
+        //}
     }
 
     /**
@@ -312,7 +312,7 @@ public class Converter {
         DomainMetadataType domainMetadataType1 = new DomainMetadataType();
         domainMetadataType1.setReference(domainMetadataType2.getReference().replace(
                 "http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#",
-                "https://www.w3.org/TR/xmlschema-2/#"));
+                "https://www.w3.org/2001/XMLSchema#"));
         domainMetadataType1.setValue(domainMetadataType2.getValue().toLowerCase());
         return domainMetadataType1;
     }
@@ -407,8 +407,11 @@ public class Converter {
             }
             DomainMetadataType domainMetadataType = new DomainMetadataType();
             domainMetadataType.setValue("string");
-            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            domainMetadataType.setReference("https://www.w3.org/2001/XMLSchema#string");
             literalInputType.setDataType(domainMetadataType);
+            if(enumeration.getDefaultValues() != null && enumeration.getDefaultValues().length>0) {
+                literalInputType.setDefaultValue(enumeration.getDefaultValues()[0]);
+            }
             return literalInputType;
         }
         else if(complexData instanceof GeometryData){
@@ -420,7 +423,7 @@ public class Converter {
             }
             DomainMetadataType domainMetadataType = new DomainMetadataType();
             domainMetadataType.setValue("string");
-            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            domainMetadataType.setReference("https://www.w3.org/2001/XMLSchema#string");
             literalInputType.setDataType(domainMetadataType);
             return literalInputType;
         }
@@ -433,7 +436,7 @@ public class Converter {
             }
             DomainMetadataType domainMetadataType = new DomainMetadataType();
             domainMetadataType.setValue("string");
-            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            domainMetadataType.setReference("https://www.w3.org/2001/XMLSchema#string");
             literalInputType.setDataType(domainMetadataType);
             return literalInputType;
         }
@@ -446,7 +449,7 @@ public class Converter {
             }
             DomainMetadataType domainMetadataType = new DomainMetadataType();
             domainMetadataType.setValue("string");
-            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            domainMetadataType.setReference("https://www.w3.org/2001/XMLSchema#string");
             literalInputType.setDataType(domainMetadataType);
             return literalInputType;
         }
@@ -455,7 +458,7 @@ public class Converter {
             literalInputType.setAnyValue(new AnyValue());
             DomainMetadataType domainMetadataType = new DomainMetadataType();
             domainMetadataType.setValue("string");
-            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            domainMetadataType.setReference("https://www.w3.org/2001/XMLSchema#string");
             literalInputType.setDataType(domainMetadataType);
             return literalInputType;
         }
@@ -468,7 +471,7 @@ public class Converter {
             }
             DomainMetadataType domainMetadataType = new DomainMetadataType();
             domainMetadataType.setValue("string");
-            domainMetadataType.setReference("https://www.w3.org/TR/xmlschema-2/#string");
+            domainMetadataType.setReference("https://www.w3.org/2001/XMLSchema#string");
             literalInputType.setDataType(domainMetadataType);
             return literalInputType;
         }

@@ -259,55 +259,77 @@ public class TestWPS_1_0_0_DescribeProcess {
                 fail("Unknown input : "+input.getIdentifier().getValue());
             }
 
-            if("Enumeration".equals(type) || "Geometry".equals(type) || "JDBCColumn".equals(type) ||
+            if("Geometry".equals(type) || "JDBCColumn".equals(type) ||
                     "JDBCValue".equals(type) || "Password".equals(type) || "RawData".equals(type)){
-                assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' should not be set",
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' should be set",
                         input.isSetLiteralData());
                 assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'boundingBox' should not be set",
                         input.isSetBoundingBoxData());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' should be set",
+                assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' should not be set",
                         input.isSetComplexData());
 
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'maximumMegabytes' should be set",
-                        input.getComplexData().isSetMaximumMegabytes());
-                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'maximumMegabytes' should be set to '2000'",
-                        BigInteger.valueOf(2000), input.getComplexData().getMaximumMegabytes());
+                assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'defaultValue' should be set",
+                        input.getLiteralData().isSetDefaultValue());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' should be set",
+                        input.getLiteralData().isSetDataType());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'value' should be set",
+                        input.getLiteralData().getDataType().isSetValue());
+                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'value' should be set to 'Double'",
+                        "string", input.getLiteralData().getDataType().getValue());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set",
+                        input.getLiteralData().getDataType().isSetReference());
+                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set to 'https://www.w3.org/2001/XMLSchema#double'",
+                        "https://www.w3.org/2001/XMLSchema#string", input.getLiteralData().getDataType().getReference());
 
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' should be set",
-                        input.getComplexData().isSetDefault());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' should be set",
-                        input.getComplexData().getDefault().isSetFormat());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'mimeType' should be set",
-                        input.getComplexData().getDefault().getFormat().isSetMimeType());
-                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'mimeType' should be set to 'text/plain'",
-                        "text/plain", input.getComplexData().getDefault().getFormat().getMimeType());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'schema' should be set",
-                        input.getComplexData().getDefault().getFormat().isSetSchema());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'schema' should be empty",
-                        input.getComplexData().getDefault().getFormat().getSchema().isEmpty());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'encoding' should be set",
-                        input.getComplexData().getDefault().getFormat().isSetEncoding());
-                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'encoding' should be set to 'simple'",
-                        "simple", input.getComplexData().getDefault().getFormat().getEncoding());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue' should be set",
+                        input.getLiteralData().isSetAnyValue());
+                assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue' should not be set",
+                        input.getLiteralData().isSetValuesReference());
+                assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue' should not be set",
+                        input.getLiteralData().isSetAllowedValues());
+            }
 
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' should be set",
-                        input.getComplexData().isSetSupported());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' 'format' should be set",
-                        input.getComplexData().getSupported().isSetFormat());
-                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' should contains one value",
-                        1, input.getComplexData().getSupported().getFormat().size());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' 'mimeType' should be set",
-                        input.getComplexData().getSupported().getFormat().get(0).isSetMimeType());
-                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' 'mimeType' should be set to 'text/plain'",
-                        "text/plain", input.getComplexData().getSupported().getFormat().get(0).getMimeType());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' 'schema' should not be set",
-                        input.getComplexData().getSupported().getFormat().get(0).isSetSchema());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' 'schema' should be empty",
-                        input.getComplexData().getDefault().getFormat().getSchema().isEmpty());
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' 'encoding' should be set",
-                        input.getComplexData().getSupported().getFormat().get(0).isSetEncoding());
-                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' 'encoding' should be set to 'simple'",
-                        "simple", input.getComplexData().getSupported().getFormat().get(0).getEncoding());
+            if("Enumeration".equals(type)){
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' should be set",
+                        input.isSetLiteralData());
+                assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'boundingBox' should not be set",
+                        input.isSetBoundingBoxData());
+                assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' should not be set",
+                        input.isSetComplexData());
+
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'defaultValue' should be set",
+                        input.getLiteralData().isSetDefaultValue());
+                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'defaultValue' should be set to '10.0'",
+                        "value2", input.getLiteralData().getDefaultValue());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' should be set",
+                        input.getLiteralData().isSetDataType());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'value' should be set",
+                        input.getLiteralData().getDataType().isSetValue());
+                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'value' should be set to 'Double'",
+                        "string", input.getLiteralData().getDataType().getValue());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set",
+                        input.getLiteralData().getDataType().isSetReference());
+                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set to 'https://www.w3.org/2001/XMLSchema#double'",
+                        "https://www.w3.org/2001/XMLSchema#string", input.getLiteralData().getDataType().getReference());
+
+                assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue' should not be set",
+                        input.getLiteralData().isSetAnyValue());
+                assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue' should not be set",
+                        input.getLiteralData().isSetValuesReference());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue' should be set",
+                        input.getLiteralData().isSetAllowedValues());
+                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue' 'valueOrRange' should be set",
+                        input.getLiteralData().getAllowedValues().isSetValueOrRange());
+                for(Object obj : input.getLiteralData().getAllowedValues().getValueOrRange()){
+                    if(obj instanceof ValueType){
+                        ValueType value = (ValueType)obj;
+                        assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue'" +
+                                " 'value' should be set", value.isSetValue());
+                        if(!value.getValue().equalsIgnoreCase("value1") && !value.getValue().equalsIgnoreCase("value2")) {
+                            fail("Unknown 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue'");
+                        }
+                    }
+                }
             }
             else if("JDBCTable".equals(type)){
                 assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' should not be set",
@@ -420,8 +442,8 @@ public class TestWPS_1_0_0_DescribeProcess {
                         "double", input.getLiteralData().getDataType().getValue());
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set",
                         input.getLiteralData().getDataType().isSetReference());
-                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set to 'http://www.w3.org/2001/XMLSchema#double'",
-                        "http://www.w3.org/2001/XMLSchema#double", input.getLiteralData().getDataType().getReference());
+                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set to 'https://www.w3.org/2001/XMLSchema#double'",
+                        "https://www.w3.org/2001/XMLSchema#double", input.getLiteralData().getDataType().getReference());
 
                 assertFalse("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue' should not be set",
                         input.getLiteralData().isSetAnyValue());
@@ -483,8 +505,8 @@ public class TestWPS_1_0_0_DescribeProcess {
                         "string", input.getLiteralData().getDataType().getValue());
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set",
                         input.getLiteralData().getDataType().isSetReference());
-                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set to 'http://www.w3.org/2001/XMLSchema#string'",
-                        "http://www.w3.org/2001/XMLSchema#string", input.getLiteralData().getDataType().getReference());
+                assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'dataType' 'reference' should be set to 'https://www.w3.org/2001/XMLSchema#string'",
+                        "https://www.w3.org/2001/XMLSchema#string", input.getLiteralData().getDataType().getReference());
 
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' 'allowedValue' should be set",
                         input.getLiteralData().isSetAnyValue());
@@ -745,8 +767,8 @@ public class TestWPS_1_0_0_DescribeProcess {
                         "double", output.getLiteralOutput().getDataType().getValue());
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' 'dataType' 'reference' should be set",
                         output.getLiteralOutput().getDataType().isSetReference());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' 'dataType' 'reference' should be set to 'http://www.w3.org/2001/XMLSchema#double'",
-                        "http://www.w3.org/2001/XMLSchema#double", output.getLiteralOutput().getDataType().getReference());
+                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' 'dataType' 'reference' should be set to 'https://www.w3.org/2001/XMLSchema#double'",
+                        "https://www.w3.org/2001/XMLSchema#double", output.getLiteralOutput().getDataType().getReference());
             }
             else if("LiteralDataString".equals(type)){
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' should be set",
@@ -766,8 +788,8 @@ public class TestWPS_1_0_0_DescribeProcess {
                         "string", output.getLiteralOutput().getDataType().getValue());
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' 'dataType' 'reference' should be set",
                         output.getLiteralOutput().getDataType().isSetReference());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' 'dataType' 'reference' should be set to 'http://www.w3.org/2001/XMLSchema#string'",
-                        "http://www.w3.org/2001/XMLSchema#string", output.getLiteralOutput().getDataType().getReference());
+                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' 'dataType' 'reference' should be set to 'https://www.w3.org/2001/XMLSchema#string'",
+                        "https://www.w3.org/2001/XMLSchema#string", output.getLiteralOutput().getDataType().getReference());
             }
             else if("BoundingBoxData".equals(type)){
                 assertFalse("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' should not be set",

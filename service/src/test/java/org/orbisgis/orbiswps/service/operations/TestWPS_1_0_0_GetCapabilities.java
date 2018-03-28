@@ -964,7 +964,6 @@ public class TestWPS_1_0_0_GetCapabilities {
         assertFalse("The wps service 'serviceIdentification' 'title' should not be empty",
                 capabilities.getServiceIdentification().getTitle().isEmpty());
         boolean isSetEnTitle = false;
-        boolean isSetFrTitle = false;
         for(LanguageStringType languageStringType : capabilities.getServiceIdentification().getTitle()){
             if(languageStringType.getLang().equals("en")){
                 assertEquals("The wps service 'serviceIdentification' 'title' value should be 'Local WPS Service'",
@@ -973,26 +972,17 @@ public class TestWPS_1_0_0_GetCapabilities {
                         languageStringType.getLang(), "en");
                 isSetEnTitle = true;
             }
-            else if(languageStringType.getLang().equals("fr-fr")){
-                assertEquals("The wps service 'serviceIdentification' 'title' value should be 'Service WPS locale'",
-                        languageStringType.getValue(), "Service WPS locale");
-                assertEquals("The wps service 'serviceIdentification' 'title' language should be 'fr-fr'",
-                        languageStringType.getLang(), "fr-fr");
-                isSetFrTitle = true;
-            }
             else{
                 fail("Unknown title");
             }
         }
         assertTrue("The 'en' title should be set", isSetEnTitle);
-        assertTrue("The 'fr-fr' title should be set", isSetFrTitle);
 
         assertTrue("The wps service 'serviceIdentification' 'abstract' should be set",
                 capabilities.getServiceIdentification().isSetAbstract());
         assertFalse("The wps service 'serviceIdentification' 'abstract' should not be empty",
                 capabilities.getServiceIdentification().getAbstract().isEmpty());
         boolean isSetEnAbstract = false;
-        boolean isSetFrAbstract = false;
         for(LanguageStringType languageStringType : capabilities.getServiceIdentification().getAbstract()){
             if(languageStringType.getLang().equals("en")){
                 assertEquals("The wps service 'serviceIdentification' 'abstract' value should be 'A local instance of a WPS Service'",
@@ -1001,19 +991,11 @@ public class TestWPS_1_0_0_GetCapabilities {
                         languageStringType.getLang(), "en");
                 isSetEnAbstract = true;
             }
-            else if(languageStringType.getLang().equals("fr-fr")){
-                assertEquals("The wps service 'serviceIdentification' 'abstract' value should be 'Instance locale d'un service WPS'",
-                        languageStringType.getValue(), "Instance locale d'un service WPS");
-                assertEquals("The wps service 'serviceIdentification' 'abstract' language should be 'fr-fr'",
-                        languageStringType.getLang(), "fr-fr");
-                isSetFrAbstract = true;
-            }
             else{
                 fail("Unknown abstract");
             }
         }
         assertTrue("The 'en' abstract should be set", isSetEnAbstract);
-        assertTrue("The 'fr-fr' abstract should be set", isSetFrAbstract);
 
         assertTrue("The wps service 'serviceIdentification' 'keywords' should be set",
                 capabilities.getServiceIdentification().isSetKeywords());
@@ -1157,7 +1139,6 @@ public class TestWPS_1_0_0_GetCapabilities {
         assertFalse("The wps service 'serviceIdentification' 'title' should not be empty",
                 capabilities.getServiceIdentification().getTitle().isEmpty());
         boolean isSetEnTitle = false;
-        boolean isSetFrTitle = false;
         for(LanguageStringType languageStringType : capabilities.getServiceIdentification().getTitle()){
             if(languageStringType.getLang().equals("en")){
                 assertEquals("The wps service 'serviceIdentification' 'title' value should be 'Local WPS Service'",
@@ -1166,19 +1147,11 @@ public class TestWPS_1_0_0_GetCapabilities {
                         languageStringType.getLang(), "en");
                 isSetEnTitle = true;
             }
-            else if(languageStringType.getLang().equals("fr-fr")){
-                assertEquals("The wps service 'serviceIdentification' 'title' value should be 'Service WPS locale'",
-                        languageStringType.getValue(), "Service WPS locale");
-                assertEquals("The wps service 'serviceIdentification' 'title' language should be 'fr-fr'",
-                        languageStringType.getLang(), "fr-fr");
-                isSetFrTitle = true;
-            }
             else{
                 fail("Unknown title");
             }
         }
         assertTrue("The 'en' title should be set", isSetEnTitle);
-        assertTrue("The 'fr-fr' title should be set", isSetFrTitle);
 
         assertFalse("The wps service 'serviceIdentification' 'abstract' should not be set",
                 capabilities.getServiceIdentification().isSetAbstract());
@@ -1411,7 +1384,6 @@ public class TestWPS_1_0_0_GetCapabilities {
         assertFalse("The wps service 'serviceIdentification' 'title' should not be empty",
                 capabilities.getServiceIdentification().getTitle().isEmpty());
         boolean isSetEnTitle = false;
-        boolean isSetFrTitle = false;
         for(LanguageStringType languageStringType : capabilities.getServiceIdentification().getTitle()){
             if(languageStringType.getLang().equals("en")){
                 assertEquals("The wps service 'serviceIdentification' 'title' value should be 'Local WPS Service'",
@@ -1420,19 +1392,11 @@ public class TestWPS_1_0_0_GetCapabilities {
                         languageStringType.getLang(), "en");
                 isSetEnTitle = true;
             }
-            else if(languageStringType.getLang().equals("fr-fr")){
-                assertEquals("The wps service 'serviceIdentification' 'title' value should be 'Service WPS locale'",
-                        languageStringType.getValue(), "Service WPS locale");
-                assertEquals("The wps service 'serviceIdentification' 'title' language should be 'fr-fr'",
-                        languageStringType.getLang(), "fr-fr");
-                isSetFrTitle = true;
-            }
             else{
                 fail("Unknown title");
             }
         }
         assertTrue("The 'en' title should be set", isSetEnTitle);
-        assertTrue("The 'fr-fr' title should be set", isSetFrTitle);
 
         assertFalse("The wps service 'serviceIdentification' 'abstract' should not be set",
                 capabilities.getServiceIdentification().isSetAbstract());

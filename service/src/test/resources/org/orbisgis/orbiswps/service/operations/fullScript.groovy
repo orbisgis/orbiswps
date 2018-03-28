@@ -206,6 +206,7 @@ String inputLiteralString = "dflt"
         minOccurs = 0,
         maxOccurs = 2,
         identifier = "input:boundingboxdata",
+        dimension = 2,
         metadata = ["website","metadata"]
 )
 String inputboundingBox
@@ -315,6 +316,7 @@ String outputLiteralString = "dflt"
         supportedCRS = ["EPSG:4326", "EPSG:2000"],
         defaultCrs = "EPSG:4326",
         identifier = "output:boundingboxdata",
+        dimension = 2,
         metadata = ["website","metadata"]
 )
 String outputboundingBox

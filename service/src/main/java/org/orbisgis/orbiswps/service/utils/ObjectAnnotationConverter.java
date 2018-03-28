@@ -41,12 +41,12 @@ package org.orbisgis.orbiswps.service.utils;
 
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
-import net.opengis.wps._2_0.BoundingBoxData;
 import net.opengis.wps._2_0.DescriptionType;
 import net.opengis.wps._2_0.Format;
 import net.opengis.wps._2_0.LiteralDataType.LiteralDataDomain;
 import org.orbisgis.orbiswps.groovyapi.attributes.*;
 import org.orbisgis.orbiswps.service.model.*;
+import org.orbisgis.orbiswps.service.model.BoundingBoxData;
 import org.orbisgis.orbiswps.service.model.Enumeration;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 
@@ -70,63 +70,21 @@ public class ObjectAnnotationConverter {
      * @return A {@link BoundingBoxData} object with the model from the {@link BoundingBoxAttribute} annotation.
      * @throws MalformedScriptException Exception thrown in case of a malformed Groovy annotation.
      */
-    public static net.opengis.wps._2_0.BoundingBoxData annotationToObject(BoundingBoxAttribute boundingBoxAttribute, List<Format> formatList)
+    public static BoundingBoxData annotationToObject(BoundingBoxAttribute boundingBoxAttribute, List<Format> formatList)
             throws MalformedScriptException {
-        BoundingBoxData boundingBoxData = new BoundingBoxData();
-        if(boundingBoxAttribute.supportedCRS().length != 0) {
-            for (String supportedCrs : boundingBoxAttribute.supportedCRS()) {
-                SupportedCRS crs = new SupportedCRS();
-                crs.setValue(supportedCrs);
-                crs.setDefault(supportedCrs.equals(boundingBoxAttribute.defaultCrs()));
-                boundingBoxData.getSupportedCRS().add(crs);
-            }
+        List<String> supportedCRSList = new ArrayList<>();
+        if(boundingBoxAttribute.supportedCRS().length>0) {
+            supportedCRSList.addAll(Arrays.asList(boundingBoxAttribute.supportedCRS()));
         }
         else{
-            SupportedCRS crs = new SupportedCRS();
-            crs.setValue(boundingBoxAttribute.defaultCrs());
-            crs.setDefault(true);
-            boundingBoxData.getSupportedCRS().add(crs);
+            supportedCRSList.add(boundingBoxAttribute.defaultCrs());
         }
-        boundingBoxData.getFormat().addAll(formatList);
-        return boundingBoxData;
-    }
-
-    /**
-     * Create the {@link SupportedCRS} object from a string representation of a CRS like EPSG:2041.
-     *
-     * @param crs {@link String} representation of the CRS.
-     * @param isDefault True if the {@link SupportedCRS} is the default one.
-     * @return The supported CRS.
-     */
-    private static SupportedCRS getCRS(String crs, boolean isDefault){
-        if(crs == null || crs.isEmpty()){
-            return null;
+        if(!supportedCRSList.contains(boundingBoxAttribute.defaultCrs())){
+            supportedCRSList.add(boundingBoxAttribute.defaultCrs());
         }
-        SupportedCRS supportedCRS = new SupportedCRS();
-        supportedCRS.setDefault(isDefault);
-
-        String[] splitCrs = crs.split(":");
-        String authority = splitCrs[0].toUpperCase();
-        switch(authority){
-            case "EPSG":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/8.9.2/"+splitCrs[1]);
-                break;
-            case "IAU":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/0/"+splitCrs[1]);
-                break;
-            case "AUTO":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/1.3/"+splitCrs[1]);
-                break;
-            case "OGC":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/0/"+splitCrs[1]);
-                break;
-            case "IGNF":
-                supportedCRS.setValue("http://registre.ign.fr/ign/IGNF/crs/IGNF/"+splitCrs[1]);
-                break;
-            default:
-                return null;
-        }
-        return supportedCRS;
+        BoundingBoxData bbox = new BoundingBoxData(formatList, supportedCRSList, boundingBoxAttribute.dimension());
+        bbox.setDefaultCrs(boundingBoxAttribute.defaultCrs());
+        return bbox;
     }
 
     /**

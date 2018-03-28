@@ -47,6 +47,7 @@ import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
+import org.orbisgis.orbiswps.service.model.BoundingBoxData;
 
 import java.lang.reflect.Field;
 import java.math.BigInteger;
@@ -91,7 +92,7 @@ public class BoundingBoxParserTest {
                 "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
         BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
         SupportedCRS defaultCrs = new SupportedCRS();
-        for(SupportedCRS crs : boundingBoxData.getSupportedCRS()){
+        for(SupportedCRS crs : boundingBoxData.getSupportedCrs()){
             if(crs.isDefault()){
                 defaultCrs = crs;
             }
@@ -148,7 +149,7 @@ public class BoundingBoxParserTest {
                 "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
         BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
         SupportedCRS defaultCrs = new SupportedCRS();
-        for(SupportedCRS crs : boundingBoxData.getSupportedCRS()){
+        for(SupportedCRS crs : boundingBoxData.getSupportedCrs()){
             if(crs.isDefault()){
                 defaultCrs = crs;
             }
@@ -218,7 +219,7 @@ public class BoundingBoxParserTest {
                 "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
         BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
         SupportedCRS defaultCrs = new SupportedCRS();
-        for(SupportedCRS crs : boundingBoxData.getSupportedCRS()){
+        for(SupportedCRS crs : boundingBoxData.getSupportedCrs()){
             if(crs.isDefault()){
                 defaultCrs = crs;
             }
@@ -269,7 +270,7 @@ public class BoundingBoxParserTest {
                 "BoundingBoxData.", dataDescriptionType instanceof BoundingBoxData);
         BoundingBoxData boundingBoxData = (BoundingBoxData) dataDescriptionType;
         SupportedCRS defaultCrs = new SupportedCRS();
-        for(SupportedCRS crs : boundingBoxData.getSupportedCRS()){
+        for(SupportedCRS crs : boundingBoxData.getSupportedCrs()){
             if(crs.isDefault()){
                 defaultCrs = crs;
             }

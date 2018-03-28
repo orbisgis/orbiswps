@@ -159,8 +159,9 @@ public class Converter {
                     (net.opengis.wps._2_0.LiteralDataType) dataDescriptionType;
             inputDescriptionType1.setLiteralData(convertLiteralDataTypeToLiteralInputType(literalDataType));
         }
-        else if(dataDescriptionType instanceof BoundingBoxData){
-            BoundingBoxData bBox = (BoundingBoxData)dataDescriptionType;
+        else if(dataDescriptionType instanceof org.orbisgis.orbiswps.service.model.BoundingBoxData){
+            org.orbisgis.orbiswps.service.model.BoundingBoxData bBox =
+                    (org.orbisgis.orbiswps.service.model.BoundingBoxData)dataDescriptionType;
             inputDescriptionType1.setBoundingBoxData(convertComplexDataTypeToSupportedCrssType(bBox));
         }
         else if(dataDescriptionType instanceof ComplexDataType){
@@ -337,10 +338,11 @@ public class Converter {
      * @param boundingBoxData WPS 2.0 BoundingBoxData
      * @return WPS 1.0.0 SupportedCRSsType
      */
-    public static SupportedCRSsType convertComplexDataTypeToSupportedCrssType(BoundingBoxData boundingBoxData){
+    public static SupportedCRSsType convertComplexDataTypeToSupportedCrssType(
+            org.orbisgis.orbiswps.service.model.BoundingBoxData boundingBoxData){
         SupportedCRSsType supportedCRSsType = new SupportedCRSsType();
         CRSsType crSsType = new CRSsType();
-        for(SupportedCRS supportedCRS : boundingBoxData.getSupportedCRS()){
+        for(SupportedCRS supportedCRS : boundingBoxData.getSupportedCrs()){
             if(supportedCRS.isDefault()){
                 SupportedCRSsType.Default dflt = new SupportedCRSsType.Default();
                 dflt.setCRS(supportedCRS.getValue());
@@ -490,8 +492,9 @@ public class Converter {
                         (net.opengis.wps._2_0.LiteralDataType) outputDescriptionType.getDataDescription().getValue();
                 descriptionType.setLiteralOutput(convertLiteralDataTypeToLiteralInputType(literalDataType));
             }
-            else if(dataDescriptionType instanceof BoundingBoxData){
-                BoundingBoxData bBox = (BoundingBoxData)outputDescriptionType.getDataDescription().getValue();
+            else if(dataDescriptionType instanceof org.orbisgis.orbiswps.service.model.BoundingBoxData){
+                org.orbisgis.orbiswps.service.model.BoundingBoxData bBox =
+                        (org.orbisgis.orbiswps.service.model.BoundingBoxData)outputDescriptionType.getDataDescription().getValue();
                 descriptionType.setBoundingBoxOutput(convertComplexDataTypeToSupportedCrssType(bBox));
             }
             else if(dataDescriptionType instanceof ComplexDataType){

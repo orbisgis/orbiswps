@@ -41,6 +41,14 @@ package org.orbisgis.orbiswps.service.operations;
 
 import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
+import net.opengis.wps._1_0_0.DataType;
+import net.opengis.wps._1_0_0.DescribeProcess;
+import net.opengis.wps._1_0_0.LiteralDataType;
+import net.opengis.wps._1_0_0.OutputDefinitionType;
+import net.opengis.wps._1_0_0.ProcessDescriptionType;
+import net.opengis.wps._1_0_0.ProcessOfferings;
+import net.opengis.wps._1_0_0.WPSCapabilitiesType;
+import net.opengis.wps._2_0.*;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
@@ -366,29 +374,109 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
     @Override
     public Object execute(Execute execute) {
-        //Generate the DataMap
-        Map<URI, Object> dataMap = new HashMap<>();
-        for(InputType input : execute.getDataInputs().getInput()){
-            URI id = URI.create(input.getIdentifier().getValue());
-            Object data = null;
-            if(input.getData().isSetBoundingBoxData()){
-                data = input.getData().getBoundingBoxData();
-            }
-            else if(input.getData().isSetComplexData()){
-                data = input.getData().getComplexData();
-            }
-            else if(input.getData().isSetLiteralData()){
-                data = input.getData().getLiteralData().getValue();
-            }
-            dataMap.put(id, data);
+        ExceptionReport exceptionReport = new ExceptionReport();
+        exceptionReport.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+        //Test if the identifier of the Execute request in valid
+        if(!execute.isSetIdentifier() || !execute.getIdentifier().isSetValue()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("MissingParameterValue");
+            exceptionType.setLocator("Identifier");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
         }
-        //Generation of the Job unique ID
-        UUID jobId = UUID.randomUUID();
         //Get the Process
         net.opengis.ows._2.CodeType codeType = new net.opengis.ows._2.CodeType();
         codeType.setValue(execute.getIdentifier().getValue());
         codeType.setCodeSpace(execute.getIdentifier().getCodeSpace());
         ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(codeType);
+        if(processIdentifier == null){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("Identifier");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+        //Test language parameter
+        String language = null;
+        if(execute.isSetLanguage()){
+            String bestLang = null;
+            for(String lang : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES){
+                if(lang.equalsIgnoreCase(execute.getLanguage())){
+                    language = lang;
+                    break;
+                }
+                else if(lang.substring(0, 2).equalsIgnoreCase(execute.getLanguage())){
+                    bestLang = lang.substring(0, 2);
+                }
+            }
+            if(bestLang != null){
+                language = bestLang;
+            }
+        }
+        else{
+            language = wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE;
+        }
+
+        if(language == null){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("language");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
+        //Test that all the inputs of the Execute request are valid
+        ExceptionReport report = checkExecuteInputs(execute, processIdentifier);
+        if(report != null){
+            return report;
+        }
+        //Generate the DataMap
+        Map<URI, Object> dataMap = new HashMap<>();
+        if(execute.isSetDataInputs()) {
+            for (InputType input : execute.getDataInputs().getInput()) {
+                URI id = URI.create(input.getIdentifier().getValue());
+                if (input.isSetData() && input.getData().isSetBoundingBoxData()) {
+                    dataMap.put(id, input.getData().getBoundingBoxData());
+                } else if (input.isSetData() && input.getData().isSetComplexData()) {
+                    dataMap.put(id, input.getData().getComplexData().getOtherAttributes());
+                } else {
+                    dataMap.put(id, input.getData().getLiteralData().getValue());
+                }
+            }
+        }
+
+        //Test that all the mandatory inputs are set
+        for(net.opengis.wps._2_0.InputDescriptionType input : processIdentifier.getProcessDescriptionType().getInput()){
+            if(input.isSetMinOccurs() && input.getMinOccurs().intValue()>0 &&
+                    !dataMap.containsKey(URI.create(input.getIdentifier().getValue()))){
+                ExceptionType exceptionType = new ExceptionType();
+                exceptionType.setExceptionCode("InvalidParameterValue");
+                exceptionType.setLocator("DataInputs");
+                exceptionType.getExceptionText().add("All the mandatory inputs should be set");
+                exceptionReport.getException().add(exceptionType);
+                return exceptionReport;
+            }
+        }
+
+        //Test that all the outputs of the Execute request are valid
+        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()
+                && execute.getResponseForm().getResponseDocument().isSetOutput()) {
+            for (OutputDefinitionType output : execute.getResponseForm().getResponseDocument().getOutput()) {
+                report = checkExecuteOutputs(output, processIdentifier);
+                if (report != null) {
+                    return report;
+                }
+            }
+        }
+        if(execute.isSetResponseForm() && execute.getResponseForm().isSetRawDataOutput()) {
+            report = checkExecuteOutputs(execute.getResponseForm().getRawDataOutput(), processIdentifier);
+            if (report != null) {
+                return report;
+            }
+        }
+
+        //Generation of the Job unique ID
+        UUID jobId = UUID.randomUUID();
 
         //Generate the processInstance
         Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
@@ -401,37 +489,13 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
         Object object = null;
 
-        //If the required output is a raw model
-        if(execute.getResponseForm().isSetRawDataOutput()){
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Error while waiting thread to be finished : "+e.getMessage());
-            }
-            for(Map.Entry<URI, Object> entry : job.getDataMap().entrySet()){
-                //Test if the URI is an Output URI.
-                boolean contained = false;
-                for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()){
-                    if(output.getIdentifier().getValue().equals(entry.getKey().toString())){
-                        contained = true;
-                    }
-                }
-                if(contained) {
-                    object = entry.getValue();
-                    //Sets and schedule the destroy date
-                    long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
-                    if(destructionDelay != 0) {
-                        wpsServer.scheduleResultDestroying(entry.getKey(),
-                                WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
-                    }
-                }
-            }
-
-            jobMap.remove(jobId);
-
-            return object;
+        //Tests the ResponseForm object
+        report = checkExecuteResponseForm(execute);
+        if(report != null){
+            return report;
         }
-        else if(execute.getResponseForm().isSetResponseDocument()){
+
+        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()){
             ExecuteResponse response = new ExecuteResponse();
             if(execute.getResponseForm().getResponseDocument().isLineage()){
                 response.setDataInputs(execute.getDataInputs());
@@ -450,7 +514,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 //NotSupportedYet
             }
             if(execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()){
-                //NotSupportedYet
+
             }
             response.setProcess(convertProcessDescriptionType2to1(job.getProcess()));
             StatusType status = new StatusType();
@@ -481,9 +545,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     break;
                 case FAILED:
                     ProcessFailedType pft = new ProcessFailedType();
-                    ExceptionReport exceptionReport = new ExceptionReport();
                     exceptionReport.setVersion("1.0.0");
-                    exceptionReport.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
                     pft.setExceptionReport(exceptionReport);
                     status.setProcessFailed(pft);
                     break;
@@ -502,7 +564,12 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                             OutputDataType outputDataType = new OutputDataType();
                             DataType dataType = new DataType();
                             LiteralDataType literalDataType = new LiteralDataType();
-                            literalDataType.setValue(entry.getValue().toString());
+                            if(entry.getValue() != null) {
+                                literalDataType.setValue(entry.getValue().toString());
+                            }
+                            else{
+                                literalDataType.setValue(null);
+                            }
                             literalDataType.setDataType("string");
                             dataType.setLiteralData(literalDataType);
                             outputDataType.setData(dataType);
@@ -525,6 +592,284 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 response.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
             }
             return response;
+        }
+        else{
+            if(future != null) {
+                try {
+                    future.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    LOGGER.error("Error while waiting thread to be finished : " + e.getMessage());
+                }
+            }
+            for(Map.Entry<URI, Object> entry : job.getDataMap().entrySet()){
+                //Test if the URI is an Output URI.
+                boolean contained = false;
+                for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()){
+                    if(output.getIdentifier().getValue().equals(entry.getKey().toString())){
+                        contained = true;
+                    }
+                }
+                if(contained) {
+                    object = entry.getValue();
+                    //Sets and schedule the destroy date
+                    long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
+                    if(destructionDelay != 0) {
+                        wpsServer.scheduleResultDestroying(entry.getKey(),
+                                WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
+                    }
+                }
+            }
+
+            jobMap.remove(jobId);
+
+            return object;
+        }
+    }
+
+    /**
+     * Checks if the output is well formed and compatible with the outputs of the process.
+     * @param output Output to test.
+     * @param processIdentifier The process.
+     * @return An ExceptionReport object if there is an error, null otherwise.
+     */
+    private ExceptionReport checkExecuteOutputs(OutputDefinitionType output, ProcessIdentifier processIdentifier) {
+        ExceptionReport exceptionReport = new ExceptionReport();
+        if(!output.isSetIdentifier()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("ResponseForm");
+            exceptionType.getExceptionText().add("Output without identifier");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+        boolean isOutput = false;
+        boolean isOutputFormat = false;
+        for(net.opengis.wps._2_0.OutputDescriptionType outputType :
+                processIdentifier.getProcessDescriptionType().getOutput()){
+            if(outputType.getIdentifier().getValue().equals(output.getIdentifier().getValue())){
+                isOutput = true;
+            }
+            if(output.isSetMimeType()) {
+                for (net.opengis.wps._2_0.Format format : outputType.getDataDescription().getValue().getFormat()) {
+                    if(format.getMimeType().equals(output.getMimeType())){
+                        isOutputFormat = true;
+                    }
+                }
+            }
+            else{
+                isOutputFormat = true;
+            }
+        }
+        if(!isOutput){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("ResponseForm");
+            exceptionType.getExceptionText().add("There is no output "+output.getIdentifier().getValue()+
+                    " in the process");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+        if(!isOutputFormat){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("ResponseForm");
+            exceptionType.getExceptionText().add("The format "+output.getMimeType()+ " is not supported");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+        return null;
+    }
+
+    /**
+     * Checks if all the inputs is well formed and compatible with the outputs of the process.
+     * @param execute Execute request.
+     * @param processIdentifier The process.
+     * @return An ExceptionReport object if there is an error, null otherwise.
+     */
+    private ExceptionReport checkExecuteInputs(Execute execute, ProcessIdentifier processIdentifier){
+        ExceptionReport exceptionReport = new ExceptionReport();
+        if(execute.isSetDataInputs()) {
+            if(!execute.getDataInputs().isSetInput()){
+                ExceptionType exceptionType = new ExceptionType();
+                exceptionType.setExceptionCode("InvalidParameterValue");
+                exceptionType.setLocator("DataInputs");
+                exceptionType.getExceptionText().add("There should be at least one input set");
+                exceptionReport.getException().add(exceptionType);
+                return exceptionReport;
+            }
+            for (InputType input : execute.getDataInputs().getInput()) {
+                if(!input.isSetIdentifier()){
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("DataInputs");
+                    exceptionType.getExceptionText().add("Input without identifier");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+                boolean isInput = false;
+                boolean isInputFormat = false;
+                for(net.opengis.wps._2_0.InputDescriptionType inputType :
+                        processIdentifier.getProcessDescriptionType().getInput()){
+                    if(inputType.getIdentifier().getValue().equals(input.getIdentifier().getValue())){
+                        isInput = true;
+                    }
+                    if(input.isSetData() && input.getData().isSetComplexData() &&
+                            input.getData().getComplexData().isSetMimeType()) {
+                        for (net.opengis.wps._2_0.Format format : inputType.getDataDescription().getValue().getFormat()) {
+                            if(format.getMimeType().equals(input.getData().getComplexData().getMimeType())){
+                                isInputFormat = true;
+                            }
+                        }
+                    }
+                    else{
+                        isInputFormat = true;
+                    }
+                    if(input.isSetData() && input.getData().isSetLiteralData() &&
+                            input.getData().getLiteralData().isSetDataType() &&
+                            inputType.getDataDescription().getValue() instanceof net.opengis.wps._2_0.LiteralDataType){
+                        String dataType = input.getData().getLiteralData().getDataType();
+                        net.opengis.wps._2_0.LiteralDataType literalDataType =
+                                (net.opengis.wps._2_0.LiteralDataType)inputType.getDataDescription().getValue();
+                        boolean isDataType = false;
+                        for(LiteralDataDomainType domain : literalDataType.getLiteralDataDomain()){
+                            if((domain.getDataType().isSetValue() && domain.getDataType().getValue().equalsIgnoreCase(dataType)) ||
+                                    (domain.getDataType().isSetReference() && domain.getDataType().getReference().equalsIgnoreCase(dataType))){
+                                isDataType=true;
+                            }
+                        }
+                        if(!isDataType) {
+                            ExceptionType exceptionType = new ExceptionType();
+                            exceptionType.setExceptionCode("InvalidParameterValue");
+                            exceptionType.setLocator("DataInputs");
+                            exceptionType.getExceptionText().add("The ComplexData input doesn't contains any values");
+                            exceptionReport.getException().add(exceptionType);
+                            return exceptionReport;
+                        }
+                    }
+                }
+                if(!isInput){
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("DataInputs");
+                    exceptionType.getExceptionText().add("There is no input "+input.getIdentifier().getValue()+
+                            " in the process");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+                if(!isInputFormat){
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("DataInputs");
+                    exceptionType.getExceptionText().add("The format "+input.getData().getComplexData().getMimeType()+
+                            " is not supported");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+                if (input.isSetData() && input.getData().isSetBoundingBoxData()
+                        && input.getData().isSetComplexData() && input.getData().isSetLiteralData()) {
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("DataInputs");
+                    exceptionType.getExceptionText().add("Only one of BoundingBoxData or ComplexData or LiteralData " +
+                            "of the  input should be set");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                } else if (input.isSetData() && input.getData().isSetBoundingBoxData()) {
+                    if(!input.getData().getBoundingBoxData().isSetCrs()){
+                        ExceptionType exceptionType = new ExceptionType();
+                        exceptionType.setExceptionCode("InvalidParameterValue");
+                        exceptionType.setLocator("DataInputs");
+                        exceptionType.getExceptionText().add("The BoundingBox CRS should be set");
+                        exceptionReport.getException().add(exceptionType);
+                        return exceptionReport;
+                    }
+                    if(!input.getData().getBoundingBoxData().isSetLowerCorner() ||
+                            input.getData().getBoundingBoxData().getLowerCorner().isEmpty()){
+                        ExceptionType exceptionType = new ExceptionType();
+                        exceptionType.setExceptionCode("InvalidParameterValue");
+                        exceptionType.setLocator("DataInputs");
+                        exceptionType.getExceptionText().add("The BoundingBox lower corner should be set");
+                        exceptionReport.getException().add(exceptionType);
+                        return exceptionReport;
+                    }
+                    if(!input.getData().getBoundingBoxData().isSetUpperCorner() ||
+                            input.getData().getBoundingBoxData().getUpperCorner().isEmpty()){
+                        ExceptionType exceptionType = new ExceptionType();
+                        exceptionType.setExceptionCode("InvalidParameterValue");
+                        exceptionType.setLocator("DataInputs");
+                        exceptionType.getExceptionText().add("The BoundingBox upper corner should be set");
+                        exceptionReport.getException().add(exceptionType);
+                        return exceptionReport;
+                    }
+                } else if (input.isSetData() && input.getData().isSetComplexData()) {
+                    if(input.getData().getComplexData().getOtherAttributes().isEmpty()){
+                        ExceptionType exceptionType = new ExceptionType();
+                        exceptionType.setExceptionCode("InvalidParameterValue");
+                        exceptionType.setLocator("DataInputs");
+                        exceptionType.getExceptionText().add("The ComplexData input doesn't contains any values");
+                        exceptionReport.getException().add(exceptionType);
+                        return exceptionReport;
+                    }
+                }
+                else{
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("DataInputs");
+                    exceptionType.getExceptionText().add("One of BoundingBoxData or ComplexData or LiteralData of the" +
+                            " input should be set");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Checks if all the ResponseForm is well formed and compatible with the server properties.
+     * @param execute Execute request.
+     * @return An ExceptionReport object if there is an error, null otherwise.
+     */
+    private ExceptionReport checkExecuteResponseForm(Execute execute){
+        ExceptionReport exceptionReport = new ExceptionReport();
+        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument() &&
+                execute.getResponseForm().isSetRawDataOutput()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("ResponseForm");
+            exceptionType.getExceptionText().add("Only one of ResponseDocument or RawDataOutput should be set");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
+        if(execute.isSetResponseForm() && !execute.getResponseForm().isSetResponseDocument() &&
+                !execute.getResponseForm().isSetRawDataOutput()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("ResponseForm");
+            exceptionType.getExceptionText().add("One of ResponseDocument or RawDataOutput should be set");
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+        if(execute.getResponseForm().isSetResponseDocument()) {
+            if (execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()) {
+                if (!wpsProp.GLOBAL_PROPERTIES.STORE_SUPPORTED) {
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("StorageNotSupported");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+            }
+            if (execute.getResponseForm().getResponseDocument().isStatus()) {
+                if (!wpsProp.GLOBAL_PROPERTIES.STATUS_SUPPORTED) {
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("ResponseForm");
+                    exceptionType.getExceptionText().add("Status not supported");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+            }
         }
         return null;
     }

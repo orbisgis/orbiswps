@@ -348,10 +348,10 @@ public class TestWPS_2_0_OperationsImpl {
         //Test process execution with an input model without any content
         ExecuteRequestType executeRequestType = new ExecuteRequestType();
         CodeType id = new CodeType();
-        id.setValue("orbisgis:test:enumeration");
+        id.setValue("orbisgis:test:simple");
         executeRequestType.setIdentifier(id);
         DataInputType dataInputType = new DataInputType();
-        dataInputType.setId("orbisgis:test:enumeration:input");
+        dataInputType.setId("orbisgis:test:simple:input:enumeration");
         Data data = new Data();
         dataInputType.setData(data);
         executeRequestType.getInput().add(dataInputType);

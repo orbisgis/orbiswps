@@ -101,7 +101,7 @@ public class EnumerationParserTest {
         Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
                 new String[]{"value1"}, enumeration.getDefaultValues());
         Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
-                new String[]{"value1", "value2"}, enumeration.getValues());
+                new String[]{"value2", "value1"}, enumeration.getValues());
         Assert.assertFalse("The Enumeration isEditable attribute should be false.", enumeration.isEditable());
         Assert.assertFalse("The Enumeration multiSelection attribute should be false.", enumeration.isMultiSelection());
 
@@ -156,7 +156,7 @@ public class EnumerationParserTest {
         Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
                 new String[]{"value1"}, enumeration.getDefaultValues());
         Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
-                new String[]{"value1", "value2"}, enumeration.getValues());
+                new String[]{"value2", "value1"}, enumeration.getValues());
         Assert.assertEquals("The Enumeration valueNames attribute length should be 2.",
                 2, enumeration.getValuesNames().length);
         Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",
@@ -229,7 +229,7 @@ public class EnumerationParserTest {
         Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
                 new String[]{"value1"}, enumeration.getDefaultValues());
         Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
-                new String[]{"value1", "value2"}, enumeration.getValues());
+                new String[]{"value2", "value1"}, enumeration.getValues());
         Assert.assertFalse("The Enumeration isEditable attribute should be false.", enumeration.isEditable());
         Assert.assertFalse("The Enumeration multiSelection attribute should be false.", enumeration.isMultiSelection());
 
@@ -278,7 +278,7 @@ public class EnumerationParserTest {
         Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
                 new String[]{"value1"}, enumeration.getDefaultValues());
         Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
-                new String[]{"value1", "value2"}, enumeration.getValues());
+                new String[]{"value2", "value1"}, enumeration.getValues());
         Assert.assertEquals("The Enumeration valueNames attribute length should be 2.",
                 2, enumeration.getValuesNames().length);
         Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",

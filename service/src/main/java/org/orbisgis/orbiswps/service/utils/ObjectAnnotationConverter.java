@@ -180,19 +180,27 @@ public class ObjectAnnotationConverter {
      * @return An {@link Enumeration} object with the model from the {@link EnumerationAttribute} annotation.
      * @throws MalformedScriptException Exception thrown in case of a malformed Groovy annotation.
      */
-    public static Enumeration annotationToObject(EnumerationAttribute enumAttribute, Format format)
+    public static Enumeration annotationToObject(EnumerationAttribute enumAttribute, Format format, String[] defaultValues)
             throws MalformedScriptException {
         //Creates the format list
         format.setDefault(true);
         List<Format> formatList = new ArrayList<>();
         formatList.add(format);
         //Creates the enumeration Object and set it
-        Enumeration enumeration = new Enumeration(formatList, enumAttribute.values());
+        List<String> values = new ArrayList<>();
+        Collections.addAll(values, enumAttribute.values());
+        if(defaultValues != null) {
+            Collections.addAll(values, defaultValues);
+        }
+        Set<String> hs = new HashSet<>();
+        hs.addAll(values);
+        values.clear();
+        values.addAll(hs);
+        Enumeration enumeration = new Enumeration(formatList, values.toArray(new String[]{}));
         enumeration.setEditable(enumAttribute.isEditable());
         enumeration.setMultiSelection(enumAttribute.multiSelection());
 
         //Decodes the Groovy annotation 'names' attribute and store each name in a LanguageStringType with its language
-        String[] names = enumAttribute.names();
         enumeration.setValuesNames(enumAttribute.names());
         return enumeration;
     }

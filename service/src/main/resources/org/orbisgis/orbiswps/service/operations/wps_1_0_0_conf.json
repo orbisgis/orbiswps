@@ -83,6 +83,19 @@
         "value": "Service WPS locale",
         "lang": "fr-fr"
       }
+    ],
+    //Array of the translated descriptions of this server, normally used for display to a human. The translations must
+    //have a language property
+    //Optional
+    "abstract": [
+      {
+        "value": "A local instance of a WPS Service",
+        "lang": "en"
+      },
+      {
+        "value": "Instance locale d'un service WPS",
+        "lang": "fr-fr"
+      }
     ]
   },
   //Definition of the ServiceProvider section

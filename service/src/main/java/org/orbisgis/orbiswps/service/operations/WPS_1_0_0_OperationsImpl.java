@@ -251,11 +251,15 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             serviceIdentification.getServiceTypeVersion().add(version);
         }
         for (LanguageStringType title : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.TITLE) {
-            serviceIdentification.getTitle().add(title);
+            if(title.isSetLang() && title.getLang().equalsIgnoreCase(requestLanguage)) {
+                serviceIdentification.getTitle().add(title);
+            }
         }
         if (wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ABSTRACT != null) {
             for (LanguageStringType abstract_ : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ABSTRACT) {
-                serviceIdentification.getAbstract().add(abstract_);
+                if(abstract_.isSetLang() && abstract_.getLang().equalsIgnoreCase(requestLanguage)) {
+                    serviceIdentification.getAbstract().add(abstract_);
+                }
             }
         }
         if (wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.KEYWORDS != null){

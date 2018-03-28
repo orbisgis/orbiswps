@@ -54,6 +54,7 @@ import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -100,8 +101,10 @@ public class EnumerationParserTest {
         Enumeration enumeration = (Enumeration) dataDescriptionType;
         Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
                 new String[]{"value1"}, enumeration.getDefaultValues());
-        Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
-                new String[]{"value2", "value1"}, enumeration.getValues());
+        Assert.assertTrue("The Enumeration values attribute should be contains 'value1'.",
+                Arrays.asList(enumeration.getValues()).contains("value1"));
+        Assert.assertTrue("The Enumeration values attribute should be contains 'value2'.",
+                Arrays.asList(enumeration.getValues()).contains("value2"));
         Assert.assertFalse("The Enumeration isEditable attribute should be false.", enumeration.isEditable());
         Assert.assertFalse("The Enumeration multiSelection attribute should be false.", enumeration.isMultiSelection());
 
@@ -155,10 +158,12 @@ public class EnumerationParserTest {
         Enumeration enumeration = (Enumeration) dataDescriptionType;
         Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
                 new String[]{"value1"}, enumeration.getDefaultValues());
-        Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
-                new String[]{"value2", "value1"}, enumeration.getValues());
         Assert.assertEquals("The Enumeration valueNames attribute length should be 2.",
                 2, enumeration.getValuesNames().length);
+        Assert.assertTrue("The Enumeration values attribute should be contains 'value1'.",
+                Arrays.asList(enumeration.getValues()).contains("value1"));
+        Assert.assertTrue("The Enumeration values attribute should be contains 'value2'.",
+                Arrays.asList(enumeration.getValues()).contains("value2"));
         Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",
                 "name1", enumeration.getValuesNames()[0]);
         Assert.assertEquals("The Enumeration second valueNames should be 'name2'.",
@@ -228,8 +233,10 @@ public class EnumerationParserTest {
         Enumeration enumeration = (Enumeration) dataDescriptionType;
         Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
                 new String[]{"value1"}, enumeration.getDefaultValues());
-        Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
-                new String[]{"value2", "value1"}, enumeration.getValues());
+        Assert.assertTrue("The Enumeration values attribute should be contains 'value1'.",
+                Arrays.asList(enumeration.getValues()).contains("value1"));
+        Assert.assertTrue("The Enumeration values attribute should be contains 'value2'.",
+                Arrays.asList(enumeration.getValues()).contains("value2"));
         Assert.assertFalse("The Enumeration isEditable attribute should be false.", enumeration.isEditable());
         Assert.assertFalse("The Enumeration multiSelection attribute should be false.", enumeration.isMultiSelection());
 
@@ -277,10 +284,12 @@ public class EnumerationParserTest {
         Enumeration enumeration = (Enumeration) dataDescriptionType;
         Assert.assertArrayEquals("The Enumeration defaultValues attribute should be 'value1'.",
                 new String[]{"value1"}, enumeration.getDefaultValues());
-        Assert.assertArrayEquals("The Enumeration values attribute should be 'value1, value2'.",
-                new String[]{"value2", "value1"}, enumeration.getValues());
         Assert.assertEquals("The Enumeration valueNames attribute length should be 2.",
                 2, enumeration.getValuesNames().length);
+        Assert.assertTrue("The Enumeration values attribute should be contains 'value1'.",
+                Arrays.asList(enumeration.getValues()).contains("value1"));
+        Assert.assertTrue("The Enumeration values attribute should be contains 'value2'.",
+                Arrays.asList(enumeration.getValues()).contains("value2"));
         Assert.assertEquals("The Enumeration first valueNames should be 'name1'.",
                 "name1", enumeration.getValuesNames()[0]);
         Assert.assertEquals("The Enumeration second valueNames should be 'name2'.",

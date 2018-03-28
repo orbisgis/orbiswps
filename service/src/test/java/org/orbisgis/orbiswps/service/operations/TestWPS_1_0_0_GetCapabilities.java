@@ -983,7 +983,6 @@ public class TestWPS_1_0_0_GetCapabilities {
         assertFalse("The wps service 'serviceIdentification' 'abstract' should not be empty",
                 capabilities.getServiceIdentification().getAbstract().isEmpty());
         boolean isSetEnAbstract = false;
-        boolean isSetFrAbstract = false;
         for(LanguageStringType languageStringType : capabilities.getServiceIdentification().getAbstract()){
             if(languageStringType.getLang().equals("en")){
                 assertEquals("The wps service 'serviceIdentification' 'abstract' value should be 'A local instance of a WPS Service'",
@@ -992,19 +991,11 @@ public class TestWPS_1_0_0_GetCapabilities {
                         languageStringType.getLang(), "en");
                 isSetEnAbstract = true;
             }
-            else if(languageStringType.getLang().equals("fr-fr")){
-                assertEquals("The wps service 'serviceIdentification' 'abstract' value should be 'Instance locale d'un service WPS'",
-                        languageStringType.getValue(), "Instance locale d'un service WPS");
-                assertEquals("The wps service 'serviceIdentification' 'abstract' language should be 'fr-fr'",
-                        languageStringType.getLang(), "fr-fr");
-                isSetFrAbstract = true;
-            }
             else{
                 fail("Unknown abstract");
             }
         }
         assertTrue("The 'en' abstract should be set", isSetEnAbstract);
-        assertTrue("The 'fr-fr' abstract should be set", isSetFrAbstract);
 
         assertTrue("The wps service 'serviceIdentification' 'keywords' should be set",
                 capabilities.getServiceIdentification().isSetKeywords());

@@ -43,8 +43,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
+import net.opengis.ows._1.BoundingBoxType;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
+
+import java.math.BigInteger;
 
 /**
  * Class containing methods used to manipulate model for the WPS scripts.
@@ -96,6 +99,37 @@ public class WpsDataUtils {
     }
 
     /**
+     * Convert a OWS 1 2D BoundingBox into a JTS geometry
+     * @param bbox Geometry string representation.
+     * @return A JTS geometry.
+     * @throws ParseException
+     */
+    public static Geometry parseOws1BoundingBoxToGeometry(BoundingBoxType bbox) throws ParseException {
+        Geometry geometry;
+        String srid = bbox.getCrs();
+        if(srid.contains(":")){
+            srid = srid.split(":")[1];
+        }
+        if(bbox.getDimensions().intValue() != 2){
+            throw new ParseException(I18N.tr("Only 2D bounding boxes are supported yet."));
+        }
+        Double minX, minY, maxX, maxY;
+        minX = bbox.getLowerCorner().get(0);
+        minY = bbox.getLowerCorner().get(1);
+        maxX = bbox.getUpperCorner().get(0);
+        maxY = bbox.getUpperCorner().get(1);
+        //Read the string to retrieve the Geometry
+        geometry = new WKTReader().read("POLYGON((" +
+                minX + " " + minY + "," +
+                maxX + " " + minY + "," +
+                maxX + " " + maxY + "," +
+                minX + " " + maxY + "," +
+                minX + " " + minY + "))");
+        geometry.setSRID(Integer.parseInt(srid));
+        return geometry;
+    }
+
+    /**
      * Convert a BoundingBox JTS geometry into its string representation.
      * @param geometry BoundingBox JTS Geometry to convert.
      * @return The BoundingBox string representation.
@@ -131,5 +165,44 @@ public class WpsDataUtils {
     public static String parseGeometryToString(Geometry geometry) {
         String wkt = new WKTWriter().write(geometry);
         return wkt;
+    }
+
+    /**
+     * Convert a JTS geometry into a OWS 1 2D BoundingBox
+     * @param geometry JTS Geometry.
+     * @return A OWS 1 2D BoundingBox.
+     * @throws ParseException
+     */
+    public static BoundingBoxType parseGeometryToOws1BoundingBox(Geometry geometry) {
+        BoundingBoxType boundingBoxType = new BoundingBoxType();
+        boundingBoxType.setCrs("EPSG:"+geometry.getSRID());
+        boundingBoxType.setDimensions(new BigInteger("2"));
+
+        String wkt = new WKTWriter().write(geometry);
+        wkt = wkt.replace("POLYGON ((", "");
+        wkt = wkt.replace("))", "");
+        String[] split = wkt.split(", ");
+
+        double dxMax = Double.MIN_VALUE;
+        double dyMax = Double.MIN_VALUE;
+        double dxMin = Double.MAX_VALUE;
+        double dyMin = Double.MAX_VALUE;
+
+        for(String part : split){
+            double x = Double.parseDouble(part.split(" ")[0]);
+            double y = Double.parseDouble(part.split(" ")[1]);
+            dxMax = dxMax>x?dxMax:x;
+            dyMax = dyMax>y?dyMax:y;
+            dxMin = dxMin<x?dxMin:x;
+            dyMin = dyMin<y?dyMin:y;
+        }
+
+        boundingBoxType.getUpperCorner().add(dxMax);
+        boundingBoxType.getUpperCorner().add(dyMax);
+
+        boundingBoxType.getLowerCorner().add(dxMin);
+        boundingBoxType.getLowerCorner().add(dyMin);
+
+        return boundingBoxType;
     }
 }

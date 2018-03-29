@@ -136,6 +136,14 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
     }
 
     /**
+     * Returns the logMap.
+     * @return The logMap.
+     */
+    public Map<String, LogType> getLogMap(){
+        return logMap;
+    }
+
+    /**
      * Returns the process.
      * @return The process.
      */

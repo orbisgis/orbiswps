@@ -39,12 +39,16 @@
  */
 package org.orbisgis.orbiswps.service.operations;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
 import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
+import net.opengis.wps._1_0_0.ComplexDataType;
 import net.opengis.wps._1_0_0.DataType;
 import net.opengis.wps._1_0_0.DescribeProcess;
 import net.opengis.wps._1_0_0.LiteralDataType;
 import net.opengis.wps._1_0_0.OutputDefinitionType;
+import net.opengis.wps._1_0_0.OutputDescriptionType;
 import net.opengis.wps._1_0_0.ProcessDescriptionType;
 import net.opengis.wps._1_0_0.ProcessOfferings;
 import net.opengis.wps._1_0_0.WPSCapabilitiesType;
@@ -53,9 +57,11 @@ import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
 import org.orbisgis.orbiswps.service.utils.Job;
+import org.orbisgis.orbiswps.service.utils.WpsDataUtils;
 import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +69,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.*;
@@ -379,6 +386,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
     @Override
     public Object execute(Execute execute) {
         ExceptionReport exceptionReport = new ExceptionReport();
+        exceptionReport.setVersion("1.0.0");
         exceptionReport.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
         //Test if the identifier of the Execute request in valid
         if(!execute.isSetIdentifier() || !execute.getIdentifier().isSetValue()){
@@ -440,9 +448,18 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             for (InputType input : execute.getDataInputs().getInput()) {
                 URI id = URI.create(input.getIdentifier().getValue());
                 if (input.isSetData() && input.getData().isSetBoundingBoxData()) {
-                    dataMap.put(id, input.getData().getBoundingBoxData());
+                    try {
+                        dataMap.put(id, WpsDataUtils.parseOws1BoundingBoxToGeometry(input.getData().getBoundingBoxData()));
+                    } catch (ParseException e) {
+                        LOGGER.error("Unable to parse the boundingbox '"+input.getIdentifier().getValue()+"'\n"+
+                                e.getLocalizedMessage());
+                        dataMap.put(id, null);
+                    }
                 } else if (input.isSetData() && input.getData().isSetComplexData()) {
-                    dataMap.put(id, input.getData().getComplexData().getOtherAttributes());
+                    Map<QName, String> map = input.getData().getComplexData().getOtherAttributes();
+                    if(!map.isEmpty()) {
+                        dataMap.put(id, map.entrySet().iterator().next().getValue());
+                    }
                 } else {
                     dataMap.put(id, input.getData().getLiteralData().getValue());
                 }
@@ -483,7 +500,10 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         UUID jobId = UUID.randomUUID();
 
         //Generate the processInstance
-        Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
+        List<String> languages = new ArrayList<>();
+        languages.add(language);
+        Job job = new Job(ProcessTranslator.getTranslatedProcess(processIdentifier, languages),
+                jobId, dataMap,
                 wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
                 wpsProp.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
         jobMap.put(jobId, job);
@@ -501,6 +521,12 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
         if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()){
             ExecuteResponse response = new ExecuteResponse();
+            //Sets the ServiceInstance parameter
+            for(Operation op : wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS){
+                if(op.getName().equalsIgnoreCase("getcapabilities")){
+                    response.setServiceInstance(op.getDCP().get(0).getHTTP().getGetOrPost().get(0).getValue().getHref());
+                }
+            }
             if(execute.getResponseForm().getResponseDocument().isLineage()){
                 response.setDataInputs(execute.getDataInputs());
                 OutputDefinitionsType outputDefinitionsType = new OutputDefinitionsType();
@@ -520,17 +546,23 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             if(execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()){
 
             }
+
+            //Set the Process parameter
             response.setProcess(convertProcessDescriptionType2to1(job.getProcess()));
+
+            //Sets the status parameter
             StatusType status = new StatusType();
+            //Gets and set the process creationTime
             XMLGregorianCalendar xmlCalendar = null;
             try {
                 GregorianCalendar gCalendar = new GregorianCalendar();
-                gCalendar.setTime(new Date(System.currentTimeMillis()));
+                gCalendar.setTime(new Date(job.getStartTime()));
                 xmlCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gCalendar);
             } catch (DatatypeConfigurationException e) {
                 LOGGER.warn("Unable to get the current date into XMLGregorianCalendar : "+e.getMessage());
             }
             status.setCreationTime(xmlCalendar);
+            //Sets the status according to the actual job state
             switch(job.getState()){
                 case IDLE:
                     ProcessStartedType pst = new ProcessStartedType();
@@ -549,40 +581,72 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     break;
                 case FAILED:
                     ProcessFailedType pft = new ProcessFailedType();
-                    exceptionReport.setVersion("1.0.0");
+                    //Sets a detailed exception to return to the client
                     pft.setExceptionReport(exceptionReport);
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("NoApplicableCode");
+                    for(Map.Entry<String, ProcessExecutionListener.LogType> entry : job.getLogMap().entrySet()) {
+                        if(entry.getValue().equals(ProcessExecutionListener.LogType.ERROR)) {
+                            exceptionType.getExceptionText().add(entry.getKey());
+                        }
+                    }
+                    exceptionReport.getException().add(exceptionType);
                     status.setProcessFailed(pft);
                     break;
                 case SUCCEEDED:
                     status.setProcessSucceeded("succeeded");
+                    ProcessDescriptionType.ProcessOutputs Outputs = Converter.convertOutputDescriptionTypeList2to1(
+                            job.getProcess().getOutput(), wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE, language,
+                            new BigInteger(wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES));
                     ExecuteResponse.ProcessOutputs processOutputs = new ExecuteResponse.ProcessOutputs();
-                    for(Map.Entry<URI, Object> entry : job.getDataMap().entrySet()){
-                        //Test if the URI is an Output URI.
-                        boolean contained = false;
-                        for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()){
-                            if(output.getIdentifier().getValue().equals(entry.getKey().toString())){
-                                contained = true;
+                    for(OutputDescriptionType output : Outputs.getOutput()){
+                        URI uri = URI.create(output.getIdentifier().getValue());
+                        Object o = dataMap.get(uri);
+
+                        OutputDataType outputDataType = new OutputDataType();
+                        processOutputs.getOutput().add(outputDataType);
+                        outputDataType.setTitle(output.getTitle());
+                        outputDataType.setAbstract(output.getAbstract());
+                        outputDataType.setIdentifier(output.getIdentifier());
+                        DataType dataType = new DataType();
+                        outputDataType.setData(dataType);
+
+                        if(output.isSetLiteralOutput()) {
+                            LiteralDataType literalDataType = new LiteralDataType();
+                            dataType.setLiteralData(literalDataType);
+                            literalDataType.setDataType(output.getLiteralOutput().getDataType().getValue());
+                            if(o instanceof String[]) {
+                                StringBuilder data = new StringBuilder();
+                                for(String str : (String[])o){
+                                    if(data.length() > 0){
+                                        data.append(";");
+                                    }
+                                    data.append(str);
+                                }
+                                literalDataType.setValue(data.toString());
+                                dataType.setLiteralData(literalDataType);
+                            }
+                            else {
+                                literalDataType.setValue(o.toString());
+                                dataType.setLiteralData(literalDataType);
                             }
                         }
-                        if(contained) {
-                            OutputDataType outputDataType = new OutputDataType();
-                            DataType dataType = new DataType();
-                            LiteralDataType literalDataType = new LiteralDataType();
-                            if(entry.getValue() != null) {
-                                literalDataType.setValue(entry.getValue().toString());
+                        else if(output.isSetBoundingBoxOutput()) {
+                            if(o instanceof Geometry) {
+                                dataType.setBoundingBoxData(WpsDataUtils.parseGeometryToOws1BoundingBox((Geometry)o));
                             }
                             else{
-                                literalDataType.setValue(null);
+                                LOGGER.error("The output '"+uri+"' should be a Geometry");
                             }
-                            literalDataType.setDataType("string");
-                            dataType.setLiteralData(literalDataType);
-                            outputDataType.setData(dataType);
-                            //Sets and schedule the destroy date
-                            long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
-                            if(destructionDelay != 0) {
-                                wpsServer.scheduleResultDestroying(entry.getKey(),
-                                        WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
-                            }
+
+                        }
+                        else if(output.isSetComplexOutput()) {
+                            ComplexDataType complexDataType = new ComplexDataType();
+                            complexDataType.setMimeType(output.getComplexOutput().getDefault().getFormat().getMimeType());
+                            complexDataType.setEncoding(output.getComplexOutput().getDefault().getFormat().getEncoding());
+                            complexDataType.setSchema(output.getComplexOutput().getDefault().getFormat().getSchema());
+                            complexDataType.getContent().add(o);
+                            dataType.setComplexData(complexDataType);
                         }
                     }
                     response.setProcessOutputs(processOutputs);
@@ -815,7 +879,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                         return exceptionReport;
                     }
                 }
-                else{
+                else if(input.isSetData() && !input.getData().isSetLiteralData()){
                     ExceptionType exceptionType = new ExceptionType();
                     exceptionType.setExceptionCode("InvalidParameterValue");
                     exceptionType.setLocator("DataInputs");

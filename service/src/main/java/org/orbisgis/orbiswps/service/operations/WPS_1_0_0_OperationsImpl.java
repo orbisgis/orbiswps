@@ -460,7 +460,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     if(!map.isEmpty()) {
                         dataMap.put(id, map.entrySet().iterator().next().getValue());
                     }
-                } else {
+                } else if (input.isSetData() && input.getData().isSetLiteralData())  {
                     dataMap.put(id, input.getData().getLiteralData().getValue());
                 }
             }
@@ -774,6 +774,14 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     exceptionReport.getException().add(exceptionType);
                     return exceptionReport;
                 }
+                if(!input.isSetData()){
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("DataInputs");
+                    exceptionType.getExceptionText().add("Input without dataType");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
                 boolean isInput = false;
                 boolean isInputFormat = false;
                 for(net.opengis.wps._2_0.InputDescriptionType inputType :
@@ -919,7 +927,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
         }
-        if(execute.getResponseForm().isSetResponseDocument()) {
+        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()) {
             if (execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()) {
                 if (!wpsProp.GLOBAL_PROPERTIES.STORE_SUPPORTED) {
                     ExceptionType exceptionType = new ExceptionType();

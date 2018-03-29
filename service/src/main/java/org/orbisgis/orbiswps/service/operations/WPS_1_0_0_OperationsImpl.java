@@ -519,7 +519,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             return report;
         }
 
-        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()){
+        if(!execute.isSetResponseForm() || execute.getResponseForm().isSetResponseDocument()){
             ExecuteResponse response = new ExecuteResponse();
             //Sets the ServiceInstance parameter
             for(Operation op : wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS){
@@ -527,7 +527,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     response.setServiceInstance(op.getDCP().get(0).getHTTP().getGetOrPost().get(0).getValue().getHref());
                 }
             }
-            if(execute.getResponseForm().getResponseDocument().isLineage()){
+            if(execute.isSetResponseForm() && execute.getResponseForm().getResponseDocument().isLineage()){
                 response.setDataInputs(execute.getDataInputs());
                 OutputDefinitionsType outputDefinitionsType = new OutputDefinitionsType();
                 for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()) {
@@ -540,10 +540,10 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 }
                 response.setOutputDefinitions(outputDefinitionsType);
             }
-            if(execute.getResponseForm().getResponseDocument().isStatus()){
+            if(execute.isSetResponseForm() && execute.getResponseForm().getResponseDocument().isStatus()){
                 //NotSupportedYet
             }
-            if(execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()){
+            if(execute.isSetResponseForm() && execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()){
 
             }
 
@@ -595,59 +595,19 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     break;
                 case SUCCEEDED:
                     status.setProcessSucceeded("succeeded");
-                    ProcessDescriptionType.ProcessOutputs Outputs = Converter.convertOutputDescriptionTypeList2to1(
+                    ProcessDescriptionType.ProcessOutputs outputs = Converter.convertOutputDescriptionTypeList2to1(
                             job.getProcess().getOutput(), wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE, language,
                             new BigInteger(wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES));
                     ExecuteResponse.ProcessOutputs processOutputs = new ExecuteResponse.ProcessOutputs();
-                    for(OutputDescriptionType output : Outputs.getOutput()){
-                        URI uri = URI.create(output.getIdentifier().getValue());
-                        Object o = dataMap.get(uri);
-
-                        OutputDataType outputDataType = new OutputDataType();
-                        processOutputs.getOutput().add(outputDataType);
-                        outputDataType.setTitle(output.getTitle());
-                        outputDataType.setAbstract(output.getAbstract());
-                        outputDataType.setIdentifier(output.getIdentifier());
-                        DataType dataType = new DataType();
-                        outputDataType.setData(dataType);
-
-                        if(output.isSetLiteralOutput()) {
-                            LiteralDataType literalDataType = new LiteralDataType();
-                            dataType.setLiteralData(literalDataType);
-                            literalDataType.setDataType(output.getLiteralOutput().getDataType().getValue());
-                            if(o instanceof String[]) {
-                                StringBuilder data = new StringBuilder();
-                                for(String str : (String[])o){
-                                    if(data.length() > 0){
-                                        data.append(";");
-                                    }
-                                    data.append(str);
-                                }
-                                literalDataType.setValue(data.toString());
-                                dataType.setLiteralData(literalDataType);
-                            }
-                            else {
-                                literalDataType.setValue(o.toString());
-                                dataType.setLiteralData(literalDataType);
-                            }
+                    //Iterate on the output defined in the Execute request and on the  output in the process to build
+                    // the response outputs
+                    if(execute.isSetResponseForm()) {
+                        for (DocumentOutputDefinitionType output : execute.getResponseForm().getResponseDocument().getOutput()) {
+                            processOutputs.getOutput().addAll(getOutputData(outputs, output, dataMap));
                         }
-                        else if(output.isSetBoundingBoxOutput()) {
-                            if(o instanceof Geometry) {
-                                dataType.setBoundingBoxData(WpsDataUtils.parseGeometryToOws1BoundingBox((Geometry)o));
-                            }
-                            else{
-                                LOGGER.error("The output '"+uri+"' should be a Geometry");
-                            }
-
-                        }
-                        else if(output.isSetComplexOutput()) {
-                            ComplexDataType complexDataType = new ComplexDataType();
-                            complexDataType.setMimeType(output.getComplexOutput().getDefault().getFormat().getMimeType());
-                            complexDataType.setEncoding(output.getComplexOutput().getDefault().getFormat().getEncoding());
-                            complexDataType.setSchema(output.getComplexOutput().getDefault().getFormat().getSchema());
-                            complexDataType.getContent().add(o);
-                            dataType.setComplexData(complexDataType);
-                        }
+                    }
+                    else{
+                        processOutputs.getOutput().addAll(getOutputData(outputs, null, dataMap));
                     }
                     response.setProcessOutputs(processOutputs);
                     break;
@@ -692,6 +652,93 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
             return object;
         }
+    }
+
+    /**
+     * Returns the list of OutputDataType object generated from the given ProcessOutputs which match with the given
+     * DocumentOutputDefinitionType if defined with the correct data from the given map.
+     * If the DocumentOutputDefinitionType is set, try to use its specification (like mimeType) to set the outputs.
+     * @param outputs Object containing all the process outputs.
+     * @param output Output from the execute request.
+     *               If not null, the returned OutputDataTypes should match with it.
+     *               If null, return all the OutputDataTypes
+     * @param dataMap Map containing the result data of the outputs
+     * @return Lhe list of OutputDataType object generated
+     */
+    private List<OutputDataType> getOutputData(ProcessDescriptionType.ProcessOutputs outputs,
+                                         DocumentOutputDefinitionType output, Map<URI, Object> dataMap){
+        List<OutputDataType> list = new ArrayList<>();
+        for(OutputDescriptionType outputDscrType : outputs.getOutput()) {
+            if(output== null || output.getIdentifier().getValue().equals(outputDscrType.getIdentifier().getValue())) {
+                URI uri = URI.create(outputDscrType.getIdentifier().getValue());
+                Object o = dataMap.get(uri);
+
+                OutputDataType outputDataType = new OutputDataType();
+                outputDataType.setTitle(outputDscrType.getTitle());
+                outputDataType.setAbstract(outputDscrType.getAbstract());
+                outputDataType.setIdentifier(outputDscrType.getIdentifier());
+                DataType dataType = new DataType();
+                outputDataType.setData(dataType);
+
+                if (outputDscrType.isSetLiteralOutput()) {
+                    LiteralDataType literalDataType = new LiteralDataType();
+                    dataType.setLiteralData(literalDataType);
+                    literalDataType.setDataType(outputDscrType.getLiteralOutput().getDataType().getValue());
+                    if (o instanceof String[]) {
+                        StringBuilder data = new StringBuilder();
+                        for (String str : (String[]) o) {
+                            if (data.length() > 0) {
+                                data.append(";");
+                            }
+                            data.append(str);
+                        }
+                        literalDataType.setValue(data.toString());
+                        dataType.setLiteralData(literalDataType);
+                    } else if (o!= null){
+                        literalDataType.setValue(o.toString());
+                        dataType.setLiteralData(literalDataType);
+                    } else{
+                        literalDataType.setValue(null);
+                        dataType.setLiteralData(literalDataType);
+                    }
+                    list.add(outputDataType);
+                } else if (outputDscrType.isSetBoundingBoxOutput()) {
+                    if (o instanceof Geometry) {
+                        dataType.setBoundingBoxData(WpsDataUtils.parseGeometryToOws1BoundingBox((Geometry) o));
+                    } else {
+                        LOGGER.error("The output '" + uri + "' should be a Geometry");
+                        dataType.setBoundingBoxData(new BoundingBoxType());
+                    }
+                    list.add(outputDataType);
+
+                } else if (outputDscrType.isSetComplexOutput()) {
+                    ComplexDataCombinationType dflt = outputDscrType.getComplexOutput().getDefault();
+                    ComplexDataType complexDataType = new ComplexDataType();
+                    if (output != null && output.isSetMimeType()) {
+                        complexDataType.setMimeType(output.getMimeType());
+                    }
+                    else{
+                        complexDataType.setMimeType(dflt.getFormat().getMimeType());
+                    }
+                    if (output != null && output.isSetEncoding()) {
+                        complexDataType.setEncoding(output.getEncoding());
+                    }
+                    else{
+                        complexDataType.setEncoding(dflt.getFormat().getEncoding());
+                    }
+                    if (output != null && output.isSetSchema()) {
+                        complexDataType.setSchema(output.getSchema());
+                    }
+                    else{
+                        complexDataType.setSchema(dflt.getFormat().getSchema());
+                    }
+                    complexDataType.getContent().add(o);
+                    dataType.setComplexData(complexDataType);
+                    list.add(outputDataType);
+                }
+            }
+        }
+        return list;
     }
 
     /**

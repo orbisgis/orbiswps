@@ -39,6 +39,7 @@
  */
 package org.orbisgis.orbiswps.service
 
+import com.vividsolutions.jts.geom.Geometry
 import org.orbisgis.orbiswps.groovyapi.input.BoundingBoxInput
 import org.orbisgis.orbiswps.groovyapi.input.EnumerationInput
 import org.orbisgis.orbiswps.groovyapi.input.GeometryInput
@@ -144,7 +145,7 @@ String inputJDBCTable
         identifier = "input:jdbccolumn",
         metadata = ["website","metadata"]
 )
-String inputJDBCColumn
+String[] inputJDBCColumn
 
 @JDBCValueInput(
         title = "Input JDBCValue",
@@ -156,7 +157,7 @@ String inputJDBCColumn
         identifier = "input:jdbcvalue",
         metadata = ["website","metadata"]
 )
-String inputJDBCValue
+String[] inputJDBCValue
 
 @RawDataInput(
         title = "Input RawData",
@@ -168,7 +169,7 @@ String inputJDBCValue
         identifier = "input:rawdata",
         metadata = ["website","metadata"]
 )
-String inputRawData
+String[] inputRawData
 
 @PasswordInput(
         title = "Input Password",
@@ -217,7 +218,7 @@ String inputLiteralString = "dflt"
         dimension = 2,
         metadata = ["website","metadata"]
 )
-String inputBoundingBox
+Geometry inputBoundingBox
 
 /*****************/
 /** OUTPUT Data **/
@@ -266,7 +267,7 @@ String outputJDBCTable
         identifier = "output:jdbccolumn",
         metadata = ["website","metadata"]
 )
-String outputJDBCColumn
+String[] outputJDBCColumn
 
 @JDBCValueOutput(
         title = "Output JDBCValue",
@@ -276,7 +277,7 @@ String outputJDBCColumn
         identifier = "output:jdbcvalue",
         metadata = ["website","metadata"]
 )
-String outputJDBCValue
+String[] outputJDBCValue
 
 @RawDataOutput(
         title = "Output RawData",
@@ -286,7 +287,7 @@ String outputJDBCValue
         identifier = "output:rawdata",
         metadata = ["website","metadata"]
 )
-String outputRawData
+String[] outputRawData
 
 @PasswordOutput(
         title = "Output Password",
@@ -327,5 +328,5 @@ String outputLiteralString = "dflt"
         dimension = 2,
         metadata = ["website","metadata"]
 )
-String outputBoundingBox
+Geometry outputBoundingBox
 

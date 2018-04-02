@@ -632,52 +632,7 @@ public class TestWPS_1_0_0_DescribeProcess {
                 fail("Unknown output");
             }
 
-            if("Enumeration".equals(type) || "Geometry".equals(type) || "JDBCColumn".equals(type) ||
-                    "JDBCValue".equals(type) || "Password".equals(type) || "RawData".equals(type)){
-                assertFalse("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' should not be set",
-                        output.isSetLiteralOutput());
-                assertFalse("The 'orbisgis:test:full' 'dataOutputs' 'output' 'boundingBox' should not be set",
-                        output.isSetBoundingBoxOutput());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' should be set",
-                        output.isSetComplexOutput());
-
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' should be set",
-                        output.getComplexOutput().isSetDefault());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' should be set",
-                        output.getComplexOutput().getDefault().isSetFormat());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'mimeType' should be set",
-                        output.getComplexOutput().getDefault().getFormat().isSetMimeType());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'mimeType' should be set to 'text/plain'",
-                        "text/plain", output.getComplexOutput().getDefault().getFormat().getMimeType());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'schema' should be set",
-                        output.getComplexOutput().getDefault().getFormat().isSetSchema());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'schema' should be empty",
-                        output.getComplexOutput().getDefault().getFormat().getSchema().isEmpty());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'encoding' should be set",
-                        output.getComplexOutput().getDefault().getFormat().isSetEncoding());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'encoding' should be set to 'simple'",
-                        "simple", output.getComplexOutput().getDefault().getFormat().getEncoding());
-
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' should be set",
-                        output.getComplexOutput().isSetSupported());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' 'format' should be set",
-                        output.getComplexOutput().getSupported().isSetFormat());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' should contains one value",
-                        1, output.getComplexOutput().getSupported().getFormat().size());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' 'mimeType' should be set",
-                        output.getComplexOutput().getSupported().getFormat().get(0).isSetMimeType());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' 'mimeType' should be set to 'text/plain'",
-                        "text/plain", output.getComplexOutput().getSupported().getFormat().get(0).getMimeType());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' 'schema' should be set",
-                        output.getComplexOutput().getSupported().getFormat().get(0).isSetSchema());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' 'schema' should be empty",
-                        output.getComplexOutput().getSupported().getFormat().get(0).getSchema().isEmpty());
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' 'encoding' should be set",
-                        output.getComplexOutput().getSupported().getFormat().get(0).isSetEncoding());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' 'encoding' should be set to 'simple'",
-                        "simple", output.getComplexOutput().getSupported().getFormat().get(0).getEncoding());
-            }
-            else if("JDBCTable".equals(type)){
+            if("JDBCTable".equals(type)){
                 assertFalse("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' should not be set",
                         output.isSetLiteralOutput());
                 assertFalse("The 'orbisgis:test:full' 'dataOutputs' 'output' 'boundingBox' should not be set",
@@ -770,7 +725,9 @@ public class TestWPS_1_0_0_DescribeProcess {
                 assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' 'dataType' 'reference' should be set to 'https://www.w3.org/2001/XMLSchema#double'",
                         "https://www.w3.org/2001/XMLSchema#double", output.getLiteralOutput().getDataType().getReference());
             }
-            else if("LiteralDataString".equals(type)){
+            else if("Enumeration".equals(type) || "Geometry".equals(type) || "JDBCColumn".equals(type) ||
+                    "JDBCValue".equals(type) || "Password".equals(type) || "RawData".equals(type) ||
+                    "LiteralDataString".equals(type)){
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' should be set",
                         output.isSetLiteralOutput());
                 assertFalse("The 'orbisgis:test:full' 'dataOutputs' 'output' 'boundingBox' should not be set",

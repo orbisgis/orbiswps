@@ -500,8 +500,12 @@ public class Converter {
                         (org.orbisgis.orbiswps.service.model.BoundingBoxData)outputDescriptionType.getDataDescription().getValue();
                 descriptionType.setBoundingBoxOutput(convertComplexDataTypeToSupportedCrssType(bBox));
             }
-            else if(dataDescriptionType instanceof ComplexDataType){
-                ComplexDataType complexData = (ComplexDataType) outputDescriptionType.getDataDescription().getValue();
+            else if(dataDescriptionType instanceof ComplexDataType && !(dataDescriptionType instanceof JDBCTable)){
+                ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
+                descriptionType.setLiteralOutput(convertComplexDataTypeToLiteralData(complexData));
+            }
+            else {
+                ComplexDataType complexData = (ComplexDataType) dataDescriptionType;
                 descriptionType.setComplexOutput(convertComplexDataTypeToSupportedComplexDataInputType(complexData, maxMb));
             }
             descriptionType.setIdentifier(convertCodeType2to1(outputDescriptionType.getIdentifier()));

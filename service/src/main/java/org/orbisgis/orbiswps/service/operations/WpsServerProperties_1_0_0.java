@@ -635,6 +635,7 @@ public class WpsServerProperties_1_0_0 implements WpsProperties {
         public final String MAXIMUM_MEGABYTES;
         public final String DEFAULT_JDBCTABLE_FORMAT;
         public final String[] AVAILABLE_JDBCTABLE_FORMAT;
+        public final String WORKSPACE_PATH;
 
         /**
          * Properties which are not defined in the WPS standard.
@@ -672,6 +673,12 @@ public class WpsServerProperties_1_0_0 implements WpsProperties {
             }
             else {
                 AVAILABLE_JDBCTABLE_FORMAT = nodeToArray(customNode.get("available_jdbctable_format"));
+            }
+            if(customNode.has("workspace_path")){
+                WORKSPACE_PATH = customNode.get("workspace_path").asText();
+            }
+            else{
+                WORKSPACE_PATH = System.getProperty("user.dir");
             }
         }
 

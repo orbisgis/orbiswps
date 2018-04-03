@@ -11,7 +11,7 @@ import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 
 import javax.xml.namespace.QName;
-import java.io.File;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -236,6 +236,7 @@ public class TestWPS_1_0_0_Execute {
         }
 
     }
+
     /**
      * Test the response to an Execute request with all the input/output defined with a minimal ResponseDocument to
      * ensure all the data types are wel supported
@@ -580,6 +581,7 @@ public class TestWPS_1_0_0_Execute {
         }
 
     }
+
     /**
      * Test the response to an Execute request with a minimal Execute request
      */
@@ -648,6 +650,154 @@ public class TestWPS_1_0_0_Execute {
                     break;
             }
         }
+
+    }
+
+    /**
+     * Test the response to an Execute request with the fr-fr lang set.
+     */
+    @Test
+    public void testLangExecute(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        execute.setIdentifier(codeType);
+        execute.setLanguage("fr-fr");
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        assertTrue("The 'process' property of ExecuteResponse should be set",
+                executeResponse.isSetProcess());
+        assertTrue("The 'process' 'title' property of ExecuteResponse should be set",
+                executeResponse.getProcess().isSetTitle());
+        assertTrue("The 'process' 'title' 'language' property of ExecuteResponse should be set",
+                executeResponse.getProcess().getTitle().isSetLang());
+        assertEquals("The 'process' 'title' 'language' property of ExecuteResponse should be set to 'fr-fr'",
+                "fr-fr", executeResponse.getProcess().getTitle().getLang());
+        assertTrue("The 'processOutputs' property of ExecuteResponse should be set",
+                executeResponse.isSetProcessOutputs());
+        for(OutputDataType outputDataType : executeResponse.getProcessOutputs().getOutput()){
+            assertTrue("The 'output' 'title' 'language' property should be set", outputDataType.getTitle().isSetLang());
+            assertEquals("The 'output' 'title' 'language' property should be set to 'fr-fr'",
+                    "fr-fr", outputDataType.getTitle().getLang());
+            if(outputDataType.isSetAbstract()) {
+                assertEquals("The 'output' 'abstract' 'language' property should be set to 'fr-fr'",
+                        "fr-fr", outputDataType.getAbstract().getLang());
+            }
+        }
+
+    }
+
+    /**
+     * Test the response to an Execute request with an input data as reference.
+     */
+    @Test
+    public void testRefInputExecute(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        execute.setIdentifier(codeType);
+        DataInputsType dataInputsType = new DataInputsType();
+        execute.setDataInputs(dataInputsType);
+        InputType inputType = new InputType();
+        dataInputsType.getInput().add(inputType);
+        CodeType codeTypeInput = new CodeType();
+        inputType.setIdentifier(codeTypeInput);
+        codeTypeInput.setValue("orbisgis:test:full:input:literaldatastring");
+        InputReferenceType referenceType = new InputReferenceType();
+        inputType.setReference(referenceType);
+        referenceType.setHref("https://raw.githubusercontent.com/orbisgis/orbiswps/master/service/src/main/resources/org/orbisgis/orbiswps/service/i18n.properties");
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        testMandatoryExecuteResponse(executeResponse);
+
+        boolean isRawDataFound = false;
+        for(OutputDataType outputDataType : executeResponse.getProcessOutputs().getOutput()){
+            if(outputDataType.isSetIdentifier() && outputDataType.getIdentifier().getValue().equals("orbisgis:test:full:output:literaldatastring")){
+                isRawDataFound = true;
+                assertFalse("The 'reference' property should not be set", outputDataType.isSetReference());
+                assertTrue("The 'dataType' property should be set", outputDataType.isSetData());
+                assertTrue("The 'dataType' 'literalData' property should be set",
+                        outputDataType.getData().isSetLiteralData());
+                assertTrue("The 'dataType' 'literalData' 'value' property should be set",
+                        outputDataType.getData().getLiteralData().isSetValue());
+                assertTrue("The 'dataType' 'literalData' 'value' property should be set",
+                        outputDataType.getData().getLiteralData().getValue().contains("basename=org.orbisgis.orbiswps.service.Messages"));
+            }
+        }
+        assertTrue("The output 'orbisgis:test:full:output:literaldatastring' is not found", isRawDataFound);
+
+    }
+
+    /**
+     * Test the response to an Execute request with an output as reference.
+     */
+    @Test
+    public void testRefOutputExecute(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        execute.setIdentifier(codeType);
+        DataInputsType dataInputsType = new DataInputsType();
+        execute.setDataInputs(dataInputsType);
+        InputType inputType = new InputType();
+        dataInputsType.getInput().add(inputType);
+        CodeType codeTypeInput = new CodeType();
+        inputType.setIdentifier(codeTypeInput);
+        codeTypeInput.setValue("orbisgis:test:full:input:literaldatastring");
+        DataType dataType = new DataType();
+        inputType.setData(dataType);
+        LiteralDataType literalDataType = new LiteralDataType();
+        dataType.setLiteralData(literalDataType);
+        literalDataType.setValue("a value to store");
+
+        ResponseFormType responseFormType = new ResponseFormType();
+        execute.setResponseForm(responseFormType);
+        ResponseDocumentType responseDocumentType = new ResponseDocumentType();
+        responseFormType.setResponseDocument(responseDocumentType);
+        responseDocumentType.setStoreExecuteResponse(true);
+        DocumentOutputDefinitionType output = new DocumentOutputDefinitionType();
+        CodeType codeTypeOutput = new CodeType();
+        codeTypeOutput.setValue("orbisgis:test:full:output:literaldatastring");
+        output.setIdentifier(codeTypeOutput);
+        output.setAsReference(true);
+        responseDocumentType.getOutput().add(output);
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        testMandatoryExecuteResponse(executeResponse);
+
+        boolean isRawDataFound = false;
+        for(OutputDataType outputDataType : executeResponse.getProcessOutputs().getOutput()){
+            if(outputDataType.isSetIdentifier() &&
+                    outputDataType.getIdentifier().getValue().equals("orbisgis:test:full:output:literaldatastring")){
+                isRawDataFound = true;
+                assertFalse("The 'dataType' property should not be set", outputDataType.isSetData());
+                assertTrue("The 'reference' property should be set", outputDataType.isSetReference());
+                assertTrue("The 'reference' 'href' property should be set", outputDataType.getReference().isSetHref());
+                try {
+                    //Create connection
+                    URL url = new URL(outputDataType.getReference().getHref());
+                    File f = new File(url.toURI());
+                    //Get Response
+                    ObjectInputStream stream = new ObjectInputStream(new FileInputStream(f));
+                    assertEquals("", "a value to store", stream.readObject().toString());
+                } catch (Exception e) {
+                    fail("Unable to get the output.\n"+e.getMessage());
+                }
+            }
+        }
+        assertTrue("The output 'orbisgis:test:full:output:literaldatastring' is not found", isRawDataFound);
 
     }
 

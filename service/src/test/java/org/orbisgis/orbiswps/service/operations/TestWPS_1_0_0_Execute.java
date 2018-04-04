@@ -7,14 +7,19 @@ import net.opengis.wps._1_0_0.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
+import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import java.io.*;
 import java.math.BigInteger;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.Executors;
 
 import static org.junit.Assert.*;
 
@@ -36,6 +41,7 @@ public class TestWPS_1_0_0_Execute {
     public void initialize() {
 
         WpsServerImpl wpsServer = new WpsServerImpl();
+        wpsServer.setExecutorService(Executors.newSingleThreadExecutor());
         ProcessManager processManager = new ProcessManager(null, wpsServer);
         try {
             URL url = this.getClass().getResource("fullScript.groovy");
@@ -43,6 +49,13 @@ public class TestWPS_1_0_0_Execute {
             File f = new File(url.toURI());
             wpsServer.addProcess(f);
             processManager.addScript(f.toURI());
+
+            url = this.getClass().getResource("longRunScript.groovy");
+            assertNotNull("Unable to load the script 'longRunScript.groovy'", url);
+            f = new File(url.toURI());
+            wpsServer.addProcess(f);
+            processManager.addScript(f.toURI());
+
             url = this.getClass().getResource("simpleScript.groovy");
             assertNotNull("Unable to load the script 'simpleScript.groovy'", url);
             f = new File(url.toURI());
@@ -763,7 +776,6 @@ public class TestWPS_1_0_0_Execute {
         execute.setResponseForm(responseFormType);
         ResponseDocumentType responseDocumentType = new ResponseDocumentType();
         responseFormType.setResponseDocument(responseDocumentType);
-        responseDocumentType.setStoreExecuteResponse(true);
         DocumentOutputDefinitionType output = new DocumentOutputDefinitionType();
         CodeType codeTypeOutput = new CodeType();
         codeTypeOutput.setValue("orbisgis:test:full:output:literaldatastring");
@@ -800,12 +812,156 @@ public class TestWPS_1_0_0_Execute {
         assertTrue("The output 'orbisgis:test:full:output:literaldatastring' is not found", isRawDataFound);
 
     }
+    /**
+     * Test the response to an Execute request with an output as reference.
+     */
+    @Test
+    public void testStoreExecute() throws JAXBException, InterruptedException {
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:longRun");
+        execute.setIdentifier(codeType);
+
+        ResponseFormType responseFormType = new ResponseFormType();
+        execute.setResponseForm(responseFormType);
+        ResponseDocumentType responseDocumentType = new ResponseDocumentType();
+        responseFormType.setResponseDocument(responseDocumentType);
+        responseDocumentType.setStoreExecuteResponse(true);
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        assertFalse("The 'outputDefinitions' property of ExecuteResponse should not be set",
+                executeResponse.isSetOutputDefinitions());
+        assertFalse("The 'dataInputs' property of ExecuteResponse should not be set",
+                executeResponse.isSetDataInputs());
+        assertTrue("The 'status' property of ExecuteResponse should be set",
+                executeResponse.isSetStatus());
+        assertTrue("The 'status' property of ExecuteResponse should be set to 'ProcessStarted'",
+                executeResponse.getStatus().isSetProcessStarted());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessPaused'",
+                executeResponse.getStatus().isSetProcessPaused());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessAccepted'",
+                executeResponse.getStatus().isSetProcessAccepted());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessFailed'",
+                executeResponse.getStatus().isSetProcessFailed());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessSucceeded'",
+                executeResponse.getStatus().isSetProcessSucceeded());
+        assertFalse("The 'processOutputs' property of ExecuteResponse should not be set",
+                executeResponse.isSetProcessOutputs());
+
+        assertTrue("The 'statusLocation' property of ExecuteResponse should be set",
+                executeResponse.isSetStatusLocation());
+        assertTrue("The 'statusLocation' property of ExecuteResponse should contains " +
+                        "'file:/home/sylvain/Workspace/orbiswps/service/target/'",
+                executeResponse.getStatusLocation().contains("file:/home/sylvain/Workspace/orbiswps/service/target/"));
+        File f = new File(URI.create(executeResponse.getStatusLocation()));
+        assertTrue("The 'statusLocation' property of ExecuteResponse should be an existing file",
+                f.exists());
+        assertTrue("The 'statusLocation' property of ExecuteResponse should be a file",
+                f.isFile());
+
+        Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
+        o = unmarshaller.unmarshal(f.getAbsoluteFile());
+
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        executeResponse = (ExecuteResponse)o;
+
+        assertFalse("The 'outputDefinitions' property of ExecuteResponse should not be set",
+                executeResponse.isSetOutputDefinitions());
+        assertFalse("The 'dataInputs' property of ExecuteResponse should not be set",
+                executeResponse.isSetDataInputs());
+        assertTrue("The 'status' property of ExecuteResponse should be set",
+                executeResponse.isSetStatus());
+        assertTrue("The 'status' property of ExecuteResponse should be set to 'ProcessStarted'",
+                executeResponse.getStatus().isSetProcessStarted());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessPaused'",
+                executeResponse.getStatus().isSetProcessPaused());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessAccepted'",
+                executeResponse.getStatus().isSetProcessAccepted());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessFailed'",
+                executeResponse.getStatus().isSetProcessFailed());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessSucceeded'",
+                executeResponse.getStatus().isSetProcessSucceeded());
+        assertFalse("The 'processOutputs' property of ExecuteResponse should not be set",
+                executeResponse.isSetProcessOutputs());
+
+        assertTrue("The 'statusLocation' property of ExecuteResponse should be set",
+                executeResponse.isSetStatusLocation());
+        assertTrue("The 'statusLocation' property of ExecuteResponse should contains " +
+                        "'file:/home/sylvain/Workspace/orbiswps/service/target/'",
+                executeResponse.getStatusLocation().contains("file:/home/sylvain/Workspace/orbiswps/service/target/"));
+        f = new File(URI.create(executeResponse.getStatusLocation()));
+        assertTrue("The 'statusLocation' property of ExecuteResponse should be an existing file",
+                f.exists());
+        assertTrue("The 'statusLocation' property of ExecuteResponse should be a file",
+                f.isFile());
+
+        Thread.sleep(2000);
+        o = unmarshaller.unmarshal(f);
+
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        executeResponse = (ExecuteResponse)o;
+
+        assertFalse("The 'outputDefinitions' property of ExecuteResponse should not be set",
+                executeResponse.isSetOutputDefinitions());
+        assertFalse("The 'dataInputs' property of ExecuteResponse should not be set",
+                executeResponse.isSetDataInputs());
+        assertTrue("The 'status' property of ExecuteResponse should be set",
+                executeResponse.isSetStatus());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessStarted'",
+                executeResponse.getStatus().isSetProcessStarted());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessPaused'",
+                executeResponse.getStatus().isSetProcessPaused());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessAccepted'",
+                executeResponse.getStatus().isSetProcessAccepted());
+        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessFailed'",
+                executeResponse.getStatus().isSetProcessFailed());
+        assertTrue("The 'status' property of ExecuteResponse should be set to 'ProcessSucceeded'",
+                executeResponse.getStatus().isSetProcessSucceeded());
+
+        assertTrue("The 'processOutputs' property of ExecuteResponse should be set",
+                executeResponse.isSetProcessOutputs());
+        assertTrue("The 'processOutputs' 'output' property of ExecuteResponse should be set",
+                executeResponse.getProcessOutputs().isSetOutput());
+        for(OutputDataType output : executeResponse.getProcessOutputs().getOutput()){
+            assertTrue("The 'title' property of the output should be set",
+                    output.isSetTitle());
+            assertTrue("The 'identifier' property of the output should be set",
+                    output.isSetIdentifier());
+            assertTrue("The 'data' property of the output should be set",
+                    output.isSetData());
+            if(output.getData().isSetLiteralData()) {
+                assertTrue("The 'data' 'literalData' 'value' property of the output should be set",
+                        output.getData().getLiteralData().isSetValue());
+            }
+            else if(output.getData().isSetComplexData()) {
+                assertTrue("The 'data' 'complexData' 'content' property of the output should be set",
+                        output.getData().getComplexData().isSetContent());
+            }
+            else if(output.getData().isSetBoundingBoxData()) {
+                assertTrue("The 'data' 'boundingBox' 'lowerCorner' property of the output should be set",
+                        output.getData().getBoundingBoxData().isSetLowerCorner());
+                assertTrue("The 'data' 'boundingBox' 'upperCorner' property of the output should be set",
+                        output.getData().getBoundingBoxData().isSetUpperCorner());
+                assertTrue("The 'data' 'boundingBox' 'crs' property of the output should be set",
+                        output.getData().getBoundingBoxData().isSetCrs());
+                assertTrue("The 'data' 'boundingBox' 'dimensions' property of the output should be set",
+                        output.getData().getBoundingBoxData().isSetDimensions());
+            }
+            else{
+                fail("Unknow output");
+            }
+        }
+    }
 
     private void testMandatoryExecuteResponse(ExecuteResponse executeResponse){
         assertTrue("The 'lang' property of ExecuteResponse should be set", executeResponse.isSetLang());
         assertEquals("The 'lang' property of ExecuteResponse should be set to 'en'", "en", executeResponse.getLang());
 
-        assertFalse("The 'statusLocation' property of ExecuteResponse should be set",
+        assertFalse("The 'statusLocation' property of ExecuteResponse should not be set",
                 executeResponse.isSetStatusLocation());
 
         assertTrue("The 'serviceInstance' property of ExecuteResponse should be set",

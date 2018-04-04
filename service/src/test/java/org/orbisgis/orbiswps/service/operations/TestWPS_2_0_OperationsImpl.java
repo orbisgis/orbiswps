@@ -394,7 +394,7 @@ public class TestWPS_2_0_OperationsImpl {
         GetResult getResult = new GetResult();
         getResult.setJobID(statusInfo.getJobID());
         Result result = (Result)wps20Operations.getResult(getResult);
-        Assert.assertFalse("The process result should contain outputs.", result.getOutput().isEmpty());
+        Assert.assertTrue("The process result should not contain outputs.", result.getOutput().isEmpty());
     }
 
 

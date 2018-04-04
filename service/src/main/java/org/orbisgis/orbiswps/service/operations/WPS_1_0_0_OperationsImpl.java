@@ -502,6 +502,14 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         }
 
         //Test that all the outputs of the Execute request are valid
+        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument() &&
+                execute.getResponseForm().getResponseDocument().isSetStoreExecuteResponse() &&
+                execute.getResponseForm().getResponseDocument().isSetStatus()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("ResponseFormType");
+            exceptionType.getExceptionText().add("The 'status' parameter requires 'storeExecuteResponse' set to true");
+        }
         if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()
                 && execute.getResponseForm().getResponseDocument().isSetOutput()) {
             for (OutputDefinitionType output : execute.getResponseForm().getResponseDocument().getOutput()) {
@@ -678,7 +686,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     else{
                         isInputFormat = true;
                     }
-                    if(input.isSetData() && input.getData().isSetLiteralData() &&
+                    if(isInput && input.isSetData() && input.getData().isSetLiteralData() &&
                             input.getData().getLiteralData().isSetDataType() &&
                             inputType.getDataDescription().getValue() instanceof net.opengis.wps._2_0.LiteralDataType){
                         String dataType = input.getData().getLiteralData().getDataType();

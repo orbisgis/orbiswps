@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static org.orbisgis.orbiswps.service.operations.Converter.convertCodeType2to1;
 import static org.orbisgis.orbiswps.service.operations.Converter.convertLanguageStringType2to1;
 
 /**
@@ -47,6 +48,7 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
     private Map<URI, Object> dataMap;
     private Execute execute;
     private StatusType status;
+    private boolean isStatus;
     private ExecuteResponse.ProcessOutputs processOutputs = null;
     private Future future = null;
     private ExecuteResponse response = new ExecuteResponse();
@@ -66,6 +68,9 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         this.execute = execute;
         this.wpsProp = wpsProperties;
         this.wpsServer = wpsServer;
+        this.isStatus = execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument() &&
+                execute.getResponseForm().getResponseDocument().isSetStatus() &&
+                execute.getResponseForm().getResponseDocument().isStatus();
 
         startJob();
         setResponse();
@@ -172,12 +177,10 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                     if (output.getAbstract() == null && !output.getAbstract().isEmpty()) {
                         document.setAbstract(convertLanguageStringType2to1(output.getAbstract().get(0)));
                     }
+                    document.setIdentifier(convertCodeType2to1(output.getIdentifier()));
                     outputDefinitionsType.getOutput().add(document);
                 }
                 response.setOutputDefinitions(outputDefinitionsType);
-            }
-            if (responseDocumentType.isStatus()) {
-                //NotSupportedYet
             }
 
             if (!responseDocumentType.isSetStoreExecuteResponse() || !responseDocumentType.isStoreExecuteResponse()) {
@@ -218,19 +221,23 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         status.setProcessPaused(null);
         switch(job.getState()){
             case IDLE:
-                ProcessStartedType pst = new ProcessStartedType();
-                pst.setPercentCompleted(job.getProgress());
-                pst.setValue("idle");
-                status.setProcessPaused(pst);
+                if(isStatus) {
+                    ProcessStartedType pst = new ProcessStartedType();
+                    pst.setPercentCompleted(job.getProgress());
+                    pst.setValue("idle");
+                    status.setProcessPaused(pst);
+                }
                 break;
             case ACCEPTED:
                 status.setProcessAccepted("accepted");
                 break;
             case RUNNING:
-                pst = new ProcessStartedType();
-                pst.setPercentCompleted(job.getProgress());
-                pst.setValue("running");
-                status.setProcessStarted(pst);
+                if(isStatus) {
+                    ProcessStartedType pst = new ProcessStartedType();
+                    pst.setPercentCompleted(job.getProgress());
+                    pst.setValue("running");
+                    status.setProcessStarted(pst);
+                }
                 break;
             case FAILED:
                 ProcessFailedType pft = new ProcessFailedType();

@@ -70,6 +70,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.orbisgis.orbiswps.service.operations.Converter.convertGetCapabilities1to2;
@@ -452,8 +453,7 @@ public class WpsServerImpl implements WpsServer {
             workerMap.put(worker.getJobId(), future);
             return future;
         } else {
-            worker.run();
-            return null;
+            return Executors.newSingleThreadExecutor().submit(worker);
         }
     }
 

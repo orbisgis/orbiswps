@@ -814,7 +814,7 @@ public class TestWPS_1_0_0_Execute {
     }
 
     /**
-     * Test the response to an Execute request with an output as reference.
+     * Test the response to an Execute request with the lineage parameter set.
      */
     @Test
     public void testLineageExecute(){
@@ -895,6 +895,44 @@ public class TestWPS_1_0_0_Execute {
         for(DocumentOutputDefinitionType out : executeResponse.getOutputDefinitions().getOutput()) {
             assertTrue("The 'outputDefinition' 'output' 'identifier' property should be set", out.isSetIdentifier());
         }
+    }
+
+    /**
+     * Test the response to an Execute request with .
+     */
+    @Test
+    public void testRawDataResponseExecute(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:jdbctable");
+        execute.setIdentifier(codeType);
+        DataInputsType dataInputsType = new DataInputsType();
+        execute.setDataInputs(dataInputsType);
+        InputType inputType = new InputType();
+        dataInputsType.getInput().add(inputType);
+        CodeType codeTypeInput = new CodeType();
+        inputType.setIdentifier(codeTypeInput);
+        codeTypeInput.setValue("orbisgis:test:jdbctable:input:jdbctable");
+        DataType dataType = new DataType();
+        inputType.setData(dataType);
+        ComplexDataType complexDataType = new ComplexDataType();
+        dataType.setComplexData(complexDataType);
+        complexDataType.setMimeType("test/plain");
+        complexDataType.getContent().add("table");
+
+        ResponseFormType responseFormType = new ResponseFormType();
+        execute.setResponseForm(responseFormType);
+        OutputDefinitionType output = new OutputDefinitionType();
+        responseFormType.setRawDataOutput(output);
+        CodeType codeTypeOutput = new CodeType();
+        codeTypeOutput.setValue("orbisgis:test:jdbctable:output:jdbctable");
+        output.setIdentifier(codeTypeOutput);
+        output.setMimeType("text/plain");
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be a String", o instanceof String);
+        assertEquals("The result of the Execute operation should be 'table'", "table", o);
     }
 
 

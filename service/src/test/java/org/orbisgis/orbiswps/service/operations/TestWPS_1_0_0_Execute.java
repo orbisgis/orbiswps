@@ -855,8 +855,8 @@ public class TestWPS_1_0_0_Execute {
         assertTrue("The 'statusLocation' property of ExecuteResponse should be set",
                 executeResponse.isSetStatusLocation());
         assertTrue("The 'statusLocation' property of ExecuteResponse should contains " +
-                        "'file:/home/sylvain/Workspace/orbiswps/service/target/'",
-                executeResponse.getStatusLocation().contains("file:/home/sylvain/Workspace/orbiswps/service/target/"));
+                        "'orbiswps/service/target/'",
+                executeResponse.getStatusLocation().contains("orbiswps/service/target/"));
         File f = new File(URI.create(executeResponse.getStatusLocation()));
         assertTrue("The 'statusLocation' property of ExecuteResponse should be an existing file",
                 f.exists());
@@ -891,8 +891,8 @@ public class TestWPS_1_0_0_Execute {
         assertTrue("The 'statusLocation' property of ExecuteResponse should be set",
                 executeResponse.isSetStatusLocation());
         assertTrue("The 'statusLocation' property of ExecuteResponse should contains " +
-                        "'file:/home/sylvain/Workspace/orbiswps/service/target/'",
-                executeResponse.getStatusLocation().contains("file:/home/sylvain/Workspace/orbiswps/service/target/"));
+                        "'orbiswps/service/target/'",
+                executeResponse.getStatusLocation().contains("orbiswps/service/target/"));
         f = new File(URI.create(executeResponse.getStatusLocation()));
         assertTrue("The 'statusLocation' property of ExecuteResponse should be an existing file",
                 f.exists());

@@ -11,7 +11,7 @@ import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 
 import javax.xml.namespace.QName;
-import java.io.File;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -63,6 +63,178 @@ public class TestWPS_1_0_0_Execute {
         WpsServerProperties_1_0_0 fullWpsProps = new WpsServerProperties_1_0_0(
                 TestWPS_1_0_0_Execute.class.getResource("fullWpsService100.json").getFile());
         fullWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, fullWpsProps, processManager);
+    }
+
+    /**
+     * Test the response to an Execute request with 3 input/output defined with a minimal ResponseDocument
+     */
+    @Test
+    public void testThreeOutputResponseDocumentExecute(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        execute.setIdentifier(codeType);
+
+        //Sets the inputs
+        DataInputsType dataInputsType = new DataInputsType();
+        execute.setDataInputs(dataInputsType);
+
+        InputType inputType = new InputType();
+        CodeType inCodeType = new CodeType();
+        inCodeType.setValue("orbisgis:test:full:input:enumeration");
+        inputType.setIdentifier(inCodeType);
+        DataType dataType  = new DataType();
+        inputType.setData(dataType);
+        LiteralDataType literalDataType = new LiteralDataType();
+        dataType.setLiteralData(literalDataType);
+        literalDataType.setValue("value1");
+        dataInputsType.getInput().add(inputType);
+
+        inputType = new InputType();
+        inCodeType = new CodeType();
+        inCodeType.setValue("orbisgis:test:full:input:jdbctable");
+        inputType.setIdentifier(inCodeType);
+        dataType  = new DataType();
+        inputType.setData(dataType);
+        ComplexDataType complexDataType = new ComplexDataType();
+        dataType.setComplexData(complexDataType);
+        complexDataType.getOtherAttributes().put(new QName("string"), "jdbctable");
+        dataInputsType.getInput().add(inputType);
+
+        inputType = new InputType();
+        inCodeType = new CodeType();
+        inCodeType.setValue("orbisgis:test:full:input:boundingboxdata");
+        inputType.setIdentifier(inCodeType);
+        dataType  = new DataType();
+        inputType.setData(dataType);
+        BoundingBoxType boundingBoxType = new BoundingBoxType();
+        dataType.setBoundingBoxData(boundingBoxType);
+        boundingBoxType.setCrs("EPSG:4326");
+        boundingBoxType.setDimensions(new BigInteger("2"));
+        boundingBoxType.getUpperCorner().add(1.0);
+        boundingBoxType.getUpperCorner().add(1.1);
+        boundingBoxType.getLowerCorner().add(0.0);
+        boundingBoxType.getLowerCorner().add(0.1);
+        dataInputsType.getInput().add(inputType);
+
+        //Sets the outputs
+        ResponseFormType responseFormType = new ResponseFormType();
+        ResponseDocumentType responseDocumentType = new ResponseDocumentType();
+        responseFormType.setResponseDocument(responseDocumentType);
+        execute.setResponseForm(responseFormType);
+
+        CodeType outCodeType = new CodeType();
+        outCodeType.setValue("orbisgis:test:full:output:enumeration");
+        DocumentOutputDefinitionType documentOutputDefinitionType = new DocumentOutputDefinitionType();
+        documentOutputDefinitionType.setIdentifier(outCodeType);
+        responseDocumentType.getOutput().add(documentOutputDefinitionType);
+
+        outCodeType = new CodeType();
+        outCodeType.setValue("orbisgis:test:full:output:jdbctable");
+        documentOutputDefinitionType = new DocumentOutputDefinitionType();
+        documentOutputDefinitionType.setIdentifier(outCodeType);
+        responseDocumentType.getOutput().add(documentOutputDefinitionType);
+
+        outCodeType = new CodeType();
+        outCodeType.setValue("orbisgis:test:full:output:boundingboxdata");
+        documentOutputDefinitionType = new DocumentOutputDefinitionType();
+        documentOutputDefinitionType.setIdentifier(outCodeType);
+        responseDocumentType.getOutput().add(documentOutputDefinitionType);
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        testMandatoryExecuteResponse(executeResponse);
+
+        assertTrue("The 'processOutputs' property of ExecuteResponse should be set",
+                executeResponse.isSetProcessOutputs());
+        assertEquals("The 'processOutputs' property of ExecuteResponse should contains ten value",
+                3, executeResponse.getProcessOutputs().getOutput().size());
+        for(OutputDataType outputDataType : executeResponse.getProcessOutputs().getOutput()){
+            assertTrue("The 'identifier' property of OutputDataType should be set", outputDataType.isSetIdentifier());
+            assertTrue("The 'identifier' 'value' property of OutputDataType should be set",
+                    outputDataType.getIdentifier().isSetValue());
+            assertTrue("Unknown output '"+outputDataType.getIdentifier().getValue()+"'",
+                    outputDataType.getIdentifier().getValue().startsWith("orbisgis:test:full:output:"));
+
+            String type = identifierToType(outputDataType.getIdentifier());
+            testMandatoryOutputDataType(outputDataType, type);
+
+            switch(type){
+                case "JDBCTable" :
+                    assertFalse("The 'data' 'boundingBoxData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetBoundingBoxData());
+                    assertFalse("The 'data' 'literalData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetLiteralData());
+                    assertTrue("The 'data' 'complexData' property of OutputDataType should be set",
+                            outputDataType.getData().isSetComplexData());
+
+                    assertTrue("The 'data' 'complexData' 'mimeType' property of OutputDataType should be set",
+                            outputDataType.getData().getComplexData().isSetMimeType());
+                    assertEquals("The 'data' 'complexData' 'mimeType' property of OutputDataType should be set to 'text/xml'",
+                            "text/xml", outputDataType.getData().getComplexData().getMimeType());
+
+                    assertTrue("The 'data' 'complexData' 'content' property of OutputDataType should be set",
+                            outputDataType.getData().getComplexData().isSetContent());
+                    assertEquals("The 'data' 'complexData' 'content' property of OutputDataType should contains one value",
+                            1, outputDataType.getData().getComplexData().getContent().size());
+                    assertTrue("The 'data' 'complexData' 'content' property of OutputDataType should contains 'jdbctable'",
+                            outputDataType.getData().getComplexData().getContent().contains("jdbctable"));
+                    break;
+                case "Enumeration" :
+                    assertFalse("The 'data' 'boundingBoxData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetBoundingBoxData());
+                    assertTrue("The 'data' 'literalData' property of OutputDataType should be set",
+                            outputDataType.getData().isSetLiteralData());
+                    assertFalse("The 'data' 'complexData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetComplexData());
+
+                    assertTrue("The 'data' 'complexData' 'value' property of OutputDataType should be set",
+                            outputDataType.getData().getLiteralData().isSetValue());
+                    assertEquals("The 'data' 'complexData' 'value' property of OutputDataType should be set to 'value1'",
+                            "value1", outputDataType.getData().getLiteralData().getValue());
+
+                    assertTrue("The 'data' 'complexData' 'dataType' property of OutputDataType should be set",
+                            outputDataType.getData().getLiteralData().isSetDataType());
+                    assertEquals("The 'data' 'complexData' 'dataType' property of OutputDataType should be set to 'String'",
+                            "string", outputDataType.getData().getLiteralData().getDataType().toLowerCase());
+                    break;
+                case "BoundingBoxData" :
+                    assertTrue("The 'data' 'boundingBoxData' property of OutputDataType should be set",
+                            outputDataType.getData().isSetBoundingBoxData());
+                    assertFalse("The 'data' 'literalData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetLiteralData());
+                    assertFalse("The 'data' 'complexData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetComplexData());
+
+                    assertTrue("The 'data' 'boundingBoxData' 'upperCorner' property of OutputDataType should be set",
+                            outputDataType.getData().getBoundingBoxData().isSetUpperCorner());
+                    assertArrayEquals("The 'data' 'boundingBoxData' 'upperCorner' property of OutputDataType should be set to '[1.0, 1.1]'",
+                            new Double[]{1.0, 1.1}, outputDataType.getData().getBoundingBoxData().getUpperCorner().toArray());
+
+                    assertTrue("The 'data' 'boundingBoxData' 'lowerCorner' property of OutputDataType should be set",
+                            outputDataType.getData().getBoundingBoxData().isSetLowerCorner());
+                    assertArrayEquals("The 'data' 'boundingBoxData' 'lowerCorner' property of OutputDataType should be set to '[0.0, 0.1]'",
+                            new Double[]{0.0, 0.1}, outputDataType.getData().getBoundingBoxData().getLowerCorner().toArray());
+
+                    assertTrue("The 'data' 'boundingBoxData' 'crs' property of OutputDataType should be set",
+                            outputDataType.getData().getBoundingBoxData().isSetCrs());
+                    assertEquals("The 'data' 'boundingBoxData' 'crs' property of OutputDataType should be set to 'EPSG:4326'",
+                            "EPSG:4326", outputDataType.getData().getBoundingBoxData().getCrs());
+
+                    assertTrue("The 'data' 'boundingBoxData' 'dimensions' property of OutputDataType should be set",
+                            outputDataType.getData().getBoundingBoxData().isSetDimensions());
+                    assertEquals("The 'data' 'boundingBoxData' 'dimensions' property of OutputDataType should be set to '2'",
+                            new BigInteger("2"), outputDataType.getData().getBoundingBoxData().getDimensions());
+                    break;
+                default :
+                    fail("Invalid output '"+type+"'");
+                    break;
+            }
+        }
+
     }
 
     /**
@@ -266,48 +438,7 @@ public class TestWPS_1_0_0_Execute {
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
-        assertTrue("The 'lang' property of ExecuteResponse should be set", executeResponse.isSetLang());
-        assertEquals("The 'lang' property of ExecuteResponse should be set to 'en'", "en", executeResponse.getLang());
-
-        assertFalse("The 'statusLocation' property of ExecuteResponse should be set",
-                executeResponse.isSetStatusLocation());
-
-        assertTrue("The 'serviceInstance' property of ExecuteResponse should be set",
-                executeResponse.isSetServiceInstance());
-        assertEquals("The 'serviceInstance' property of ExecuteResponse should be set to 'getcapabilitiesurl1'",
-                "getcapabilitiesurl1", executeResponse.getServiceInstance());
-
-        assertTrue("The 'process' property of ExecuteResponse should be set",
-                executeResponse.isSetProcess());
-        assertTrue("The 'process' 'identifier' property of ExecuteResponse should be set",
-                executeResponse.getProcess().isSetIdentifier());
-        assertTrue("The 'process' 'identifier' 'value' property of ExecuteResponse should be set",
-                executeResponse.getProcess().getIdentifier().isSetValue());
-        assertEquals("The 'process' 'identifier' 'value' property of ExecuteResponse should be set to 'orbisgis:test:full'",
-                "orbisgis:test:full", executeResponse.getProcess().getIdentifier().getValue());
-        assertTrue("The 'process' 'title' property of ExecuteResponse should be set",
-                executeResponse.getProcess().isSetTitle());
-        assertTrue("The 'process' 'title' 'lang' property of ExecuteResponse should be set",
-                executeResponse.getProcess().getTitle().isSetLang());
-        assertEquals("The 'process' 'title' 'lang' property of ExecuteResponse should be set to 'en'", "en",
-                executeResponse.getProcess().getTitle().getLang());
-        assertTrue("The 'process' 'title' 'value' property of ExecuteResponse should be set",
-                executeResponse.getProcess().getTitle().isSetValue());
-        assertEquals("The 'process' 'title' 'value' property of ExecuteResponse should be set to 'full test script'",
-                "full test script", executeResponse.getProcess().getTitle().getValue());
-
-        assertTrue("The 'status' 'creationTime' property of ExecuteResponse should be set",
-                executeResponse.getStatus().isSetCreationTime());
-        assertTrue("The 'status' property of ExecuteResponse should be 'ProcessSucceeded'",
-                executeResponse.getStatus().isSetProcessSucceeded());
-        assertFalse("The 'status' property of ExecuteResponse should not be 'ProcessFailed'",
-                executeResponse.getStatus().isSetProcessFailed());
-        assertFalse("The 'status' property of ExecuteResponse should not be 'ProcessAccepted'",
-                executeResponse.getStatus().isSetProcessAccepted());
-        assertFalse("The 'status' property of ExecuteResponse should not be 'ProcessPaused'",
-                executeResponse.getStatus().isSetProcessPaused());
-        assertFalse("The 'status' property of ExecuteResponse should not be 'ProcessStarted'",
-                executeResponse.getStatus().isSetProcessStarted());
+        testMandatoryExecuteResponse(executeResponse);
 
         assertTrue("The 'processOutputs' property of ExecuteResponse should be set",
                 executeResponse.isSetProcessOutputs());
@@ -319,55 +450,9 @@ public class TestWPS_1_0_0_Execute {
                     outputDataType.getIdentifier().isSetValue());
             assertTrue("Unknown output '"+outputDataType.getIdentifier().getValue()+"'",
                     outputDataType.getIdentifier().getValue().startsWith("orbisgis:test:full:output:"));
-            String type = outputDataType.getIdentifier().getValue().substring("orbisgis:test:full:output:".length());
-            assertEquals("The 'identifier' property of OutputDataType should be set to 'orbisgis:test:full:output:"+type+"'",
-                    "orbisgis:test:full:output:"+type, outputDataType.getIdentifier().getValue());
 
-            if(type.startsWith("jdbc")){
-                type = type.substring(0, 5).toUpperCase() + type.substring(5);
-            }
-            else if(type.equals("literaldatadouble")){
-                type = "LiteralDataDouble";
-            }
-            else if(type.equals("rawdata")){
-                type = "RawData";
-            }
-            else if(type.equals("literaldatastring")){
-                type = "LiteralDataString";
-            }
-            else if(type.equals("boundingboxdata")){
-                type = "BoundingBoxData";
-            }
-            else {
-                type = type.substring(0, 1).toUpperCase() + type.substring(1);
-            }
-
-            assertTrue("The 'title' property of OutputDataType should be set",
-                    outputDataType.isSetTitle());
-            assertTrue("The 'title' 'lang' property of OutputDataType should be set",
-                    outputDataType.getTitle().isSetLang());
-            assertEquals("The 'title' 'lang' property of OutputDataType should be set to 'en'", "en",
-                    outputDataType.getTitle().getLang());
-            assertTrue("The 'title' 'value' property of OutputDataType should be set",
-                    outputDataType.getTitle().isSetValue());
-            assertEquals("The 'title' 'value' property of OutputDataType should be set to 'Output "+type+"'",
-                    "Output "+type, outputDataType.getTitle().getValue());
-
-            assertTrue("The 'abstract' property of OutputDataType should be set",
-                    outputDataType.isSetAbstract());
-            assertTrue("The 'abstract' 'lang' property of OutputDataType should be set",
-                    outputDataType.getAbstract().isSetLang());
-            assertEquals("The 'abstract' 'lang' property of OutputDataType should be set to 'en'", "en",
-                    outputDataType.getAbstract().getLang());
-            assertTrue("The 'abstract' 'value' property of OutputDataType should be set",
-                    outputDataType.getAbstract().isSetValue());
-            assertEquals("The 'abstract' 'value' property of OutputDataType should be set to 'A "+type+" output.'",
-                    "A "+type+" output.", outputDataType.getAbstract().getValue());
-
-            assertFalse("The 'reference' property of OutputDataType should not be set",
-                    outputDataType.isSetReference());
-            assertTrue("The 'data' property of OutputDataType should be set",
-                    outputDataType.isSetData());
+            String type = identifierToType(outputDataType.getIdentifier());
+            testMandatoryOutputDataType(outputDataType, type);
 
             switch(type){
                 case "JDBCTable" :
@@ -495,6 +580,322 @@ public class TestWPS_1_0_0_Execute {
             }
         }
 
+    }
+
+    /**
+     * Test the response to an Execute request with a minimal Execute request
+     */
+    @Test
+    public void testMinResponseDocumentExecute(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        execute.setIdentifier(codeType);
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        testMandatoryExecuteResponse(executeResponse);
+
+        assertTrue("The 'processOutputs' property of ExecuteResponse should be set",
+                executeResponse.isSetProcessOutputs());
+        assertEquals("The 'processOutputs' property of ExecuteResponse should contains ten value",
+                10, executeResponse.getProcessOutputs().getOutput().size());
+        for(OutputDataType outputDataType : executeResponse.getProcessOutputs().getOutput()){
+            assertTrue("The 'identifier' property of OutputDataType should be set", outputDataType.isSetIdentifier());
+            assertTrue("The 'identifier' 'value' property of OutputDataType should be set",
+                    outputDataType.getIdentifier().isSetValue());
+            assertTrue("Unknown output '"+outputDataType.getIdentifier().getValue()+"'",
+                    outputDataType.getIdentifier().getValue().startsWith("orbisgis:test:full:output:"));
+
+            String type = identifierToType(outputDataType.getIdentifier());
+            testMandatoryOutputDataType(outputDataType, type);
+
+            switch(type){
+                case "JDBCTable" :
+                    assertFalse("The 'data' 'boundingBoxData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetBoundingBoxData());
+                    assertFalse("The 'data' 'literalData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetLiteralData());
+                    assertTrue("The 'data' 'complexData' property of OutputDataType should be set",
+                            outputDataType.getData().isSetComplexData());
+                    break;
+                case "Enumeration" :
+                case "Geometry" :
+                case "JDBCColumn" :
+                case "JDBCValue" :
+                case "RawData" :
+                case "Password" :
+                case "LiteralDataDouble" :
+                case "LiteralDataString" :
+                    assertFalse("The 'data' 'boundingBoxData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetBoundingBoxData());
+                    assertTrue("The 'data' 'literalData' property of OutputDataType should be set",
+                            outputDataType.getData().isSetLiteralData());
+                    assertFalse("The 'data' 'complexData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetComplexData());
+                    break;
+                case "BoundingBoxData" :
+                    assertTrue("The 'data' 'boundingBoxData' property of OutputDataType should be set",
+                            outputDataType.getData().isSetBoundingBoxData());
+                    assertFalse("The 'data' 'literalData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetLiteralData());
+                    assertFalse("The 'data' 'complexData' property of OutputDataType should not be set",
+                            outputDataType.getData().isSetComplexData());
+                    break;
+                default :
+                    fail("Invalid output '"+type+"'");
+                    break;
+            }
+        }
+
+    }
+
+    /**
+     * Test the response to an Execute request with the fr-fr lang set.
+     */
+    @Test
+    public void testLangExecute(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        execute.setIdentifier(codeType);
+        execute.setLanguage("fr-fr");
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        assertTrue("The 'process' property of ExecuteResponse should be set",
+                executeResponse.isSetProcess());
+        assertTrue("The 'process' 'title' property of ExecuteResponse should be set",
+                executeResponse.getProcess().isSetTitle());
+        assertTrue("The 'process' 'title' 'language' property of ExecuteResponse should be set",
+                executeResponse.getProcess().getTitle().isSetLang());
+        assertEquals("The 'process' 'title' 'language' property of ExecuteResponse should be set to 'fr-fr'",
+                "fr-fr", executeResponse.getProcess().getTitle().getLang());
+        assertTrue("The 'processOutputs' property of ExecuteResponse should be set",
+                executeResponse.isSetProcessOutputs());
+        for(OutputDataType outputDataType : executeResponse.getProcessOutputs().getOutput()){
+            assertTrue("The 'output' 'title' 'language' property should be set", outputDataType.getTitle().isSetLang());
+            assertEquals("The 'output' 'title' 'language' property should be set to 'fr-fr'",
+                    "fr-fr", outputDataType.getTitle().getLang());
+            if(outputDataType.isSetAbstract()) {
+                assertEquals("The 'output' 'abstract' 'language' property should be set to 'fr-fr'",
+                        "fr-fr", outputDataType.getAbstract().getLang());
+            }
+        }
+
+    }
+
+    /**
+     * Test the response to an Execute request with an input data as reference.
+     */
+    @Test
+    public void testRefInputExecute(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        execute.setIdentifier(codeType);
+        DataInputsType dataInputsType = new DataInputsType();
+        execute.setDataInputs(dataInputsType);
+        InputType inputType = new InputType();
+        dataInputsType.getInput().add(inputType);
+        CodeType codeTypeInput = new CodeType();
+        inputType.setIdentifier(codeTypeInput);
+        codeTypeInput.setValue("orbisgis:test:full:input:literaldatastring");
+        InputReferenceType referenceType = new InputReferenceType();
+        inputType.setReference(referenceType);
+        referenceType.setHref("https://raw.githubusercontent.com/orbisgis/orbiswps/master/service/src/main/resources/org/orbisgis/orbiswps/service/i18n.properties");
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        testMandatoryExecuteResponse(executeResponse);
+
+        boolean isRawDataFound = false;
+        for(OutputDataType outputDataType : executeResponse.getProcessOutputs().getOutput()){
+            if(outputDataType.isSetIdentifier() && outputDataType.getIdentifier().getValue().equals("orbisgis:test:full:output:literaldatastring")){
+                isRawDataFound = true;
+                assertFalse("The 'reference' property should not be set", outputDataType.isSetReference());
+                assertTrue("The 'dataType' property should be set", outputDataType.isSetData());
+                assertTrue("The 'dataType' 'literalData' property should be set",
+                        outputDataType.getData().isSetLiteralData());
+                assertTrue("The 'dataType' 'literalData' 'value' property should be set",
+                        outputDataType.getData().getLiteralData().isSetValue());
+                assertTrue("The 'dataType' 'literalData' 'value' property should be set",
+                        outputDataType.getData().getLiteralData().getValue().contains("basename=org.orbisgis.orbiswps.service.Messages"));
+            }
+        }
+        assertTrue("The output 'orbisgis:test:full:output:literaldatastring' is not found", isRawDataFound);
+
+    }
+
+    /**
+     * Test the response to an Execute request with an output as reference.
+     */
+    @Test
+    public void testRefOutputExecute(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        execute.setIdentifier(codeType);
+        DataInputsType dataInputsType = new DataInputsType();
+        execute.setDataInputs(dataInputsType);
+        InputType inputType = new InputType();
+        dataInputsType.getInput().add(inputType);
+        CodeType codeTypeInput = new CodeType();
+        inputType.setIdentifier(codeTypeInput);
+        codeTypeInput.setValue("orbisgis:test:full:input:literaldatastring");
+        DataType dataType = new DataType();
+        inputType.setData(dataType);
+        LiteralDataType literalDataType = new LiteralDataType();
+        dataType.setLiteralData(literalDataType);
+        literalDataType.setValue("a value to store");
+
+        ResponseFormType responseFormType = new ResponseFormType();
+        execute.setResponseForm(responseFormType);
+        ResponseDocumentType responseDocumentType = new ResponseDocumentType();
+        responseFormType.setResponseDocument(responseDocumentType);
+        responseDocumentType.setStoreExecuteResponse(true);
+        DocumentOutputDefinitionType output = new DocumentOutputDefinitionType();
+        CodeType codeTypeOutput = new CodeType();
+        codeTypeOutput.setValue("orbisgis:test:full:output:literaldatastring");
+        output.setIdentifier(codeTypeOutput);
+        output.setAsReference(true);
+        responseDocumentType.getOutput().add(output);
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        testMandatoryExecuteResponse(executeResponse);
+
+        boolean isRawDataFound = false;
+        for(OutputDataType outputDataType : executeResponse.getProcessOutputs().getOutput()){
+            if(outputDataType.isSetIdentifier() &&
+                    outputDataType.getIdentifier().getValue().equals("orbisgis:test:full:output:literaldatastring")){
+                isRawDataFound = true;
+                assertFalse("The 'dataType' property should not be set", outputDataType.isSetData());
+                assertTrue("The 'reference' property should be set", outputDataType.isSetReference());
+                assertTrue("The 'reference' 'href' property should be set", outputDataType.getReference().isSetHref());
+                try {
+                    //Create connection
+                    URL url = new URL(outputDataType.getReference().getHref());
+                    File f = new File(url.toURI());
+                    //Get Response
+                    ObjectInputStream stream = new ObjectInputStream(new FileInputStream(f));
+                    assertEquals("", "a value to store", stream.readObject().toString());
+                } catch (Exception e) {
+                    fail("Unable to get the output.\n"+e.getMessage());
+                }
+            }
+        }
+        assertTrue("The output 'orbisgis:test:full:output:literaldatastring' is not found", isRawDataFound);
+
+    }
+
+    private void testMandatoryExecuteResponse(ExecuteResponse executeResponse){
+        assertTrue("The 'lang' property of ExecuteResponse should be set", executeResponse.isSetLang());
+        assertEquals("The 'lang' property of ExecuteResponse should be set to 'en'", "en", executeResponse.getLang());
+
+        assertFalse("The 'statusLocation' property of ExecuteResponse should be set",
+                executeResponse.isSetStatusLocation());
+
+        assertTrue("The 'serviceInstance' property of ExecuteResponse should be set",
+                executeResponse.isSetServiceInstance());
+        assertEquals("The 'serviceInstance' property of ExecuteResponse should be set to 'getcapabilitiesurl1'",
+                "getcapabilitiesurl1", executeResponse.getServiceInstance());
+
+        assertTrue("The 'process' property of ExecuteResponse should be set",
+                executeResponse.isSetProcess());
+        assertTrue("The 'process' 'identifier' property of ExecuteResponse should be set",
+                executeResponse.getProcess().isSetIdentifier());
+        assertTrue("The 'process' 'identifier' 'value' property of ExecuteResponse should be set",
+                executeResponse.getProcess().getIdentifier().isSetValue());
+        assertEquals("The 'process' 'identifier' 'value' property of ExecuteResponse should be set to 'orbisgis:test:full'",
+                "orbisgis:test:full", executeResponse.getProcess().getIdentifier().getValue());
+        assertTrue("The 'process' 'title' property of ExecuteResponse should be set",
+                executeResponse.getProcess().isSetTitle());
+        assertTrue("The 'process' 'title' 'lang' property of ExecuteResponse should be set",
+                executeResponse.getProcess().getTitle().isSetLang());
+        assertEquals("The 'process' 'title' 'lang' property of ExecuteResponse should be set to 'en'", "en",
+                executeResponse.getProcess().getTitle().getLang());
+        assertTrue("The 'process' 'title' 'value' property of ExecuteResponse should be set",
+                executeResponse.getProcess().getTitle().isSetValue());
+        assertEquals("The 'process' 'title' 'value' property of ExecuteResponse should be set to 'full test script'",
+                "full test script", executeResponse.getProcess().getTitle().getValue());
+
+        assertTrue("The 'status' 'creationTime' property of ExecuteResponse should be set",
+                executeResponse.getStatus().isSetCreationTime());
+        assertTrue("The 'status' property of ExecuteResponse should be 'ProcessSucceeded'",
+                executeResponse.getStatus().isSetProcessSucceeded());
+        assertFalse("The 'status' property of ExecuteResponse should not be 'ProcessFailed'",
+                executeResponse.getStatus().isSetProcessFailed());
+        assertFalse("The 'status' property of ExecuteResponse should not be 'ProcessAccepted'",
+                executeResponse.getStatus().isSetProcessAccepted());
+        assertFalse("The 'status' property of ExecuteResponse should not be 'ProcessPaused'",
+                executeResponse.getStatus().isSetProcessPaused());
+        assertFalse("The 'status' property of ExecuteResponse should not be 'ProcessStarted'",
+                executeResponse.getStatus().isSetProcessStarted());
+    }
+    private void testMandatoryOutputDataType(OutputDataType outputDataType, String type){
+
+        assertTrue("The 'title' property of OutputDataType should be set",
+                outputDataType.isSetTitle());
+        assertTrue("The 'title' 'lang' property of OutputDataType should be set",
+                outputDataType.getTitle().isSetLang());
+        assertEquals("The 'title' 'lang' property of OutputDataType should be set to 'en'", "en",
+                outputDataType.getTitle().getLang());
+        assertTrue("The 'title' 'value' property of OutputDataType should be set",
+                outputDataType.getTitle().isSetValue());
+        assertEquals("The 'title' 'value' property of OutputDataType should be set to 'Output "+type+"'",
+                "Output "+type, outputDataType.getTitle().getValue());
+
+        assertTrue("The 'abstract' property of OutputDataType should be set",
+                outputDataType.isSetAbstract());
+        assertTrue("The 'abstract' 'lang' property of OutputDataType should be set",
+                outputDataType.getAbstract().isSetLang());
+        assertEquals("The 'abstract' 'lang' property of OutputDataType should be set to 'en'", "en",
+                outputDataType.getAbstract().getLang());
+        assertTrue("The 'abstract' 'value' property of OutputDataType should be set",
+                outputDataType.getAbstract().isSetValue());
+        assertEquals("The 'abstract' 'value' property of OutputDataType should be set to 'A "+type+" output.'",
+                "A "+type+" output.", outputDataType.getAbstract().getValue());
+
+        assertFalse("The 'reference' property of OutputDataType should not be set",
+                outputDataType.isSetReference());
+        assertTrue("The 'data' property of OutputDataType should be set",
+                outputDataType.isSetData());
+    }
+    private String identifierToType(CodeType identifier){
+        String type = identifier.getValue().substring("orbisgis:test:full:output:".length());
+
+        if(type.startsWith("jdbc")){
+            type = type.substring(0, 5).toUpperCase() + type.substring(5);
+        }
+        else if(type.equals("literaldatadouble")){
+            type = "LiteralDataDouble";
+        }
+        else if(type.equals("rawdata")){
+            type = "RawData";
+        }
+        else if(type.equals("literaldatastring")){
+            type = "LiteralDataString";
+        }
+        else if(type.equals("boundingboxdata")){
+            type = "BoundingBoxData";
+        }
+        else {
+            type = type.substring(0, 1).toUpperCase() + type.substring(1);
+        }
+        return type;
     }
 
     /**

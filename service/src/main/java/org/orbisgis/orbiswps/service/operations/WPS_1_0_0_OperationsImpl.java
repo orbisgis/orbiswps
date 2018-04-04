@@ -42,6 +42,7 @@ package org.orbisgis.orbiswps.service.operations;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import net.opengis.ows._1.*;
+import net.opengis.ows._1.ReferenceType;
 import net.opengis.wps._1_0_0.*;
 import net.opengis.wps._1_0_0.ComplexDataType;
 import net.opengis.wps._1_0_0.DataType;
@@ -53,6 +54,7 @@ import net.opengis.wps._1_0_0.ProcessDescriptionType;
 import net.opengis.wps._1_0_0.ProcessOfferings;
 import net.opengis.wps._1_0_0.WPSCapabilitiesType;
 import net.opengis.wps._2_0.*;
+import net.opengis.wps._2_0.DescriptionType;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
@@ -65,13 +67,18 @@ import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
+import java.io.*;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -86,6 +93,8 @@ import static org.orbisgis.orbiswps.service.operations.Converter.*;
 public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WPS_1_0_0_OperationsImpl.class);
+    /** I18N */
+    private static final I18n I18N = I18nFactory.getI18n(WPS_1_0_0_OperationsImpl.class);
 
     /** Map containing the WPS Jobs and their UUID */
     private Map<UUID, Job> jobMap;
@@ -463,6 +472,16 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 } else if (input.isSetData() && input.getData().isSetLiteralData())  {
                     dataMap.put(id, input.getData().getLiteralData().getValue());
                 }
+                else if(input.isSetReference() && input.getReference().isSetHref()){
+                    Object data = getReferenceData(input.getReference());
+                    if(data instanceof ExceptionType){
+                        exceptionReport.getException().add((ExceptionType)data);
+                        return exceptionReport;
+                    }
+                    else {
+                        dataMap.put(id, data);
+                    }
+                }
             }
         }
 
@@ -519,7 +538,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             return report;
         }
 
-        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()){
+        if(!execute.isSetResponseForm() || execute.getResponseForm().isSetResponseDocument()){
             ExecuteResponse response = new ExecuteResponse();
             //Sets the ServiceInstance parameter
             for(Operation op : wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS){
@@ -527,7 +546,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     response.setServiceInstance(op.getDCP().get(0).getHTTP().getGetOrPost().get(0).getValue().getHref());
                 }
             }
-            if(execute.getResponseForm().getResponseDocument().isLineage()){
+            if(execute.isSetResponseForm() && execute.getResponseForm().getResponseDocument().isLineage()){
                 response.setDataInputs(execute.getDataInputs());
                 OutputDefinitionsType outputDefinitionsType = new OutputDefinitionsType();
                 for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()) {
@@ -540,11 +559,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 }
                 response.setOutputDefinitions(outputDefinitionsType);
             }
-            if(execute.getResponseForm().getResponseDocument().isStatus()){
+            if(execute.isSetResponseForm() && execute.getResponseForm().getResponseDocument().isStatus()){
                 //NotSupportedYet
-            }
-            if(execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()){
-
             }
 
             //Set the Process parameter
@@ -595,59 +611,23 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     break;
                 case SUCCEEDED:
                     status.setProcessSucceeded("succeeded");
-                    ProcessDescriptionType.ProcessOutputs Outputs = Converter.convertOutputDescriptionTypeList2to1(
+                    ProcessDescriptionType.ProcessOutputs outputs = Converter.convertOutputDescriptionTypeList2to1(
                             job.getProcess().getOutput(), wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE, language,
                             new BigInteger(wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES));
                     ExecuteResponse.ProcessOutputs processOutputs = new ExecuteResponse.ProcessOutputs();
-                    for(OutputDescriptionType output : Outputs.getOutput()){
-                        URI uri = URI.create(output.getIdentifier().getValue());
-                        Object o = dataMap.get(uri);
-
-                        OutputDataType outputDataType = new OutputDataType();
-                        processOutputs.getOutput().add(outputDataType);
-                        outputDataType.setTitle(output.getTitle());
-                        outputDataType.setAbstract(output.getAbstract());
-                        outputDataType.setIdentifier(output.getIdentifier());
-                        DataType dataType = new DataType();
-                        outputDataType.setData(dataType);
-
-                        if(output.isSetLiteralOutput()) {
-                            LiteralDataType literalDataType = new LiteralDataType();
-                            dataType.setLiteralData(literalDataType);
-                            literalDataType.setDataType(output.getLiteralOutput().getDataType().getValue());
-                            if(o instanceof String[]) {
-                                StringBuilder data = new StringBuilder();
-                                for(String str : (String[])o){
-                                    if(data.length() > 0){
-                                        data.append(";");
-                                    }
-                                    data.append(str);
-                                }
-                                literalDataType.setValue(data.toString());
-                                dataType.setLiteralData(literalDataType);
-                            }
-                            else {
-                                literalDataType.setValue(o.toString());
-                                dataType.setLiteralData(literalDataType);
-                            }
+                    //Iterate on the output defined in the Execute request and on the  output in the process to build
+                    // the response outputs
+                    if(execute.isSetResponseForm() &&
+                            execute.getResponseForm().isSetResponseDocument() &&
+                            execute.getResponseForm().getResponseDocument().isSetOutput() &&
+                            !execute.getResponseForm().getResponseDocument().getOutput().isEmpty() &&
+                            execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()) {
+                        for (DocumentOutputDefinitionType output : execute.getResponseForm().getResponseDocument().getOutput()) {
+                            processOutputs.getOutput().addAll(getOutputData(outputs, output, dataMap));
                         }
-                        else if(output.isSetBoundingBoxOutput()) {
-                            if(o instanceof Geometry) {
-                                dataType.setBoundingBoxData(WpsDataUtils.parseGeometryToOws1BoundingBox((Geometry)o));
-                            }
-                            else{
-                                LOGGER.error("The output '"+uri+"' should be a Geometry");
-                            }
-
-                        }
-                        else if(output.isSetComplexOutput()) {
-                            ComplexDataType complexDataType = new ComplexDataType();
-                            complexDataType.setMimeType(output.getComplexOutput().getDefault().getFormat().getMimeType());
-                            complexDataType.setEncoding(output.getComplexOutput().getDefault().getFormat().getEncoding());
-                            complexDataType.setSchema(output.getComplexOutput().getDefault().getFormat().getSchema());
-                            complexDataType.getContent().add(o);
-                            dataType.setComplexData(complexDataType);
-                        }
+                    }
+                    else{
+                        processOutputs.getOutput().addAll(getOutputData(outputs, null, dataMap));
                     }
                     response.setProcessOutputs(processOutputs);
                     break;
@@ -692,6 +672,146 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
             return object;
         }
+    }
+
+    private Object getReferenceData(InputReferenceType referenceType){
+        HttpURLConnection connection = null;
+        try {
+            //Create connection
+            URL url = new URL(referenceType.getHref());
+            connection = (HttpURLConnection) url.openConnection();
+            if(referenceType.isSetMethod()) {
+                connection.setRequestMethod(referenceType.getMethod());
+            }
+            connection.setRequestProperty("Content-Length", wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES);
+            connection.setUseCaches(false);
+            connection.setDoOutput(true);
+
+            //Get Response
+            InputStream is = connection.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                response.append(line);
+                response.append('\r');
+            }
+            rd.close();
+            return response.toString();
+        } catch (Exception ex) {
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("InvalidParameterValue");
+            exceptionType.setLocator("DataInputs");
+            LOGGER.error("Unable to get the data from the reference.\n"+ex.getMessage());
+            return exceptionType;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    /**
+     * Returns the list of OutputDataType object generated from the given ProcessOutputs which match with the given
+     * DocumentOutputDefinitionType if defined with the correct data from the given map.
+     * If the DocumentOutputDefinitionType is set, try to use its specification (like mimeType) to set the outputs.
+     * @param outputs Object containing all the process outputs.
+     * @param output Output from the execute request.
+     *               If not null, the returned OutputDataTypes should match with it.
+     *               If null, return all the OutputDataTypes
+     * @param dataMap Map containing the result data of the outputs
+     * @return Lhe list of OutputDataType object generated
+     */
+    private List<OutputDataType> getOutputData(ProcessDescriptionType.ProcessOutputs outputs,
+                                         DocumentOutputDefinitionType output, Map<URI, Object> dataMap){
+        List<OutputDataType> list = new ArrayList<>();
+        for(OutputDescriptionType outputDscrType : outputs.getOutput()) {
+            if(output== null || output.getIdentifier().getValue().equals(outputDscrType.getIdentifier().getValue())) {
+                URI uri = URI.create(outputDscrType.getIdentifier().getValue());
+                Object o = dataMap.get(uri);
+
+                OutputDataType outputDataType = new OutputDataType();
+                list.add(outputDataType);
+                outputDataType.setTitle(outputDscrType.getTitle());
+                outputDataType.setAbstract(outputDscrType.getAbstract());
+                outputDataType.setIdentifier(outputDscrType.getIdentifier());
+                if(output != null && output.isSetAsReference() && output.isAsReference() && o != null) {
+                    if (o instanceof Serializable) {
+                        try {
+                            File file = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH,
+                                    uri.toString().replaceAll(":", "_"));
+                            FileOutputStream fout = new FileOutputStream(file);
+                            ObjectOutputStream oos = new ObjectOutputStream(fout);
+                            oos.writeObject(o);
+                            OutputReferenceType referenceType = new OutputReferenceType();
+                            referenceType.setHref(file.toURI().toURL().toString());
+                            outputDataType.setReference(referenceType);
+                        } catch (IOException e) {
+                            LOGGER.error("Unable to write the serializable object '" + uri.toString() + "'\n" +
+                                    e.getMessage());
+                        }
+                    } else {
+                        LOGGER.warn("Unable to write the object '" + uri.toString() + "', it should be an instance of Serializable");
+                    }
+                }
+                else {
+                    DataType dataType = new DataType();
+                    outputDataType.setData(dataType);
+
+                    if (outputDscrType.isSetLiteralOutput()) {
+                        LiteralDataType literalDataType = new LiteralDataType();
+                        dataType.setLiteralData(literalDataType);
+                        literalDataType.setDataType(outputDscrType.getLiteralOutput().getDataType().getValue());
+                        if (o instanceof String[]) {
+                            StringBuilder data = new StringBuilder();
+                            for (String str : (String[]) o) {
+                                if (data.length() > 0) {
+                                    data.append(";");
+                                }
+                                data.append(str);
+                            }
+                            literalDataType.setValue(data.toString());
+                            dataType.setLiteralData(literalDataType);
+                        } else if (o != null) {
+                            literalDataType.setValue(o.toString());
+                            dataType.setLiteralData(literalDataType);
+                        } else {
+                            literalDataType.setValue(null);
+                            dataType.setLiteralData(literalDataType);
+                        }
+                    } else if (outputDscrType.isSetBoundingBoxOutput()) {
+                        if (o instanceof Geometry) {
+                            dataType.setBoundingBoxData(WpsDataUtils.parseGeometryToOws1BoundingBox((Geometry) o));
+                        } else {
+                            LOGGER.error("The output '" + uri + "' should be a Geometry");
+                            dataType.setBoundingBoxData(new BoundingBoxType());
+                        }
+
+                    } else if (outputDscrType.isSetComplexOutput()) {
+                        ComplexDataCombinationType dflt = outputDscrType.getComplexOutput().getDefault();
+                        ComplexDataType complexDataType = new ComplexDataType();
+                        if (output != null && output.isSetMimeType()) {
+                            complexDataType.setMimeType(output.getMimeType());
+                        } else {
+                            complexDataType.setMimeType(dflt.getFormat().getMimeType());
+                        }
+                        if (output != null && output.isSetEncoding()) {
+                            complexDataType.setEncoding(output.getEncoding());
+                        } else {
+                            complexDataType.setEncoding(dflt.getFormat().getEncoding());
+                        }
+                        if (output != null && output.isSetSchema()) {
+                            complexDataType.setSchema(output.getSchema());
+                        } else {
+                            complexDataType.setSchema(dflt.getFormat().getSchema());
+                        }
+                        complexDataType.getContent().add(o);
+                        dataType.setComplexData(complexDataType);
+                    }
+                }
+            }
+        }
+        return list;
     }
 
     /**
@@ -774,11 +894,19 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     exceptionReport.getException().add(exceptionType);
                     return exceptionReport;
                 }
-                if(!input.isSetData()){
+                if(!input.isSetData() && !input.isSetReference()){
                     ExceptionType exceptionType = new ExceptionType();
                     exceptionType.setExceptionCode("InvalidParameterValue");
                     exceptionType.setLocator("DataInputs");
-                    exceptionType.getExceptionText().add("Input without dataType");
+                    exceptionType.getExceptionText().add("Input without dataType or reference");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+                if(input.isSetData() && input.isSetReference()){
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("DataInputs");
+                    exceptionType.getExceptionText().add("Input with dataType and reference");
                     exceptionReport.getException().add(exceptionType);
                     return exceptionReport;
                 }
@@ -850,7 +978,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                             "of the  input should be set");
                     exceptionReport.getException().add(exceptionType);
                     return exceptionReport;
-                } else if (input.isSetData() && input.getData().isSetBoundingBoxData()) {
+                }
+                else if (input.isSetData() && input.getData().isSetBoundingBoxData()) {
                     if(!input.getData().getBoundingBoxData().isSetCrs()){
                         ExceptionType exceptionType = new ExceptionType();
                         exceptionType.setExceptionCode("InvalidParameterValue");
@@ -877,7 +1006,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                         exceptionReport.getException().add(exceptionType);
                         return exceptionReport;
                     }
-                } else if (input.isSetData() && input.getData().isSetComplexData()) {
+                }
+                else if (input.isSetData() && input.getData().isSetComplexData()) {
                     if(input.getData().getComplexData().getOtherAttributes().isEmpty()){
                         ExceptionType exceptionType = new ExceptionType();
                         exceptionType.setExceptionCode("InvalidParameterValue");
@@ -893,6 +1023,14 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     exceptionType.setLocator("DataInputs");
                     exceptionType.getExceptionText().add("One of BoundingBoxData or ComplexData or LiteralData of the" +
                             " input should be set");
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+                else if(input.isSetReference() && !input.getReference().isSetHref()){
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("DataInputs");
+                    exceptionType.getExceptionText().add("The reference 'href' should be set");
                     exceptionReport.getException().add(exceptionType);
                     return exceptionReport;
                 }

@@ -33,7 +33,8 @@ import static org.orbisgis.orbiswps.service.operations.Converter.convertLanguage
 /**
  * Class managing the job execution and the generation of the Execute request response.
  *
- * @author Sylvain PALOMINOS
+ * @author Sylvain PALOMINOS (UBS 2018)
+ * @author Erwan Bocher
  */
 public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
 

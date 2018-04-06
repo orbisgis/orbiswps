@@ -672,6 +672,7 @@
     "maximum_megabytes": 2000,
     //
     "default_jdbctable_format": "xml",
-    "available_jdbctable_format": ["xml", "geojson", "txt", "gml"]
+    "available_jdbctable_format": ["xml", "geojson", "txt", "gml"],
+    "workspace_path": "target"
   }
 }

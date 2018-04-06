@@ -56,6 +56,7 @@ import net.opengis.wps._1_0_0.WPSCapabilitiesType;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.DescriptionType;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
+import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
 import org.orbisgis.orbiswps.service.utils.Job;
@@ -70,6 +71,8 @@ import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -409,8 +412,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         net.opengis.ows._2.CodeType codeType = new net.opengis.ows._2.CodeType();
         codeType.setValue(execute.getIdentifier().getValue());
         codeType.setCodeSpace(execute.getIdentifier().getCodeSpace());
-        ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(codeType);
-        if(processIdentifier == null){
+        ProcessIdentifier pi = processManager.getProcessIdentifier(codeType);
+        if(pi == null){
             ExceptionType exceptionType = new ExceptionType();
             exceptionType.setExceptionCode("InvalidParameterValue");
             exceptionType.setLocator("Identifier");
@@ -447,7 +450,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         }
 
         //Test that all the inputs of the Execute request are valid
-        ExceptionReport report = checkExecuteInputs(execute, processIdentifier);
+        ExceptionReport report = checkExecuteInputs(execute, pi);
         if(report != null){
             return report;
         }
@@ -486,7 +489,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         }
 
         //Test that all the mandatory inputs are set
-        for(net.opengis.wps._2_0.InputDescriptionType input : processIdentifier.getProcessDescriptionType().getInput()){
+        for(net.opengis.wps._2_0.InputDescriptionType input : pi.getProcessDescriptionType().getInput()){
             if(input.isSetMinOccurs() && input.getMinOccurs().intValue()>0 &&
                     !dataMap.containsKey(URI.create(input.getIdentifier().getValue()))){
                 ExceptionType exceptionType = new ExceptionType();
@@ -502,35 +505,18 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()
                 && execute.getResponseForm().getResponseDocument().isSetOutput()) {
             for (OutputDefinitionType output : execute.getResponseForm().getResponseDocument().getOutput()) {
-                report = checkExecuteOutputs(output, processIdentifier);
+                report = checkExecuteOutputs(output, pi);
                 if (report != null) {
                     return report;
                 }
             }
         }
         if(execute.isSetResponseForm() && execute.getResponseForm().isSetRawDataOutput()) {
-            report = checkExecuteOutputs(execute.getResponseForm().getRawDataOutput(), processIdentifier);
+            report = checkExecuteOutputs(execute.getResponseForm().getRawDataOutput(), pi);
             if (report != null) {
                 return report;
             }
         }
-
-        //Generation of the Job unique ID
-        UUID jobId = UUID.randomUUID();
-
-        //Generate the processInstance
-        List<String> languages = new ArrayList<>();
-        languages.add(language);
-        Job job = new Job(ProcessTranslator.getTranslatedProcess(processIdentifier, languages),
-                jobId, dataMap,
-                wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
-                wpsProp.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
-        jobMap.put(jobId, job);
-
-        //Process execution in new thread
-        Future future = wpsServer.executeNewProcessWorker(job, processIdentifier, dataMap);
-
-        Object object = null;
 
         //Tests the ResponseForm object
         report = checkExecuteResponseForm(execute);
@@ -538,140 +524,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             return report;
         }
 
-        if(!execute.isSetResponseForm() || execute.getResponseForm().isSetResponseDocument()){
-            ExecuteResponse response = new ExecuteResponse();
-            //Sets the ServiceInstance parameter
-            for(Operation op : wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS){
-                if(op.getName().equalsIgnoreCase("getcapabilities")){
-                    response.setServiceInstance(op.getDCP().get(0).getHTTP().getGetOrPost().get(0).getValue().getHref());
-                }
-            }
-            if(execute.isSetResponseForm() && execute.getResponseForm().getResponseDocument().isLineage()){
-                response.setDataInputs(execute.getDataInputs());
-                OutputDefinitionsType outputDefinitionsType = new OutputDefinitionsType();
-                for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()) {
-                    DocumentOutputDefinitionType document = new DocumentOutputDefinitionType();
-                    document.setTitle(convertLanguageStringType2to1(output.getTitle().get(0)));
-                    if(output.getAbstract()==null && !output.getAbstract().isEmpty()) {
-                        document.setAbstract(convertLanguageStringType2to1(output.getAbstract().get(0)));
-                    }
-                    outputDefinitionsType.getOutput().add(document);
-                }
-                response.setOutputDefinitions(outputDefinitionsType);
-            }
-            if(execute.isSetResponseForm() && execute.getResponseForm().getResponseDocument().isStatus()){
-                //NotSupportedYet
-            }
-
-            //Set the Process parameter
-            response.setProcess(convertProcessDescriptionType2to1(job.getProcess()));
-
-            //Sets the status parameter
-            StatusType status = new StatusType();
-            //Gets and set the process creationTime
-            XMLGregorianCalendar xmlCalendar = null;
-            try {
-                GregorianCalendar gCalendar = new GregorianCalendar();
-                gCalendar.setTime(new Date(job.getStartTime()));
-                xmlCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gCalendar);
-            } catch (DatatypeConfigurationException e) {
-                LOGGER.warn("Unable to get the current date into XMLGregorianCalendar : "+e.getMessage());
-            }
-            status.setCreationTime(xmlCalendar);
-            //Sets the status according to the actual job state
-            switch(job.getState()){
-                case IDLE:
-                    ProcessStartedType pst = new ProcessStartedType();
-                    pst.setPercentCompleted(job.getProgress());
-                    pst.setValue("idle");
-                    status.setProcessPaused(pst);
-                    break;
-                case ACCEPTED:
-                    status.setProcessAccepted("accepted");
-                    break;
-                case RUNNING:
-                    pst = new ProcessStartedType();
-                    pst.setPercentCompleted(job.getProgress());
-                    pst.setValue("running");
-                    status.setProcessStarted(pst);
-                    break;
-                case FAILED:
-                    ProcessFailedType pft = new ProcessFailedType();
-                    //Sets a detailed exception to return to the client
-                    pft.setExceptionReport(exceptionReport);
-                    ExceptionType exceptionType = new ExceptionType();
-                    exceptionType.setExceptionCode("NoApplicableCode");
-                    for(Map.Entry<String, ProcessExecutionListener.LogType> entry : job.getLogMap().entrySet()) {
-                        if(entry.getValue().equals(ProcessExecutionListener.LogType.ERROR)) {
-                            exceptionType.getExceptionText().add(entry.getKey());
-                        }
-                    }
-                    exceptionReport.getException().add(exceptionType);
-                    status.setProcessFailed(pft);
-                    break;
-                case SUCCEEDED:
-                    status.setProcessSucceeded("succeeded");
-                    ProcessDescriptionType.ProcessOutputs outputs = Converter.convertOutputDescriptionTypeList2to1(
-                            job.getProcess().getOutput(), wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE, language,
-                            new BigInteger(wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES));
-                    ExecuteResponse.ProcessOutputs processOutputs = new ExecuteResponse.ProcessOutputs();
-                    //Iterate on the output defined in the Execute request and on the  output in the process to build
-                    // the response outputs
-                    if(execute.isSetResponseForm() &&
-                            execute.getResponseForm().isSetResponseDocument() &&
-                            execute.getResponseForm().getResponseDocument().isSetOutput() &&
-                            !execute.getResponseForm().getResponseDocument().getOutput().isEmpty() &&
-                            execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()) {
-                        for (DocumentOutputDefinitionType output : execute.getResponseForm().getResponseDocument().getOutput()) {
-                            processOutputs.getOutput().addAll(getOutputData(outputs, output, dataMap));
-                        }
-                    }
-                    else{
-                        processOutputs.getOutput().addAll(getOutputData(outputs, null, dataMap));
-                    }
-                    response.setProcessOutputs(processOutputs);
-                    break;
-            }
-            response.setStatus(status);
-            if(execute.getLanguage()!=null) {
-                response.setLang(execute.getLanguage());
-            }
-            else{
-                response.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
-            }
-            return response;
-        }
-        else{
-            if(future != null) {
-                try {
-                    future.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    LOGGER.error("Error while waiting thread to be finished : " + e.getMessage());
-                }
-            }
-            for(Map.Entry<URI, Object> entry : job.getDataMap().entrySet()){
-                //Test if the URI is an Output URI.
-                boolean contained = false;
-                for(net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()){
-                    if(output.getIdentifier().getValue().equals(entry.getKey().toString())){
-                        contained = true;
-                    }
-                }
-                if(contained) {
-                    object = entry.getValue();
-                    //Sets and schedule the destroy date
-                    long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
-                    if(destructionDelay != 0) {
-                        wpsServer.scheduleResultDestroying(entry.getKey(),
-                                WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
-                    }
-                }
-            }
-
-            jobMap.remove(jobId);
-
-            return object;
-        }
+        return new WPS_1_0_0_JobRunner(exceptionReport, language, pi, dataMap, execute, wpsProp, wpsServer).getResponse();
     }
 
     private Object getReferenceData(InputReferenceType referenceType){
@@ -709,109 +562,6 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                 connection.disconnect();
             }
         }
-    }
-
-    /**
-     * Returns the list of OutputDataType object generated from the given ProcessOutputs which match with the given
-     * DocumentOutputDefinitionType if defined with the correct data from the given map.
-     * If the DocumentOutputDefinitionType is set, try to use its specification (like mimeType) to set the outputs.
-     * @param outputs Object containing all the process outputs.
-     * @param output Output from the execute request.
-     *               If not null, the returned OutputDataTypes should match with it.
-     *               If null, return all the OutputDataTypes
-     * @param dataMap Map containing the result data of the outputs
-     * @return Lhe list of OutputDataType object generated
-     */
-    private List<OutputDataType> getOutputData(ProcessDescriptionType.ProcessOutputs outputs,
-                                         DocumentOutputDefinitionType output, Map<URI, Object> dataMap){
-        List<OutputDataType> list = new ArrayList<>();
-        for(OutputDescriptionType outputDscrType : outputs.getOutput()) {
-            if(output== null || output.getIdentifier().getValue().equals(outputDscrType.getIdentifier().getValue())) {
-                URI uri = URI.create(outputDscrType.getIdentifier().getValue());
-                Object o = dataMap.get(uri);
-
-                OutputDataType outputDataType = new OutputDataType();
-                list.add(outputDataType);
-                outputDataType.setTitle(outputDscrType.getTitle());
-                outputDataType.setAbstract(outputDscrType.getAbstract());
-                outputDataType.setIdentifier(outputDscrType.getIdentifier());
-                if(output != null && output.isSetAsReference() && output.isAsReference() && o != null) {
-                    if (o instanceof Serializable) {
-                        try {
-                            File file = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH,
-                                    uri.toString().replaceAll(":", "_"));
-                            FileOutputStream fout = new FileOutputStream(file);
-                            ObjectOutputStream oos = new ObjectOutputStream(fout);
-                            oos.writeObject(o);
-                            OutputReferenceType referenceType = new OutputReferenceType();
-                            referenceType.setHref(file.toURI().toURL().toString());
-                            outputDataType.setReference(referenceType);
-                        } catch (IOException e) {
-                            LOGGER.error("Unable to write the serializable object '" + uri.toString() + "'\n" +
-                                    e.getMessage());
-                        }
-                    } else {
-                        LOGGER.warn("Unable to write the object '" + uri.toString() + "', it should be an instance of Serializable");
-                    }
-                }
-                else {
-                    DataType dataType = new DataType();
-                    outputDataType.setData(dataType);
-
-                    if (outputDscrType.isSetLiteralOutput()) {
-                        LiteralDataType literalDataType = new LiteralDataType();
-                        dataType.setLiteralData(literalDataType);
-                        literalDataType.setDataType(outputDscrType.getLiteralOutput().getDataType().getValue());
-                        if (o instanceof String[]) {
-                            StringBuilder data = new StringBuilder();
-                            for (String str : (String[]) o) {
-                                if (data.length() > 0) {
-                                    data.append(";");
-                                }
-                                data.append(str);
-                            }
-                            literalDataType.setValue(data.toString());
-                            dataType.setLiteralData(literalDataType);
-                        } else if (o != null) {
-                            literalDataType.setValue(o.toString());
-                            dataType.setLiteralData(literalDataType);
-                        } else {
-                            literalDataType.setValue(null);
-                            dataType.setLiteralData(literalDataType);
-                        }
-                    } else if (outputDscrType.isSetBoundingBoxOutput()) {
-                        if (o instanceof Geometry) {
-                            dataType.setBoundingBoxData(WpsDataUtils.parseGeometryToOws1BoundingBox((Geometry) o));
-                        } else {
-                            LOGGER.error("The output '" + uri + "' should be a Geometry");
-                            dataType.setBoundingBoxData(new BoundingBoxType());
-                        }
-
-                    } else if (outputDscrType.isSetComplexOutput()) {
-                        ComplexDataCombinationType dflt = outputDscrType.getComplexOutput().getDefault();
-                        ComplexDataType complexDataType = new ComplexDataType();
-                        if (output != null && output.isSetMimeType()) {
-                            complexDataType.setMimeType(output.getMimeType());
-                        } else {
-                            complexDataType.setMimeType(dflt.getFormat().getMimeType());
-                        }
-                        if (output != null && output.isSetEncoding()) {
-                            complexDataType.setEncoding(output.getEncoding());
-                        } else {
-                            complexDataType.setEncoding(dflt.getFormat().getEncoding());
-                        }
-                        if (output != null && output.isSetSchema()) {
-                            complexDataType.setSchema(output.getSchema());
-                        } else {
-                            complexDataType.setSchema(dflt.getFormat().getSchema());
-                        }
-                        complexDataType.getContent().add(o);
-                        dataType.setComplexData(complexDataType);
-                    }
-                }
-            }
-        }
-        return list;
     }
 
     /**

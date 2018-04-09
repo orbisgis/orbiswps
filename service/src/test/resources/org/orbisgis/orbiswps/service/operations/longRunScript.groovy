@@ -58,7 +58,7 @@ import org.orbisgis.orbiswps.groovyapi.process.Process
 )
 def processing() {
     enumerationOutput = inputEnumeration;
-    sleep(1000)
+    sleep(500)
 }
 
 

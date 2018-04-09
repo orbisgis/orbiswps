@@ -1041,7 +1041,7 @@ public class TestWPS_1_0_0_Execute {
         assertTrue("The 'statusLocation' property of ExecuteResponse should be a file",
                 f.isFile());
 
-        Thread.sleep(4000);
+        Thread.sleep(5000);
         o = unmarshaller.unmarshal(f);
 
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);

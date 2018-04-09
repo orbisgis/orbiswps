@@ -66,11 +66,13 @@ import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -110,6 +112,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
     private ProcessManager processManager;
 
+    private DataSource ds;
+
     /** Main constructor */
     public WPS_1_0_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_1_0_0 wpsProp,
                                     ProcessManager processManager){
@@ -117,6 +121,14 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         this.wpsServer = wpsServer;
         this.processManager = processManager;
         jobMap = new HashMap<>();
+    }
+
+    @Reference
+    public void setDataSource(DataSource dataSource) {
+        ds = dataSource;
+    }
+    public void unsetDataSource(DataSource dataSource) {
+        ds = null;
     }
 
     @Override
@@ -468,9 +480,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                         dataMap.put(id, null);
                     }
                 } else if (input.isSetData() && input.getData().isSetComplexData()) {
-                    Map<QName, String> map = input.getData().getComplexData().getOtherAttributes();
-                    if(!map.isEmpty()) {
-                        dataMap.put(id, map.entrySet().iterator().next().getValue());
+                    for(Object data : input.getData().getComplexData().getContent()){
+                        dataMap.put(id, data);
                     }
                 } else if (input.isSetData() && input.getData().isSetLiteralData())  {
                     dataMap.put(id, input.getData().getLiteralData().getValue());
@@ -532,7 +543,8 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             return report;
         }
 
-        return new WPS_1_0_0_JobRunner(exceptionReport, language, pi, dataMap, execute, wpsProp, wpsServer).getResponse();
+        return new WPS_1_0_0_JobRunner(exceptionReport, language, pi, dataMap, execute, wpsProp, wpsServer, ds)
+                .getResponse();
     }
 
     private Object getReferenceData(InputReferenceType referenceType){
@@ -563,6 +575,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             ExceptionType exceptionType = new ExceptionType();
             exceptionType.setExceptionCode("InvalidParameterValue");
             exceptionType.setLocator("DataInputs");
+            exceptionType.getExceptionText().add("Unable to get the data from the reference.\n"+ex.getMessage());
             LOGGER.error("Unable to get the data from the reference.\n"+ex.getMessage());
             return exceptionType;
         } finally {
@@ -766,7 +779,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
                     }
                 }
                 else if (input.isSetData() && input.getData().isSetComplexData()) {
-                    if(input.getData().getComplexData().getOtherAttributes().isEmpty()){
+                    if(input.getData().getComplexData().getContent().isEmpty()){
                         ExceptionType exceptionType = new ExceptionType();
                         exceptionType.setExceptionCode("InvalidParameterValue");
                         exceptionType.setLocator("DataInputs");

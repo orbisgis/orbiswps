@@ -4,13 +4,14 @@ import net.opengis.ows._1.BoundingBoxType;
 import net.opengis.ows._1.CodeType;
 import net.opengis.ows._1.ExceptionReport;
 import net.opengis.wps._1_0_0.*;
+import org.h2gis.functions.factory.H2GISDBFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
-import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 
+import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
@@ -19,6 +20,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.*;
@@ -31,8 +33,8 @@ import static org.junit.Assert.*;
 public class TestWPS_1_0_0_Execute {
 
     /** Wps Operation object. */
-    private WPS_1_0_0_Operations minWps100Operations;
-    private WPS_1_0_0_Operations fullWps100Operations;
+    private WPS_1_0_0_OperationsImpl minWps100Operations;
+    private WPS_1_0_0_OperationsImpl fullWps100Operations;
 
     /**
      * Initialize a wps service for processing all the tests.
@@ -40,9 +42,16 @@ public class TestWPS_1_0_0_Execute {
     @Before
     public void initialize() {
 
+        DataSource ds = null;
+        try {
+            ds = H2GISDBFactory.createDataSource("testDB", true);
+        } catch (SQLException e) {
+            fail("Unable to start the database : \n"+e.getMessage());
+        }
+
         WpsServerImpl wpsServer = new WpsServerImpl();
         wpsServer.setExecutorService(Executors.newSingleThreadExecutor());
-        ProcessManager processManager = new ProcessManager(null, wpsServer);
+        ProcessManager processManager = new ProcessManager(ds, wpsServer);
         try {
             URL url = this.getClass().getResource("fullScript.groovy");
             assertNotNull("Unable to load the script 'fullScript.groovy'", url);
@@ -61,6 +70,12 @@ public class TestWPS_1_0_0_Execute {
             f = new File(url.toURI());
             wpsServer.addProcess(f);
             processManager.addScript(f.toURI());
+
+            url = this.getClass().getResource("jdbcTableScript.groovy");
+            assertNotNull("Unable to load the script 'jdbcTableScript.groovy'", url);
+            f = new File(url.toURI());
+            wpsServer.addProcess(f);
+            processManager.addScript(f.toURI());
         } catch (URISyntaxException e) {
             fail("Error on loading the scripts : "+e.getMessage());
         }
@@ -70,12 +85,14 @@ public class TestWPS_1_0_0_Execute {
         WpsServerProperties_1_0_0 minWpsProps = new WpsServerProperties_1_0_0(
                 TestWPS_1_0_0_Execute.class.getResource("minWpsService100.json").getFile());
         minWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, minWpsProps, processManager);
+        minWps100Operations.setDataSource(ds);
 
         assertNotNull("Unable to load the file 'fullWpsService100.json'",
                 TestWPS_1_0_0_Execute.class.getResource("fullWpsService100.json").getFile());
         WpsServerProperties_1_0_0 fullWpsProps = new WpsServerProperties_1_0_0(
                 TestWPS_1_0_0_Execute.class.getResource("fullWpsService100.json").getFile());
         fullWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, fullWpsProps, processManager);
+        fullWps100Operations.setDataSource(ds);
     }
 
     /**
@@ -112,7 +129,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setData(dataType);
         ComplexDataType complexDataType = new ComplexDataType();
         dataType.setComplexData(complexDataType);
-        complexDataType.getOtherAttributes().put(new QName("string"), "jdbctable");
+        complexDataType.getContent().add("jdbctable");
         dataInputsType.getInput().add(inputType);
 
         inputType = new InputType();
@@ -296,7 +313,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setData(dataType);
         ComplexDataType complexDataType = new ComplexDataType();
         dataType.setComplexData(complexDataType);
-        complexDataType.getOtherAttributes().put(new QName("string"), "jdbctable");
+        complexDataType.getContent().add("jdbctable");
         dataInputsType.getInput().add(inputType);
 
         inputType = new InputType();
@@ -918,7 +935,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setData(dataType);
         ComplexDataType complexDataType = new ComplexDataType();
         dataType.setComplexData(complexDataType);
-        complexDataType.setMimeType("test/plain");
+        complexDataType.setMimeType("text/plain");
         complexDataType.getContent().add("table");
 
         ResponseFormType responseFormType = new ResponseFormType();
@@ -1024,7 +1041,7 @@ public class TestWPS_1_0_0_Execute {
         assertTrue("The 'statusLocation' property of ExecuteResponse should be a file",
                 f.isFile());
 
-        Thread.sleep(3000);
+        Thread.sleep(4000);
         o = unmarshaller.unmarshal(f);
 
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
@@ -1080,6 +1097,100 @@ public class TestWPS_1_0_0_Execute {
                 fail("Unknow output");
             }
         }
+    }
+
+    /**
+     * Test an execute request
+     */
+    @Test
+    public void testJDBCTableFormats(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:jdbctable");
+        execute.setIdentifier(codeType);
+        DataInputsType dataInputsType = new DataInputsType();
+        execute.setDataInputs(dataInputsType);
+        InputType inputType = new InputType();
+        dataInputsType.getInput().add(inputType);
+        DataType dataType = new DataType();
+        inputType.setData(dataType);
+        ComplexDataType complexDataType = new ComplexDataType();
+        dataType.setComplexData(complexDataType);
+        complexDataType.setMimeType("application/geo+json");
+        complexDataType.getContent().add("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\"," +
+                "\"geometry\":{\"type\":\"Point\",\"coordinates\":[102.0,0.5]},\"properties\":{\"prop0\":\"value0\"}}]}\n");
+        CodeType idCodeType = new CodeType();
+        idCodeType.setValue("orbisgis:test:jdbctable:input:jdbctable");
+        inputType.setIdentifier(idCodeType);
+
+        ResponseFormType responseFormType = new ResponseFormType();
+        execute.setResponseForm(responseFormType);
+        ResponseDocumentType responseDocumentType = new ResponseDocumentType();
+        responseFormType.setResponseDocument(responseDocumentType);
+        DocumentOutputDefinitionType documentOutputDefinitionType = new DocumentOutputDefinitionType();
+        responseDocumentType.getOutput().add(documentOutputDefinitionType);
+        CodeType outputCodeType = new CodeType();
+        outputCodeType.setValue("orbisgis:test:jdbctable:output:jdbctable");
+        documentOutputDefinitionType.setIdentifier(outputCodeType);
+        documentOutputDefinitionType.setMimeType("text/plain");
+
+        Object o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        assertTrue("The 'executeResponse' 'processOutputs' should be set", executeResponse.isSetProcessOutputs());
+        assertTrue("The 'executeResponse' 'processOutputs' 'output' should be set",
+                executeResponse.getProcessOutputs().isSetOutput());
+        assertEquals("The 'executeResponse' 'processOutputs' 'output' should contains one value",
+                1, executeResponse.getProcessOutputs().getOutput().size());
+        OutputDataType outputDataType = executeResponse.getProcessOutputs().getOutput().get(0);
+        assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' should be set",
+                outputDataType.isSetData());
+        assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' should be set",
+                outputDataType.getData().isSetComplexData());
+        assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' 'content' should be set",
+                outputDataType.getData().getComplexData().isSetContent());
+        assertEquals("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' 'content' should contains one value",
+                1, outputDataType.getData().getComplexData().getContent().size());
+        assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' 'content' should start with 'TABLE'",
+                outputDataType.getData().getComplexData().getContent().get(0).toString().startsWith("TABLE"));
+
+
+        //Execute with only one request output
+        responseFormType = new ResponseFormType();
+        execute.setResponseForm(responseFormType);
+        responseDocumentType = new ResponseDocumentType();
+        responseFormType.setResponseDocument(responseDocumentType);
+        documentOutputDefinitionType = new DocumentOutputDefinitionType();
+        responseDocumentType.getOutput().add(documentOutputDefinitionType);
+        outputCodeType = new CodeType();
+        outputCodeType.setValue("orbisgis:test:jdbctable:output:jdbctable");
+        documentOutputDefinitionType.setIdentifier(outputCodeType);
+        documentOutputDefinitionType.setMimeType("application/geo+json");
+
+        o = fullWps100Operations.execute(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        executeResponse = (ExecuteResponse)o;
+
+        assertTrue("The 'executeResponse' 'processOutputs' should be set", executeResponse.isSetProcessOutputs());
+        assertTrue("The 'executeResponse' 'processOutputs' 'output' should be set",
+                executeResponse.getProcessOutputs().isSetOutput());
+        assertEquals("The 'executeResponse' 'processOutputs' 'output' should contains one value",
+                1, executeResponse.getProcessOutputs().getOutput().size());
+        outputDataType = executeResponse.getProcessOutputs().getOutput().get(0);
+        assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' should be set",
+                outputDataType.isSetData());
+        assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' should be set",
+                outputDataType.getData().isSetComplexData());
+        assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' 'content' should be set",
+                outputDataType.getData().getComplexData().isSetContent());
+        assertEquals("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' 'content' should contains one value",
+                1, outputDataType.getData().getComplexData().getContent().size());
+        assertEquals("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' 'content' should start with 'TABLE'",
+                "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\"," +
+                        "\"geometry\":{\"type\":\"Point\",\"coordinates\":[102.0,0.5]},\"properties\":{\"prop0\":\"value0\"}}]}",
+                outputDataType.getData().getComplexData().getContent().get(0).toString());
     }
 
     private void testMandatoryExecuteResponse(ExecuteResponse executeResponse){

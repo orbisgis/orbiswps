@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -37,20 +37,20 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service
+package org.orbisgis.orbiswps.service.operations
 
-import org.orbisgis.orbiswps.groovyapi.input.EnumerationInput
 import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
-import org.orbisgis.orbiswps.groovyapi.output.EnumerationOutput
 import org.orbisgis.orbiswps.groovyapi.output.JDBCTableOutput
 import org.orbisgis.orbiswps.groovyapi.process.Process
+
 /********************/
 /** Process method **/
 /********************/
 
 /**
- * Test script for the Enumeration
- * @author Sylvain PALOMINOS
+ * Test script for the JDBCTable
+ * @author Sylvain PALOMINOS (UBS 2018)
+ * @author Erwan Bocher
  */
 @Process(title = "Enumeration test",
         description = "Test script using the Enumeration ComplexData.",

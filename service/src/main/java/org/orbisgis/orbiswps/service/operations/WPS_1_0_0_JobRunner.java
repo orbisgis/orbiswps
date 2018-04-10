@@ -103,6 +103,7 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
     private WpsServerProperties_1_0_0 wpsProp;
     private WpsServerImpl wpsServer;
     private DataSource ds = null;
+    private Marshaller marshaller;
 
     public WPS_1_0_0_JobRunner(ExceptionReport exceptionReport, String language, ProcessIdentifier pi,
                                Map<URI, Object> dataMap, Execute execute, WpsServerProperties_1_0_0 wpsProperties,
@@ -121,6 +122,11 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                 execute.getResponseForm().getResponseDocument().isSetStatus() &&
                 execute.getResponseForm().getResponseDocument().isStatus();
         this.ds = ds;
+        try {
+            marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
+        } catch (JAXBException e) {
+            LOGGER.error("Unable to create the marshaller.\n"+e.getMessage());
+        }
 
         setResponse();
         startJob();
@@ -166,9 +172,6 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                 wpsProp.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
         job.addProcessExecutionlistener(this);
 
-        //Process execution in new thread
-        future = wpsServer.executeNewProcessWorker(job, pi, dataMap);
-
         //Sets the status parameter
         status = new StatusType();
         //Gets and set the process creationTime
@@ -181,6 +184,9 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
             LOGGER.warn("Unable to get the current date into XMLGregorianCalendar : "+e.getMessage());
         }
         status.setCreationTime(xmlCalendar);
+
+        //Process execution in new thread
+        future = wpsServer.executeNewProcessWorker(job, pi, dataMap);
     }
 
     @Override
@@ -243,7 +249,6 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
             } else {
                 File f;
                 try {
-                    Marshaller marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
                     f = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH, job.getId().toString());
                     response.setStatusLocation(f.toURI().toString());
                     marshaller.marshal(response, new FileOutputStream(f));

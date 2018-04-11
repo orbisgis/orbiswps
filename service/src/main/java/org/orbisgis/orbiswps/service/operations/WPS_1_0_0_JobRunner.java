@@ -45,9 +45,12 @@ import net.opengis.ows._1.ExceptionReport;
 import net.opengis.ows._1.ExceptionType;
 import net.opengis.ows._1.Operation;
 import net.opengis.wps._1_0_0.*;
+import org.h2gis.functions.io.geojson.GeoJsonRead;
+import org.h2gis.functions.io.geojson.GeoJsonWrite;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
+import org.orbisgis.orbiswps.service.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.utils.WpsDataUtils;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
@@ -55,6 +58,7 @@ import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -63,10 +67,15 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static org.orbisgis.orbiswps.service.operations.Converter.convertCodeType2to1;
 import static org.orbisgis.orbiswps.service.operations.Converter.convertLanguageStringType2to1;
 
 /**
@@ -87,15 +96,18 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
     private Map<URI, Object> dataMap;
     private Execute execute;
     private StatusType status;
+    private boolean isStatus;
     private ExecuteResponse.ProcessOutputs processOutputs = null;
     private Future future = null;
     private ExecuteResponse response = new ExecuteResponse();
     private WpsServerProperties_1_0_0 wpsProp;
     private WpsServerImpl wpsServer;
+    private DataSource ds = null;
+    private Marshaller marshaller;
 
     public WPS_1_0_0_JobRunner(ExceptionReport exceptionReport, String language, ProcessIdentifier pi,
                                Map<URI, Object> dataMap, Execute execute, WpsServerProperties_1_0_0 wpsProperties,
-                               WpsServerImpl wpsServer){
+                               WpsServerImpl wpsServer, DataSource ds){
         if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()) {
             this.responseDocumentType = execute.getResponseForm().getResponseDocument();
         }
@@ -106,9 +118,18 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         this.execute = execute;
         this.wpsProp = wpsProperties;
         this.wpsServer = wpsServer;
+        this.isStatus = execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument() &&
+                execute.getResponseForm().getResponseDocument().isSetStatus() &&
+                execute.getResponseForm().getResponseDocument().isStatus();
+        this.ds = ds;
+        try {
+            marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
+        } catch (JAXBException e) {
+            LOGGER.error("Unable to create the marshaller.\n"+e.getMessage());
+        }
 
-        startJob();
         setResponse();
+        startJob();
     }
 
     private void setResponse(){
@@ -138,13 +159,18 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
 
         net.opengis.wps._2_0.ProcessDescriptionType process = ProcessTranslator.getTranslatedProcess(pi, languages);
         response.setProcess(Converter.convertProcessDescriptionType2to1(process));
+        if(execute.isSetDataInputs() && execute.getDataInputs().isSetInput()) {
+            for (InputType inputType : execute.getDataInputs().getInput()){
+                if(inputType.isSetData() && inputType.getData().isSetComplexData()){
+                    URI uri = URI.create(inputType.getIdentifier().getValue());
+                    dataMap.put(uri, formatInputData(dataMap.get(uri), inputType.getData().getComplexData()));
+                }
+            }
+        }
         job = new Job(process, jobId, dataMap,
                 wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
                 wpsProp.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
         job.addProcessExecutionlistener(this);
-
-        //Process execution in new thread
-        future = wpsServer.executeNewProcessWorker(job, pi, dataMap);
 
         //Sets the status parameter
         status = new StatusType();
@@ -158,7 +184,9 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
             LOGGER.warn("Unable to get the current date into XMLGregorianCalendar : "+e.getMessage());
         }
         status.setCreationTime(xmlCalendar);
-        updateStatus();
+
+        //Process execution in new thread
+        future = wpsServer.executeNewProcessWorker(job, pi, dataMap);
     }
 
     @Override
@@ -200,7 +228,6 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
      * @return An ExecuteResponse if no fail, otherwise an ExceptionReport.
      */
     public Object getResponse(){
-        updateStatus();
         response.setStatus(status);
         if(responseDocumentType != null){
             if (responseDocumentType.isLineage()) {
@@ -212,20 +239,16 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                     if (output.getAbstract() == null && !output.getAbstract().isEmpty()) {
                         document.setAbstract(convertLanguageStringType2to1(output.getAbstract().get(0)));
                     }
+                    document.setIdentifier(convertCodeType2to1(output.getIdentifier()));
                     outputDefinitionsType.getOutput().add(document);
                 }
                 response.setOutputDefinitions(outputDefinitionsType);
             }
-            if (responseDocumentType.isStatus()) {
-                //NotSupportedYet
-            }
-
             if (!responseDocumentType.isSetStoreExecuteResponse() || !responseDocumentType.isStoreExecuteResponse()) {
                 response.setProcessOutputs(getResult());
             } else {
                 File f;
                 try {
-                    Marshaller marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
                     f = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH, job.getId().toString());
                     response.setStatusLocation(f.toURI().toString());
                     marshaller.marshal(response, new FileOutputStream(f));
@@ -240,6 +263,10 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                     return exceptionReport;
                 }
             }
+        }
+        else if(execute.isSetResponseForm() && execute.getResponseForm().isSetRawDataOutput()){
+            getResult();
+            return processOutputs.getOutput().get(0).getData().getComplexData().getContent().get(0);
         }
         else {
             response.setProcessOutputs(getResult());
@@ -258,19 +285,23 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         status.setProcessPaused(null);
         switch(job.getState()){
             case IDLE:
-                ProcessStartedType pst = new ProcessStartedType();
-                pst.setPercentCompleted(job.getProgress());
-                pst.setValue("idle");
-                status.setProcessPaused(pst);
+                if(isStatus) {
+                    ProcessStartedType pst = new ProcessStartedType();
+                    pst.setPercentCompleted(job.getProgress());
+                    pst.setValue("idle");
+                    status.setProcessPaused(pst);
+                }
                 break;
             case ACCEPTED:
                 status.setProcessAccepted("accepted");
                 break;
             case RUNNING:
-                pst = new ProcessStartedType();
-                pst.setPercentCompleted(job.getProgress());
-                pst.setValue("running");
-                status.setProcessStarted(pst);
+                if(isStatus) {
+                    ProcessStartedType pst = new ProcessStartedType();
+                    pst.setPercentCompleted(job.getProgress());
+                    pst.setValue("running");
+                    status.setProcessStarted(pst);
+                }
                 break;
             case FAILED:
                 ProcessFailedType pft = new ProcessFailedType();
@@ -404,12 +435,98 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                         } else {
                             complexDataType.setSchema(dflt.getFormat().getSchema());
                         }
-                        complexDataType.getContent().add(o);
+                        complexDataType.getContent().add(formatOutputData(o, complexDataType));
                         dataType.setComplexData(complexDataType);
                     }
                 }
             }
         }
         return list;
+    }
+
+    /**
+     * If there is a format request different than 'text/plain', try to convert the given data into the format. If the
+     * conversion fails, return the non converted data.
+     * @param data Data ton convert.
+     * @param complexDataType Object containing the information about the output like the mimeType.
+     * @return The well formatted data.
+     */
+    private Object formatOutputData(Object data, ComplexDataType complexDataType){
+        if(!FormatFactory.TEXT_MIMETYPE.equals(complexDataType.getMimeType()) || ds != null || data != null) {
+            Connection connection = null;
+            try {
+                connection = ds.getConnection();
+            } catch (SQLException e) {
+                LOGGER.error("Unable to get a connection to the base to format the output\n" + e.getMessage());
+            }
+            if (ds == null) {
+                LOGGER.error("Unable to get the dataSource to format the output");
+            }
+            if (connection != null) {
+                switch (complexDataType.getMimeType()) {
+                    case FormatFactory.GEOJSON_MIMETYPE:
+                        try {
+                            File f = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH, data.toString()+".geojson");
+                            GeoJsonWrite.writeGeoJson(connection, f.getAbsolutePath(), data.toString().replaceAll("-", "").toUpperCase());
+                            byte[] bytes = Files.readAllBytes(Paths.get(f.getPath()));
+                            return new String(bytes, 0, bytes.length);
+                        } catch (IOException|SQLException e) {
+                            LOGGER.error("Unable to generate the geojson file from the source '"+data+
+                                    "\n"+e.getLocalizedMessage());
+                        }
+                        break;
+                    case FormatFactory.GML_MIMETYPE:
+                    case FormatFactory.XML_MIMETYPE:
+                    default:
+                        return data;
+                }
+            }
+        }
+        return data;
+    }
+
+    private Object formatInputData(Object data, ComplexDataType complexDataType){
+        if(!FormatFactory.TEXT_MIMETYPE.equals(complexDataType.getMimeType()) || data != null || ds != null) {
+            Connection connection = null;
+            try {
+                connection = ds.getConnection();
+            } catch (SQLException e) {
+                LOGGER.error("Unable to get a connection to the base to format the output\n" + e.getMessage());
+            }
+            if (ds == null) {
+                LOGGER.error("Unable to get the dataSource to format the output");
+            }
+            if (connection != null && complexDataType.isSetMimeType()) {
+                switch (complexDataType.getMimeType()) {
+                    case FormatFactory.GEOJSON_MIMETYPE:
+                        try {
+                            String name = "TABLE"+UUID.randomUUID().toString();
+                            File f = File.createTempFile(name, ".geojson");
+                            if(!f.exists() && !f.createNewFile()){
+                                LOGGER.error("Unable to create the temporary geojson file");
+                                return data;
+                            }
+                            FileWriter fw = new FileWriter(f);
+                            fw.write(data.toString());
+                            fw.close();
+                            GeoJsonRead.readGeoJson(connection, f.getAbsolutePath(), name.replaceAll("-", ""));
+                            if(!f.delete()){
+                                LOGGER.error("Unable to delete temporary created geojson file");
+                                return data;
+                            }
+                            return name;
+                        } catch (IOException|SQLException e) {
+                            LOGGER.error("Unable to generate the geojson file from the source '"+data+
+                                    "\n"+e.getLocalizedMessage());
+                        }
+                        break;
+                    case FormatFactory.GML_MIMETYPE:
+                    case FormatFactory.XML_MIMETYPE:
+                    default:
+                        return data;
+                }
+            }
+        }
+        return data;
     }
 }

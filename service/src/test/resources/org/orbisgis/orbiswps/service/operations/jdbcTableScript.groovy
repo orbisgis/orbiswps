@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -37,28 +37,30 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service
+package org.orbisgis.orbiswps.service.operations
 
-import org.orbisgis.orbiswps.groovyapi.input.EnumerationInput
-import org.orbisgis.orbiswps.groovyapi.output.EnumerationOutput
+import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
+import org.orbisgis.orbiswps.groovyapi.output.JDBCTableOutput
 import org.orbisgis.orbiswps.groovyapi.process.Process
+
 /********************/
 /** Process method **/
 /********************/
 
 /**
- * Test script for the Enumeration
- * @author Sylvain PALOMINOS
+ * Test script for the JDBCTable
+ * @author Sylvain PALOMINOS (UBS 2018)
+ * @author Erwan Bocher
  */
 @Process(title = "Enumeration test",
         description = "Test script using the Enumeration ComplexData.",
         keywords = ["test","script","wps"],
-        identifier = "orbisgis:test:longRun",
+        identifier = "orbisgis:test:jdbctable",
         metadata = ["website","metadata"]
 )
 def processing() {
-    enumerationOutput = inputEnumeration;
-    sleep(2000)
+    sleep(500)
+    outputJDBCTable = inputJDBCTable;
 }
 
 
@@ -66,34 +68,29 @@ def processing() {
 /** INPUT Data **/
 /****************/
 
-/** This Enumeration is the input model source. */
-@EnumerationInput(
-        title = "Input Enumeration",
-        description = "A Enumeration input.",
+@JDBCTableInput(
+        title = "Input JDBCTable",
+        description = "A JDBCTable input.",
         keywords = "input",
-        multiSelection = true,
-        isEditable = true,
-        values = "value1",
-        names = ["name","name"],
-        maxOccurs = 2,
+        dataTypes = ["GEOMETRY"],
         minOccurs = 0,
-        identifier = "input:enumeration",
+        maxOccurs = 2,
+        identifier = "input:jdbctable",
         metadata = ["website","metadata"]
-        )
-String[] inputEnumeration = ["value2"]
+)
+String inputJDBCTable
 
 /*****************/
 /** OUTPUT Data **/
 /*****************/
 
-/** This Enumeration is the output model source. */
-@EnumerationOutput(
-        title = "Output Enumeration",
-        description = "A Enumeration output.",
+@JDBCTableOutput(
+        title = "Output JDBCTable",
+        description = "A JDBCTable output.",
         keywords = "output",
-        values = "value1",
-        identifier = "output:enumeration",
+        dataTypes = ["GEOMETRY"],
+        identifier = "output:jdbctable",
         metadata = ["website","metadata"]
 )
-String[] enumerationOutput
+String outputJDBCTable
 

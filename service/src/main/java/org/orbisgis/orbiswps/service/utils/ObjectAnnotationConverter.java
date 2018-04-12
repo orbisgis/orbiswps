@@ -438,15 +438,23 @@ public class ObjectAnnotationConverter {
      */
     private static LiteralDataDomain createLiteralDataDomain(DataType dataType, String literalDataDomainStr,
                                                              boolean isDefault){
-        LiteralDataDomain LiteralDataDomain = new LiteralDataDomain();
-        LiteralDataDomain.setDefault(isDefault);
+        LiteralDataDomain literalDataDomain = new LiteralDataDomain();
+        literalDataDomain.setDefault(isDefault);
         DomainMetadataType domainMetadataType = new DomainMetadataType();
         domainMetadataType.setValue(dataType.name());
         domainMetadataType.setReference(dataType.getUri().toString());
-        LiteralDataDomain.setDataType(domainMetadataType);
+        literalDataDomain.setDataType(domainMetadataType);
         //If no values was specified, allow any value
         if(literalDataDomainStr.isEmpty()){
-            LiteralDataDomain.setAnyValue(new AnyValue());
+            if(dataType.equals(DataType.BOOLEAN)){
+                AllowedValues allowedValues = new AllowedValues();
+                allowedValues.getValueOrRange().add("true");
+                allowedValues.getValueOrRange().add("false");
+                literalDataDomain.setAllowedValues(allowedValues);
+            }
+            else {
+                literalDataDomain.setAnyValue(new AnyValue());
+            }
         }
         else{
             AllowedValues allowedValues = new AllowedValues();
@@ -460,9 +468,9 @@ public class ObjectAnnotationConverter {
                 valueOrRangeList.add(allowedValue);
             }
             allowedValues.getValueOrRange().addAll(valueOrRangeList);
-            LiteralDataDomain.setAllowedValues(allowedValues);
+            literalDataDomain.setAllowedValues(allowedValues);
         }
-        return LiteralDataDomain;
+        return literalDataDomain;
     }
 
     /**

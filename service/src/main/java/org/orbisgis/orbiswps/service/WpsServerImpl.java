@@ -133,6 +133,7 @@ public class WpsServerImpl implements WpsServer {
         processManager = new ProcessManager(dataSource, this);
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
+        ((WPS_1_0_0_OperationsImpl)wps100Operations).setDataSource(dataSource);
     }
 
     /**
@@ -149,6 +150,7 @@ public class WpsServerImpl implements WpsServer {
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
         props100 = new WpsServerProperties_1_0_0(propertyFileLocation);
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
+        ((WPS_1_0_0_OperationsImpl)wps100Operations).setDataSource(dataSource);
     }
 
     /**
@@ -165,6 +167,7 @@ public class WpsServerImpl implements WpsServer {
         wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
         props100 = new WpsServerProperties_1_0_0(property100FileLocation);
         wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
+        ((WPS_1_0_0_OperationsImpl)wps100Operations).setDataSource(dataSource);
     }
 
     @Reference

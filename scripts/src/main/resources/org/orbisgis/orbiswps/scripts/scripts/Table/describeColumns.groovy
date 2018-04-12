@@ -55,6 +55,7 @@ import org.orbisgis.orbiswps.groovyapi.process.*
         description = "Extract the name, type and comment from all fields of a table.",
         keywords = ["Table","Describe"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
+        identifier = "orbisgis:wps:official:describeColumn",
         version = "1.0")
 def processing() {    
     String query;
@@ -66,10 +67,11 @@ def processing() {
     } 
     
     if(dropTable){
-	sql.execute "drop table if exists " + outputTableName
+	    sql.execute "drop table if exists " + outputTableName
     }
-    sql.execute(query);
-    literalOutput = i18n.tr("The descriptions have been extracted.")
+    sql.execute(query)
+    outputTable = outputTableName
+    logger.info(i18n.tr("The descriptions have been extracted."))
 }
 
 /****************/
@@ -79,23 +81,26 @@ def processing() {
 /** This JDBCTable is the input model source table. */
 @JDBCTableInput(
         title = "Table",
-        description = "Extract name, type and comments from the selected table.")
+        description = "Extract name, type and comments from the selected table.",
+        identifier = "inputData")
 String tableName
 
 @LiteralDataInput(
-    title = "Drop the output table if exists",
-    description = "Drop the output table if exists.")
+        title = "Drop the output table if exists",
+        description = "Drop the output table if exists.",
+        identifier = "dropIfExists")
 Boolean dropTable 
 
 @LiteralDataInput(
         title = "Output table name",
-        description = "Name of the table containing the descriptions.")
+        description = "Name of the table containing the descriptions.",
+        identifier = "outputDataName")
 String outputTableName
 
 
-/** Output message. */
-@LiteralDataOutput(
-        title = "Output message",
-        description = "The output message.")
-String literalOutput
+@JDBCTableOutput(
+        title = "Table",
+        description = "Output table containing the column information.",
+        identifier = "outputData")
+String outputTable
 

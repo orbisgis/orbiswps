@@ -671,7 +671,7 @@
     "base_process_polling_delay": 1000,
     "maximum_megabytes": 2000,
     //
-    "default_jdbctable_format": "xml",
+    "default_jdbctable_format": "txt",
     "available_jdbctable_format": ["xml", "geojson", "txt", "gml"],
     "workspace_path": "target"
   }

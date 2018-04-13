@@ -203,8 +203,8 @@ public class TestWPS_1_0_0_Execute {
 
                     assertTrue("The 'data' 'complexData' 'mimeType' property of OutputDataType should be set",
                             outputDataType.getData().getComplexData().isSetMimeType());
-                    assertEquals("The 'data' 'complexData' 'mimeType' property of OutputDataType should be set to 'text/xml'",
-                            "text/xml", outputDataType.getData().getComplexData().getMimeType());
+                    assertEquals("The 'data' 'complexData' 'mimeType' property of OutputDataType should be set to 'text/plain'",
+                            "text/plain", outputDataType.getData().getComplexData().getMimeType());
 
                     assertTrue("The 'data' 'complexData' 'content' property of OutputDataType should be set",
                             outputDataType.getData().getComplexData().isSetContent());
@@ -495,8 +495,8 @@ public class TestWPS_1_0_0_Execute {
 
                     assertTrue("The 'data' 'complexData' 'mimeType' property of OutputDataType should be set",
                             outputDataType.getData().getComplexData().isSetMimeType());
-                    assertEquals("The 'data' 'complexData' 'mimeType' property of OutputDataType should be set to 'text/xml'",
-                            "text/xml", outputDataType.getData().getComplexData().getMimeType());
+                    assertEquals("The 'data' 'complexData' 'mimeType' property of OutputDataType should be set to 'text/plain'",
+                            "text/plain", outputDataType.getData().getComplexData().getMimeType());
 
                     assertTrue("The 'data' 'complexData' 'content' property of OutputDataType should be set",
                             outputDataType.getData().getComplexData().isSetContent());
@@ -819,8 +819,8 @@ public class TestWPS_1_0_0_Execute {
                     URL url = new URL(outputDataType.getReference().getHref());
                     File f = new File(url.toURI());
                     //Get Response
-                    ObjectInputStream stream = new ObjectInputStream(new FileInputStream(f));
-                    assertEquals("", "a value to store", stream.readObject().toString());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+                    assertEquals("", "a value to store", reader.readLine());
                 } catch (Exception e) {
                     fail("Unable to get the output.\n"+e.getMessage());
                 }
@@ -1100,10 +1100,10 @@ public class TestWPS_1_0_0_Execute {
     }
 
     /**
-     * Test an execute request
+     * Test an execute request with a geojson JDBCTable input and a text/plain JDBCTable output
      */
     @Test
-    public void testJDBCTableFormats(){
+    public void testJDBCTableGeojsonToTextPlain(){
         //Execute with only one request output
         Execute execute = new Execute();
         CodeType codeType = new CodeType();
@@ -1155,30 +1155,55 @@ public class TestWPS_1_0_0_Execute {
                 1, outputDataType.getData().getComplexData().getContent().size());
         assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' 'content' should start with 'TABLE'",
                 outputDataType.getData().getComplexData().getContent().get(0).toString().startsWith("TABLE"));
+    }
 
+    /**
+     * Test an execute request with a geojson JDBCTable input and a geojson JDBCTable output
+     */
+    @Test
+    public void testJDBCTableGeojsonToGeojson(){
+        //Execute with only one request output
+        Execute execute = new Execute();
+        CodeType codeType = new CodeType();
+        codeType.setValue("orbisgis:test:jdbctable");
+        execute.setIdentifier(codeType);
+        DataInputsType dataInputsType = new DataInputsType();
+        execute.setDataInputs(dataInputsType);
+        InputType inputType = new InputType();
+        dataInputsType.getInput().add(inputType);
+        DataType dataType = new DataType();
+        inputType.setData(dataType);
+        ComplexDataType complexDataType = new ComplexDataType();
+        dataType.setComplexData(complexDataType);
+        complexDataType.setMimeType("application/geo+json");
+        complexDataType.getContent().add("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\"," +
+                "\"geometry\":{\"type\":\"Point\",\"coordinates\":[102.0,0.5]},\"properties\":{\"prop0\":\"value0\"}}]}\n");
+        CodeType idCodeType = new CodeType();
+        idCodeType.setValue("orbisgis:test:jdbctable:input:jdbctable");
+        inputType.setIdentifier(idCodeType);
 
         //Execute with only one request output
-        responseFormType = new ResponseFormType();
+        ResponseFormType responseFormType = new ResponseFormType();
         execute.setResponseForm(responseFormType);
-        responseDocumentType = new ResponseDocumentType();
+        ResponseDocumentType responseDocumentType = new ResponseDocumentType();
         responseFormType.setResponseDocument(responseDocumentType);
-        documentOutputDefinitionType = new DocumentOutputDefinitionType();
+        DocumentOutputDefinitionType documentOutputDefinitionType = new DocumentOutputDefinitionType();
         responseDocumentType.getOutput().add(documentOutputDefinitionType);
-        outputCodeType = new CodeType();
+        CodeType outputCodeType = new CodeType();
         outputCodeType.setValue("orbisgis:test:jdbctable:output:jdbctable");
         documentOutputDefinitionType.setIdentifier(outputCodeType);
         documentOutputDefinitionType.setMimeType("application/geo+json");
 
-        o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.execute(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
-        executeResponse = (ExecuteResponse)o;
+        ExecuteResponse executeResponse = (ExecuteResponse)o;
 
         assertTrue("The 'executeResponse' 'processOutputs' should be set", executeResponse.isSetProcessOutputs());
         assertTrue("The 'executeResponse' 'processOutputs' 'output' should be set",
                 executeResponse.getProcessOutputs().isSetOutput());
         assertEquals("The 'executeResponse' 'processOutputs' 'output' should contains one value",
                 1, executeResponse.getProcessOutputs().getOutput().size());
-        outputDataType = executeResponse.getProcessOutputs().getOutput().get(0);
+        OutputDataType outputDataType = executeResponse.getProcessOutputs().getOutput().get(0);
         assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' should be set",
                 outputDataType.isSetData());
         assertTrue("The 'executeResponse' 'processOutputs' 'output' 'data' 'complexData' should be set",
@@ -1767,7 +1792,7 @@ public class TestWPS_1_0_0_Execute {
                 report.getException().get(0).getLocator());
 
         //Test Execute with responseDocument with output without identifier
-        execute = new Execute();
+        /*execute = new Execute();
         responseFormType = new ResponseFormType();
         responseDocumentType = new ResponseDocumentType();
         DocumentOutputDefinitionType outputDefinitionsType = new DocumentOutputDefinitionType();
@@ -1785,13 +1810,13 @@ public class TestWPS_1_0_0_Execute {
                 report.getException().get(0).getExceptionCode());
         assertTrue("The exception 'locator' should be set", report.getException().get(0).isSetLocator());
         assertEquals("The exception 'locator' should be set to 'ResponseForm'", "ResponseForm",
-                report.getException().get(0).getLocator());
+                report.getException().get(0).getLocator());*/
 
         //Test Execute with responseDocument with unknown output format
         execute = new Execute();
         responseFormType = new ResponseFormType();
         responseDocumentType = new ResponseDocumentType();
-        outputDefinitionsType = new DocumentOutputDefinitionType();
+        DocumentOutputDefinitionType outputDefinitionsType = new DocumentOutputDefinitionType();
         outputDefinitionsType.setMimeType("unicorn/type");
         CodeType rawOutputCodeType = new CodeType();
         rawOutputCodeType.setValue("orbisgis:test:full:output:rawdata");

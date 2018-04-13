@@ -161,9 +161,13 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         response.setProcess(Converter.convertProcessDescriptionType2to1(process));
         if(execute.isSetDataInputs() && execute.getDataInputs().isSetInput()) {
             for (InputType inputType : execute.getDataInputs().getInput()){
-                if(inputType.isSetData() && inputType.getData().isSetComplexData()){
+                if((inputType.isSetData() && inputType.getData().isSetComplexData())){
                     URI uri = URI.create(inputType.getIdentifier().getValue());
-                    dataMap.put(uri, formatInputData(dataMap.get(uri), inputType.getData().getComplexData()));
+                    dataMap.put(uri, formatInputData(dataMap.get(uri), inputType.getData().getComplexData().getMimeType()));
+                }
+                if(inputType.isSetReference()){
+                    URI uri = URI.create(inputType.getIdentifier().getValue());
+                    dataMap.put(uri, formatInputData(dataMap.get(uri), inputType.getReference().getMimeType()));
                 }
             }
         }
@@ -369,10 +373,10 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                     if (o instanceof Serializable) {
                         try {
                             File file = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH,
-                                    uri.toString().replaceAll(":", "_"));
+                                    uri.toString().replaceAll("([.:/\\\\])", "_"));
                             FileOutputStream fout = new FileOutputStream(file);
-                            ObjectOutputStream oos = new ObjectOutputStream(fout);
-                            oos.writeObject(o);
+                            fout.write(formatOutputData(o, output.getMimeType()).toString().getBytes());
+                            fout.close();
                             OutputReferenceType referenceType = new OutputReferenceType();
                             referenceType.setHref(file.toURI().toURL().toString());
                             outputDataType.setReference(referenceType);
@@ -435,7 +439,7 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                         } else {
                             complexDataType.setSchema(dflt.getFormat().getSchema());
                         }
-                        complexDataType.getContent().add(formatOutputData(o, complexDataType));
+                        complexDataType.getContent().add(formatOutputData(o, complexDataType.getMimeType()));
                         dataType.setComplexData(complexDataType);
                     }
                 }
@@ -448,11 +452,11 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
      * If there is a format request different than 'text/plain', try to convert the given data into the format. If the
      * conversion fails, return the non converted data.
      * @param data Data ton convert.
-     * @param complexDataType Object containing the information about the output like the mimeType.
+     * @param mimeType MimeType of the output.
      * @return The well formatted data.
      */
-    private Object formatOutputData(Object data, ComplexDataType complexDataType){
-        if(!FormatFactory.TEXT_MIMETYPE.equals(complexDataType.getMimeType()) || ds != null || data != null) {
+    private Object formatOutputData(Object data, String mimeType){
+        if(mimeType != null && !FormatFactory.TEXT_MIMETYPE.equals(mimeType) && ds != null && data != null) {
             Connection connection = null;
             try {
                 connection = ds.getConnection();
@@ -463,11 +467,11 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                 LOGGER.error("Unable to get the dataSource to format the output");
             }
             if (connection != null) {
-                switch (complexDataType.getMimeType()) {
+                switch (mimeType) {
                     case FormatFactory.GEOJSON_MIMETYPE:
                         try {
                             File f = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH, data.toString()+".geojson");
-                            GeoJsonWrite.writeGeoJson(connection, f.getAbsolutePath(), data.toString().replaceAll("-", "").toUpperCase());
+                            GeoJsonWrite.writeGeoJson(connection, f.getAbsolutePath(), data.toString());
                             byte[] bytes = Files.readAllBytes(Paths.get(f.getPath()));
                             return new String(bytes, 0, bytes.length);
                         } catch (IOException|SQLException e) {
@@ -475,8 +479,6 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                                     "\n"+e.getLocalizedMessage());
                         }
                         break;
-                    case FormatFactory.GML_MIMETYPE:
-                    case FormatFactory.XML_MIMETYPE:
                     default:
                         return data;
                 }
@@ -485,8 +487,8 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         return data;
     }
 
-    private Object formatInputData(Object data, ComplexDataType complexDataType){
-        if(!FormatFactory.TEXT_MIMETYPE.equals(complexDataType.getMimeType()) || data != null || ds != null) {
+    private Object formatInputData(Object data, String mimeType){
+        if(!FormatFactory.TEXT_MIMETYPE.equals(mimeType) && data != null && ds != null) {
             Connection connection = null;
             try {
                 connection = ds.getConnection();
@@ -496,11 +498,11 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
             if (ds == null) {
                 LOGGER.error("Unable to get the dataSource to format the output");
             }
-            if (connection != null && complexDataType.isSetMimeType()) {
-                switch (complexDataType.getMimeType()) {
+            if (connection != null && mimeType != null) {
+                switch (mimeType) {
                     case FormatFactory.GEOJSON_MIMETYPE:
                         try {
-                            String name = "TABLE"+UUID.randomUUID().toString();
+                            String name = "TABLE"+UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
                             File f = File.createTempFile(name, ".geojson");
                             if(!f.exists() && !f.createNewFile()){
                                 LOGGER.error("Unable to create the temporary geojson file");
@@ -509,7 +511,7 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                             FileWriter fw = new FileWriter(f);
                             fw.write(data.toString());
                             fw.close();
-                            GeoJsonRead.readGeoJson(connection, f.getAbsolutePath(), name.replaceAll("-", ""));
+                            GeoJsonRead.readGeoJson(connection, f.getAbsolutePath(), name);
                             if(!f.delete()){
                                 LOGGER.error("Unable to delete temporary created geojson file");
                                 return data;
@@ -518,10 +520,8 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                         } catch (IOException|SQLException e) {
                             LOGGER.error("Unable to generate the geojson file from the source '"+data+
                                     "\n"+e.getLocalizedMessage());
+                            return data;
                         }
-                        break;
-                    case FormatFactory.GML_MIMETYPE:
-                    case FormatFactory.XML_MIMETYPE:
                     default:
                         return data;
                 }

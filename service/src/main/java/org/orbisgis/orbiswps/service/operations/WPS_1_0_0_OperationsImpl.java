@@ -39,32 +39,17 @@
  */
 package org.orbisgis.orbiswps.service.operations;
 
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import net.opengis.ows._1.*;
-import net.opengis.ows._1.ReferenceType;
 import net.opengis.wps._1_0_0.*;
-import net.opengis.wps._1_0_0.ComplexDataType;
-import net.opengis.wps._1_0_0.DataType;
-import net.opengis.wps._1_0_0.DescribeProcess;
-import net.opengis.wps._1_0_0.LiteralDataType;
-import net.opengis.wps._1_0_0.OutputDefinitionType;
-import net.opengis.wps._1_0_0.OutputDescriptionType;
-import net.opengis.wps._1_0_0.ProcessDescriptionType;
-import net.opengis.wps._1_0_0.ProcessOfferings;
-import net.opengis.wps._1_0_0.WPSCapabilitiesType;
-import net.opengis.wps._2_0.*;
-import net.opengis.wps._2_0.DescriptionType;
+import net.opengis.wps._2_0.LiteralDataDomainType;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
 import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.utils.WpsDataUtils;
-import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
 import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
 import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -73,20 +58,12 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import javax.sql.DataSource;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static org.orbisgis.orbiswps.service.operations.Converter.*;
 
@@ -512,6 +489,19 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             }
         }
 
+        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument() &&
+                execute.getResponseForm().getResponseDocument().isSetOutput()){
+            boolean areAllOutputDefined = true;
+            for(DocumentOutputDefinitionType out : execute.getResponseForm().getResponseDocument().getOutput()){
+                if(!out.isSetIdentifier() || !out.getIdentifier().isSetValue() || out.getIdentifier().getValue().isEmpty()){
+                    areAllOutputDefined = false;
+                }
+            }
+            if(!areAllOutputDefined){
+                execute.getResponseForm().getResponseDocument().getOutput().clear();
+            }
+        }
+
         //Test that all the outputs of the Execute request are valid
         if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument() &&
                 execute.getResponseForm().getResponseDocument().isSetStoreExecuteResponse() &&
@@ -571,18 +561,46 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             }
             rd.close();
             return response.toString();
-        } catch (Exception ex) {
-            ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("InvalidParameterValue");
-            exceptionType.setLocator("DataInputs");
-            exceptionType.getExceptionText().add("Unable to get the data from the reference.\n"+ex.getMessage());
-            LOGGER.error("Unable to get the data from the reference.\n"+ex.getMessage());
-            return exceptionType;
+        } catch (Exception ignore) {
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
         }
+        //If the reference is not a valid URL, try to load it as an URI
+        if (connection == null) {
+
+            URI uri = URI.create(referenceType.getHref());
+            if(uri != null){
+                try {
+                    BufferedReader rd = new BufferedReader(new FileReader(new File(uri)));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = rd.readLine()) != null) {
+                        response.append(line);
+                        response.append('\r');
+                    }
+                    rd.close();
+                    return response.toString();
+                }
+                catch(Exception ignored){
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("InvalidParameterValue");
+                    exceptionType.setLocator("DataInputs");
+                    exceptionType.getExceptionText().add("Unable to get the data from the reference." +
+                            " It seems to be an invalid URL/URI\n");
+                    LOGGER.error("Unable to get the data from the reference. It seems to be an invalid URL/URI\n");
+                    return exceptionType;
+                }
+            }
+        }
+        ExceptionType exceptionType = new ExceptionType();
+        exceptionType.setExceptionCode("InvalidParameterValue");
+        exceptionType.setLocator("DataInputs");
+        exceptionType.getExceptionText().add("Unable to get the data from the reference." +
+                " It seems to be an invalid URL/URI\n");
+        LOGGER.error("Unable to get the data from the reference. It seems to be an invalid URL/URI\n");
+        return exceptionType;
     }
 
     /**

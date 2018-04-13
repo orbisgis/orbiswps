@@ -351,7 +351,7 @@ public class TestWPS_1_0_0_DescribeProcess {
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'mimeType' should be set",
                         input.getComplexData().getDefault().getFormat().isSetMimeType());
                 assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'mimeType' should be set to 'text/plain'",
-                        "text/xml", input.getComplexData().getDefault().getFormat().getMimeType());
+                        "text/plain", input.getComplexData().getDefault().getFormat().getMimeType());
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'schema' should be set",
                         input.getComplexData().getDefault().getFormat().isSetSchema());
                 assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'default' 'format' 'schema' should be ''",
@@ -368,8 +368,6 @@ public class TestWPS_1_0_0_DescribeProcess {
 
                 boolean isPlain = false;
                 boolean isGeojson = false;
-                boolean isGml = false;
-                boolean isXml = false;
                 for(ComplexDataDescriptionType descriptionType : input.getComplexData().getSupported().getFormat()) {
                     assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' 'mimeType' should be set",
                             descriptionType.isSetMimeType());
@@ -391,33 +389,11 @@ public class TestWPS_1_0_0_DescribeProcess {
                                 descriptionType.getSchema());
                         isGeojson = true;
                     }
-                    else if("application/gml+xml".equals(descriptionType.getMimeType())){
-                        assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
-                                        "'mimeType' should be set to 'application/gml+xml'", "application/gml+xml",
-                                descriptionType.getMimeType());
-                        assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
-                                        "'schema' should be set to 'https://tools.ietf.org/html/rfc7303'", "https://tools.ietf.org/html/rfc7303",
-                                descriptionType.getSchema());
-                        isGml = true;
-                    }
-                    else if("text/xml".equals(descriptionType.getMimeType())){
-                        assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
-                                        "'mimeType' should be set to 'text/xml'", "text/xml",
-                                descriptionType.getMimeType());
-                        assertEquals("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
-                                        "'schema' should be set to ''", "",
-                                descriptionType.getSchema());
-                        isXml = true;
-                    }
                 }
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
                         "should contains 'text/plain", isPlain);
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
                         "should contains 'application/vnd.geo+json", isGeojson);
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
-                        "should contains 'application/gml+xml", isGml);
-                assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'complexData' 'supported' " +
-                        "should contains 'text/xml", isXml);
             }
             else if("LiteralDataDouble".equals(type)){
                 assertTrue("The 'orbisgis:test:full' 'dataInputs' 'input' 'literalData' should be set",
@@ -646,8 +622,8 @@ public class TestWPS_1_0_0_DescribeProcess {
                         output.getComplexOutput().getDefault().isSetFormat());
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'mimeType' should be set",
                         output.getComplexOutput().getDefault().getFormat().isSetMimeType());
-                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'mimeType' should be set to 'text/xml'",
-                        "text/xml", output.getComplexOutput().getDefault().getFormat().getMimeType());
+                assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'mimeType' should be set to 'text/plain'",
+                        "text/plain", output.getComplexOutput().getDefault().getFormat().getMimeType());
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'schema' should be set",
                         output.getComplexOutput().getDefault().getFormat().isSetSchema());
                 assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'default' 'format' 'schema' should be set to ''",
@@ -664,7 +640,6 @@ public class TestWPS_1_0_0_DescribeProcess {
 
                 boolean isPlain = false;
                 boolean isGeojson = false;
-                boolean isGml = false;
                 for(ComplexDataDescriptionType descriptionType : output.getComplexOutput().getSupported().getFormat()) {
                     assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' 'mimeType' should be set",
                             descriptionType.isSetMimeType());
@@ -688,21 +663,11 @@ public class TestWPS_1_0_0_DescribeProcess {
                                 descriptionType.getSchema());
                         isGeojson = true;
                     }
-                    else if("application/gml+xml".equals(descriptionType.getMimeType())){
-                        assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' " +
-                                        "'mimeType' should be set to 'application/gml+xml'", "application/gml+xml",
-                                descriptionType.getMimeType());
-                        assertEquals("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' " +
-                                "'schema' should be set to 'https://tools.ietf.org/html/rfc7303'", "https://tools.ietf.org/html/rfc7303", descriptionType.getSchema());
-                        isGml = true;
-                    }
                 }
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' " +
                         "should contains 'text/plain", isPlain);
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' " +
                         "should contains 'application/geo+json", isGeojson);
-                assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'complexOutput' 'supported' " +
-                        "should contains 'application/gml+xml", isGml);
             }
             else if("LiteralDataDouble".equals(type)){
                 assertTrue("The 'orbisgis:test:full' 'dataOutputs' 'output' 'literalOutput' should be set",

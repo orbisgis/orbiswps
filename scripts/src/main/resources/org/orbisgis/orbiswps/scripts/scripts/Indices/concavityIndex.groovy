@@ -45,44 +45,49 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.utilities.SFSUtilities
 import org.h2gis.utilities.TableLocation
 
-
 /**
- * @author Erwan Bocher
+ * The concavity is equal to the geometry’s area divided by its convex hull’s area.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
     title = "Concavity indice",
-    description = "The concavity is equal to the geometry’s area divided by its convex hull’s area.<p><em>Bibliography:</em></p><p>L. Adolphe, A simplified model of urban morphology: Application to an analysis of the environmental performance of cities, Environment and Planning B: Planning and Design 28 (2001) 183–200.</p><p>A. P. d’URbanisme (APUR), Consommations d'énergie et émissions degaz à effet de serre liées au chauffage des résidences principales parisiennes, Technical Report, Atelier Parisien d’URbanisme (APUR), 2007.</p>",
+    description = "The concavity is equal to the geometry’s area divided by its convex hull’s area.<br>\
+            <em>Bibliography:</em><br>\
+            L. Adolphe, A simplified model of urban morphology: Application to an analysis of the environmental \
+            performance of cities, Environment and Planning B: Planning and Design 28 (2001) 183–200.<br>\
+            A. P. d’URbanisme (APUR), Consommations d'énergie et émissions degaz à effet de serre liées au chauffage \
+            des résidences principales parisiennes, Technical Report, Atelier Parisien d’URbanisme (APUR), 2007.",
     keywords = ["Vector","Geometry","Morphology"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:concavityIndice"
 )
 def processing() {
-    
+
     //Build the start of the query
-    String  outputTable = inputTable+"_concavityindice"
+    def outputTable = "${inputTable}_concavityindice"
 
-    if(outputTableName != null){
-	outputTable  = outputTableName
+    if (outputTableName != null) {
+        outputTable = outputTableName
     }
 
+    def query = "CREATE TABLE ${outputTable} AS SELECT "
 
-    String query = "CREATE TABLE " + outputTable + " AS SELECT "
-
-    if(keepgeom==true){
-        query+= geometryColumn[0]+","
+    if (keepgeom == true) {
+        query += "${geometryColumn[0]},"
     }
-    query += idField[0]+","+ "st_area("+geometryColumn[0]+")/st_area(ST_CONVEXHULL(" +geometryColumn[0]+ ")) as concavityindice from " +  inputTable
+    query += "${idField[0]},st_area(${geometryColumn[0]})/st_area(ST_CONVEXHULL(${geometryColumn[0]})) as " +
+            "concavityindice from ${inputTable}"
 
-    
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTable
+
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTable}".toString())
     }
     //Execute the query
-    sql.execute(query)
+    sql.execute(query.toString())
 
-    literalOutput = i18n.tr("Process done")
-    
+    outputJDBCTable = outputTableName
 }
 
 /****************/
@@ -105,7 +110,7 @@ String inputTable
 )
 String[] geometryColumn
 
-/** Name of the identifier field of the JDBCTable inputJDBCTable. */
+/** Name of the identifier field of the JDBCTable inputTable. */
 @JDBCColumnInput(
     title = "Column identifier",
     description = "A column used as an identifier.",
@@ -136,13 +141,14 @@ Boolean dropTable
 String outputTableName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-    title = "Output message",
-    description = "The output message.",
-    identifier = "literalOutput"
-)
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 
 

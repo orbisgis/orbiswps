@@ -44,31 +44,35 @@ import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
- * This process creates a graph network.
- * @author Erwan Bocher
- * @author Sylvain PALOMINOS
+ * Create a graph stored in two tables nodes and edges from an input table that contains Multi or LineString.
+ * If the input table has name 'input', then the output tables are named 'input_nodes' and 'input_edges'.
+ *
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
         title = "Create a graph",
-        description = "Create a graph stored in two tables nodes and edges from an input table that contains Multi or LineString.<br>If the input table has name 'input', then the output tables are named 'input_nodes' and 'input_edges'.",
+        description = "Create a graph stored in two tables nodes and edges from an input table that contains Multi \
+                or LineString.<br>\
+                If the input table has name 'input', then the output tables are named 'input_nodes' and 'input_edges'.",
         keywords = ["Network","Geometry"],
         properties = ["DBMS_TYPE", "H2GIS"],
         version = "1.0")
-def processing() {    
-    if(slope==null){
-        slope=false;
+def processing() {
+    if (slope == null) {
+        slope = false
     }
-	
-    String query = " SELECT ST_GRAPH('"   + inputJDBCTable + "', '"+geometricField[0]+"',"+tolerance+ ", "+ slope+ ")"
+
+    def query = " SELECT ST_GRAPH('${inputTable}', '${geometricField[0]}',${tolerance}, ${slope})"
 
     //Execute the query
-    sql.execute(query)
-    
-    if(dropInputTable){
-        sql.execute "drop table if exists " + inputJDBCTable
+    sql.execute(query.toString())
+
+    if (dropInputTable) {
+        sql.execute("drop table if exists ${inputTable}".toString())
     }
 
-    literalOutput = i18n.tr("The graph network has been created.")
+    outputJDBCTable = outputTableName
 }
 
 /****************/
@@ -80,40 +84,46 @@ def processing() {
         title = "Input spatial model",
         description = "The spatial model source to create the graphe tables.",
         dataTypes = ["LINESTRING", "MULTILINESTRING"])
-String inputJDBCTable
+String inputTable
 
 
-/** Name of the Geometric field of the JDBCTable inputJDBCTable. */
+/** Name of the Geometric field of the JDBCTable inputTable. */
 @JDBCColumnInput(
         title = "Geometric column",
         description = "The geometric column of the model source.",
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         dataTypes = ["LINESTRING", "MULTILINESTRING"])
 String[] geometricField
 
 /** Snapping tolerance. */
 @LiteralDataInput(
         title = "Snapping tolerance",
-        description = "The tolerance value is used specify the side length of a square Envelope around each node used to snap together other nodes within the same Envelope.")
+        description = "The tolerance value is used specify the side length of a square Envelope around each node \
+used to snap together other nodes within the same Envelope.")
 Double tolerance
 
 @LiteralDataInput(
         title = "Slope orientation ?",
-        description = "True if edges should be oriented by the z-value of their first and last coordinates (decreasing).",
+        description = "True if edges should be oriented by the z-value of their first and last coordinates \
+(decreasing).",
         minOccurs = 0)
 Boolean slope
 
 @LiteralDataInput(
     title = "Drop the input table",
     description = "Drop the input table when the script is finished.")
-Boolean dropInputTable 
+Boolean dropInputTable
 
 
-/** String output of the process. */
-@LiteralDataOutput(
-        title = "Output message",
-        description = "The output message.")
-String literalOutput
+/*****************/
+/** OUTPUT Data **/
+/*****************/
+
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 
 
 

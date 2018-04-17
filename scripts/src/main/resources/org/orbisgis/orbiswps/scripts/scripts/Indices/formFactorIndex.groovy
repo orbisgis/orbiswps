@@ -45,46 +45,47 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.utilities.SFSUtilities
 import org.h2gis.utilities.TableLocation
 
-
 /**
- * @author Erwan Bocher
+ * The form factor index is a ratio between the polygon’s area and the square of the polygon’s perimeter.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
     title = "Form factor index",
-    description = "The form factor index is a ratio between the polygon’s area and the square of the polygon’s perimeter. <p><em>Bibliography:</em></p><p>Horton, R. E. (1932) Drainage-basin characteristics. Eos, Transactions American Geophysical Union, 13(1):350–361.</p>",
+    description = "The form factor index is a ratio between the polygon’s area and the square of the polygon’s \
+            perimeter.<br>\
+            <em>Bibliography:</em><br>\
+            Horton, R. E. (1932) Drainage-basin characteristics. Eos, Transactions American Geophysical Union, \
+            13(1):350–361.",
 	keywords = ["Vector","Geometry","Index"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:formFactorIndex"
 )
 def processing() {
-    
+
     //Build the start of the query
-    String  outputTable = inputTable+"_formfactorindex"
+    def outputTable = "${inputTable}_formfactorindex"
 
-    if(outputTableName != null){
-	outputTable  = outputTableName
+    if (outputTableName != null) {
+        outputTable = outputTableName
     }
 
+    def query = "CREATE TABLE ${outputTable} AS SELECT "
 
-    String query = "CREATE TABLE " + outputTable + " AS SELECT "
-
-
-
-    if(keepgeom==true){
-        query+= geometryColumn[0]+","
+    if (keepgeom == true) {
+        query += "${geometryColumn[0]},"
     }
-    query += idField[0]+","+ "st_area("+geometryColumn[0]+")/POWER(ST_PERIMETER(" +geometryColumn[0]+ "),2) as formfactorindex from " +  inputTable
+    query += "${idField[0]},st_area(${geometryColumn[0]})/POWER(ST_PERIMETER(${geometryColumn[0]}),2) as " +
+            "formfactorindex from ${inputTable}"
 
-    
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTable
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTable}".toString())
     }
     //Execute the query
-    sql.execute(query)
+    sql.execute(query.toString())
 
-    literalOutput = i18n.tr("Process done")
-    
+    outputJDBCTable = outputTableName
 }
 
 /****************/
@@ -107,7 +108,7 @@ String inputTable
 )
 String[] geometryColumn
 
-/** Name of the identifier field of the JDBCTable inputJDBCTable. */
+/** Name of the identifier field of the JDBCTable inputTable. */
 @JDBCColumnInput(
     title = "Column identifier",
     description = "A column used as an identifier.",
@@ -138,13 +139,14 @@ Boolean dropTable
 String outputTableName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-    title = "Output message",
-    description = "The output message.",
-    identifier = "literalOutput"
-)
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 
 

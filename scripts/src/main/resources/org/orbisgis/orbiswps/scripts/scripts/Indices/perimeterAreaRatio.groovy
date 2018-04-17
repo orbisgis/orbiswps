@@ -45,45 +45,45 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.utilities.SFSUtilities
 import org.h2gis.utilities.TableLocation
 
-
 /**
- * @author Erwan Bocher
+ * Perimeter-area ratio is a measure of shape complexity.It equals the ratio of the perimeter to area.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
     title = "Perimeter-Area Ratio",
-    description = "Perimeter-area ratio is a measure of shape complexity.It equals the ratio of the perimeter to area.<p><em>Bibliography:</em></p>",
+    description = "Perimeter-area ratio is a measure of shape complexity.It equals the ratio of the perimeter to \
+            area.<br>\
+            <em>Bibliography:</em>",
 	keywords = ["Vector","Geometry","Morphology"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:perimeterAreaRatio"
 )
 def processing() {
-    
+
     //Build the start of the query
-    String  outputTable = inputTable+"_perimeterAreaRatio"
+    def outputTable = "${inputTable}_perimeterAreaRatio"
 
-    if(outputTableName != null){
-	outputTable  = outputTableName
+    if (outputTableName != null) {
+        outputTable = outputTableName
     }
 
+    def query = "CREATE TABLE ${outputTable} AS SELECT "
 
-    String query = "CREATE TABLE " + outputTable + " AS SELECT "
-
-
-    if(keepgeom==true){
-        query+= geometryColumn[0]+","
+    if (keepgeom == true) {
+        query += "${geometryColumn[0]},"
     }
-    query += idField[0]+","+ "ST_PERIMETER ("+ geometryColumn[0] +")  / ST_AREA ("+ geometryColumn[0] +")  as perimeterarearatio from " +  inputTable
+    query += "${idField[0]},ST_PERIMETER (${geometryColumn[0]}) / ST_AREA (${geometryColumn[0]}) as " +
+            "perimeterarearatio from ${inputTable}"
 
-    
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTable
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTable}".toString())
     }
     //Execute the query
-    sql.execute(query)
+    sql.execute(query.toString())
 
-    literalOutput = i18n.tr("Process done")
-    
+    outputJDBCTable = outputTableName
 }
 
 /****************/
@@ -106,7 +106,7 @@ String inputTable
 )
 String[] geometryColumn
 
-/** Name of the identifier field of the JDBCTable inputJDBCTable. */
+/** Name of the identifier field of the JDBCTable inputTable. */
 @JDBCColumnInput(
     title = "Column identifier",
     description = "A column used as an identifier.",
@@ -137,13 +137,14 @@ Boolean dropTable
 String outputTableName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-    title = "Output message",
-    description = "The output message.",
-    identifier = "literalOutput"
-)
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 
 

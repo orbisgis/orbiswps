@@ -39,55 +39,60 @@
  */
 package org.orbisgis.orbiswps.scripts.scripts.Export
 
-import org.orbisgis.orbiswps.groovyapi.input.*
-import org.orbisgis.orbiswps.groovyapi.output.*
-import org.orbisgis.orbiswps.groovyapi.process.*
-
 import org.h2gis.functions.io.tsv.TSVDriverFunction
-import org.h2gis.api.DriverFunction
-
-import java.sql.Connection
-
+import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
+import org.orbisgis.orbiswps.groovyapi.input.LiteralDataInput
+import org.orbisgis.orbiswps.groovyapi.input.RawDataInput
+import org.orbisgis.orbiswps.groovyapi.output.RawDataOutput
+import org.orbisgis.orbiswps.groovyapi.process.Process
 
 /**
- * @author Erwan Bocher
+ * Export the table 'inputTable' into the TSV file 'fileDataInput'.
+ * If 'dropInputTable' set to true, drop the table 'inputTable'.
+ * The TSV file is returned as the output 'fileDataOutput'.
+ *
+ * @author Erwan Bocher (CNRS)
  */
 @Process(title = "Export TSV file",
-    description = "Export a table to a TSV file.",
-    keywords = ["OrbisGIS","Export","File","TSV"],
-    properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
-    version = "1.0")
+        description = "Export a table to a TSV file.",
+        keywords = ["OrbisGIS","Export","File","TSV"],
+        properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
+        identifier = "orbisgis:wps:official:exportTsv",
+        version = "1.0")
 def processing() {
-    File outputFile = new File(fileDataInput[0])    
-    DriverFunction exp = new TSVDriverFunction()
-    Connection con = sql.getDataSource()?sql.getDataSource().getConnection():sql.getConnection()
-    exp.exportTable(con, inputJDBCTable, outputFile, progressMonitor)
-    if(dropInputTable){
-	sql.execute "drop table if exists " + inputJDBCTable
-    }
-    literalDataOutput = i18n.tr("The TSV file has been created.")
-}
+    def outputFile = new File(fileDataInput[0].toString())
+    def exp = new TSVDriverFunction()
+    def con = sql.getDataSource() ? sql.getDataSource().getConnection() : sql.getConnection()
+    exp.exportTable(con, inputTable, outputFile, progressMonitor)
 
+    if (dropInputTable) {
+        sql.execute "drop table if exists ${inputTable}"
+    }
+    fileDataOutput = [outputFile.getAbsolutePath()]
+}
 
 /***********/
 /** INPUT **/
 /***********/
 
 @JDBCTableInput(
-    title = "Table to export",
-    description = "The table that will be exported in a TSV file")
-String inputJDBCTable
+        title = "Table to export",
+        description = "The table that will be exported in a TSV file",
+        identifier = "inputTable")
+String inputTable
 
 @LiteralDataInput(
-    title = "Drop the input table",
-    description = "Drop the input table when the export is finished.")
+        title = "Drop the input table",
+        description = "Drop the input table when the export is finished.",
+        identifier = "dropInputTable")
 Boolean dropInputTable
 
 @RawDataInput(
-    title = "Output TSV",
-    description = "The output TSV file to be exported.",
-    fileTypes = ["tsv"],
-    isDirectory = false)
+        title = "TSV file",
+        description = "The TSV file where the table is exported",
+        fileTypes = ["tsv"],
+        isDirectory = false,
+        identifier = "tsvFile")
 String[] fileDataInput
 
 
@@ -95,7 +100,10 @@ String[] fileDataInput
 /** OUTPUT **/
 /************/
 
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@RawDataOutput(
+        title = "Output TSV",
+        description = "The output TSV file.",
+        fileTypes = ["tsv"],
+        isDirectory = false,
+        identifier = "outputFile")
+String[] fileDataOutput

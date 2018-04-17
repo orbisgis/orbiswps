@@ -43,46 +43,44 @@ import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
-/********************/
-/** Process method **/
-/********************/
-
 /**
  * This process is used to extrude 3D polygons.
  *
  * @return A database table.
- * @author Erwan BOCHER
- * @author Sylvain PALOMINOS
+ *
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
 		title = "Variable extrude polygons",
-		description = "Extrude a polygon and extends it to a 3D representation, returning a geometry collection containing floor, ceiling and wall geometries.",
+		description = "Extrude a polygon and extends it to a 3D representation, returning a geometry collection\
+			 containing floor, ceiling and wall geometries.",
 		keywords = ["Vector","Geometry","Create"],
 		properties = ["DBMS_TYPE", "H2GIS"],
                 version = "1.0")
 def processing() {
 
-    //Build the start of the query
-    String query = "CREATE TABLE "+outputTableName+" AS SELECT ST_EXTRUDE("+geometricField[0]+","+height[0]+") AS the_geom "
+	//Build the start of the query
+	def query = "CREATE TABLE ${outputTableName} AS SELECT ST_EXTRUDE(${geometricField[0]},${height[0]}) AS the_geom "
 
-	for(String field : fieldList) {
+	for (field in fieldList) {
 		if (field != null) {
-			query += ", " + field;
+			query += ", ${field}"
 		}
 	}
 
-	query+=" FROM "+inputJDBCTable+";"
+	query += " FROM ${inputTable};"
 
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTableName
-    }
-    
-    //Execute the query
-    sql.execute(query)
-    if(dropInputTable){
-        sql.execute "drop table if exists " + inputJDBCTable
-    }
-    literalOutput = i18n.tr("Process done")
+	if (dropTable) {
+		sql.execute("drop table if exists ${outputTableName}".toString())
+	}
+
+	//Execute the query
+	sql.execute(query)
+	if (dropInputTable) {
+		sql.execute("drop table if exists ${inputTable}".toString())
+	}
+	outputJDBCTable = outputTableName
 }
 
 
@@ -94,7 +92,7 @@ def processing() {
 		title = "Input spatial model",
 		description = "The spatial model source that must be extruded.",
 		dataTypes = ["GEOMETRY"])
-String inputJDBCTable
+String inputTable
 
 /**********************/
 /** INPUT Parameters **/
@@ -103,7 +101,7 @@ String inputJDBCTable
 @JDBCColumnInput(
 		title = "Geometric column",
 		description = "The geometric column of the model source.",
-		jdbcTableReference = "inputJDBCTable",
+		jdbcTableReference = "inputTable",
         dataTypes = ["GEOMETRY"])
 String[] geometricField
 
@@ -111,7 +109,7 @@ String[] geometricField
 @JDBCColumnInput(
 		title = "Height of the polygons",
 		description = "A numeric column to specify the height of the polygon.",
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         dataTypes = ["DOUBLE", "INTEGER", "LONG"])
 String[] height
 
@@ -122,7 +120,7 @@ String[] height
 		excludedTypes=["GEOMETRY"],
 		multiSelection = true,
 		minOccurs = 0,
-        jdbcTableReference = "inputJDBCTable")
+        jdbcTableReference = "inputTable")
 String[] fieldList
 
 @LiteralDataInput(
@@ -139,16 +137,16 @@ String outputTableName
 @LiteralDataInput(
     title = "Drop the input table",
     description = "Drop the input table when the script is finished.")
-Boolean dropInputTable 
+Boolean dropInputTable
 
 
 /*****************/
 /** OUTPUT Data **/
 /*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-		title = "Output message",
-		description = "The output message.")
-String literalOutput
+@JDBCTableOutput(
+		title = "output table",
+		description = "Table that contains the output.",
+		identifier = "outputTable")
+String outputJDBCTable
 

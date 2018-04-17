@@ -39,32 +39,36 @@
  */
 package org.orbisgis.orbiswps.scripts.scripts.Export
 
-import org.h2gis.api.DriverFunction
 import org.h2gis.functions.io.dbf.DBFDriverFunction
-
-import org.orbisgis.orbiswps.groovyapi.input.*
-import org.orbisgis.orbiswps.groovyapi.output.*
-import org.orbisgis.orbiswps.groovyapi.process.*
-
-import java.sql.Connection
+import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
+import org.orbisgis.orbiswps.groovyapi.input.LiteralDataInput
+import org.orbisgis.orbiswps.groovyapi.input.RawDataInput
+import org.orbisgis.orbiswps.groovyapi.output.RawDataOutput
+import org.orbisgis.orbiswps.groovyapi.process.Process
 
 /**
- * @author Erwan Bocher
+ * Export the table 'inputTable' into the DBF file 'fileDataInput'.
+ * If 'dropInputTable' set to true, drop the table 'inputTable'.
+ * The DBF file is returned as the output 'fileDataOutput'.
+ *
+ * @author Erwan Bocher (CNRS)
  */
 @Process(title = "Export DBF file",
-    description = "Export a table to a DBF file.",
-    keywords = ["OrbisGIS","Export","File","DBF"],
-    properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
-    version = "1.0")
+        description = "Export a table to a DBF file.",
+        keywords = ["OrbisGIS","Export","File","DBF"],
+        properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
+        identifier = "orbisgis:wps:official:exportDbf",
+        version = "1.0")
 def processing() {
-    File outputFile = new File(fileDataInput[0])    
-    DriverFunction exp = new DBFDriverFunction()
-    Connection con = sql.getDataSource()?sql.getDataSource().getConnection():sql.getConnection()
+    def outputFile = new File(fileDataInput[0].toString())
+    def exp = new DBFDriverFunction()
+    def con = sql.getDataSource() ? sql.getDataSource().getConnection() : sql.getConnection()
     exp.exportTable(con, inputJDBCTable, outputFile, progressMonitor)
-    if(dropInputTable){
-	    sql.execute "drop table if exists " + inputJDBCTable
+
+    if (dropInputTable) {
+        sql.execute "drop table if exists ${inputTable}"
     }
-    literalDataOutput = i18n.tr("The DBF file has been created.")
+    fileDataOutput = [outputFile.getAbsolutePath()]
 }
 
 /***********/
@@ -72,22 +76,24 @@ def processing() {
 /***********/
 
 @JDBCTableInput(
-    title = "Table to export",
-    description = "The table that will be exported in a DBF file")
-String inputJDBCTable
+        title = "Table to export",
+        description = "The table that will be exported in a DBF file",
+        identifier = "inputTable")
+String inputTable
 
 
 @LiteralDataInput(
-    title = "Drop the input table",
-    description = "Drop the input table when the export is finished.")
+        title = "Drop the input table",
+        description = "Drop the input table when the export is finished.",
+        identifier = "dropInputTable")
 Boolean dropInputTable
 
-
 @RawDataInput(
-    title = "Output DBF",
-    description = "The output DBF file to be exported.",
-    fileTypes = ["dbf"],
-    isDirectory = false)
+        title = "DBF file",
+        description = "The DBF file where the table is exported.",
+        fileTypes = ["dbf"],
+        isDirectory = false,
+        identifier = "dbfFile")
 String[] fileDataInput
 
 
@@ -95,7 +101,10 @@ String[] fileDataInput
 /** OUTPUT **/
 /************/
 
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@RawDataOutput(
+        title = "Output DBF",
+        description = "The output DBF file.",
+        fileTypes = ["dbf"],
+        isDirectory = false,
+        identifier = "outputFile")
+String[] fileDataOutput

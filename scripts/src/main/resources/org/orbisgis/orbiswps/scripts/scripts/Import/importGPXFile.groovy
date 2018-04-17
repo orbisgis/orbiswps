@@ -44,28 +44,31 @@ import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
- * @author Erwan Bocher
+ * Import the GPX file 'fileDataInput' into the table 'inputTable'.
+ * If 'dropTable' set to true, drop the table 'jdbcTableOutput'.
+ * The table is returned as the output 'jdbcTableOutput'.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(title = "Import a GPX file",
-    description = "Import a GPX file from path and creates several tables prefixed by tableName representing the file’s contents.\n Please go to  http://www.h2gis.org",
+    description = "Import a GPX file from path and creates several tables prefixed by tableName representing the file’s\
+            contents.<br> Please go to  http://www.h2gis.org",
     keywords = ["OrbisGIS","Import","File","GPX"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
-    File fileData = new File(fileDataInput[0])
-    name = fileData.getName()
-    tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
-    query = "CALL GPXRead('"+ fileData.absolutePath+"','"
-    if(jdbcTableOutputName != null){
-	    tableName = jdbcTableOutputName
+    def fileData = new File(fileDataInput[0])
+    def name = fileData.getName()
+    def tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
+    def query = "CALL GPXRead('${fileData.absolutePath}','"
+    if (jdbcTableOutputName != null) {
+        tableName = jdbcTableOutputName
     }
-    
-    query += tableName+"')"	    
+    query += "${tableName}')"
 
-    sql.execute query
-    
+    sql.execute(query.toString())
 
-    literalDataOutput = i18n.tr("The GPX file has been imported.")
+    outputJDBCTable = tableName
 }
 
 
@@ -86,13 +89,12 @@ String[] fileDataInput
 String jdbcTableOutputName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-
-
-/************/
-/** OUTPUT **/
-/************/
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable

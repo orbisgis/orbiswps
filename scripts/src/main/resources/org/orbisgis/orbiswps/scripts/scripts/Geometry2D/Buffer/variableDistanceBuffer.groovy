@@ -43,10 +43,6 @@ import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
-/********************/
-/** Process method **/
-/********************/
-
 /**
  * This process execute a buffer on a spatial model source using the ST_Buffer().
  * The user has to specify (mandatory):
@@ -61,8 +57,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  *  - The mitre ratio limit (only affects mitered join style) (LiteralData)
  *
  * @return A datadase table.
- * @author Sylvain PALOMINOS
- * @author Erwan BOCHER
+ *
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
         title = "Variable distance buffer",
@@ -73,52 +70,51 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 def processing() {
 
     //Build the start of the query
-    String query = "CREATE TABLE "+outputTableName+" AS SELECT ST_Buffer("+geometricField[0]+","+bufferSize[0]
+    def query = "CREATE TABLE ${outputTableName} AS SELECT ST_Buffer(${geometricField[0]},${bufferSize[0]}"
     //Build the third optional parameter
-    String optionalParameter = "";
+    def optionalParameter = ""
     //If quadSegs is defined
-    if(quadSegs != null){
-        optionalParameter += "quad_segs="+quadSegs+" "
+    if (quadSegs != null) {
+        optionalParameter += "quad_segs=${quadSegs} "
     }
     //If endcapStyle is defined
-    if(endcapStyle != null){
-        optionalParameter += "endcap="+endcapStyle[0]+" "
+    if (endcapStyle != null) {
+        optionalParameter += "endcap=${endcapStyle[0]} "
     }
     //If joinStyle is defined
-    if(joinStyle != null){
-        optionalParameter += "join="+joinStyle[0]+" "
+    if (joinStyle != null) {
+        optionalParameter += "join=${joinStyle[0]} "
     }
     //If mitreLimit is defined
-    if(mitreLimit != null){
-        optionalParameter += "mitre_limit="+mitreLimit+" "
+    if (mitreLimit != null) {
+        optionalParameter += "mitre_limit=${mitreLimit} "
     }
     //If optionalParameter is not empty, add it to the request
-    if(!optionalParameter.isEmpty()){
-        query += ",'"+optionalParameter+"'";
+    if (!optionalParameter.isEmpty()) {
+        query += ",'${optionalParameter}'"
     }
     //Build the end of the query
-    query += ") AS the_geom";
+    query += ") AS the_geom"
 
-    for(String field : fieldList) {
+    for (field in fieldList) {
         if (field != null) {
-            query += ", " + field;
+            query += ", ${field}"
         }
     }
 
-    query+=" FROM "+inputJDBCTable+";"
+    query += " FROM ${inputTable};"
 
-    if(dropOutputTable){
-	sql.execute "drop table if exists " + outputTableName
+    if (dropOutputTable) {
+        sql.execute("drop table if exists ${outputTableName}".toString())
     }
-    
+
     //Execute the query
     sql.execute(query)
-    
-    if(dropInputTable){
-        sql.execute "drop table if exists " + inputJDBCTable
+
+    if (dropInputTable) {
+        sql.execute("drop table if exists ${inputTable}".toString())
     }
-    
-    literalOutput = i18n.tr("Process done")
+    outputJDBCTable = outputTableName
 }
 
 
@@ -131,7 +127,7 @@ def processing() {
         title = "Input table",
         description = "The input geometry table to compute the buffer.",
         dataTypes = ["GEOMETRY"])
-String inputJDBCTable
+String inputTable
 
 /**********************/
 /** INPUT Parameters **/
@@ -140,7 +136,7 @@ String inputJDBCTable
 @JDBCColumnInput(
         title = "Geometric column",
         description = "The geometric column of the input table.",
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         dataTypes = ["GEOMETRY"])
 String[] geometricField
 
@@ -148,7 +144,7 @@ String[] geometricField
 @JDBCColumnInput(
         title = "Buffer size",
         description = "A numeric column to specify the size of the buffer.",
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         dataTypes = ["DOUBLE", "INTEGER", "LONG"])
 String[] bufferSize
 
@@ -189,7 +185,7 @@ String[] joinStyle = ["round"]
         excludedTypes=["GEOMETRY"],
         multiSelection = true,
         minOccurs = 0,
-        jdbcTableReference = "inputJDBCTable")
+        jdbcTableReference = "inputTable")
 String[] fieldList
 
 
@@ -207,15 +203,16 @@ String outputTableName
 @LiteralDataInput(
     title = "Drop the input table",
     description = "Drop the input table when the script is finished.")
-Boolean dropInputTable 
+Boolean dropInputTable
+
 
 /*****************/
 /** OUTPUT Data **/
 /*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-        title = "Output message",
-        description = "The output message.")
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 

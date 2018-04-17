@@ -45,38 +45,39 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.utilities.SFSUtilities
 import org.h2gis.utilities.TableLocation
 
-
 /**
- * @author Erwan Bocher
+ * Select rows from one table based on one column value. SQL expression could be used to custom the select.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
     title = "Attribut selection",
-    description = "Select rows from one table based on one column value. SQL expression could be used to custom the select. ",
+    description = "Select rows from one table based on one column value. SQL expression could be used to custom the \
+            select. ",
 	keywords = "Filtering",
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:selectAttribute"
 )
 def processing() {
-    
-    //Build the start of the query
-    String  outputTable = fromSelectedTable+"_filtered"
 
-    if(outputTableName != null){
-	outputTable  = outputTableName
+    //Build the start of the query
+    def outputTable = "${fromSelectedTable}_filtered"
+
+    if (outputTableName != null) {
+        outputTable = outputTableName
     }
 
-    String query = "CREATE TABLE " + outputTable + " AS SELECT a.*"
-    query += " from " +  fromSelectedTable+ " as a  where " + fromSelectedColumn[0] + " "+ operation[0] + " "+ fromSelectedValue
- 
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTable
+    def query = "CREATE TABLE ${outputTable} AS SELECT a.* from ${fromSelectedTable} as a  where " +
+            "${fromSelectedColumn[0]} ${operation[0]} ${fromSelectedValue}"
+
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTable}".toString())
     }
     //Execute the query
-    sql.execute(query)
+    sql.execute(query.toString())
 
-    literalOutput = i18n.tr("Process done")
-    
+    outputTable = outputTableName
 }
 
 /****************/
@@ -102,7 +103,8 @@ String[] fromSelectedColumn
     title = "Operator",
     description = "Operator to select rows.",
 	values=["=", ">",">=", "<", "<=","<>", "limit", "in", "not in", "like"],
-    names=["Equal to","Greater than","Greater than or equal to","Less than","Less than or equal to","Not equal to","Limit","In","Not In","Like"])
+    names=["Equal to","Greater than","Greater than or equal to","Less than","Less than or equal to","Not equal to",
+            "Limit","In","Not In","Like"])
 String[] operation = ["="]
 
 @LiteralDataInput(
@@ -124,16 +126,17 @@ Boolean dropTable
     minOccurs = 0,
     identifier = "outputTableName"
 )
-String outputTableName 
+String outputTableName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-    title = "Output message",
-    description = "The output message.",
-    identifier = "literalOutput"
-)
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputTable
 
 

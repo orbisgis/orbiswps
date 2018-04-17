@@ -45,10 +45,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
  * This process is used to describe the columns of a table
- * 
  *
- * @author Erwan Bocher
- * @author Sylvain PALOMINOS
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
         title = "Describe columns",
@@ -57,21 +56,22 @@ import org.orbisgis.orbiswps.groovyapi.process.*
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         identifier = "orbisgis:wps:official:describeColumn",
         version = "1.0")
-def processing() {    
-    String query;
-    if(isH2){
-        query =  "CREATE TABLE " + outputTableName +" as SELECT COLUMN_NAME as col_name, TYPE_NAME as col_type,  REMARKS as col_comment from INFORMATION_SCHEMA.COLUMNS where table_name = '"+ tableName+"';"
+def processing() {
+    def query
+    if (isH2) {
+        query = "CREATE TABLE ${outputTableName} as SELECT COLUMN_NAME as col_name, TYPE_NAME as col_type, " +
+                "REMARKS as col_comment from INFORMATION_SCHEMA.COLUMNS where table_name = '${tableName}';"
+    } else {
+        query = "CREATE TABLE ${outputTableName} as SELECT cols.column_name as col_name,cols.udt_name as col_type, " +
+                "pg_catalog.col_description(c.oid, cols.ordinal_position::int) as col_comment FROM " +
+                "pg_catalog.pg_class c, information_schema.columns cols WHERE cols.table_name = '${tableName}'AND " +
+                "cols.table_name = c.relname "
     }
-    else{
-        query =   "CREATE TABLE " + outputTableName +" as SELECT cols.column_name as col_name,cols.udt_name as col_type, pg_catalog.col_description(c.oid, cols.ordinal_position::int) as col_comment FROM pg_catalog.pg_class c, information_schema.columns cols WHERE cols.table_name = '"+tableName +"'AND cols.table_name = c.relname "
-    } 
-    
-    if(dropTable){
-	    sql.execute "drop table if exists " + outputTableName
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTableName}".toString())
     }
-    sql.execute(query)
+    sql.execute(query.toString())
     outputTable = outputTableName
-    logger.info(i18n.tr("The descriptions have been extracted."))
 }
 
 /****************/
@@ -97,6 +97,10 @@ Boolean dropTable
         identifier = "outputDataName")
 String outputTableName
 
+
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
 @JDBCTableOutput(
         title = "Table",

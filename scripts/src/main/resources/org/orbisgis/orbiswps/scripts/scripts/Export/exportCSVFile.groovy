@@ -39,58 +39,69 @@
  */
 package org.orbisgis.orbiswps.scripts.scripts.Export
 
-import org.orbisgis.orbiswps.groovyapi.input.*
-import org.orbisgis.orbiswps.groovyapi.output.*
-import org.orbisgis.orbiswps.groovyapi.process.*
-
 import org.h2gis.functions.io.csv.CSVDriverFunction
-import org.h2gis.api.DriverFunction
-
-import java.sql.Connection
+import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
+import org.orbisgis.orbiswps.groovyapi.input.LiteralDataInput
+import org.orbisgis.orbiswps.groovyapi.input.RawDataInput
+import org.orbisgis.orbiswps.groovyapi.output.RawDataOutput
+import org.orbisgis.orbiswps.groovyapi.process.Process
 
 /**
- * @author Erwan Bocher
+ * Export the table 'inputTable' into the CSV file 'fileDataInput'.
+ * If 'dropInputTable' set to true, drop the table 'inputTable'.
+ * The CSV file is returned as the output 'fileDataOutput'.
+ *
+ * The user has to specify (mandatory):
+ *  Inputs :
+ *      - The table that will be exported in a CSV file (JDBCTable)
+ *      - Drop the input table when the export is finished (LiteralData)
+ *      - The CSV file where the table is exported (RawData)
+ *  Outputs :
+ *      - The output CSV file (RawData)
+ *
+ * @author Erwan Bocher (CNRS)
  */
 @Process(title = "Export CSV file",
-    description = "Export a table to a CSV file.",
-    keywords = ["OrbisGIS","Exporter","Fichier","CSV"],
-    properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
-    version = "1.0")
+        description = "Export a table to a CSV file.",
+        keywords = ["OrbisGIS","Exporter","Fichier","CSV"],
+        properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
+        identifier = "orbisgis:wps:official:exportCsv",
+        version = "1.0")
 def processing() {
-    File outputFile = new File(fileDataInput[0])
-    DriverFunction exp = new CSVDriverFunction()
-    Connection con = sql.getDataSource()?sql.getDataSource().getConnection():sql.getConnection()
+    def outputFile = new File(fileDataInput[0].toString())
+    def exp = new CSVDriverFunction()
+    def con = sql.getDataSource() ? sql.getDataSource().getConnection() : sql.getConnection()
     exp.exportTable(con, inputJDBCTable, outputFile, progressMonitor)
-    
-    if(dropInputTable){
-	    sql.execute "drop table if exists " + inputJDBCTable
-    }
-    
-    literalDataOutput = i18n.tr("The CSV file has been created.")
-}
 
+    if (dropInputTable) {
+        sql.execute "drop table if exists ${inputTable}"
+    }
+    fileDataOutput = [outputFile.getAbsolutePath()]
+}
 
 /***********/
 /** INPUT **/
 /***********/
 
 @JDBCTableInput(
-    title = "Table to export",
-    description = "The table that will be exported in a CSV file")
-String inputJDBCTable
+        title = "Table to export",
+        description = "The table that will be exported in a CSV file",
+        identifier = "inputTable")
+String inputTable
 
 
 @LiteralDataInput(
-    title = "Drop the input table",
-    description = "Drop the input table when the export is finished.")
+        title = "Drop the input table",
+        description = "Drop the input table when the export is finished.",
+        identifier = "dropInputTable")
 Boolean dropInputTable
 
-
 @RawDataInput(
-    title = "Output CSV",
-    description = "The output CSV file to be exported.",
-    fileTypes = ["csv"],
-    isDirectory = false)
+        title = "CSV file",
+        description = "The CSV file where the table is exported.",
+        fileTypes = ["csv"],
+        isDirectory = false,
+        identifier = "csvFile")
 String[] fileDataInput
 
 
@@ -98,7 +109,10 @@ String[] fileDataInput
 /** OUTPUT **/
 /************/
 
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@RawDataOutput(
+        title = "Output CSV",
+        description = "The output CSV file.",
+        fileTypes = ["csv"],
+        isDirectory = false,
+        identifier = "outputFile")
+String[] fileDataOutput

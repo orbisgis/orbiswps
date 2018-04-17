@@ -46,45 +46,49 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 /**
  * This process converts geometries to polygons
  *
- * @author Erwan Bocher
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
 		title = "Polygonize",
-		description = "Convert a set of 2 or 3 dimensional geometries to polygons.\n\
-                Optionally, polygonize extracts points where lines intersect and uses them,together with points from the original lines, to construct polygons",
+		description = "Convert a set of 2 or 3 dimensional geometries to polygons.<br>\
+                Optionally, polygonize extracts points where lines intersect and uses them,together with points from\
+                 the original lines, to construct polygons",
 		keywords = ["Vector","Geometry", "Convert"],
 		properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
                 version = "1.0")
 def processing() {
-    the_geom = geometricField[0]     
-    String query = "CREATE TABLE ${outputTableName} AS SELECT "    
-    
-    if(isH2){
-        query+= " explod_id as id, the_geom from ST_EXPLODE('(SELECT "
-        if(node){
-            query +=  "st_polygonize(st_union(st_precisionreducer(st_node(st_accum(${the_geom})), 3))) as the_geom from ${inputJDBCTable} where st_dimension(${the_geom})>0)')"    
-        }else{
-            query +=  "st_polygonize(st_accum(${the_geom})) as the_geom from ${inputJDBCTable} where st_dimension(${the_geom})>0)')"    
+    def the_geom = geometricField[0]
+    def query = "CREATE TABLE ${outputTableName} AS SELECT "
+
+    if (isH2) {
+        query += " explod_id as id, the_geom from ST_EXPLODE('(SELECT "
+        if (node) {
+            query += "  st_polygonize(st_union(st_precisionreducer(st_node(st_accum(${the_geom})), 3))) as the_geom " +
+                    "from ${inputTable} where st_dimension(${the_geom})>0)')"
+        } else {
+            query += " st_polygonize(st_accum(${the_geom})) as the_geom from ${inputTable} where " +
+                    "st_dimension(${the_geom})>0)')"
+        }
+    } else {
+        query += " row_number() OVER () AS id, t.the_geom from "
+        if (node) {
+            query += " (select (st_dump(st_polygonize(ST_UnaryUnion(ST_SnapToGrid(${the_geom}, 0.001)))).geom as " +
+                    "the_geom from  ${inputTable} where st_dimension(${the_geom})>0) as t "
+        } else {
+            query += " (select (st_dump(st_accum(${the_geom}))).geom as the_geom from  ${inputTable} where " +
+                    "st_dimension(${the_geom})>0) as t"
         }
     }
-    else{
-        query+= " row_number() OVER () AS id, t.the_geom from "
-        if(node){  
-            query +=  "(select (st_dump(st_polygonize(ST_UnaryUnion(ST_SnapToGrid(${the_geom}, 0.001)))).geom as the_geom from  ${inputJDBCTable} where st_dimension(${the_geom})>0) as t"
-        }else{
-            query +=  "(select (st_dump(st_accum(${the_geom}))).geom as the_geom from  ${inputJDBCTable} where st_dimension(${the_geom})>0) as t"
-        }
-    }    
-    
-    if(dropOutputTable){
-	sql.execute "drop table if exists ${outputTableName}".toString()
+    if (dropOutputTable) {
+        sql.execute("drop table if exists ${outputTableName}".toString())
     }
-    
+
     sql.execute(query)
-    if(dropInputTable){
-        sql.execute "drop table if exists ${inputJDBCTable}"
+    if (dropInputTable) {
+        sql.execute("drop table if exists ${inputTable}".toString())
     }
-    literalOutput = i18n.tr("Process done")
+    outputJDBCTable = outputTableName
 }
 
 
@@ -96,17 +100,17 @@ def processing() {
 		title = "Table to polygonize",
 		description = "The table to polygonize.",
         dataTypes = ["GEOMETRY"])
-String inputJDBCTable
+String inputTable
 
 /**********************/
 /** INPUT Parameters **/
 /**********************/
 
-/** Name of the Geometric field of the JDBCTable inputJDBCTable. */
+/** Name of the Geometric field of the JDBCTable inputTable. */
 @JDBCColumnInput(
 		title = "Geometric column",
 		description = "The geometric column of the input table.",
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         dataTypes = ["GEOMETRY"])
 String[] geometricField
 
@@ -130,15 +134,15 @@ String outputTableName
 @LiteralDataInput(
     title = "Drop the input table",
     description = "Drop the input table when the script is finished.")
-Boolean dropInputTable 
+Boolean dropInputTable
 
 
 /*****************/
 /** OUTPUT Data **/
 /*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-		title = "Output message",
-		description = "The output message.")
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable

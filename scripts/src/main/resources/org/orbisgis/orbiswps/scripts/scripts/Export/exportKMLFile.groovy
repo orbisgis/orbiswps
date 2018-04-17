@@ -39,56 +39,61 @@
  */
 package org.orbisgis.orbiswps.scripts.scripts.Export
 
-import org.orbisgis.orbiswps.groovyapi.input.*
-import org.orbisgis.orbiswps.groovyapi.output.*
-import org.orbisgis.orbiswps.groovyapi.process.*
-
 import org.h2gis.functions.io.kml.KMLDriverFunction
-import org.h2gis.api.DriverFunction
-
-import java.sql.Connection
-
+import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
+import org.orbisgis.orbiswps.groovyapi.input.LiteralDataInput
+import org.orbisgis.orbiswps.groovyapi.input.RawDataInput
+import org.orbisgis.orbiswps.groovyapi.output.RawDataOutput
+import org.orbisgis.orbiswps.groovyapi.process.Process
 
 /**
- * @author Erwan Bocher
+ * Export the table 'inputTable' into the KML file 'fileDataInput'.
+ * If 'dropInputTable' set to true, drop the table 'inputTable'.
+ * The KML file is returned as the output 'fileDataOutput'.
+ *
+ * @author Erwan Bocher (CNRS)
  */
 @Process(title = "Export into a KML file",
-    description = "Export a table to a KML file.",
-    keywords = ["OrbisGIS","Export","File","KML"],
-    properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
-    version = "1.0")
+        description = "Export a table to a KML file.",
+        keywords = ["OrbisGIS","Export","File","KML"],
+        properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
+        identifier = "orbisgis:wps:official:exportKml",
+        version = "1.0")
 def processing() {
-    File outputFile = new File(fileDataInput[0])    
-    DriverFunction exp = new KMLDriverFunction()
-    Connection con = sql.getDataSource()?sql.getDataSource().getConnection():sql.getConnection()
-    exp.exportTable(con, inputJDBCTable, outputFile, progressMonitor)
-    if(dropInputTable){
-	sql.execute "drop table if exists " + inputJDBCTable
-    }
-    literalDataOutput = i18n.tr("The KML file has been created.")
-}
+    def outputFile = new File(fileDataInput[0].toString())
+    def exp = new KMLDriverFunction()
+    def con = sql.getDataSource() ? sql.getDataSource().getConnection() : sql.getConnection()
+    exp.exportTable(con, inputTable, outputFile, progressMonitor)
 
+    if (dropInputTable) {
+        sql.execute "drop table if exists ${inputTable}"
+    }
+    fileDataOutput = [outputFile.getAbsolutePath()]
+}
 
 /***********/
 /** INPUT **/
 /***********/
 
 @JDBCTableInput(
-    title = "Table to export",
-    description = "The table that will be exported in a KML file",
-    dataTypes = ["GEOMETRY"])
-String inputJDBCTable
+        title = "Table to export",
+        description = "The table that will be exported in a KML file",
+        dataTypes = ["GEOMETRY"],
+        identifier = "inputTable")
+String inputTable
 
 @LiteralDataInput(
-    title = "Drop the input table",
-    description = "Drop the input table when the export is finished.")
+        title = "Drop the input table",
+        description = "Drop the input table when the export is finished.",
+        identifier = "dropInputTable")
 Boolean dropInputTable
 
 @RawDataInput(
-    title = "Output KML",
-    description = "The output KML file to be exported.",
-    fileTypes = ["kml", "kmz"],
-    isDirectory = false)
+        title = "KML file",
+        description = "The KML file where the table is exported.",
+        fileTypes = ["kml", "kmz"],
+        isDirectory = false,
+        identifier = "kmlFile")
 String[] fileDataInput
 
 
@@ -96,7 +101,10 @@ String[] fileDataInput
 /** OUTPUT **/
 /************/
 
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@RawDataOutput(
+        title = "Output KML",
+        description = "The output KML file.",
+        fileTypes = ["kml"],
+        isDirectory = false,
+        identifier = "outputFile")
+String[] fileDataOutput

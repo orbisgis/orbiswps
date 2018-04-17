@@ -45,45 +45,48 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.utilities.SFSUtilities
 import org.h2gis.utilities.TableLocation
 
-
 /**
- * @author Erwan Bocher
+ * Compute the fractal dimension of a polygon.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
     title = "Fractal dimension index",
-    description = "Compute the fractal dimension of a polygon. <p><em>Bibliography:</em></p><p>Herold, M., Scepan, J., and Clarke, K. C. (2002). The use of remote sensing and landscape metrics to describe structures and changes in urban land uses. Environment and Planning A, 34(8):1443–1458.</p><p>McGarigal, K. and Marks, B. J. (1995). Fragstats: spatial pattern analysis program for quantifying landscape structure. Gen. Tech. Rep. PNW-GTR-351. Portland, OR: U.S. Department of Agriculture, Forest Service, Pacific Northwest Research Station. 122 p.</p>",
+    description = "Compute the fractal dimension of a polygon. <p><em>Bibliography:</em><br>\
+            Herold, M., Scepan, J., and Clarke, K. C. (2002). The use of remote sensing and landscape metrics to \
+            describe structures and changes in urban land uses. Environment and Planning A, 34(8):1443–1458.<br>\
+            McGarigal, K. and Marks, B. J. (1995). Fragstats: spatial pattern analysis program for quantifying \
+            landscape structure. Gen. Tech. Rep. PNW-GTR-351. Portland, OR: U.S. Department of Agriculture, Forest \
+            Service, Pacific Northwest Research Station. 122 p.",
 	keywords = ["Vector","Geometry","Morphology"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:fractalDimension"
 )
 def processing() {
-    
+
     //Build the start of the query
-    String  outputTable = inputTable+"_fractaldimensionIndex"
+    def outputTable = "${inputTable}_fractaldimensionIndex"
 
-    if(outputTableName != null){
-	outputTable  = outputTableName
+    if (outputTableName != null) {
+        outputTable = outputTableName
     }
 
+    def query = "CREATE TABLE ${outputTable} AS SELECT "
 
-    String query = "CREATE TABLE " + outputTable + " AS SELECT "
-
-
-    if(keepgeom==true){
-        query+= geometryColumn[0]+","
+    if (keepgeom == true) {
+        query += "${geometryColumn[0]},"
     }
-    query += idField[0]+","+ "(2 * LOG ( ST_PERIMETER ("+ geometryColumn[0] +") ) ) / LOG (ST_AREA ("+ geometryColumn[0] +") ) as fractaldim from " +  inputTable
+    query += "${idField[0]},(2 * LOG ( ST_PERIMETER (${geometryColumn[0]}) ) ) / " +
+            "LOG (ST_AREA (${geometryColumn[0]}) ) as fractaldim from ${inputTable}"
 
-    
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTable
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTable}".toString())
     }
     //Execute the query
-    sql.execute(query)
+    sql.execute(query.toString())
 
-    literalOutput = i18n.tr("Process done")
-    
+    outputJDBCTable = outputTableName
 }
 
 /****************/
@@ -106,7 +109,7 @@ String inputTable
 )
 String[] geometryColumn
 
-/** Name of the identifier field of the JDBCTable inputJDBCTable. */
+/** Name of the identifier field of the JDBCTable inputTable. */
 @JDBCColumnInput(
     title = "Column identifier",
     description = "A column used as an identifier.",
@@ -137,13 +140,14 @@ Boolean dropTable
 String outputTableName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-    title = "Output message",
-    description = "The output message.",
-    identifier = "literalOutput"
-)
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 
 

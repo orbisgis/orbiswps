@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.scripts.scripts.Morphology
+package org.orbisgis.orbiswps.scripts.scripts.Indices
 
 import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
@@ -45,54 +45,62 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.utilities.SFSUtilities
 import org.h2gis.utilities.TableLocation
 
-
 /**
- * @author Erwan Bocher
+ * Compute the compactness indice is based on the geometry properties of a polygon : perimeter, area and longest line.
+ * 3 methods are available  : Miller, Morton and Gravélius.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
     title = "Compactness indice(s)",
-    description = "The compactness indice is based on the geometry properties of a polygon : perimeter, area and longest line. 3 methods are available  : Miller, Morton and Gravélius.<p><em>Bibliography:</em></p><p>W. E. Dramstad, Spatial metrics–useful indicators for society or mainly fun tools for landscape ecologists?, Norsk Geografisk Tidsskrift-Norwegian Journal of Geography 63 (2009) 246–254.0</p><p> H. Gravelius, Grundriß der gesamten Gewässerkunde: in vier Bänden,vol.1, Göschen, 1914.</p>",
+    description = "The compactness indice is based on the geometry properties of a polygon : perimeter, area and \
+            longest line. 3 methods are available  : Miller, Morton and Gravélius.<br>\
+            <em>Bibliography:</em><br>\
+            W. E. Dramstad, Spatial metrics–useful indicators for society or mainly fun tools for landscape \
+            ecologists?, Norsk Geografisk Tidsskrift-Norwegian Journal of Geography 63 (2009) 246–254.0<br>\
+             H. Gravelius, Grundriß der gesamten Gewässerkunde: in vier Bänden,vol.1, Göschen, 1914.",
     keywords = ["Vector","Geometry","Index"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:compactnessIndices"
 )
 def processing() {
-    
-    //Build the start of the query
-    String  outputTable = inputTable+"_compactnessindices"
 
-    if(outputTableName != null){
-	outputTable  = outputTableName
+    //Build the start of the query
+    def outputTable = "${inputTable}_compactnessindices"
+
+    if (outputTableName != null) {
+        outputTable = outputTableName
     }
 
-    String query = "CREATE TABLE " + outputTable + " AS SELECT "
+    def query = "CREATE TABLE ${outputTable} AS SELECT "
 
-    if(keepgeom==true){
-        query+= geometricField[0]+","
-    }    
-    
-    for (String operation : operations) {
+    if (keepgeom == true) {
+        query += "${geometricField[0]},"
+    }
+
+    for (operation in operations) {
         if(operation.equals("gravelius")){
-            query+= " ST_PERIMETER("+geometricField[0]+")/(2 * SQRT ( PI () * ST_AREA ("+ geometricField[0]+"))) as gravelius,"
+            query+= " ST_PERIMETER(${geometricField[0]})/(2 * SQRT ( PI () * ST_AREA (${geometricField[0]}))) as" +
+                    " gravelius,"
         }
         else if(operation.equals("miller")){
-            query+= " 4*PI ()*ST_AREA("+geometricField[0]+")/(POWER(ST_PERIMETER ("+ geometricField[0]+"),2)) as miller,"
+            query+= " 4*PI ()*ST_AREA(${geometricField[0]})/(POWER(ST_PERIMETER (${geometricField[0]}),2)) as miller,"
         }
         else if(operation.equals("morton")){
-            query+= "ST_AREA("+geometricField[0]+")/(PI () * (POWER(0.5 * ST_MAXDISTANCE ("+ geometricField[0]+","+ geometricField[0]+"),2))) as morton,"
+            query+= "ST_AREA(${geometricField[0]})/(PI () * (POWER(0.5 * ST_MAXDISTANCE (${geometricField[0]}," +
+                    "${geometricField[0]}),2))) as morton,"
         }
     }    
-    query+=idField[0]+ " from " +  inputTable
+    query+= "${idField[0]} from ${inputTable}"
     if(dropTable){
-        sql.execute "drop table if exists " + outputTable
+        sql.execute("drop table if exists ${outputTable}".toString())
     }
     //Execute the query
-    sql.execute(query)
-    
-    literalOutput = i18n.tr("Process done")
-    
-   }
+    sql.execute(query.toString())
+
+    outputJDBCTable = outputTableName
+}
 
 /****************/
 /** INPUT Data **/
@@ -114,7 +122,7 @@ String inputTable
 )
 String[] geometricField
 
-/** Name of the identifier field of the JDBCTable inputJDBCTable. */
+/** Name of the identifier field of the JDBCTable inputTable. */
 @JDBCColumnInput(
     title = "Column identifier",
     description = "A column used as an identifier.",
@@ -153,13 +161,14 @@ Boolean dropTable
 String outputTableName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-    title = "Output message",
-    description = "The output message.",
-    identifier = "literalOutput"
-)
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 
 

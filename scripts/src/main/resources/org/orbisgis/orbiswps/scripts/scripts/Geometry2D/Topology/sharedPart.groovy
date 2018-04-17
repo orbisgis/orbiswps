@@ -42,14 +42,11 @@ package org.orbisgis.orbiswps.scripts.scripts.Geometry2D.Topology
 import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
-/********************/
-/** Process method **/
-/********************/
 
 /**
  * This process compute the shared part of a geometry with each other
- * 
- * @author Erwan BOCHER
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
         title = "Shared part",
@@ -57,35 +54,36 @@ import org.orbisgis.orbiswps.groovyapi.process.*
         keywords = ["Vector","Geometry", "Topology"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
         version = "1.0")
-    def processing() {
-    
-    def the_geom = geometricField[0] ;
-    def id = isH2?"_rowid_":"ctid"
-    
-    if(fieldId?.empty){
+def processing() {
+
+    def the_geom = geometricField[0];
+    def id = isH2 ? "_rowid_" : "ctid"
+
+    if (fieldId?.empty) {
         id = fieldId[0]
     }
-    
-    String query = "CREATE TABLE ${outputTableName} as select st_intersection(a.${the_geom}, b.${the_geom}) as  ${the_geom},\n\
- a.${id} as first_id, b.${id} as second_id FROM ${inputJDBCTable} as a,${inputJDBCTable} as b where a.${id}<>b.${id} and a.${id}<b.${id} AND a.${the_geom} && b.${the_geom} AND st_intersects(a.${the_geom},b.${the_geom})" 
-    
-    
-    if(dropOutputTable){
-	sql.execute "drop table if exists " + outputTableName
+
+    def query = "CREATE TABLE ${outputTableName} as select st_intersection(a.${the_geom}, b.${the_geom}) as " +
+            "${the_geom}, a.${id} as first_id, b.${id} as second_id FROM ${inputTable} as a,${inputTable} as b " +
+            "where a.${id}<>b.${id} and a.${id}<b.${id} AND a.${the_geom} && b.${the_geom} AND " +
+            "st_intersects(a.${the_geom},b.${the_geom})"
+    if (dropOutputTable) {
+        sql.execute("drop table if exists ${outputTableName}".toString())
     }
-    if(useSpatialIndex){
-        def spatialIndexQuery = isH2?"create spatial index on ${inputJDBCTable}(${the_geom})":"create index on ${inputJDBCTable}  USING GIST(${the_geom})"
+    if (useSpatialIndex) {
+        def spatialIndexQuery = isH2 ? " create spatial index on ${inputTable}(${the_geom})" :
+                " create index on ${inputTable}  USING GIST(${the_geom})"
         sql.execute(spatialIndexQuery.toString())
     }
-    
+
     //Execute the query
     sql.execute(query.toString())
-    
-    if(dropInputTable){
-        sql.execute "drop table if exists " + inputJDBCTable
+
+    if (dropInputTable) {
+        sql.execute("drop table if exists ${inputTable}".toString())
     }
-    
-    literalOutput = i18n.tr("Process done")
+
+    outputJDBCTable = outputTableName
 }
 
 
@@ -98,17 +96,17 @@ import org.orbisgis.orbiswps.groovyapi.process.*
         title = "Input table",
         description = "The spatial table to compute the shared parts.",
         dataTypes = "GEOMETRY")
-String inputJDBCTable
+String inputTable
 
 /**********************/
 /** INPUT Parameters **/
 /**********************/
 
-/** Name of the Geometric field of the JDBCTable inputJDBCTable. */
+/** Name of the Geometric field of the JDBCTable inputTable. */
 @JDBCColumnInput(
         title = "Geometric column",
         description = "The geometric column of the input table.",
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         dataTypes = ["GEOMETRY"])
 String[] geometricField
 
@@ -119,7 +117,7 @@ String[] geometricField
         excludedTypes=["GEOMETRY"],
         multiSelection = false,
         minOccurs = 0,
-        jdbcTableReference = "inputJDBCTable")
+        jdbcTableReference = "inputTable")
 String[] fieldId
 
 @LiteralDataInput(
@@ -141,15 +139,16 @@ String outputTableName
 @LiteralDataInput(
     title = "Drop the input table",
     description = "Drop the input table when the script is finished.")
-Boolean dropInputTable 
+Boolean dropInputTable
+
 
 /*****************/
 /** OUTPUT Data **/
 /*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-        title = "Output message",
-        description = "The output message.")
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 

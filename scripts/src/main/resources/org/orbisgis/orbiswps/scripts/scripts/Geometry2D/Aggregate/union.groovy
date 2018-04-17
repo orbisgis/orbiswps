@@ -39,82 +39,74 @@
  */
 package org.orbisgis.orbiswps.scripts.scripts.Geometry2D.Aggregate
 
-import org.orbisgis.orbiswps.groovyapi.input.*
-import org.orbisgis.orbiswps.groovyapi.output.*
-import org.orbisgis.orbiswps.groovyapi.process.*
+import org.orbisgis.orbiswps.groovyapi.input.JDBCColumnInput
+import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
+import org.orbisgis.orbiswps.groovyapi.input.LiteralDataInput
+import org.orbisgis.orbiswps.groovyapi.output.JDBCTableOutput
+import org.orbisgis.orbiswps.groovyapi.process.Process
 
 /**
  * This process aggregate geometries using the union operator
  *
- * @author Erwan Bocher
+ * @author Erwan Bocher (CNRS)
  */
 @Process(
 		title = "Union",
-		description = "Calculates the geometric union of any number of geometries.\n Note : The unioned geometries are exploded to its constituent parts",
+		description = "Calculates the geometric union of any number of geometries.<br> Note : The unioned geometries\
+                 are exploded to its constituent parts",
 		keywords = ["Vector","Geometry", "Union"],
 		properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
-                version = "1.0")
+        identifier = "orbisgis:wps:official:union",
+        version = "1.0")
 def processing() {
-    def the_geom = geometricField[0]       
-    String query = "CREATE TABLE ${outputTableName} AS SELECT  "    
-    
-    if(isH2){        
-            query+= "EXPLOD_ID as id"            
-            if(groupby?.empty){
-            query+= "," + groupby.join(",")
-            }            
-            query+= ",the_geom FROM st_explode('(select ST_UNION(ST_ACCUM("
-            //Use a distance
-            if(buffer>0){
-                query+= "st_buffer(${the_geom}, ${buffer}))) as the_geom "
-            }
-            else{
-                query+="${the_geom})) as the_geom"
-            }   
-            
-        if(groupby?.empty){
-            query+="," +groupby.join(",")+ " FROM ${inputJDBCTable} "
-            query+= " group by " + groupby.join(",")     
-            query+=")')"
-        } 
-        else{
-            query+=" FROM ${inputJDBCTable} )')" 
-        }  
-        
-    }
-    else{
-        query+= "row_number() OVER () AS id, the_geom "
-        
-        if(groupby?.empty){
-            query+= "," + groupby.join(",")
+    def the_geom = geometricField[0]
+    def query = "CREATE TABLE ${outputTableName} AS SELECT  "
+    if (isH2) {
+        query += "EXPLOD_ID as id"
+        if (groupby?.empty) {
+            query += ",${groupby.join(",")}"
         }
-        
-        query+= " from (select (ST_Dump( ST_Union("
+        query += ",the_geom FROM st_explode('(select ST_UNION(ST_ACCUM(" //Use a distance
+        if (buffer > 0) {
+            query += "st_buffer(${the_geom}, ${buffer}))) as the_geom "
+        } else {
+            query += " ${the_geom})) as the_geom"
+        }
+        if (groupby?.empty) {
+            query += ",${groupby.join(",")} FROM  ${inputTable} "
+            query += " group by ${groupby.join(",")}"
+            query += ")')"
+        } else {
+            query += " FROM ${inputTable} )')"
+        }
+    } else {
+        query += "row_number() OVER () AS id, the_geom "
+        if (groupby?.empty) {
+            query += ", ${groupby.join(",")}"
+        }
+        query += " from (select (ST_Dump( ST_Union("
         //Use a distance
-        if(buffer>0){
-            query+= "st_buffer(${the_geom}, ${buffer})))).geom as the_geom"
+        if (buffer > 0) {
+            query += "st_buffer(${the_geom}, ${buffer})))).geom as the_geom"
+        } else {
+            query += " ${the_geom}))).geom as the_geom"
         }
-        else{
-            query+="${the_geom}))).geom as the_geom"
-        }  
-        
-        if(groupby?.empty){
-            query+= "," +groupby.join(",") + " FROM ${inputJDBCTable}"
-            query+= " group by " + groupby.join(",")
-            query+=" ) as foo"
-        }else{
-            query+= " FROM ${inputJDBCTable}) as foo"
+        if (groupby?.empty) {
+            query += ",${groupby.join(",")} FROM ${inputTable}"
+            query += "  group by ${groupby.join(",")}"
+            query += " ) as foo"
+        } else {
+            query += "  FROM ${inputTable}) as foo"
         }
-    }    
-    
-    if(dropOutputTable){
-	sql.execute "drop table if exists ${outputTableName}".toString()
     }
-    sql.execute(query.toString())
-    if(dropInputTable){
-        sql.execute "drop table if exists ${inputJDBCTable}"
+    if (dropOutputTable) {
+        sql.execute("drop table if exists ${outputTableName}".toString())
     }
-    literalOutput = i18n.tr("Process done")
+    sql.execute(query)
+    if (dropInputTable) {
+        sql.execute("drop table if exists ${inputTable}".toString())
+    }
+    outputJDBCTable = outputTableName
 }
 
 
@@ -125,26 +117,29 @@ def processing() {
 @JDBCTableInput(
 		title = "Input table",
 		description = "Table that contains the input geometries.",
-        dataTypes = ["GEOMETRY"])
-String inputJDBCTable
+        dataTypes = ["GEOMETRY"],
+        identifier = "inputTable")
+String inputTable
 
 /**********************/
 /** INPUT Parameters **/
 /**********************/
 
-/** Name of the Geometric field of the JDBCTable inputJDBCTable. */
+/** Name of the Geometric field of the JDBCTable inputTable. */
 @JDBCColumnInput(
 		title = "Geometric column",
 		description = "The geometric column of the input table.",
-        jdbcTableReference = "inputJDBCTable",
-        dataTypes = ["GEOMETRY"])
+        jdbcTableReference = "inputTable",
+        dataTypes = ["GEOMETRY"],
+        identifier = "geometricField")
 String[] geometricField
 
 
 @LiteralDataInput(
-    title = "Buffering",
-    description = "Apply a buffer arround the geometries before unioning it.")
-double buffer = 0; 
+        title = "Buffering",
+        description = "Apply a buffer arround the geometries before unioning it.",
+        identifier = "buffering")
+double buffer = 0
 
 /** Fields to keep. */
 @JDBCColumnInput(
@@ -153,24 +148,28 @@ double buffer = 0;
         excludedTypes=["GEOMETRY"],
         multiSelection = true,
         minOccurs = 0,
-        jdbcTableReference = "inputJDBCTable")
+        jdbcTableReference = "inputTable",
+        identifier = "groupBy")
 String[] groupby
 
 
 @LiteralDataInput(
-    title = "Drop the output table if exists",
-    description = "Drop the output table if exists.")
+        title = "Drop the output table if exists",
+        description = "Drop the output table if exists.",
+        identifier = "dropOutput")
 Boolean dropOutputTable 
 
 @LiteralDataInput(
 		title = "Output table name",
-		description = "Name of the table containing the result of the process.")
+		description = "Name of the table containing the result of the process.",
+        identifier = "outputName")
 String outputTableName
 
 
 @LiteralDataInput(
-    title = "Drop the input table",
-    description = "Drop the input table when the script is finished.")
+        title = "Drop the input table",
+        description = "Drop the input table when the script is finished.",
+        identifier = "dropInput")
 Boolean dropInputTable 
 
 
@@ -178,8 +177,8 @@ Boolean dropInputTable
 /** OUTPUT Data **/
 /*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-		title = "Output message",
-		description = "The output message.")
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable

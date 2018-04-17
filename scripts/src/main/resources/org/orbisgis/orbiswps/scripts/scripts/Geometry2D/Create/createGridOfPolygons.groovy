@@ -43,16 +43,13 @@ import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
-/********************/
-/** Process method **/
-/********************/
-
 /**
  * This process is used to create a grid of polygons.
  *
  * @return A datadase table.
- * @author Erwan BOCHER
- * @author Sylvain PALOMINOS
+ *
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
         title = "Create a grid of polygons",
@@ -63,18 +60,19 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 def processing() {
 
     //Build the start of the query
-    String query = "CREATE TABLE "+outputTableName+" AS SELECT * from ST_MakeGrid('"+inputJDBCTable+"',"+x_distance+","+y_distance+")"
-    
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTableName
+    def query = "CREATE TABLE ${outputTableName} AS SELECT * from ST_MakeGrid('${inputTable}',${x_distance}," +
+            "${y_distance})"
+
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTableName}".toString())
     }
-    
+
     //Execute the query
     sql.execute(query)
-    if(dropInputTable){
-        sql.execute "drop table if exists " + inputJDBCTable
+    if (dropInputTable) {
+        sql.execute("drop table if exists ${inputTable}".toString())
     }
-    literalOutput = i18n.tr("Process done")
+    outputJDBCTable = outputTableName
 }
 
 
@@ -84,9 +82,10 @@ def processing() {
 
 @JDBCTableInput(
         title = "Input spatial model",
-        description = "The spatial model source to compute the grid. The extend of grid is based on the full extend of the table.",
+        description = "The spatial model source to compute the grid. The extend of grid is based on the full extend of\
+ the table.",
         dataTypes = ["GEOMETRY"])
-String inputJDBCTable
+String inputTable
 
 /**********************/
 /** INPUT Parameters **/
@@ -118,16 +117,16 @@ String outputTableName
 @LiteralDataInput(
     title = "Drop the input table",
     description = "Drop the input table when the script is finished.")
-Boolean dropInputTable 
+Boolean dropInputTable
 
 
 /*****************/
 /** OUTPUT Data **/
 /*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-        title = "Output message",
-        description = "The output message.")
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 

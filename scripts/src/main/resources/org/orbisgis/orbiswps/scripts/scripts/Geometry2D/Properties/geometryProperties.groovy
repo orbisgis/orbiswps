@@ -43,14 +43,9 @@ import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
-/********************/
-/** Process method **/
-/********************/
-
-
-
 /**
  * This process extract the center of a geometry table using the SQL function.
+ *
  * The user has to specify (mandatory):
  *  - The input spatial model source (JDBCTable)
  *  - The geometry column (LiteralData)
@@ -59,8 +54,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  *  - The output model source (JDBCTable)
  *
  * @return A database table or a file.
- * @author Erwan Bocher
- * @author Sylvain PALOMINOS
+ *
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
         title = "Geometry properties",
@@ -72,61 +68,49 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 )
 def processing() {
 //Build the start of the query
-    String query = "CREATE TABLE "+outputTableName+" AS SELECT "
+    def query = "CREATE TABLE ${outputTableName} AS SELECT "
 
-    for (String operation : operations) {
-        if(operation.equals("geomtype")){
-            query += " ST_GeometryType("+geometricField[0]+") as geomType,"
-        }
-        else if(operation.equals("srid")){
-            query += " ST_SRID("+geometricField[0]+") as srid,"
-        }
-        else if(operation.equals("length")){
-            query += " ST_Length("+geometricField[0]+") as length,"
-        }
-        else if(operation.equals("perimeter")){
-            query += " ST_Perimeter("+geometricField[0]+") as perimeter,"
-        }
-        else if(operation.equals("area")){
-            query += " ST_Area("+geometricField[0]+") as area,"
-        }
-        else if(operation.equals("dimension")){
-            query += " ST_Dimension("+geometricField[0]+") as dimension,"
-        }
-        else if(operation.equals("coorddim")){
-            query += " ST_Coorddim("+geometricField[0]+") as coorddim,"
-        }
-        else if(operation.equals("num_geoms")){
-            query += " ST_NumGeometries("+geometricField[0]+") as numGeometries,"
-        }
-        else if(operation.equals("num_pts")){
-            query += " ST_NPoints("+geometricField[0]+") as numPts,"
-        }
-        else if(operation.equals("issimple")){
-            query += " ST_Issimple("+geometricField[0]+") as issimple,"
-        }
-        else if(operation.equals("isvalid")){
-            query += " ST_Isvalid("+geometricField[0]+") as isvalid,"
-        }
-        else if(operation.equals("isempty")){
-            query += " ST_Isempty("+geometricField[0]+") as isempty,"
+    for (operation in operations) {
+        if (operation.equals("geomtype")) {
+            query += " ST_GeometryType(${geometricField[0]}) as geomType,"
+        } else if (operation.equals("srid")) {
+            query += " ST_SRID(${geometricField[0]}) as srid,"
+        } else if (operation.equals("length")) {
+            query += " ST_Length(${geometricField[0]}) as length,"
+        } else if (operation.equals("perimeter")) {
+            query += " ST_Perimeter(${geometricField[0]}) as perimeter,"
+        } else if (operation.equals("area")) {
+            query += " ST_Area(${geometricField[0]}) as area,"
+        } else if (operation.equals("dimension")) {
+            query += " ST_Dimension(${geometricField[0]}) as dimension,"
+        } else if (operation.equals("coorddim")) {
+            query += " ST_Coorddim(${geometricField[0]}) as coorddim,"
+        } else if (operation.equals("num_geoms")) {
+            query += " ST_NumGeometries(${geometricField[0]}) as numGeometries,"
+        } else if (operation.equals("num_pts")) {
+            query += " ST_NPoints(${geometricField[0]}) as numPts,"
+        } else if (operation.equals("issimple")) {
+            query += " ST_Issimple(${geometricField[0]}) as issimple,"
+        } else if (operation.equals("isvalid")) {
+            query += " ST_Isvalid(${geometricField[0]}) as isvalid,"
+        } else if (operation.equals("isempty")) {
+            query += " ST_Isempty(${geometricField[0]}) as isempty,"
         }
     }
-
 
     //Add the field id
-    query += idField[0] + " FROM "+inputJDBCTable+";"
+    query += "${idField[0]} FROM ${inputTable};"
 
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTableName
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTableName}".toString())
     }
-    
+
     //Execute the query
     sql.execute(query)
-    if(dropInputTable){
-        sql.execute "drop table if exists " + inputJDBCTable
+    if (dropInputTable) {
+        sql.execute("drop table if exists ${inputTable}".toString())
     }
-    literalOutput = i18n.tr("Process done")
+    outputJDBCTable = outputTableName
 }
 
 
@@ -139,36 +123,38 @@ def processing() {
         title = "Input spatial model",
         description = "The spatial model source to compute the geometry properties.",
         dataTypes = ["GEOMETRY"],
-        identifier = "inputJDBCTable")
-String inputJDBCTable
+        identifier = "inputTable")
+String inputTable
 
 /**********************/
 /** INPUT Parameters **/
 /**********************/
 
-/** Name of the Geometric field of the JDBCTable inputJDBCTable. */
+/** Name of the Geometric field of the JDBCTable inputTable. */
 @JDBCColumnInput(
         title = "Geometric column",
         description = "The geometric column of the model source.",
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         identifier = "geometricField",
         dataTypes = ["GEOMETRY"])
 String[] geometricField
 
-/** Name of the identifier field of the JDBCTable inputJDBCTable. */
+/** Name of the identifier field of the JDBCTable inputTable. */
 @JDBCColumnInput(
         title = "Column identifier",
         description = "A column used as an identifier.",
 	    excludedTypes=["GEOMETRY"],
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         identifier = "idField")
 String[] idField
 
 @EnumerationInput(
         title = "Operation",
         description = "Operation to compute the properties.",
-        values=["geomtype","srid", "length","perimeter","area", "dimension", "coorddim", "num_geoms", "num_pts", "issimple", "isvalid", "isempty"],
-        names = ["Geometry type","SRID","Length","Perimeter","Area","Geometry dimension","Coordinate dimension","Number of geometries","Number of points","Is simple","Is valid","Is empty"],
+        values=["geomtype","srid", "length","perimeter","area", "dimension", "coorddim", "num_geoms", "num_pts",
+                    "issimple", "isvalid", "isempty"],
+        names = ["Geometry type","SRID","Length","Perimeter","Area","Geometry dimension","Coordinate dimension",
+                    "Number of geometries","Number of points","Is simple","Is valid","Is empty"],
         multiSelection = true,
         identifier = "operations")
 String[] operations = ["geomtype"]
@@ -188,17 +174,16 @@ String outputTableName
 @LiteralDataInput(
     title = "Drop the input table",
     description = "Drop the input table when the script is finished.")
-Boolean dropInputTable 
+Boolean dropInputTable
 
 
 /*****************/
 /** OUTPUT Data **/
 /*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-        title = "Output message",
-        description = "The output message.",
-        identifier = "literalOutput")
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 

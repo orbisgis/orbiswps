@@ -46,7 +46,11 @@ import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
- * @author Erwan Bocher
+ * Import the ShapeFile file 'fileDataInput' into the table 'inputTable'.
+ * If 'dropTable' set to true, drop the table 'jdbcTableOutput'.
+ * The table is returned as the output 'jdbcTableOutput'.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(title = "Import a shapeFile",
     description = "Import in the database a shapeFile as a new table.",
@@ -54,30 +58,28 @@ import org.orbisgis.orbiswps.groovyapi.process.*
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
-    File shpFile = new File(shpDataInput[0])
-    name = shpFile.getName()
-    tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
-    if(jdbcTableOutputName != null){
+    def shpFile = new File(shpDataInput[0])
+    def name = shpFile.getName()
+    def tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
+    if (jdbcTableOutputName != null) {
         tableName = jdbcTableOutputName
     }
-    if(dropTable){
-        sql.execute "drop table if exists " + tableName
+    if (dropTable) {
+        sql.execute("drop table if exists ${tableName}".toString())
     }
 
-    DriverFunction driverFunction = new SHPDriverFunction()
-    if(encoding!=null && !encoding[0].equals("System")){
-        driverFunction.importFile(sql.getDataSource().getConnection(), tableName,shpFile,progressMonitor,encoding[0])
-    }
-    else{
-        driverFunction.importFile(sql.getDataSource().getConnection(), tableName,shpFile,progressMonitor)
-    }
-    literalDataOutput = i18n.tr("The ShapeFile has been created.")
-
-    if(createIndex){
-        sql.execute "create spatial index on "+ tableName + " (the_geom)"
+    def driverFunction = new SHPDriverFunction()
+    if (encoding != null && !encoding[0].equals("System")) {
+        driverFunction.importFile(sql.getDataSource().getConnection(), tableName, shpFile, progressMonitor, encoding[0])
+    } else {
+        driverFunction.importFile(sql.getDataSource().getConnection(), tableName, shpFile, progressMonitor)
     }
 
-    literalDataOutput = i18n.tr("The SHP file has been imported.")
+    if (createIndex) {
+        sql.execute("create spatial index on ${tableName} (the_geom)".toString())
+    }
+
+    outputJDBCTable = tableName
 }
 
 
@@ -93,8 +95,10 @@ String[] shpDataInput
 @EnumerationInput(
     title = "File Encoding",
     description = "The file encoding .",
-    values=["System", "utf-8", "ISO-8859-1", "ISO-8859-2", "ISO-8859-4", "ISO-8859-5", "ISO-8859-7", "ISO-8859-9", "ISO-8859-13","ISO-8859-15"],
-    names=["System","utf-8","ISO-8859-1","ISO-8859-2","ISO-8859-4","ISO-8859-5","ISO-8859-7","ISO-8859-9","ISO-8859-13","ISO-8859-15"],
+    values=["System", "utf-8", "ISO-8859-1", "ISO-8859-2", "ISO-8859-4", "ISO-8859-5", "ISO-8859-7", "ISO-8859-9",
+                "ISO-8859-13","ISO-8859-15"],
+    names=["System","utf-8","ISO-8859-1","ISO-8859-2","ISO-8859-4","ISO-8859-5","ISO-8859-7","ISO-8859-9",
+                "ISO-8859-13","ISO-8859-15"],
     isEditable = false)
 String[] encoding = ["System"]
 
@@ -120,13 +124,12 @@ Boolean dropTable
 String jdbcTableOutputName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-
-
-/************/
-/** OUTPUT **/
-/************/
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable

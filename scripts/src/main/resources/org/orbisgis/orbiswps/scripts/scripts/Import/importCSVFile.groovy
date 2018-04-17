@@ -44,7 +44,11 @@ import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
- * @author Erwan Bocher
+ * Import the CSV file 'fileDataInput' into the table 'inputTable'.
+ * If 'dropTable' set to true, drop the table 'jdbcTableOutput'.
+ * The table is returned as the output 'jdbcTableOutput'.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(title = "Import a CSV file",
     description = "Import in the database a CSV file as a new table.",
@@ -52,21 +56,20 @@ import org.orbisgis.orbiswps.groovyapi.process.*
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
-    File csvFile = new File(csvDataInput[0])
-    name = csvFile.getName()
-    tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
-    if(jdbcTableOutputName != null){
-	    tableName = jdbcTableOutputName
+    def csvFile = new File(fileDataInput[0])
+    def name = csvFile.getName()
+    def tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
+    if (jdbcTableOutputName != null) {
+        tableName = jdbcTableOutputName
     }
-    if(dropTable){
-	    sql.execute "drop table if exists " + tableName
+    if (dropTable) {
+        sql.execute("drop table if exists ${tableName}".toString())
     }
 
-    String csvRead = "CSVRead('"+csvFile.absolutePath+"', NULL, 'fieldSeparator="+separator+"')";
-    String create = "CREATE TABLE "+ tableName ;    
-    sql.execute(create + " AS SELECT * FROM "+csvRead+";");   
+    sql.execute("CREATE TABLE ${tableName} AS SELECT * FROM CSVRead('${csvFile.absolutePath}', NULL, " +
+            "'fieldSeparator=${separator}');".toString())
 
-    literalDataOutput = i18n.tr("The CSV file has been imported.")
+    outputJDBCTable = tableName
 }
 
 
@@ -104,12 +107,12 @@ Boolean dropTable
 String jdbcTableOutputName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-
-/************/
-/** OUTPUT **/
-/************/
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable

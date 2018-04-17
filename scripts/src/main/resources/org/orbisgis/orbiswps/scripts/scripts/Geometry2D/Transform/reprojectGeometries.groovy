@@ -45,7 +45,6 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.utilities.SFSUtilities
 import org.h2gis.utilities.TableLocation
 
-
 /**
  * This process reproject a geometry table using the SQL function.
  * The user has to specify (mandatory):
@@ -55,7 +54,8 @@ import org.h2gis.utilities.TableLocation
  *  - The output model source (JDBCTable)
  *
  * @return A database table or a file.
- * @author Erwan Bocher
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
 		title = "Reproject geometries",
@@ -66,38 +66,37 @@ import org.h2gis.utilities.TableLocation
 		identifier = "orbisgis:wps:official:reprojectGeometries"
 )
 def processing() {
-    TableLocation table = TableLocation.parse(inputJDBCTable, ish2)
-    int srid = SFSUtilities.getSRID(sql.getConnection(),table, geometricField[0])
-    if(srid==0){
-        logger.warn(i18n.tr("The input table must contains a SRID constraint."))
-        literalOutput = i18n.tr("Fail to execute the process")
-    }
-    else{
+	def table = TableLocation.parse(inputTable, ish2)
+	int srid = SFSUtilities.getSRID(sql.getConnection(), table, geometricField[0])
+	if (srid == 0) {
+		logger.warn(i18n.tr("The input table must contains a SRID constraint."))
+		outputJDBCTable = null
+	} else {
 		//Build the start of the query
-		String query = "CREATE TABLE " + outputTableName + " AS SELECT ST_TRANSFORM("
-		query += geometricField[0] + "," + srid[0]
+		def query = "CREATE TABLE ${outputTableName} AS SELECT ST_TRANSFORM("
+		query += "${geometricField[0]},${srid[0]}"
 
 		//Build the end of the query
-		query += ") AS the_geom ";
+		query += ") AS the_geom "
 
-		for (String field : fieldList) {
+		for (field in fieldList) {
 			if (field != null) {
-				query += ", " + field;
+				query += ", ${field}"
 			}
 		}
 
-		query +=  " FROM "+inputJDBCTable+";"
+		query += " FROM ${inputTable};"
 
-		if(dropTable){
-			sql.execute "drop table if exists " + outputTableName
+		if (dropTable) {
+			sql.execute("drop table if exists ${outputTableName}".toString())
 		}
 		//Execute the query
 		sql.execute(query)
-		if(dropInputTable){
-			sql.execute "drop table if exists " + inputJDBCTable
+		if (dropInputTable) {
+			sql.execute("drop table if exists ${inputTable}".toString())
 		}
-    	literalOutput = i18n.tr("Process done")
-    }
+		outputJDBCTable = outputTableName
+	}
 }
 
 /****************/
@@ -109,20 +108,20 @@ def processing() {
 		title = "Input spatial model",
 		description = "The spatial model source to be reprojected.",
 		dataTypes = ["GEOMETRY"],
-		identifier = "inputJDBCTable"
+		identifier = "inputTable"
 )
-String inputJDBCTable
+String inputTable
 
 
 /**********************/
 /** INPUT Parameters **/
 /**********************/
 
-/** Name of the Geometric field of the JDBCTable inputJDBCTable. */
+/** Name of the Geometric field of the JDBCTable inputTable. */
 @JDBCColumnInput(
 		title = "Geometric column",
 		description = "The geometric field of the model source.",
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         dataTypes = ["GEOMETRY"],
 		identifier = "geometryField"
 )
@@ -147,7 +146,7 @@ String[] srid
 		excludedTypes=["GEOMETRY"],
 		multiSelection = true,
 		minOccurs = 0,
-        	jdbcTableReference = "inputJDBCTable",
+        	jdbcTableReference = "inputTable",
 		identifier = "fieldList"
 )
 String[] fieldList
@@ -168,16 +167,17 @@ String outputTableName
 @LiteralDataInput(
     title = "Drop the input table",
     description = "Drop the input table when the script is finished.")
-Boolean dropInputTable 
+Boolean dropInputTable
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-		title = "Output message",
-		description = "The output message.",
-		identifier = "literalOutput"
-)
-String literalOutput
+@JDBCTableOutput(
+		title = "output table",
+		description = "Table that contains the output.",
+		identifier = "outputTable")
+String outputJDBCTable
 
 

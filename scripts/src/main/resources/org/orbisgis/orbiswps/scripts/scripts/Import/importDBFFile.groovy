@@ -44,7 +44,11 @@ import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
- * @author Erwan Bocher
+ * Import the DBF file 'fileDataInput' into the table 'inputTable'.
+ * If 'dropTable' set to true, drop the table 'jdbcTableOutput'.
+ * The table is returned as the output 'jdbcTableOutput'.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(title = "Import a DBF file",
     description = "Import in the database a DBF file as a new table.",
@@ -52,26 +56,26 @@ import org.orbisgis.orbiswps.groovyapi.process.*
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
-    File dbfFile = new File(dbfDataInput[0])
-    name = dbfFile.getName()
-    tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
-    query = "CALL DBFREAD('"+ dbfFile.absolutePath+"','"
-    if(jdbcTableOutputName != null){
-	    tableName = jdbcTableOutputName
+    def dbfFile = new File(dbfDataInput[0])
+    def name = dbfFile.getName()
+    def tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
+    def query = "CALL DBFREAD('${dbfFile.absolutePath}','"
+    if (jdbcTableOutputName != null) {
+        tableName = jdbcTableOutputName
     }
-    if(dropTable){
-	    sql.execute "drop table if exists " + tableName
-    }
-
-    if(encoding!=null && !encoding[0].equals("System")){
-	    query+= tableName+ "','"+ encoding[0] + "')"
-    }else{
-	    query += tableName+"')"
+    if (dropTable) {
+        sql.execute("drop table if exists ${tableName}".toString())
     }
 
-    sql.execute query    
+    if (encoding != null && !encoding[0].equals("System")) {
+        query += "${tableName}','${encoding[0]}')"
+    } else {
+        query += "${tableName}')"
+    }
 
-    literalDataOutput = i18n.tr("The DBF file has been imported.")
+    sql.execute(query.toString())
+
+    outputJDBCTable = tableName
 }
 
 
@@ -87,8 +91,10 @@ String[] dbfDataInput
 @EnumerationInput(
     title = "File Encoding",
     description = "The file encoding .",
-    values=["System", "utf-8", "ISO-8859-1", "ISO-8859-2", "ISO-8859-4", "ISO-8859-5", "ISO-8859-7", "ISO-8859-9", "ISO-8859-13","ISO-8859-15"],
-    names=["System","utf-8","ISO-8859-1","ISO-8859-2","ISO-8859-4","ISO-8859-5","ISO-8859-7","ISO-8859-9","ISO-8859-13","ISO-8859-15"],
+    values=["System", "utf-8", "ISO-8859-1", "ISO-8859-2", "ISO-8859-4", "ISO-8859-5", "ISO-8859-7", "ISO-8859-9",
+                "ISO-8859-13","ISO-8859-15"],
+    names=["System","utf-8","ISO-8859-1","ISO-8859-2","ISO-8859-4","ISO-8859-5","ISO-8859-7","ISO-8859-9",
+                "ISO-8859-13","ISO-8859-15"],
     isEditable = false)
 String[] encoding = ["System"]
 
@@ -109,13 +115,12 @@ Boolean dropTable
 String jdbcTableOutputName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-
-
-/************/
-/** OUTPUT **/
-/************/
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable

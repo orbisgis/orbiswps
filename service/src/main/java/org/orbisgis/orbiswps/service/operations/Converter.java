@@ -40,6 +40,7 @@
 package org.orbisgis.orbiswps.service.operations;
 
 import net.opengis.ows._1.*;
+import net.opengis.ows._2.ValuesReference;
 import net.opengis.wps._1_0_0.*;
 import net.opengis.wps._1_0_0.InputDescriptionType;
 import net.opengis.wps._1_0_0.OutputDescriptionType;
@@ -48,7 +49,9 @@ import net.opengis.wps._2_0.BoundingBoxData;
 import net.opengis.wps._2_0.ComplexDataType;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
+import net.opengis.wps._2_0.LiteralDataType;
 import org.orbisgis.orbiswps.service.model.*;
+import org.orbisgis.orbiswps.service.utils.FormatFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -69,6 +72,19 @@ public class Converter {
         languageStringType1.setValue(languageStringType2.getValue());
         languageStringType1.setLang(languageStringType2.getLang());
         return languageStringType1;
+    }
+
+
+    /**
+     * Convert the OWS 1 LanguageStingType to version 2
+     * @param languageStringType1 OWS 1 LanguageStingType
+     * @return OWS 2 LanguageStingType
+     */
+    public static net.opengis.ows._2.LanguageStringType convertLanguageStringType1to2(LanguageStringType languageStringType1){
+        net.opengis.ows._2.LanguageStringType languageStringType2 = new net.opengis.ows._2.LanguageStringType();
+        languageStringType2.setValue(languageStringType1.getValue());
+        languageStringType2.setLang(languageStringType1.getLang());
+        return languageStringType2;
     }
 
     /**
@@ -97,6 +113,19 @@ public class Converter {
         return codeType1;
     }
 
+
+    /**
+     * Convert the OWS 1 CodeType to version 2
+     * @param codeType1 OWS 1 CodeType
+     * @return OWS 2 CodeType
+     */
+    public static net.opengis.ows._2.CodeType convertCodeType1to2(CodeType codeType1){
+        net.opengis.ows._2.CodeType codeType2 = new net.opengis.ows._2.CodeType();
+        codeType2.setValue(codeType1.getValue());
+        codeType2.setCodeSpace(codeType1.getCodeSpace());
+        return codeType2;
+    }
+
     /**
      * Convert the OWS 2 MetadataType to version 1
      * @param metadataType2 OWS 2 MetadataType
@@ -116,6 +145,24 @@ public class Converter {
     }
 
     /**
+     * Convert the OWS 1 MetadataType to version 2
+     * @param metadataType1 OWS 1 MetadataType
+     * @return OWS 2 MetadataType
+     */
+    public static net.opengis.ows._2.MetadataType convertMetadataType1to2(MetadataType metadataType1){
+        net.opengis.ows._2.MetadataType metadataType2 = new net.opengis.ows._2.MetadataType();
+        metadataType2.setAbout(metadataType1.getAbout());
+        metadataType2.setArcrole(metadataType1.getArcrole());
+        metadataType2.setActuate(metadataType1.getActuate());
+        metadataType2.setAbstractMetaData(metadataType1.getAbstractMetaData());
+        metadataType2.setHref(metadataType1.getHref());
+        metadataType2.setRole(metadataType1.getRole());
+        metadataType2.setShow(metadataType1.getShow());
+        metadataType2.setTitle(metadataType1.getTitle());
+        return metadataType2;
+    }
+
+    /**
      * Convert the OWS 2 MetadataType list to version 1 list
      * @param metadataType2List OWS 2 MetadataType list
      * @return OWS 1 MetadataType list
@@ -127,6 +174,20 @@ public class Converter {
             metadataType1List.add(convertMetadataType2to1(metadataType));
         }
         return metadataType1List;
+    }
+
+    /**
+     * Convert the OWS 1 MetadataType list to version 2 list
+     * @param metadataType1List OWS 1 MetadataType list
+     * @return OWS 2 MetadataType list
+     */
+    public static List<net.opengis.ows._2.MetadataType> convertMetadataTypeList1to2(
+            List<MetadataType> metadataType1List){
+        List<net.opengis.ows._2.MetadataType> metadataType2List = new ArrayList<>();
+        for(MetadataType metadataType : metadataType1List) {
+            metadataType2List.add(convertMetadataType1to2(metadataType));
+        }
+        return metadataType2List;
     }
 
     /**
@@ -142,6 +203,49 @@ public class Converter {
         processDescriptionType1.setTitle(convertLanguageStringType2to1(processDescriptionType2.getTitle().get(0)));
         processDescriptionType1.getMetadata().addAll(convertMetadataTypeList2to1(processDescriptionType2.getMetadata()));
         return processDescriptionType1;
+    }
+
+    /**
+     * Convert the WPS 1.0.0 ProcessDescriptionType to version 2.0
+     * @param processDescriptionType1 WPS 1.0.0 ProcessDescriptionType
+     * @return WPS 2.0 ProcessDescriptionType
+     */
+    public static net.opengis.wps._2_0.ProcessDescriptionType convertProcessDescriptionType1to2(
+            ProcessDescriptionType processDescriptionType1){
+        net.opengis.wps._2_0.ProcessDescriptionType processDescriptionType2 = new net.opengis.wps._2_0.ProcessDescriptionType();
+        processDescriptionType2.getAbstract().add(convertLanguageStringType1to2(processDescriptionType1.getAbstract()));
+        processDescriptionType2.setIdentifier(convertCodeType1to2(processDescriptionType1.getIdentifier()));
+        processDescriptionType2.getTitle().add(convertLanguageStringType1to2(processDescriptionType1.getTitle()));
+        processDescriptionType2.getMetadata().addAll(convertMetadataTypeList1to2(processDescriptionType1.getMetadata()));
+        processDescriptionType2.getInput().addAll(convertDataInputsToInputs(processDescriptionType1.getDataInputs()));
+        processDescriptionType2.getOutput().addAll(convertProcessOutputsToOutputs(processDescriptionType1.getProcessOutputs()));
+        return processDescriptionType2;
+    }
+
+    /**
+     * Convert the ProcessOutputs object into a List of OutputDescriptionType
+     * @param processOutputs ProcessOutputs
+     * @return list of OutputDescriptionType
+     */
+    public static List<net.opengis.wps._2_0.OutputDescriptionType> convertProcessOutputsToOutputs(ProcessDescriptionType.ProcessOutputs processOutputs){
+        List<net.opengis.wps._2_0.OutputDescriptionType> list = new ArrayList<>();
+        for(OutputDescriptionType outputDescriptionType1 : processOutputs.getOutput()){
+            list.add(convertOutputDescriptionType1to2(outputDescriptionType1));
+        }
+        return list;
+    }
+
+    /**
+     * Convert the DataInputs object into a List of InputDescriptionType
+     * @param dataInputs DataInputs
+     * @return list of InputDescriptionType
+     */
+    public static List<net.opengis.wps._2_0.InputDescriptionType> convertDataInputsToInputs(ProcessDescriptionType.DataInputs dataInputs){
+        List<net.opengis.wps._2_0.InputDescriptionType> inputDescriptionTypeList = new ArrayList<>();
+        for(InputDescriptionType inputDescriptionType : dataInputs.getInput()){
+            inputDescriptionTypeList.add(convertInputDescriptionType1to2(inputDescriptionType));
+        }
+        return inputDescriptionTypeList;
     }
 
     /**
@@ -204,6 +308,151 @@ public class Converter {
         inputDescriptionType1.setTitle(convertLanguageStringType2to1(inputDescriptionType2.getTitle().get(0)));
         inputDescriptionType1.getMetadata().addAll(convertMetadataTypeList2to1(inputDescriptionType2.getMetadata()));
         return inputDescriptionType1;
+    }
+
+    /**
+     * Convert the WPS 1 InputDescriptionType to version 2
+     * @param inputDescriptionType1 WPS 1 InputDescriptionType
+     * @return WPS 2 InputDescriptionType
+     */
+    public static net.opengis.wps._2_0.InputDescriptionType convertInputDescriptionType1to2(
+            InputDescriptionType inputDescriptionType1){
+        net.opengis.wps._2_0.InputDescriptionType inputDescriptionType2 = new net.opengis.wps._2_0.InputDescriptionType();
+        inputDescriptionType2.setIdentifier(convertCodeType1to2(inputDescriptionType1.getIdentifier()));
+        inputDescriptionType2.setMaxOccurs(inputDescriptionType1.getMaxOccurs().toString());
+        inputDescriptionType2.setMinOccurs(inputDescriptionType1.getMinOccurs());
+        inputDescriptionType2.getTitle().add(convertLanguageStringType1to2(inputDescriptionType1.getTitle()));
+        if(inputDescriptionType1.isSetAbstract()) {
+            inputDescriptionType2.getAbstract().add(convertLanguageStringType1to2(inputDescriptionType1.getAbstract()));
+        }
+        if(inputDescriptionType1.isSetComplexData()){
+            ComplexDataType complexDataType = new ComplexDataType();
+            for(ComplexDataDescriptionType complexDataDescriptionType : inputDescriptionType1.getComplexData().getSupported().getFormat()) {
+                complexDataType.getFormat().add(FormatFactory.getFormatFromMimeType(complexDataDescriptionType.getMimeType()));
+            }
+            inputDescriptionType2.setDataDescription(new net.opengis.wps._2_0.ObjectFactory().createComplexData(complexDataType));
+        }
+        else if(inputDescriptionType1.isSetLiteralData()){
+            LiteralInputType literalInputType = inputDescriptionType1.getLiteralData();
+            net.opengis.wps._2_0.LiteralDataType literalDataType = new net.opengis.wps._2_0.LiteralDataType();
+            literalDataType.getFormat().add(FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION));
+            LiteralDataType.LiteralDataDomain literalDataDomain = new LiteralDataType.LiteralDataDomain();
+            if(literalInputType.isSetAllowedValues()){
+                net.opengis.ows._2.AllowedValues allowedValues = new net.opengis.ows._2.AllowedValues();
+                for(Object o : literalInputType.getAllowedValues().getValueOrRange()) {
+                    if(o instanceof ValueType){
+                        allowedValues.getValueOrRange().add(convertValueType1to2((ValueType) o));
+                    }
+                    if(o instanceof RangeType) {
+                        net.opengis.ows._2.RangeType rangeType = new net.opengis.ows._2.RangeType();
+                        rangeType.setMaximumValue(convertValueType1to2(((RangeType) o).getMaximumValue()));
+                        rangeType.setMinimumValue(convertValueType1to2(((RangeType) o).getMaximumValue()));
+                        rangeType.setSpacing(convertValueType1to2(((RangeType) o).getMaximumValue()));
+                        rangeType.getRangeClosure().addAll(((RangeType) o).getRangeClosure());
+                        allowedValues.getValueOrRange().add(rangeType);
+                    }
+                }
+                literalDataDomain.setAllowedValues(allowedValues);
+            }if(literalInputType.isSetAnyValue()){
+                literalDataDomain.setAnyValue(new net.opengis.ows._2.AnyValue());
+            }if(literalInputType.isSetDefaultValue()){
+                net.opengis.ows._2.ValueType valueType = new net.opengis.ows._2.ValueType();
+                valueType.setValue(literalInputType.getDefaultValue());
+                literalDataDomain.setDefaultValue(valueType);
+            }if(literalInputType.isSetValuesReference()){
+                ValuesReference valuesReference = new ValuesReference();
+                valuesReference.setReference(literalInputType.getValuesReference().getReference());
+                valuesReference.setValue(literalInputType.getValuesReference().getValuesForm());
+                literalDataDomain.setValuesReference(valuesReference);
+            }if(literalInputType.isSetDataType()){
+                net.opengis.ows._2.DomainMetadataType domainMetadataType = new net.opengis.ows._2.DomainMetadataType();
+                domainMetadataType.setReference(literalInputType.getDataType().getReference());
+                domainMetadataType.setValue(literalInputType.getDataType().getValue());
+                literalDataDomain.setDataType(domainMetadataType);
+            }if(literalInputType.isSetUOMs()){
+                net.opengis.ows._2.DomainMetadataType domainMetadataType = new net.opengis.ows._2.DomainMetadataType();
+                domainMetadataType.setReference(literalInputType.getDataType().getReference());
+                domainMetadataType.setValue(literalInputType.getDataType().getValue());
+                literalDataDomain.setUOM(domainMetadataType);
+            }
+            literalDataDomain.setDefault(true);
+            literalDataType.getLiteralDataDomain().add(literalDataDomain);
+            inputDescriptionType2.setDataDescription(new net.opengis.wps._2_0.ObjectFactory().createLiteralData(literalDataType));
+        }
+        else if (inputDescriptionType1.isSetBoundingBoxData()){
+            BoundingBoxData boundingBoxData = new BoundingBoxData();
+            boundingBoxData.getFormat().add(FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION));
+            for(String crs : inputDescriptionType1.getBoundingBoxData().getSupported().getCRS()) {
+                SupportedCRS supportedCRS = new SupportedCRS();
+                supportedCRS.setValue(crs);
+                boundingBoxData.getSupportedCRS().add(supportedCRS);
+            }
+            inputDescriptionType2.setDataDescription(new net.opengis.wps._2_0.ObjectFactory().createBoundingBoxData(boundingBoxData));
+        }
+        return inputDescriptionType2;
+    }
+
+    /**
+     * Convert the WPS 1 OutputDescriptionType to version 2
+     * @param outputDescriptionType1 WPS 1 OutputDescriptionType
+     * @return WPS 2 OutputDescriptionType
+     */
+    public static net.opengis.wps._2_0.OutputDescriptionType convertOutputDescriptionType1to2(
+            OutputDescriptionType outputDescriptionType1){
+        net.opengis.wps._2_0.OutputDescriptionType outputDescriptionType2 = new net.opengis.wps._2_0.OutputDescriptionType();
+        outputDescriptionType2.setIdentifier(convertCodeType1to2(outputDescriptionType1.getIdentifier()));
+        outputDescriptionType2.getTitle().add(convertLanguageStringType1to2(outputDescriptionType1.getTitle()));
+        if(outputDescriptionType1.isSetAbstract()) {
+            outputDescriptionType2.getAbstract().add(convertLanguageStringType1to2(outputDescriptionType1.getAbstract()));
+        }
+        if(outputDescriptionType1.isSetComplexOutput()){
+            ComplexDataType complexDataType = new ComplexDataType();
+            for(ComplexDataDescriptionType complexDataDescriptionType : outputDescriptionType1.getComplexOutput().getSupported().getFormat()) {
+                complexDataType.getFormat().add(FormatFactory.getFormatFromMimeType(complexDataDescriptionType.getMimeType()));
+            }
+            outputDescriptionType2.setDataDescription(new net.opengis.wps._2_0.ObjectFactory().createComplexData(complexDataType));
+        }
+        else if(outputDescriptionType1.isSetLiteralOutput()){
+            LiteralOutputType literalOutputType = outputDescriptionType1.getLiteralOutput();
+            net.opengis.wps._2_0.LiteralDataType literalDataType = new net.opengis.wps._2_0.LiteralDataType();
+            literalDataType.getFormat().add(FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION));
+            LiteralDataType.LiteralDataDomain literalDataDomain = new LiteralDataType.LiteralDataDomain();
+            if(literalOutputType.isSetDataType()){
+                net.opengis.ows._2.DomainMetadataType domainMetadataType = new net.opengis.ows._2.DomainMetadataType();
+                domainMetadataType.setReference(literalOutputType.getDataType().getReference());
+                domainMetadataType.setValue(literalOutputType.getDataType().getValue());
+                literalDataDomain.setDataType(domainMetadataType);
+            }if(literalOutputType.isSetUOMs()){
+                net.opengis.ows._2.DomainMetadataType domainMetadataType = new net.opengis.ows._2.DomainMetadataType();
+                domainMetadataType.setReference(literalOutputType.getDataType().getReference());
+                domainMetadataType.setValue(literalOutputType.getDataType().getValue());
+                literalDataDomain.setUOM(domainMetadataType);
+            }
+            literalDataType.getLiteralDataDomain().add(literalDataDomain);
+            outputDescriptionType2.setDataDescription(new net.opengis.wps._2_0.ObjectFactory().createLiteralData(literalDataType));
+        }
+        else if (outputDescriptionType1.isSetBoundingBoxOutput()){
+            BoundingBoxData boundingBoxData = new BoundingBoxData();
+            boundingBoxData.getFormat().add(FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION));
+            for(String crs : outputDescriptionType1.getBoundingBoxOutput().getSupported().getCRS()) {
+                SupportedCRS supportedCRS = new SupportedCRS();
+                supportedCRS.setValue(crs);
+                boundingBoxData.getSupportedCRS().add(supportedCRS);
+            }
+            outputDescriptionType2.setDataDescription(new net.opengis.wps._2_0.ObjectFactory().createBoundingBoxData(boundingBoxData));
+        }
+        return outputDescriptionType2;
+    }
+
+    /**
+     * Convert the OWS 1 ValueType to version 2
+     * @param valueType1 OWS 1 ValueType
+     * @return OWS 2 ValueType
+     */
+    public static net.opengis.ows._2.ValueType convertValueType1to2(ValueType valueType1){
+        net.opengis.ows._2.ValueType valueType2 = new net.opengis.ows._2.ValueType();
+        valueType2.setValue(valueType1.getValue());
+        return valueType2;
     }
 
     /**
@@ -542,6 +791,11 @@ public class Converter {
         return processOutputs;
     }
 
+    /**
+     * Convert the WPS 1.0.0 GetCapabilities into WPS 2.0 GetCapabilitiesType
+     * @param capabilities100 WPS 1.0.0 GetCapabilities
+     * @return WPS 2.0 GetCapabilitiesType
+     */
     public static GetCapabilitiesType convertGetCapabilities1to2(GetCapabilities capabilities100) {
         GetCapabilitiesType capabilitiesType = new GetCapabilitiesType();
         if(capabilities100.isSetAcceptVersions()){
@@ -558,6 +812,11 @@ public class Converter {
         return capabilitiesType;
     }
 
+    /**
+     * Convert the WPS 2.0 GetCapabilitiesType into WPS 1.0.0 GetCapabilities
+     * @param getCapabilities20 WPS 2.0 GetCapabilitiesType
+     * @return WPS 1.0.0 GetCapabilities
+     */
     public static GetCapabilities convertGetCapabilities2to1(GetCapabilitiesType getCapabilities20, String defaultLang) {
         GetCapabilities getCapabilities = new GetCapabilities();
         if(getCapabilities20.isSetAcceptLanguages()) {

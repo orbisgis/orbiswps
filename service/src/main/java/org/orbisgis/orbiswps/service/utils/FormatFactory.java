@@ -168,4 +168,45 @@ public class FormatFactory {
                 return format.getMimeType();
         }
     }
+
+    /**
+     * Return the well formatted Format corresponding to the given mimeType
+     * @param mimeType MimeType of the format.
+     * @return The Format corresponding to the given mimeType.
+     */
+    public static Format getFormatFromMimeType(String mimeType) {
+        Format format = new Format();
+        format.setEncoding("simple");
+        switch(mimeType){
+            case SHAPEFILE_MIMETYPE:
+                format.setMimeType(SHAPEFILE_MIMETYPE);
+                format.setSchema(SHAPEFILE_URI);
+                break;
+            case GEOJSON_MIMETYPE:
+                format.setMimeType(GEOJSON_MIMETYPE);
+                format.setSchema(GEOJSON_URI);
+                break;
+            case SQL_MIMETYPE:
+                format.setMimeType(SQL_MIMETYPE);
+                format.setSchema(SQL_URI);
+                break;
+            case WKT_MIMETYPE:
+                format.setMimeType(WKT_MIMETYPE);
+                format.setSchema(WKT_URI);
+                break;
+            case GML_MIMETYPE:
+                format.setMimeType(GML_MIMETYPE);
+                format.setSchema(GML_URI);
+                break;
+            case XML_MIMETYPE:
+                format.setMimeType(XML_MIMETYPE);
+                format.setSchema(OTHER_URI);
+                break;
+            default:
+                format.setMimeType(TEXT_MIMETYPE);
+                format.setSchema(OTHER_URI);
+                break;
+        }
+        return format;
+    }
 }

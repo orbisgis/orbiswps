@@ -74,6 +74,12 @@ public class Converter {
         return languageStringType1;
     }
 
+
+    /**
+     * Convert the OWS 1 LanguageStingType to version 2
+     * @param languageStringType1 OWS 1 LanguageStingType
+     * @return OWS 2 LanguageStingType
+     */
     public static net.opengis.ows._2.LanguageStringType convertLanguageStringType1to2(LanguageStringType languageStringType1){
         net.opengis.ows._2.LanguageStringType languageStringType2 = new net.opengis.ows._2.LanguageStringType();
         languageStringType2.setValue(languageStringType1.getValue());
@@ -107,6 +113,12 @@ public class Converter {
         return codeType1;
     }
 
+
+    /**
+     * Convert the OWS 1 CodeType to version 2
+     * @param codeType1 OWS 1 CodeType
+     * @return OWS 2 CodeType
+     */
     public static net.opengis.ows._2.CodeType convertCodeType1to2(CodeType codeType1){
         net.opengis.ows._2.CodeType codeType2 = new net.opengis.ows._2.CodeType();
         codeType2.setValue(codeType1.getValue());
@@ -132,6 +144,11 @@ public class Converter {
         return metadataType1;
     }
 
+    /**
+     * Convert the OWS 1 MetadataType to version 2
+     * @param metadataType1 OWS 1 MetadataType
+     * @return OWS 2 MetadataType
+     */
     public static net.opengis.ows._2.MetadataType convertMetadataType1to2(MetadataType metadataType1){
         net.opengis.ows._2.MetadataType metadataType2 = new net.opengis.ows._2.MetadataType();
         metadataType2.setAbout(metadataType1.getAbout());
@@ -159,6 +176,11 @@ public class Converter {
         return metadataType1List;
     }
 
+    /**
+     * Convert the OWS 1 MetadataType list to version 2 list
+     * @param metadataType1List OWS 1 MetadataType list
+     * @return OWS 2 MetadataType list
+     */
     public static List<net.opengis.ows._2.MetadataType> convertMetadataTypeList1to2(
             List<MetadataType> metadataType1List){
         List<net.opengis.ows._2.MetadataType> metadataType2List = new ArrayList<>();
@@ -183,6 +205,11 @@ public class Converter {
         return processDescriptionType1;
     }
 
+    /**
+     * Convert the WPS 1.0.0 ProcessDescriptionType to version 2.0
+     * @param processDescriptionType1 WPS 1.0.0 ProcessDescriptionType
+     * @return WPS 2.0 ProcessDescriptionType
+     */
     public static net.opengis.wps._2_0.ProcessDescriptionType convertProcessDescriptionType1to2(
             ProcessDescriptionType processDescriptionType1){
         net.opengis.wps._2_0.ProcessDescriptionType processDescriptionType2 = new net.opengis.wps._2_0.ProcessDescriptionType();
@@ -195,6 +222,11 @@ public class Converter {
         return processDescriptionType2;
     }
 
+    /**
+     * Convert the ProcessOutputs object into a List of OutputDescriptionType
+     * @param processOutputs ProcessOutputs
+     * @return list of OutputDescriptionType
+     */
     public static List<net.opengis.wps._2_0.OutputDescriptionType> convertProcessOutputsToOutputs(ProcessDescriptionType.ProcessOutputs processOutputs){
         List<net.opengis.wps._2_0.OutputDescriptionType> list = new ArrayList<>();
         for(OutputDescriptionType outputDescriptionType1 : processOutputs.getOutput()){
@@ -203,6 +235,11 @@ public class Converter {
         return list;
     }
 
+    /**
+     * Convert the DataInputs object into a List of InputDescriptionType
+     * @param dataInputs DataInputs
+     * @return list of InputDescriptionType
+     */
     public static List<net.opengis.wps._2_0.InputDescriptionType> convertDataInputsToInputs(ProcessDescriptionType.DataInputs dataInputs){
         List<net.opengis.wps._2_0.InputDescriptionType> inputDescriptionTypeList = new ArrayList<>();
         for(InputDescriptionType inputDescriptionType : dataInputs.getInput()){
@@ -273,7 +310,11 @@ public class Converter {
         return inputDescriptionType1;
     }
 
-
+    /**
+     * Convert the WPS 1 InputDescriptionType to version 2
+     * @param inputDescriptionType1 WPS 1 InputDescriptionType
+     * @return WPS 2 InputDescriptionType
+     */
     public static net.opengis.wps._2_0.InputDescriptionType convertInputDescriptionType1to2(
             InputDescriptionType inputDescriptionType1){
         net.opengis.wps._2_0.InputDescriptionType inputDescriptionType2 = new net.opengis.wps._2_0.InputDescriptionType();
@@ -351,7 +392,11 @@ public class Converter {
         return inputDescriptionType2;
     }
 
-
+    /**
+     * Convert the WPS 1 OutputDescriptionType to version 2
+     * @param outputDescriptionType1 WPS 1 OutputDescriptionType
+     * @return WPS 2 OutputDescriptionType
+     */
     public static net.opengis.wps._2_0.OutputDescriptionType convertOutputDescriptionType1to2(
             OutputDescriptionType outputDescriptionType1){
         net.opengis.wps._2_0.OutputDescriptionType outputDescriptionType2 = new net.opengis.wps._2_0.OutputDescriptionType();
@@ -399,6 +444,11 @@ public class Converter {
         return outputDescriptionType2;
     }
 
+    /**
+     * Convert the OWS 1 ValueType to version 2
+     * @param valueType1 OWS 1 ValueType
+     * @return OWS 2 ValueType
+     */
     public static net.opengis.ows._2.ValueType convertValueType1to2(ValueType valueType1){
         net.opengis.ows._2.ValueType valueType2 = new net.opengis.ows._2.ValueType();
         valueType2.setValue(valueType1.getValue());
@@ -741,6 +791,11 @@ public class Converter {
         return processOutputs;
     }
 
+    /**
+     * Convert the WPS 1.0.0 GetCapabilities into WPS 2.0 GetCapabilitiesType
+     * @param capabilities100 WPS 1.0.0 GetCapabilities
+     * @return WPS 2.0 GetCapabilitiesType
+     */
     public static GetCapabilitiesType convertGetCapabilities1to2(GetCapabilities capabilities100) {
         GetCapabilitiesType capabilitiesType = new GetCapabilitiesType();
         if(capabilities100.isSetAcceptVersions()){
@@ -757,6 +812,11 @@ public class Converter {
         return capabilitiesType;
     }
 
+    /**
+     * Convert the WPS 2.0 GetCapabilitiesType into WPS 1.0.0 GetCapabilities
+     * @param getCapabilities20 WPS 2.0 GetCapabilitiesType
+     * @return WPS 1.0.0 GetCapabilities
+     */
     public static GetCapabilities convertGetCapabilities2to1(GetCapabilitiesType getCapabilities20, String defaultLang) {
         GetCapabilities getCapabilities = new GetCapabilities();
         if(getCapabilities20.isSetAcceptLanguages()) {

@@ -169,6 +169,11 @@ public class FormatFactory {
         }
     }
 
+    /**
+     * Return the well formatted Format corresponding to the given mimeType
+     * @param mimeType MimeType of the format.
+     * @return The Format corresponding to the given mimeType.
+     */
     public static Format getFormatFromMimeType(String mimeType) {
         Format format = new Format();
         format.setEncoding("simple");

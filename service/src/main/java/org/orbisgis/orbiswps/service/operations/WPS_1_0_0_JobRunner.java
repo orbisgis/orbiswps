@@ -39,7 +39,7 @@
  */
 package org.orbisgis.orbiswps.service.operations;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 import net.opengis.ows._1.BoundingBoxType;
 import net.opengis.ows._1.ExceptionReport;
 import net.opengis.ows._1.ExceptionType;

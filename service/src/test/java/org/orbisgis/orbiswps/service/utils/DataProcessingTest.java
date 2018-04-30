@@ -39,9 +39,9 @@
  */
 package org.orbisgis.orbiswps.service.utils;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTWriter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTWriter;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -39,7 +39,7 @@
  */
 package org.orbisgis.orbiswps.service.operations;
 
-import com.vividsolutions.jts.io.ParseException;
+import org.locationtech.jts.io.ParseException;
 import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
 import net.opengis.wps._2_0.LiteralDataDomainType;
@@ -404,6 +404,7 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         ProcessIdentifier pi = processManager.getProcessIdentifier(codeType);
         if(pi == null){
             ExceptionType exceptionType = new ExceptionType();
+            exceptionType.getExceptionText().add(I18N.tr("No process with the identifier {0} found", codeType.getValue()));
             exceptionType.setExceptionCode("InvalidParameterValue");
             exceptionType.setLocator("Identifier");
             exceptionReport.getException().add(exceptionType);

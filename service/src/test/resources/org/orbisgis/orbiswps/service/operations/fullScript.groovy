@@ -39,7 +39,7 @@
  */
 package org.orbisgis.orbiswps.service
 
-import com.vividsolutions.jts.geom.Geometry
+import org.locationtech.jts.geom.Geometry
 import org.orbisgis.orbiswps.groovyapi.input.BoundingBoxInput
 import org.orbisgis.orbiswps.groovyapi.input.EnumerationInput
 import org.orbisgis.orbiswps.groovyapi.input.GeometryInput

@@ -137,7 +137,7 @@
             <artifactId>ogc-custom-model</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
+            <groupId>org.orbisgis.jts</groupId>
             <artifactId>jts-core</artifactId>
         </dependency>
         <dependency>

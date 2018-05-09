@@ -39,7 +39,7 @@
  */
 package org.orbisgis.orbiswps.scripts;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 import groovy.lang.GroovyClassLoader;
 import groovy.sql.Sql;
 import junit.framework.Assert;

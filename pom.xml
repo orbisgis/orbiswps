@@ -60,7 +60,7 @@
         <groovy-all-version>2.3.6</groovy-all-version>
         <groovy-eclipse-compiler-version>2.9.2-01</groovy-eclipse-compiler-version>
         <h2gis-version>1.5.0-SNAPSHOT</h2gis-version>
-        <jts-core-version>1.15.1-SNAPSHOT</jts-core-version>
+        <jts-core-version>1.15.1</jts-core-version>
         <junit-version>4.10</junit-version>
         <maven-bundle-plugin-version>2.3.7</maven-bundle-plugin-version>
         <maven-compiler-plugin-version>3.1</maven-compiler-plugin-version>

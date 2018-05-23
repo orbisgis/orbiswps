@@ -3,8 +3,8 @@
 
 OrbisWPS contains a set of OSGI libraries to build a Web Processing Service [(WPS)](http://www.opengeospatial.org/standards/wps) 
 compliant with the 2.0 specification.
-OrbisWPS is developed by GIS team of the  [Lab-STICC](http://www.lab-sticc.fr/en/index/) laboratory, located in Vannes.
-It has been supported by two research projects:
+OrbisWPS is developed by the GIS team of the  [Lab-STICC](http://www.lab-sticc.fr/en/index/) laboratory, located in Vannes.
+It has been supported by research projects:
 
 - [MapUCE](http://www.agence-nationale-recherche.fr/?Projet=ANR-13-VBDU-0004) (Modeling and urbAn Planning laws: Urban 
 Climate and Energy, 2014-2018),  ANR Programme: Villes et Bâtiments Durables (VBD) 2013
@@ -13,6 +13,10 @@ Climate and Energy, 2014-2018),  ANR Programme: Villes et Bâtiments Durables (V
 Communities - Open Data; 2014-2017) partially funded under the ICT Policy Support Programme (ICT PSP) as part of the 
 Competitiveness and Innovation Framework Programme by the European Community and the French geographic portal 
 [GEOPAL](http://www.geopal.org) of the Pays de la Loire region.
+
+- [PAENDORA](http://www.ademe.fr/) (Planification, Adaptation et Energie des DOnnées territoriales et Accompagnement, 2017-2020),  ADEME Programme: MODEVAL-URBA 2017
+
+- [URCLIM](http://jpi-climate.eu/nl/25223460-URCLIM.html) (URban CLIMate services, 2017-2020),  JPI Climate Programme
 
 As part of the OrbisGIS platform, OrbisWPS is funded and maintained by personal resources of the Lab-STICC GIS team.
 

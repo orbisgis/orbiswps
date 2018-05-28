@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ OrbisWPS contains a set of libraries to build a Web Processing Service (WPS)
+ compliant with the 2.0 specification.
+
+ OrbisWPS is part of the OrbisGIS platform
+
+ OrbisGIS is a java GIS application dedicated to research in GIScience.
+ OrbisGIS is developed by the GIS group of the DECIDE team of the
+ Lab-STICC CNRS laboratory, see <http://www.lab-sticc.fr/>.
+
+ The GIS group of the DECIDE team is located at :
+
+ Laboratoire Lab-STICC – CNRS UMR 6285
+ Equipe DECIDE
+ UNIVERSITÉ DE BRETAGNE-SUD
+ Institut Universitaire de Technologie de Vannes
+ 8, Rue Montaigne - BP 561 56017 Vannes Cedex
+
+ OrbisWPS is distributed under GPL 3 license.
+
+ Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
+
+
+ OrbisWPS is free software: you can redistribute it and/or modify it under the
+ terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
+
+ OrbisWPS is distributed in the hope that it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along with
+ OrbisWPS. If not, see <http://www.gnu.org/licenses/>.
+
+ For more information, please consult: <http://www.orbisgis.org/>
+ or contact directly:
+ info_at_ orbisgis.org
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.orbisgis.org"
+           xmlns="http://www.orbisgis.org"
+           elementFormDefault="qualified">
+
+    <!-- Root element of a WPS model. A WPS model is an abstraction of a wps process which is used to chain the
+    execution of different processes. -->
+    <xs:element name="wpsModel">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="identifier"/>
+                <xs:element ref="title"/>
+                <xs:element ref="abstract" minOccurs="0"/>
+                <xs:element ref="version" minOccurs="0"/>
+                <xs:element ref="keywords" minOccurs="0"/>
+                <xs:element ref="inputs" minOccurs="0"/>
+                <xs:element ref="outputs"/>
+                <xs:element ref="processes"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Unique identifier which allow to identify the model -->
+    <xs:element name="identifier" type="xs:string"/>
+    <!-- A short human readable string describing an input, a model ... -->
+    <xs:element name="title" type="xs:string"/>
+    <!-- A long human readable string describing an input, a model ... -->
+    <xs:element name="abstract" type="xs:string"/>
+    <!-- The version of the model -->
+    <xs:element name="version" type="xs:string"/>
+    <!-- Link to a WPS service. If not defined or empty, it should be interpreted as pointing to the localhost -->
+    <xs:element name="href" type="xs:string"/>
+    <!-- Data to process -->
+    <xs:element name="data" type="xs:string"/>
+
+    <!-- Simple word describing an aspect of the model which language can be set. If not language are set, the word
+    should be in English. -->
+    <xs:element name="keyword">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="lang" type="xs:string" />
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Tag containing a list of keyword. -->
+    <xs:element name="keywords">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="keyword" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Basic description of an input/output. The identifier should be set. If the title and/or the abstract is not
+    set, the WPS service should retrieve the one from the original wps process input/output. -->
+    <xs:complexType name="descriptionType">
+        <xs:all>
+            <xs:element ref="title" minOccurs="0"/>
+            <xs:element ref="abstract" minOccurs="0"/>
+        </xs:all>
+        <xs:attribute name="identifier" type="xs:string" use="required" />
+        <xs:attribute name="href" type="xs:string" default="localhost"/>
+    </xs:complexType>
+
+    <!-- Model global input. The 'data' element contains the data to be processed. -->
+    <xs:element name="input">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="descriptionType">
+                    <xs:all>
+                        <xs:element ref="data"/>
+                    </xs:all>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Element containing a list of 'input' element. -->
+    <xs:element name="inputs">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="input" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Model global output -->
+    <xs:element name="output">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="descriptionType">
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Element containing a list of 'output' element. -->
+    <xs:element name="outputs">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="output" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Description of a process input. If the value inside of this element is exactly the same as one of the global
+    model input identifier or is exactly the same as a 'processOutput' identifier/value, link the global input with
+    this 'input' or 'processOutput'. Otherwise, uses the value as data for this input. -->
+    <xs:element name="processInput">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="identifier" type="xs:string" use="required"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Description of a process input. If the value inside of this element is exactly the same as one of the global
+    model input identifier or is exactly the same as a 'processOutput' identifier/value, link the global input with
+    this 'input' or 'processOutput'. Otherwise, uses the value as data for this input. -->
+    <xs:element name="processOutput">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="identifier" type="xs:string" use="required"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Wps process to execute in the chain -->
+    <xs:element name="process">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="processInput" maxOccurs="unbounded"/>
+                <xs:element ref="processOutput" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="identifier" type="xs:string" use="required"/>
+            <xs:attribute name="href" type="xs:string" default="localhost"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- List of WPS process to execute in the chain -->
+    <xs:element name="processes">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="process" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

@@ -34,5 +34,9 @@ public interface WpsScriptBundle {
      */
     Map<ProcessMetadata.INTERNAL_METADATA, Object> getScriptMetadata(URL scriptUrl);
 
+    /**
+     * Return the I18N object from the bundle which will be used to translate the processes human readable string.
+     * @return A I18N object.
+     */
     I18n getI18n();
 }

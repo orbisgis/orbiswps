@@ -65,6 +65,9 @@ import java.util.jar.JarFile;
 
 /**
  * Main class of the plugin which implements the WpsScriptBundle.
+ *
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
 @Component(immediate = true)
 public class WpsScriptPlugin implements WpsScriptBundle {

@@ -51,6 +51,81 @@ The process itself is written inside a method called `processing()` (the name ca
 This module contains basic WPS scripts and are loaded in the WPS server by the class `WpsScriptPlugin` thanks to the 
 OSGI mechanism.
 
+### How to create a script bundle
+A WPS script bundle is composed of two part : a java class which is used to load/unload the scripts inside the service 
+and a resource folder containing the scripts.
+A maven is available at [orbisgis-plugin_maven-archetype](https://github.com/orbisgis/orbisgis-plugin_maven-archetype]),
+ in the module wps-scripts 
+
+#### Bundle structure
+The structure of the bundle should respect a typical maven project structure. <br/>
+An example a the minimal structure : <br/>
+```
+root
+├─ src
+│  └─ main
+│     ├─ java
+│     │  └─ com
+│     │     └─ example
+│     │        └─ script
+│     │           └─ loader.java
+│     └─ resources
+│        └─ com
+│           └─ example
+│              └─ script
+│                 ├─ script1.groovy
+│                 ├─ script1.groovy
+│                 └─ script1.groovy
+└─ pom.xml<br/>
+```
+
+#### Java
+The bundle should contains at least one class extending the interface `WpsScriptBundle` from the module `service-api`. 
+In the case of a OSGI bundle, this class should also be annotated as `@Component(immediate = true)` to be recognized by 
+the `wpsservice` bundle.<br>
+
+###### getScriptsList()
+Return all the URLs of the script to load.<br>
+:heavy_exclamation_mark: For a osgi jar, the URL has not the same structure as for a standard jar.<br>
+In an OSGI environment, you should use :
+```java
+FrameworkUtil.getBundle(this.getClass()).findEntries();
+```
+For a standard jar you should use :
+```java
+new File().listFiles().get(0).toURI().toURL()
+```
+###### getGroovyProperties()
+Returns all the properties that should be inserted inside the scripts by the groovy engine. Those properties are 
+returned inside a `Map` object which key is a `String` which is the name of the variable inside the script and the 
+value is an `Object` which is the property itself.<br>
+As example, a groovy script with a logger object like :<br>
+``` java
+logger.info("running the script")
+logger.warn("do not do anything")
+```
+should be loaded by a java class with the method :<br>
+```java
+@Override
+public Map<String, Object> getGroovyProperties() {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put("logger",new Logger());
+    return properties;
+}
+```
+###### getScriptMetadata()
+Return a map of metadata which will be integrated to the process on request. Those metadata are used by the WPS 
+client to be able to improve the user interface.
+ - IS_REMOVABLE : indicates if the process can be removed (like a custom script) or not (like system script)
+ - NODE_PATH : indicates the path to the script to structure then as a tree
+ - ICON_ARRAY : an array of icon file path to use them with the NODE_PATH metadata. The last icon should be the icon of
+  ths script
+
+###### getI18n()
+Return the `I18N` object which will be used to translate the processes human readable string (like process title or 
+abstract) on runtime.
+
+
 ## Server module
 This module contains the whole WPS mechanism which can be divided into two part : the script parsing and the WPS 
 request execution. The WPS service can be customized by instantiating the `WpsServerImpl` class with a customized 
@@ -72,5 +147,5 @@ The request is then parsed and executed. In the case of the `Execute` request, a
 desired script is instantiated and configured with the input. Then the method `processing()` is executed. Once the 
 execution end reached, the output data a retrieved.
 
-## Client
+## Client API
 API interface and classes for the creation of a WPS client compatible with the server.

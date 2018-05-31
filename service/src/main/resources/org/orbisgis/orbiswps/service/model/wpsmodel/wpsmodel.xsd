@@ -97,10 +97,10 @@
     <!-- Basic description of an input/output. The identifier should be set. If the title and/or the abstract is not
     set, the WPS service should retrieve the one from the original wps process input/output. -->
     <xs:complexType name="descriptionType">
-        <xs:all>
+        <xs:sequence>
             <xs:element ref="title" minOccurs="0"/>
             <xs:element ref="abstract" minOccurs="0"/>
-        </xs:all>
+        </xs:sequence>
         <xs:attribute name="identifier" type="xs:string" use="required" />
         <xs:attribute name="href" type="xs:string" default="localhost"/>
     </xs:complexType>
@@ -110,9 +110,9 @@
         <xs:complexType>
             <xs:complexContent>
                 <xs:extension base="descriptionType">
-                    <xs:all>
+                    <xs:sequence>
                         <xs:element ref="data"/>
-                    </xs:all>
+                    </xs:sequence>
                 </xs:extension>
             </xs:complexContent>
         </xs:complexType>

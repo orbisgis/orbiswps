@@ -56,20 +56,23 @@ public class FormatFactory {
     public static final String SQL_EXTENSION = "sqlTable";
     public static final String WKT_EXTENSION = "wkt";
     public static final String GEOMETRY_EXTENSION = "geometry";
-    public static final String TEXT_EXTENSION = ".txt";
-    public static final String GML_EXTENSION = ".xml";
+    public static final String TEXT_EXTENSION = "txt";
+    public static final String GML_EXTENSION = "gml";
+    public static final String XML_EXTENSION = "xml";
 
     public static final String SHAPEFILE_MIMETYPE = "application/octet-stream";
-    public static final String GEOJSON_MIMETYPE = "application/geojson";
+    public static final String GEOJSON_MIMETYPE = "application/geo+json";
     public static final String SQL_MIMETYPE = "custom/sql";
     public static final String WKT_MIMETYPE = "custom/wkt";
     public static final String TEXT_MIMETYPE = "text/plain";
-    public static final String GML_MIMETYPE = "text/xml";
+    public static final String XML_MIMETYPE = "text/xml";
+    public static final String GML_MIMETYPE = "application/gml+xml";
 
     public static final String SHAPEFILE_URI = "https://tools.ietf.org/html/rfc2046";
-    public static final String GEOJSON_URI = "https://tools.ietf.org/html/rfc4627";
+    public static final String GEOJSON_URI = "https://tools.ietf.org/html/rfc7946";
     public static final String SQL_URI = "";
     public static final String WKT_URI = "";
+    public static final String GML_URI = "https://tools.ietf.org/html/rfc7303";
     public static final String OTHER_URI = "";
 
     public static final String SQL_DESCRIPTION = "SQL table";
@@ -102,6 +105,10 @@ public class FormatFactory {
                 break;
             case GML_EXTENSION:
                 format.setMimeType(GML_MIMETYPE);
+                format.setSchema(GML_URI);
+                break;
+            case XML_EXTENSION:
+                format.setMimeType(XML_MIMETYPE);
                 format.setSchema(OTHER_URI);
                 break;
             default:
@@ -160,5 +167,46 @@ public class FormatFactory {
             default:
                 return format.getMimeType();
         }
+    }
+
+    /**
+     * Return the well formatted Format corresponding to the given mimeType
+     * @param mimeType MimeType of the format.
+     * @return The Format corresponding to the given mimeType.
+     */
+    public static Format getFormatFromMimeType(String mimeType) {
+        Format format = new Format();
+        format.setEncoding("simple");
+        switch(mimeType){
+            case SHAPEFILE_MIMETYPE:
+                format.setMimeType(SHAPEFILE_MIMETYPE);
+                format.setSchema(SHAPEFILE_URI);
+                break;
+            case GEOJSON_MIMETYPE:
+                format.setMimeType(GEOJSON_MIMETYPE);
+                format.setSchema(GEOJSON_URI);
+                break;
+            case SQL_MIMETYPE:
+                format.setMimeType(SQL_MIMETYPE);
+                format.setSchema(SQL_URI);
+                break;
+            case WKT_MIMETYPE:
+                format.setMimeType(WKT_MIMETYPE);
+                format.setSchema(WKT_URI);
+                break;
+            case GML_MIMETYPE:
+                format.setMimeType(GML_MIMETYPE);
+                format.setSchema(GML_URI);
+                break;
+            case XML_MIMETYPE:
+                format.setMimeType(XML_MIMETYPE);
+                format.setSchema(OTHER_URI);
+                break;
+            default:
+                format.setMimeType(TEXT_MIMETYPE);
+                format.setSchema(OTHER_URI);
+                break;
+        }
+        return format;
     }
 }

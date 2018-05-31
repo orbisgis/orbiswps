@@ -69,9 +69,13 @@ public class EnumerationParser implements Parser {
     public InputDescriptionType parseInput(Field f, Object defaultValue, URI processId) throws MalformedScriptException {
         EnumerationAttribute enumerationAttribute = f.getAnnotation(EnumerationAttribute.class);
         Format format = FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION);
-        Enumeration enumeration = ObjectAnnotationConverter.annotationToObject(enumerationAttribute, format);
+        String[] dfltVal = null;
         if(defaultValue != null && defaultValue instanceof String[]) {
-            enumeration.setDefaultValues((String[])defaultValue);
+            dfltVal = (String[])defaultValue;
+        }
+        Enumeration enumeration = ObjectAnnotationConverter.annotationToObject(enumerationAttribute, format, dfltVal);
+        if(defaultValue != null && defaultValue instanceof String[]) {
+            enumeration.setDefaultValues(dfltVal);
         }
 
         InputDescriptionType input = new InputDescriptionType();
@@ -95,9 +99,13 @@ public class EnumerationParser implements Parser {
     public OutputDescriptionType parseOutput(Field f, Object defaultValue, URI processId) throws MalformedScriptException {
         EnumerationAttribute enumerationAttribute = f.getAnnotation(EnumerationAttribute.class);
         Format format = FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION);
-        Enumeration enumeration = ObjectAnnotationConverter.annotationToObject(enumerationAttribute, format);
+        String[] dfltVal = null;
         if(defaultValue != null && defaultValue instanceof String[]) {
-            enumeration.setDefaultValues((String[])defaultValue);
+            dfltVal = (String[])defaultValue;
+        }
+        Enumeration enumeration = ObjectAnnotationConverter.annotationToObject(enumerationAttribute, format, dfltVal);
+        if(defaultValue != null && defaultValue instanceof String[]) {
+            enumeration.setDefaultValues(dfltVal);
         }
 
         OutputDescriptionType output = new OutputDescriptionType();

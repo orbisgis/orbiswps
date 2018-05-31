@@ -43,10 +43,6 @@ import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
-/********************/
-/** Process method **/
-/********************/
-
 /**
  * This process removes the given rows from the given table.
  * The user has to specify (mandatory):
@@ -54,8 +50,8 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  *  - The primary key field 
  *  - The primary keys of the rows to remove 
  *
- * @author Sylvain PALOMINOS
- * @author Erwan Bocher
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
         title = "Delete rows",
@@ -67,12 +63,12 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 )
 def processing() {
     //Build the start of the query
-    for (String s : pkToRemove) {
-        String query = "DELETE FROM " + tableName + " WHERE " + pkField[0] + " = " + Long.parseLong(s)
+    for (pk in pkToRemove) {
+        String query = "DELETE FROM ${tableName} WHERE ${pkField[0]} = ${pk}"
         //Execute the query
-        sql.execute(query)
+        sql.execute(query.toString())
     }
-    literalOutput = i18n.tr("Delete done.")
+    literalOutput = i18n.tr("Deletion done.")
 }
 
 
@@ -111,7 +107,11 @@ String[] pkField
 )
 String[] pkToRemove
 
-/** Output message. */
+
+/*****************/
+/** OUTPUT Data **/
+/*****************/
+
 @LiteralDataOutput(
         title = "Output message",
         description = "The output message.",

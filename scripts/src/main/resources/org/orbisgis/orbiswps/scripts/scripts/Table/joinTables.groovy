@@ -43,17 +43,12 @@ import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
-/********************/
-/** Process method **/
-/********************/
-
-
-
 /**
  * This process joins two tables.
  * @return A database table or a file.
- * @author Erwan Bocher
- * @author Sylvain PALOMINOS
+ *
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
 		title = "Tables join",
@@ -63,52 +58,43 @@ import org.orbisgis.orbiswps.groovyapi.process.*
                 version = "1.0")
 def processing() {
 
-	if(createIndex!=null && createIndex==true){
-		sql.execute "create index on "+ rightJDBCTable + "("+ rightField[0] +")"
-		sql.execute "create index on "+ leftJDBCTable + "("+ leftField[0] +")"
+	logger.warn(operation[0])
+
+	if (createIndex != null && createIndex == true) {
+		sql.execute "create index on ${rightJDBCTable}(${rightField[0]})"
+		sql.execute "create index on ${leftJDBCTable}(${leftField[0]})"
 	}
 
-	String query = "CREATE TABLE "+outputTableName+" AS SELECT * FROM "
+	def query = "CREATE TABLE ${outputTableName} AS SELECT * FROM "
 
-        if(operation[0].equals("left")){
-        query += leftJDBCTable + "LEFT JOIN " + rightJDBCTable + " ON " + leftJDBCTable+ "."+ leftField[0]+ "="+ rightJDBCTable+"."+ rightField[0];
-        }
-    
-        else if (operation[0].equals("left_without_b")){
-        query += leftJDBCTable + "LEFT JOIN " + rightJDBCTable + " ON " + leftJDBCTable+ "."+ leftField[0]+ "="+ rightJDBCTable+"."+ rightField[0] 
-        + " where " + rightJDBCTable+"."+ rightField[0] + " IS NULL";
-        }
-    
-    
-        else if (operation[0].equals("right")){
-        query += leftJDBCTable + "RIGHT JOIN " + rightJDBCTable + " ON " + leftJDBCTable+ "."+ leftField[0]+ "="+ rightJDBCTable+"."+ rightField[0];
-        
-        }
-        
-        else if (operation[0].equals("right_without_a")){
-        query += leftJDBCTable + "RIGHT JOIN " + rightJDBCTable + " ON " + leftJDBCTable+ "."+ leftField[0]+ "="+ rightJDBCTable+"."+ rightField[0] 
-        + " where " + leftJDBCTable+ "."+ leftField[0] + " IS NULL";
-        }
-        
-        else if (operation[0].equals("inner")){
-            query += leftJDBCTable + "INNER JOIN " + rightJDBCTable + " ON " + leftJDBCTable+ "."+ leftField[0]+ "="+ rightJDBCTable+"."+ rightField[0];
+	if (operation[0].equals("left")) {
+		query += "${leftJDBCTable} LEFT JOIN ${rightJDBCTable} ON ${leftJDBCTable}.${leftField[0]}=" +
+				"${rightJDBCTable}.${rightField[0]}"
+	} else if (operation[0].equals("left_without_b")) {
+		query += "${leftJDBCTable} LEFT JOIN ${rightJDBCTable} ON ${leftJDBCTable}.${leftField[0]}=" +
+				"${rightJDBCTable}.${rightField[0]} where ${rightJDBCTable}.${rightField[0]} IS NULL"
+	} else if (operation[0].equals("right")) {
+		query += "${leftJDBCTable} RIGHT JOIN ${rightJDBCTable} ON ${leftJDBCTable}.${leftField[0]}=" +
+				"${rightJDBCTable}.${rightField[0]}"
+	} else if (operation[0].equals("right_without_a")) {
+		query += "${leftJDBCTable} RIGHT JOIN ${rightJDBCTable} ON ${leftJDBCTable}.${leftField[0]}=" +
+				"${rightJDBCTable}.${rightField[0]} where ${leftJDBCTable}.${leftField[0]} IS NULL"
+	} else if (operation[0].equals("inner")) {
+		query += "${leftJDBCTable} INNER JOIN ${rightJDBCTable} ON ${leftJDBCTable}.${leftField[0]}=" +
+				"${rightJDBCTable}.${rightField[0]}"
+	} else if (operation[0].equals("cross")) {
+		query += "${leftJDBCTable} CROSS JOIN ${rightJDBCTable}"
+	} else if (operation[0].equals("natural")) {
+		query += "${leftJDBCTable} NATURAL JOIN ${rightJDBCTable}"
 	}
-        
-        else if (operation[0].equals("cross")){
-            query += leftJDBCTable + "CROSS JOIN " + rightJDBCTable ;	
-	}
-        
-        else if (operation[0].equals("natural")){
-            query += leftJDBCTable + "NATURAL JOIN " + rightJDBCTable ;	
-	}
-        
+
 	//Execute the query
-	sql.execute(query);
-        
-        if(dropInputTables){
-            sql.execute "drop table if exists " + leftJDBCTable+","+ rightJDBCTable
-        }
-	literalOutput = i18n.tr("Process done")
+	sql.execute(query.toString())
+
+	if (dropInputTables) {
+		sql.execute("drop table if exists ${leftJDBCTable},${rightJDBCTable}".toString())
+	}
+	outputJDBCTable = outputTableName
 }
 
 
@@ -153,7 +139,8 @@ String[] rightField
 		title = "Operation",
 		description = "Types of join.",
         values=["left","right","left_without_b", "right_without_a", "inner", "cross","natural"],
-        names=["Left join","Right join","Left join without rigth values","Right join without left values","Inner join","Cross join","Natural join"],
+        names=["Left join","Right join","Left join without rigth values","Right join without left values",
+				"Inner join","Cross join","Natural join"],
         multiSelection = false)
 String[] operation = ["left"]
 
@@ -167,20 +154,21 @@ Boolean createIndex
 @LiteralDataInput(
     title = "Drop the input tables",
     description = "Drop the input tables when the script is finished.")
-Boolean dropInputTables 
+Boolean dropInputTables
 
 @LiteralDataInput(
 		title = "Output table name",
 		description = "Name of the table containing the result of the process.")
 String outputTableName
 
+
 /*****************/
 /** OUTPUT Data **/
 /*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-		title = "Output message",
-		description = "The output message.")
-String literalOutput
+@JDBCTableOutput(
+		title = "output table",
+		description = "Table that contains the output.",
+		identifier = "outputTable")
+String outputJDBCTable
 

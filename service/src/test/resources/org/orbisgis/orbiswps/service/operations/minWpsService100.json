@@ -1,0 +1,165 @@
+/*
+ * OrbisWPS contains a set of libraries to build a Web Processing Service (WPS)
+ * compliant with the 2.0 specification.
+ *
+ * OrbisWPS is part of the OrbisGIS platform
+ *
+ * OrbisGIS is a java GIS application dedicated to research in GIScience.
+ * OrbisGIS is developed by the GIS group of the DECIDE team of the
+ * Lab-STICC CNRS laboratory, see <http://www.lab-sticc.fr/>.
+ *
+ * The GIS group of the DECIDE team is located at :
+ *
+ * Laboratoire Lab-STICC – CNRS UMR 6285
+ * Equipe DECIDE
+ * UNIVERSITÉ DE BRETAGNE-SUD
+ * Institut Universitaire de Technologie de Vannes
+ * 8, Rue Montaigne - BP 561 56017 Vannes Cedex
+ *
+ * OrbisWPS is distributed under GPL 3 license.
+ *
+ * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ *
+ *
+ * OrbisWPS is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * OrbisWPS is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * OrbisWPS. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * For more information, please consult: <http://www.orbisgis.org/>
+ * or contact directly:
+ * info_at_ orbisgis.org
+ */
+
+//This json file contains comment which are not allowed it a standard JSON.
+//The file should be made compliant with tools like JSMIN before being parsed.
+
+//If it is not specified that the property is optional, it is mandatory by default
+{
+  //Service supported. Should be WPS
+  "service": "WPS",
+  //Service version. Used to build the update sequence
+  "service_version": "1.0.0",
+  //Default language FULLY supported by the server
+  "default_language": "en",
+  //Array of languages FULLY supported by the server (including the default language)
+  "supported_languages": [
+    "en",
+    "fr-fr"
+  ],
+  //Definition of the ServiceIdentification section
+  "service_identification": {
+    //A service type name from registry of services, normally used for machine-to-machine communication
+    "service_type": "WPS",
+    //Array of versions of this service type implemented by this server
+    "service_type_version": [
+      "1.0.0"
+    ],
+    //Array of the translated title of this server, normally used for display to a human. The translations must have a
+    //language property
+    "title": [
+      {
+        "value": "Local WPS Service",
+        "lang": "en"
+      },
+      {
+        "value": "Service WPS locale",
+        "lang": "fr-fr"
+      }
+    ]
+  },
+  //Definition of the ServiceProvider section
+  "service_provider": {
+    //Unique identifier for service provider organization
+    "provider_name": "OrbisGIS"
+  },
+  //Metadata about the operations provided by this service and implemented by this server
+  "operation_metadata": {
+    //Metadata for one operation that this server interface implements
+    "operation": [
+      {
+        //Name of this operation
+        "name": "GetCapabilities",
+        //Information for a Distributed Computing Platform supported for this operation. Only one HTTP DCP allowed
+        "dcp": [
+          {
+            //Connect point URLs for the http Distributed Computing Platform. At least one GEt or POST should be included
+            "http": {
+              //Connect point URL prefix and any constraint for HTTP "Get" or "Post" request method for this operation request
+              "get_or_post": [
+                {
+                  //Connect point URL for this operation request
+                  "url": {
+                    //Any URL
+                    //Optional
+                    "href": "getcapabilitiesurl1"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        //Name of this operation
+        "name": "DescribeProcess",
+        //Information for a Distributed Computing Platform supported for this operation. Only one HTTP DCP allowed
+        "dcp": [
+          {
+            //Connect point URLs for the http Distributed Computing Platform. At least one GEt or POST should be included
+            "http": {
+              //Connect point URL prefix and any constraint for HTTP "Get" or "Post" request method for this operation request
+              "get_or_post": [
+                {
+                  //Connect point URL for this operation request
+                  "url": {
+                    "href": "describeprocessurl1"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        //Name of this operation
+        "name": "Execute",
+        //Information for a Distributed Computing Platform supported for this operation. Only one HTTP DCP allowed
+        "dcp": [
+          {
+            //Connect point URLs for the http Distributed Computing Platform. At least one GEt or POST should be included
+            "http": {
+              //Connect point URL prefix and any constraint for HTTP "Get" or "Post" request method for this operation request
+              "get_or_post": [
+                {
+                  //Connect point URL for this operation request
+                  "url": {
+                    "href": "executeurl1"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  //Custom properties
+  "custom_properties": {
+    //Duration before result destroying
+    "destroy_duration": "0Y2D0H0M0S",
+    //Maximum value  of the process polling delay in milliseconds
+    "max_process_polling_delay": 10000,
+    //Base value  of the process polling delay in milliseconds
+    //The process polling delay will be incremented by the base after each polling until it reaches the max one.
+    "base_process_polling_delay": 1000,
+    "maximum_megabytes": 1
+  }
+}

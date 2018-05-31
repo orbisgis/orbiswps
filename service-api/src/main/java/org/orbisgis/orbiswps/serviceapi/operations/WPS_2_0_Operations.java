@@ -46,7 +46,7 @@ import net.opengis.wps._2_0.*;
  *
  * @author Sylvain PALOMINOS
  */
-public interface WPS_2_0_Operations {
+public interface WPS_2_0_Operations extends WpsOperations {
 
     /**
      * This operation allows a client to retrieve service metadata, basic process offerings, and the available
@@ -105,7 +105,7 @@ public interface WPS_2_0_Operations {
      *                  processing job, of which the status shall be returned.
      * @return StatusInfo document.
      */
-    StatusInfo getStatus(GetStatus getStatus);
+    Object getStatus(GetStatus getStatus);
 
     /**
      * WPS GetResult operation request. This operation is used to query the results of asynchrously
@@ -117,7 +117,7 @@ public interface WPS_2_0_Operations {
      *                  processing job, of which the result shall be returned.
      * @return Result document.
      */
-    Result getResult(GetResult getResult);
+    Object getResult(GetResult getResult);
 
     /**
      * The dismiss operation allow a client to communicate that he is no longer interested in the results of a job.

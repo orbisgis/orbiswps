@@ -45,46 +45,47 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.utilities.SFSUtilities
 import org.h2gis.utilities.TableLocation
 
-
 /**
- * @author Erwan Bocher
+ * Select geometries from one table based on one other table.
+ * The criteria for selecting features is based on the spatial relationship between each feature and the features in an
+ * additional layer.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
     title = "Spatial filtering",
-    description = "Select geometries from one table based on one other table.\nThe criteria for selecting features is based on the spatial relationship between eachfeature and the features in an additional layer. ",
+    description = "Select geometries from one table based on one other table.<br>\
+            The criteria for selecting features is based on the spatial relationship between each feature and the \
+            features in an additional layer. ",
 	keywords = ["Vector","Geometry","Filtering"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:selectSpatial"
 )
 def processing() {
-    
-    //Build the start of the query
-    String  outputTable = fromSelectedTable+"_filtered"
 
-    if(outputTableName != null){
-	outputTable  = outputTableName
+    //Build the start of the query
+    def outputTable = "${fromSelectedTable}_filtered"
+
+    if (outputTableName != null) {
+        outputTable = outputTableName
     }
 
-    String query = "CREATE TABLE " + outputTable + " AS SELECT b.*"
-    query += " from " +  toSelectedTable+ " as a, "+ fromSelectedTable + " as b where " + operation[0]
-    query += "(a."+ geometricFieldToSelected[0]+ ",b."+ geometricFieldFromSelected[0]+ ")"
+    def query = "CREATE TABLE ${outputTable} AS SELECT b.* from ${toSelectedTable} as a, ${fromSelectedTable} as b " +
+            "where ${operation[0]} (a.${geometricFieldToSelected[0]},b.${geometricFieldFromSelected[0]})"
 
     notGeomIndex = ["st_disjoint"]
 
-    if(!notGeomIndex.contains(operation[0])){
-    
-        query +=" and a." + geometricFieldToSelected[0]+ "&& b."+ geometricFieldFromSelected[0]
-
-    }  
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTable
+    if (!notGeomIndex.contains(operation[0])) {
+        query += " and a.${geometricFieldToSelected[0]} && b.${geometricFieldFromSelected[0]}"
+    }
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTable}".toString())
     }
     //Execute the query
-    sql.execute(query)
+    sql.execute(query.toString())
 
-    literalOutput = i18n.tr("Process done")
-    
+    outputJDBCTable = outputTableName
 }
 
 /****************/
@@ -148,13 +149,14 @@ Boolean dropTable
 String outputTableName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-    title = "Output message",
-    description = "The output message.",
-    identifier = "literalOutput"
-)
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 
 

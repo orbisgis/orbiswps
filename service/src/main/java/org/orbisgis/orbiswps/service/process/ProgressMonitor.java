@@ -67,7 +67,7 @@ public class ProgressMonitor implements ProgressVisitor {
     /** True if the process has been cancelled, false otherwise. */
     private boolean isCancelled;
     /** Count of step to do. */
-    private int stepCount;
+    private int stepCount = 1;
     /** Count of step done. */
     private int stepDone = 0;
 
@@ -123,7 +123,7 @@ public class ProgressMonitor implements ProgressVisitor {
 
     @Override
     public void endOfProgress() {
-        progressTo(1);
+        progressTo(stepCount);
     }
 
     @Override

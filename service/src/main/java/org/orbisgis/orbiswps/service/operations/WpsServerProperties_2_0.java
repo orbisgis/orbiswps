@@ -40,6 +40,8 @@
 package org.orbisgis.orbiswps.service.operations;
 
 import net.opengis.ows._2.*;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3._1999.xlink.ActuateType;
@@ -62,7 +64,8 @@ import java.util.Properties;
  *
  * @author Sylvain PALOMINOS
  */
-public class WpsServerProperties_2_0 {
+@Component(service = WpsProperties.class)
+public class WpsServerProperties_2_0 implements WpsProperties {
 
     /** CoreWorkspace of OrbisGIS */
     private static final Logger LOGGER = LoggerFactory.getLogger(WpsServerProperties_2_0.class);
@@ -130,6 +133,34 @@ public class WpsServerProperties_2_0 {
         }
     }
 
+    /**
+     * Creates a WpsServerProperties_2_0 object which contains all the properties used in a WpsServer.
+     */
+    public WpsServerProperties_2_0(){
+        Properties wpsProperties = new Properties();
+        URL url = this.getClass().getResource(BASIC_SERVER_PROPERTIES);
+        if(url == null){
+            LOGGER.error(I18N.tr("Unable to find the basic server properties file."));
+        }
+        else {
+            try {
+                wpsProperties.load(new InputStreamReader(url.openStream()));
+                GLOBAL_PROPERTIES = new GlobalProperties(wpsProperties);
+                SERVICE_IDENTIFICATION_PROPERTIES = new ServiceIdentificationProperties(wpsProperties);
+                SERVICE_PROVIDER_PROPERTIES = new ServiceProviderProperties(wpsProperties);
+                OPERATIONS_METADATA_PROPERTIES = new OperationsMetadataProperties(wpsProperties);
+                CUSTOM_PROPERTIES = new CustomProperties(wpsProperties);
+            } catch (Exception ex) {
+                LOGGER.error(I18N.tr("Unable to load the server configuration.\nCause : {0}\nLoading the default configuration.", ex.getMessage()));
+                GLOBAL_PROPERTIES = null;
+            }
+        }
+    }
+
+    @Override
+    public String getWpsVersion() {
+        return "2.0";
+    }
 
     /** Global properties of the server */
     public class GlobalProperties{

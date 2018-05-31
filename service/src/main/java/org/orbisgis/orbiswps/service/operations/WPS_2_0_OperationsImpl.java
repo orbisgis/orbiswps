@@ -43,6 +43,7 @@ import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.orbisgis.orbiswps.service.WpsServerImpl;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.service.process.ProcessManager;
 import org.orbisgis.orbiswps.service.utils.Job;
@@ -81,6 +82,13 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         this.wpsProp = wpsProp;
         this.processManager = processManager;
         jobMap = new HashMap<>();
+    }
+
+    @Override
+    public void setWpsProperties(WpsProperties wpsProperties) {
+        if(wpsProperties.getWpsVersion().equals("2.0")){
+            this.wpsProp = (WpsServerProperties_2_0) wpsProperties;
+        }
     }
 
     /** Enumeration of the section names. */
@@ -405,6 +413,16 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         statusInfo.setJobID(jobId.toString());
         //Get the Process
         ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(execute.getIdentifier());
+
+        if (processIdentifier == null){
+            ExceptionReport exceptionReport = new ExceptionReport();
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("NoSuchProcess");
+            exceptionType.setLocator(execute.getIdentifier().getValue());
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
         //Generate the processInstance
         Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
                 wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
@@ -422,10 +440,20 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
     }
 
     @Override
-    public StatusInfo getStatus(GetStatus getStatus) {
+    public Object getStatus(GetStatus getStatus) {
         //Get the job concerned by the getStatus request
         UUID jobId = UUID.fromString(getStatus.getJobID());
         Job job = jobMap.get(jobId);
+
+        if (job == null){
+            ExceptionReport exceptionReport = new ExceptionReport();
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("NoSuchJob");
+            exceptionType.setLocator(getStatus.getJobID());
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
         //Generate the StatusInfo to return
         StatusInfo statusInfo = new StatusInfo();
         statusInfo.setJobID(jobId.toString());
@@ -447,7 +475,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
     }
 
     @Override
-    public Result getResult(GetResult getResult) {
+    public Object getResult(GetResult getResult) {
         Result result = new Result();
         //generate the XMLGregorianCalendar Object to put in the Result Object
         long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
@@ -455,6 +483,16 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         //Get the concerned Job
         UUID jobId = UUID.fromString(getResult.getJobID());
         Job job = jobMap.get(jobId);
+
+        if (job == null){
+            ExceptionReport exceptionReport = new ExceptionReport();
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode("NoSuchJob");
+            exceptionType.setLocator(getResult.getJobID());
+            exceptionReport.getException().add(exceptionType);
+            return exceptionReport;
+        }
+
         result.setJobID(jobId.toString());
         //Get the list of outputs to transmit
         List<DataOutputType> listOutput = new ArrayList<>();

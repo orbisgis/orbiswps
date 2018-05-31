@@ -44,13 +44,14 @@ import net.opengis.ows._2.CodeType;
 import net.opengis.ows._2.MetadataType;
 import net.opengis.wps._2_0.*;
 import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
-import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
-import org.orbisgis.orbiswps.serviceapi.WpsServer;
+import org.orbisgis.orbiswps.service.model.*;
+import org.orbisgis.orbiswps.service.model.Enumeration;
+import org.orbisgis.orbiswps.service.model.BoundingBoxData;
 import org.orbisgis.orbiswps.service.parser.ParserController;
 import org.orbisgis.orbiswps.service.utils.CancelClosure;
 import org.orbisgis.orbiswps.service.utils.WpsSql;
-import org.orbisgis.orbiswps.service.model.*;
-import org.orbisgis.orbiswps.service.model.Enumeration;
+import org.orbisgis.orbiswps.serviceapi.WpsServer;
+import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata.DBMS_TYPE;
@@ -438,7 +439,7 @@ public class ProcessManager {
                             data = data.toString().split("\\t");
                         }
                     }
-                    if(dataDescriptionType instanceof LiteralDataType) {
+                    else if(dataDescriptionType instanceof LiteralDataType) {
                         if (Number.class.isAssignableFrom(field.getType()) && data != null) {
                             try {
                                 Method valueOf = field.getType().getMethod("valueOf", String.class);

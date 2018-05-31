@@ -60,8 +60,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * @return The point layer model source created from a CSV file.
  *
  * @see http://www.h2gis.org/docs/dev/ST_SeST_MakePointSRID/
- * @author Sylvain PALOMINOS
- * @author Erwan BOCHER
+ *
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(title = "Point table from CSV",
     description = "Creates a point layer from a CSV file containing the id of the point, its X and Y coordinate.",
@@ -70,25 +71,26 @@ import org.orbisgis.orbiswps.groovyapi.process.*
     version = "1.0")
 def processing() {
     //Open the CSV file
-    File csvFile = new File(csvDataInput[0])
-    name = csvFile.getName()
-    tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
-    
-    if(jdbcTableOutputName != null){
-	    tableName = jdbcTableOutputName
-    }    
+    def csvFile = new File(csvDataInput[0])
+    def name = csvFile.getName()
+    def tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
+
+    if (jdbcTableOutputName != null) {
+        tableName = jdbcTableOutputName
+    }
     if(dropTable){
-	    sql.execute "drop table if exists " + tableName
+	    sql.execute("drop table if exists ${tableName}".toString())
     }
     
-    String csvRead = "CSVRead('"+csvFile.absolutePath+"', NULL, 'fieldSeparator="+separator+"')";   
-    sql.execute("CREATE TABLE "+ tableName + " AS SELECT "+idField+", ST_MakePoint("+xField+", "+yField+") THE_GEOM FROM "+csvRead+";");    
-    
+    def csvRead = "CSVRead('${csvFile.absolutePath}', NULL, 'fieldSeparator=${separator}')"
+    sql.execute("CREATE TABLE ${tableName} AS SELECT ${idField}, ST_MakePoint(${xField}, ${yField}) " +
+            "THE_GEOM FROM ${csvRead};".toString())
+
     if(createIndex){
-        sql.execute "create spatial index on "+ tableName + " (the_geom)"
+        sql.execute("create spatial index on ${tableName} (the_geom)".toString())
     }
-    
-    literalDataOutput = i18n.tr("Process done")
+
+    outputJDBCTable = tableName
 }
 
 /****************/
@@ -154,10 +156,13 @@ Boolean dropTable
     minOccurs = 0)
 String jdbcTableOutputName
 
-/************/
-/** OUTPUT **/
-/************/
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+
+/*****************/
+/** OUTPUT Data **/
+/*****************/
+
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable

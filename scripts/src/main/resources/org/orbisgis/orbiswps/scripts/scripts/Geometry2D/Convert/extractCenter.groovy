@@ -52,8 +52,9 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  *  - The output model source (JDBCTable)
  *
  * @return A datadase table.
- * @author Erwan Bocher
- * @author Sylvain PALOMINOS
+ *
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
 		title = "Extract center",
@@ -63,37 +64,36 @@ import org.orbisgis.orbiswps.groovyapi.process.*
                 version = "1.0")
 def processing() {
     //Build the start of the query
-    String query = "CREATE TABLE "+outputTableName+" AS SELECT "
-    
-    
-    if(operation[0].equalsIgnoreCase("centroid")){
-        query += " ST_Centroid("+geometricField[0]+""
-    }
-    else{
-        query += " ST_PointOnSurface("+geometricField[0]+""
+    def query = "CREATE TABLE ${outputTableName} AS SELECT "
+
+
+    if (operation[0].equalsIgnoreCase("centroid")) {
+        query += " ST_Centroid(${geometricField[0]}"
+    } else {
+        query += " ST_PointOnSurface(${geometricField[0]}"
     }
     //Build the end of the query
     query += ") AS the_geom "
-    
-    
-    for(String field : fieldList) {
+
+
+    for (field in fieldList) {
         if (field != null) {
-            query += ", " + field;
+            query += ", ${field}"
         }
     }
-    
-    query+=" FROM "+inputJDBCTable+";"
-    
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTableName
+
+    query += " FROM ${inputTable};"
+
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTableName}".toString())
     }
-    
+
     //Execute the query
     sql.execute(query)
-    if(dropInputTable){
-        sql.execute "drop table if exists " + inputJDBCTable
+    if (dropInputTable) {
+        sql.execute("drop table if exists ${inputTable}".toString())
     }
-    literalOutput = i18n.tr("Process done")
+    outputJDBCTable = outputTableName
 }
 
 
@@ -106,17 +106,17 @@ def processing() {
 		title = "Extract center",
 		description = "Extract the center of a geometry.",
         dataTypes = ["GEOMETRY"])
-String inputJDBCTable
+String inputTable
 
 /**********************/
 /** INPUT Parameters **/
 /**********************/
 
-/** Name of the Geometric field of the JDBCTable inputJDBCTable. */
+/** Name of the Geometric field of the JDBCTable inputTable. */
 @JDBCColumnInput(
 		title = "Geometric column",
 		description = "The geometric column of the model source.",
-        jdbcTableReference = "inputJDBCTable",
+        jdbcTableReference = "inputTable",
         dataTypes = ["GEOMETRY"])
 String[] geometricField
 
@@ -127,7 +127,7 @@ String[] geometricField
         excludedTypes=["GEOMETRY"],
         multiSelection = true,
         minOccurs = 0,
-        jdbcTableReference = "inputJDBCTable")
+        jdbcTableReference = "inputTable")
 String[] fieldList
 
 @EnumerationInput(
@@ -151,16 +151,16 @@ String outputTableName
 @LiteralDataInput(
     title = "Drop the input table",
     description = "Drop the input table when the script is finished.")
-Boolean dropInputTable 
+Boolean dropInputTable
 
 
 /*****************/
 /** OUTPUT Data **/
 /*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-		title = "Output message",
-		description = "The output message.")
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 

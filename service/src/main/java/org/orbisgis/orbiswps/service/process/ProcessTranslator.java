@@ -170,6 +170,5 @@ public class ProcessTranslator {
         translatedDescriptionType.getKeywords().clear();
         translatedDescriptionType.getKeywords().addAll(keywordsList);
         translatedDescriptionType.setIdentifier(descriptionType.getIdentifier());
-        translatedDescriptionType.getMetadata().addAll(descriptionType.getMetadata());
     }
 }

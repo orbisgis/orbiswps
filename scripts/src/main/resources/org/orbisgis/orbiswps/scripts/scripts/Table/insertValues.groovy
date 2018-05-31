@@ -43,10 +43,6 @@ import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
-/********************/
-/** Process method **/
-/********************/
-
 /**
  * This process insert the given values in the given table.
  * The user has to specify (mandatory):
@@ -56,7 +52,8 @@ import org.orbisgis.orbiswps.groovyapi.process.*
  * The user can specify (optional) :
  *  - The field list concerned by the value insertion
  *
- * @author Sylvain PALOMINOS
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
         title = "Insert values in a table",
@@ -67,44 +64,43 @@ import org.orbisgis.orbiswps.groovyapi.process.*
         identifier = "orbisgis:wps:official:insertValues")
 def processing() {
     //Build the query
-    String queryBase = "INSERT INTO " + tableName;
+    def queryBase = "INSERT INTO ${tableName}"
     if (fieldList != null) {
-        queryBase += " (";
-        String fieldsStr = ""
-        for (String field : fieldList) {
+        queryBase += " ("
+        def fieldsStr = ""
+        for (field in fieldList) {
             if (field != null) {
                 if (!fieldsStr.isEmpty()) {
-                    fieldsStr += ", ";
+                    fieldsStr += ", "
                 }
-                fieldsStr += field;
+                fieldsStr += field
             }
         }
-        queryBase += fieldsStr+") ";
-}
-    queryBase += " VALUES (";
+        queryBase += fieldsStr + ") "
+    }
+    queryBase += " VALUES ("
     //execute the query for each row
-    String[] rowArray = values.split(":")
-    for(String row : rowArray){
-        String query = queryBase
-        String[] valueArray = row.split(";", -1)
+    def rowArray = values.split(":")
+    for (row in rowArray) {
+        def query = queryBase
+        def valueArray = row.split(";", -1)
         //Retrieve the values to insert
-        String formatedValues = ""
-        for(String value : valueArray){
-            if(!formatedValues.isEmpty()){
-                formatedValues += ",";
+        def formatedValues = ""
+        for (value in valueArray) {
+            if (!formatedValues.isEmpty()) {
+                formatedValues += ","
             }
-            if(value.isEmpty()){
+            if (value.isEmpty()) {
                 formatedValues += "NULL"
-            }
-            else{
-                formatedValues += "'" + value + "'";
+            } else {
+                formatedValues += "'${value}'"
             }
         }
         query += formatedValues + ");"
         //execute the query
-        sql.execute(query)
+        sql.execute(query.toString())
     }
-    literalOutput = i18n.tr("Insert done.")
+    literalOutput = i18n.tr("Insertion done.")
 }
 
 
@@ -140,7 +136,11 @@ String[] fieldList
         identifier = "values")
 String values
 
-/** String output of the process. */
+
+/*****************/
+/** OUTPUT Data **/
+/*****************/
+
 @LiteralDataOutput(
         title = "Output message",
         description = "The output message.",

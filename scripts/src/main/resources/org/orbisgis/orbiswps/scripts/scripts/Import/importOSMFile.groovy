@@ -44,28 +44,32 @@ import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
- * @author Erwan Bocher
+ * Import the OSM file 'fileDataInput' into the table 'inputTable'.
+ * If 'dropTable' set to true, drop the table 'jdbcTableOutput'.
+ * The table is returned as the output 'jdbcTableOutput'.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(title = "Import a OSM file",
-    description = "Import a OSM file from path and creates several tables prefixed by tableName representing the file’s contents.\n Please go to  http://www.h2gis.org",
+    description = "Import a OSM file from path and creates several tables prefixed by tableName representing the\
+ file’s contents.<br> Please go to  http://www.h2gis.org",
     keywords = ["OrbisGIS","Import","File","OSM"],
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
-    File fileData = new File(fileDataInput[0])
-    name = fileData.getName()
-    tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
-    query = "CALL OSMRead('"+ fileData.absolutePath+"','"
-    if(jdbcTableOutputName != null){
-	    tableName = jdbcTableOutputName
+    def fileData = new File(fileDataInput[0])
+    def name = fileData.getName()
+    def tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
+    def query = "CALL OSMRead('${fileData.absolutePath}','"
+    if (jdbcTableOutputName != null) {
+        tableName = jdbcTableOutputName
     }
-    
-    query += tableName+"')"	    
 
-    sql.execute query
-    
+    query += "${tableName}')"
 
-    literalDataOutput = i18n.tr("The OSM file has been imported.")
+    sql.execute(query.toString())
+
+    outputJDBCTable = tableName
 }
 
 
@@ -86,13 +90,12 @@ String[] fileDataInput
 String jdbcTableOutputName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-
-
-/************/
-/** OUTPUT **/
-/************/
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable

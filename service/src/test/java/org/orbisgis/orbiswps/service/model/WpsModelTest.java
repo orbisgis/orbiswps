@@ -227,7 +227,7 @@ public class WpsModelTest {
                     EnumerationAttribute descriptionTypeAnnotation = (EnumerationAttribute) annotation;
                     Format format = FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION);
                     format.setDefault(true);
-                    enumeration = ObjectAnnotationConverter.annotationToObject(descriptionTypeAnnotation, format);
+                    enumeration = ObjectAnnotationConverter.annotationToObject(descriptionTypeAnnotation, format, null);
                 }
             }
 

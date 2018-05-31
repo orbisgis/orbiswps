@@ -44,7 +44,11 @@ import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
- * @author Erwan Bocher
+ * Import the GeoJSON file 'fileDataInput' into the table 'inputTable'.
+ * If 'dropTable' set to true, drop the table 'jdbcTableOutput'.
+ * The table is returned as the output 'jdbcTableOutput'.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(title = "Import a GeoJSON file",
     description = "Import in the database a GeoJSON file as a new table.",
@@ -52,26 +56,26 @@ import org.orbisgis.orbiswps.groovyapi.process.*
     properties = ["DBMS_TYPE","H2GIS"],
     version = "1.0")
 def processing() {
-    File fileData = new File(fileDataInput[0])
-    name = fileData.getName()
-    tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
-    query = "CALL GeoJsonRead('"+ fileData.absolutePath+"','"
-    if(jdbcTableOutputName != null){
-	    tableName = jdbcTableOutputName
+    def fileData = new File(fileDataInput[0])
+    def name = fileData.getName()
+    def tableName = name.substring(0, name.lastIndexOf(".")).toUpperCase()
+    def query = "CALL GeoJsonRead('${fileData.absolutePath}','"
+    if (jdbcTableOutputName != null) {
+        tableName = jdbcTableOutputName
     }
-    if(dropTable){
-	    sql.execute "drop table if exists " + tableName
+    if (dropTable) {
+        sql.execute("drop table if exists ${tableName}".toString())
     }
-    
-    query += tableName+"')"	    
 
-    sql.execute query
+    query += "${tableName}')"
+
+    sql.execute(query.toString())
 
     if(createIndex){
-        sql.execute "create spatial index on "+ tableName + " (the_geom)"
+        sql.execute("create spatial index on ${tableName} (the_geom)".toString())
     }
 
-    literalDataOutput = i18n.tr("The GeoJSON file has been imported.")
+    outputJDBCTable = tableName
 }
 
 
@@ -105,13 +109,12 @@ Boolean dropTable
 String jdbcTableOutputName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-
-
-/************/
-/** OUTPUT **/
-/************/
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable

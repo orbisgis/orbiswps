@@ -46,7 +46,7 @@ import net.opengis.wps._1_0_0.*;
  *
  * @author Sylvain PALOMINOS
  */
-public interface WPS_1_0_0_Operations {
+public interface WPS_1_0_0_Operations extends WpsOperations {
 
     /**
      * The mandatory GetCapabilities operation allows clients to retrieve service metadata from a server.
@@ -70,7 +70,7 @@ public interface WPS_1_0_0_Operations {
      * @return List structure that is returned by the WPS DescribeProcess operation.
      *         Contains XML descriptions for the queried process identifiers.
      */
-    ProcessDescriptions describeProcess(DescribeProcess describeProcess);
+    Object describeProcess(DescribeProcess describeProcess);
 
     /**
      * The Execute operation allows WPS clients to run a specified process implemented by a server, using the input

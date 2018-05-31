@@ -39,56 +39,61 @@
  */
 package org.orbisgis.orbiswps.scripts.scripts.Export
 
-import org.orbisgis.orbiswps.groovyapi.input.*
-import org.orbisgis.orbiswps.groovyapi.output.*
-import org.orbisgis.orbiswps.groovyapi.process.*
-
 import org.h2gis.functions.io.shp.SHPDriverFunction
-import org.h2gis.api.DriverFunction
-
-import java.sql.Connection
-
+import org.orbisgis.orbiswps.groovyapi.input.JDBCTableInput
+import org.orbisgis.orbiswps.groovyapi.input.LiteralDataInput
+import org.orbisgis.orbiswps.groovyapi.input.RawDataInput
+import org.orbisgis.orbiswps.groovyapi.output.RawDataOutput
+import org.orbisgis.orbiswps.groovyapi.process.Process
 
 /**
- * @author Erwan Bocher
+ * Export the table 'inputTable' into the SHP file 'fileDataInput'.
+ * If 'dropInputTable' set to true, drop the table 'inputTable'.
+ * The SHP file is returned as the output 'fileDataOutput'.
+ *
+ * @author Erwan Bocher (CNRS)
  */
 @Process(title = "Export into a SHP file",
-    description = "Export a table to a SHP file.",
-    keywords = ["OrbisGIS","Exporter","Fichier","SHP"],
-    properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
-    version = "1.0")
+        description = "Export a table to a SHP file.",
+        keywords = ["OrbisGIS","Exporter","Fichier","SHP"],
+        properties = ["DBMS_TYPE", "H2GIS","DBMS_TYPE", "POSTGIS"],
+        identifier = "orbisgis:wps:official:exportShp",
+        version = "1.0")
 def processing() {
-    File outputFile = new File(fileDataInput[0])    
-    DriverFunction exp = new SHPDriverFunction()
-    Connection con = sql.getDataSource()?sql.getDataSource().getConnection():sql.getConnection()
-    exp.exportTable(con, inputJDBCTable, outputFile, progressMonitor)
-    if(dropInputTable){
-	sql.execute "drop table if exists " + inputJDBCTable
-    }
-    literalDataOutput = i18n.tr("The ShapeFile has been created.")
-}
+    def outputFile = new File(fileDataInput[0].toString())
+    def exp = new SHPDriverFunction()
+    def con = sql.getDataSource() ? sql.getDataSource().getConnection() : sql.getConnection()
+    exp.exportTable(con, inputTable, outputFile, progressMonitor)
 
+    if (dropInputTable) {
+        sql.execute "drop table if exists ${inputTable}"
+    }
+    fileDataOutput = [outputFile.getAbsolutePath()]
+}
 
 /***********/
 /** INPUT **/
 /***********/
 
 @JDBCTableInput(
-    title = "Table to export",
-    description = "The table that will be exported in a shapeFile file",
-    dataTypes = ["GEOMETRY"])
-String inputJDBCTable
+        title = "Table to export",
+        description = "The table that will be exported in a shapeFile file",
+        dataTypes = ["GEOMETRY"],
+        identifier = "inputTable")
+String inputTable
 
 @LiteralDataInput(
-    title = "Drop the input table",
-    description = "Drop the input table when the export is finished.")
+        title = "Drop the input table",
+        description = "Drop the input table when the export is finished.",
+        identifier = "dropInputTable")
 Boolean dropInputTable
 
 @RawDataInput(
-    title = "Output shapeFile",
-    description = "The output shapeFile file to be exported.",
-    fileTypes = ["shp"],
-    isDirectory = false)
+        title = "ShapeFile",
+        description = "The shapeFile where the table is exported",
+        fileTypes = ["shp"],
+        isDirectory = false,
+        identifier = "shapeFile")
 String[] fileDataInput
 
 
@@ -96,7 +101,10 @@ String[] fileDataInput
 /** OUTPUT **/
 /************/
 
-@LiteralDataOutput(
-    title = "Output message",
-    description = "Output message.")
-String literalDataOutput
+@RawDataOutput(
+        title = "Output ShapeFile",
+        description = "The output ShapeFile file.",
+        fileTypes = ["shp"],
+        isDirectory = false,
+        identifier = "outputFile")
+String[] fileDataOutput

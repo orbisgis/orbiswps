@@ -43,17 +43,14 @@ import org.orbisgis.orbiswps.groovyapi.input.*
 import org.orbisgis.orbiswps.groovyapi.output.*
 import org.orbisgis.orbiswps.groovyapi.process.*
 
-/********************/
-/** Process method **/
-/********************/
-
 /**
  * This process deletes the given columns from the given table.
  * The user has to specify (mandatory):
  *  - The input table
  *  - The column to delete
  *
- * @author Sylvain PALOMINOS
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
         title = "Delete columns",
@@ -65,12 +62,12 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 )
 def processing() {
     //Build the start of the query
-    for (String columnName : columnNames) {
-        String query = String.format("ALTER TABLE %s DROP COLUMN `%s`", tableName, columnName)
+    for (columnName in columnNames) {
+        def query = "ALTER TABLE ${tableName} DROP COLUMN `${columnName}`"
         //Execute the query
-        sql.execute(query)
+        sql.execute(query.toString())
     }
-    literalOutput = i18n.tr("Delete done.")
+    literalOutput = i18n.tr("Deletion done.")
 }
 
 
@@ -100,7 +97,10 @@ String tableName
 String[] columnNames
 
 
-/** Output message. */
+/*****************/
+/** OUTPUT Data **/
+/*****************/
+
 @LiteralDataOutput(
         title = "Output message",
         description = "The output message.",

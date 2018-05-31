@@ -45,31 +45,33 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 
 /**
  * This process is used to describe the columns of a table
- * 
  *
- * @author Erwan Bocher
- * @author Sylvain PALOMINOS
+ * @author Erwan BOCHER (CNRS)
+ * @author Sylvain PALOMINOS (UBS 2018)
  */
 @Process(
         title = "Describe columns",
         description = "Extract the name, type and comment from all fields of a table.",
         keywords = ["Table","Describe"],
         properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
+        identifier = "orbisgis:wps:official:describeColumn",
         version = "1.0")
-def processing() {    
-    String query;
-    if(isH2){
-        query =  "CREATE TABLE " + outputTableName +" as SELECT COLUMN_NAME as col_name, TYPE_NAME as col_type,  REMARKS as col_comment from INFORMATION_SCHEMA.COLUMNS where table_name = '"+ tableName+"';"
+def processing() {
+    def query
+    if (isH2) {
+        query = "CREATE TABLE ${outputTableName} as SELECT COLUMN_NAME as col_name, TYPE_NAME as col_type, " +
+                "REMARKS as col_comment from INFORMATION_SCHEMA.COLUMNS where table_name = '${tableName}';"
+    } else {
+        query = "CREATE TABLE ${outputTableName} as SELECT cols.column_name as col_name,cols.udt_name as col_type, " +
+                "pg_catalog.col_description(c.oid, cols.ordinal_position::int) as col_comment FROM " +
+                "pg_catalog.pg_class c, information_schema.columns cols WHERE cols.table_name = '${tableName}'AND " +
+                "cols.table_name = c.relname "
     }
-    else{
-        query =   "CREATE TABLE " + outputTableName +" as SELECT cols.column_name as col_name,cols.udt_name as col_type, pg_catalog.col_description(c.oid, cols.ordinal_position::int) as col_comment FROM pg_catalog.pg_class c, information_schema.columns cols WHERE cols.table_name = '"+tableName +"'AND cols.table_name = c.relname "
-    } 
-    
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTableName
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTableName}".toString())
     }
-    sql.execute(query);
-    literalOutput = i18n.tr("The descriptions have been extracted.")
+    sql.execute(query.toString())
+    outputTable = outputTableName
 }
 
 /****************/
@@ -79,23 +81,30 @@ def processing() {
 /** This JDBCTable is the input model source table. */
 @JDBCTableInput(
         title = "Table",
-        description = "Extract name, type and comments from the selected table.")
+        description = "Extract name, type and comments from the selected table.",
+        identifier = "inputData")
 String tableName
 
 @LiteralDataInput(
-    title = "Drop the output table if exists",
-    description = "Drop the output table if exists.")
+        title = "Drop the output table if exists",
+        description = "Drop the output table if exists.",
+        identifier = "dropIfExists")
 Boolean dropTable 
 
 @LiteralDataInput(
         title = "Output table name",
-        description = "Name of the table containing the descriptions.")
+        description = "Name of the table containing the descriptions.",
+        identifier = "outputDataName")
 String outputTableName
 
 
-/** Output message. */
-@LiteralDataOutput(
-        title = "Output message",
-        description = "The output message.")
-String literalOutput
+/*****************/
+/** OUTPUT Data **/
+/*****************/
+
+@JDBCTableOutput(
+        title = "Table",
+        description = "Output table containing the column information.",
+        identifier = "outputData")
+String outputTable
 

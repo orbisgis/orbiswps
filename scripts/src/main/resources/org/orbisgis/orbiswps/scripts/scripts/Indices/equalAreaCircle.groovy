@@ -45,40 +45,42 @@ import org.orbisgis.orbiswps.groovyapi.process.*
 import org.h2gis.utilities.SFSUtilities
 import org.h2gis.utilities.TableLocation
 
-
 /**
- * @author Erwan Bocher
+ * It is a circle with an area equal to that of the polygon and centered on the polygon's centroid.
+ *
+ * @author Erwan BOCHER (CNRS)
  */
 @Process(
     title = "Equal Area Circle",
-    description = "It is a circle with an area equal to that of the polygon and centered on the polygon's centroid. <p><em>Bibliography:</em></p>",
+    description = "It is a circle with an area equal to that of the polygon and centered on the polygon's centroid.<br>\
+            <em>Bibliography:</em>",
 	keywords = ["Vector","Geometry","Index"],
     properties = ["DBMS_TYPE", "H2GIS", "DBMS_TYPE", "POSTGIS"],
     version = "1.0",
     identifier = "orbisgis:wps:official:equalAreaCircle"
 )
 def processing() {
-    
-    //Build the start of the query
-    String  outputTable = inputTable+"_equalAreaCircle"
 
-    if(outputTableName != null){
-	outputTable  = outputTableName
+    //Build the start of the query
+    def outputTable = "${inputTable}_equalAreaCircle"
+
+    if (outputTableName != null) {
+        outputTable = outputTableName
     }
 
-    String query = "CREATE TABLE " + outputTable + " AS SELECT "
+    def query = "CREATE TABLE ${outputTable} AS SELECT "
 
-    query += idField[0]+","+ "ST_BUFFER(ST_CENTROID("+geometryColumn[0]+"), "+ "sqrt(st_area("+geometryColumn[0]+")/PI())) as the_geom,"+ "sqrt(st_area("+geometryColumn[0]+")/PI()) as radius from " +  inputTable
+    query += "${idField[0]}," + "ST_BUFFER(ST_CENTROID(${geometryColumn[0]}), " +
+            "sqrt(st_area(${geometryColumn[0]})/PI())) as the_geom, sqrt(st_area(${geometryColumn[0]})/PI()) " +
+            "as radius from ${inputTable}"
 
-    
-    if(dropTable){
-	sql.execute "drop table if exists " + outputTable
+    if (dropTable) {
+        sql.execute("drop table if exists ${outputTable}".toString())
     }
     //Execute the query
-    sql.execute(query)
+    sql.execute(query.toString())
 
-    literalOutput = i18n.tr("Process done")
-    
+    outputJDBCTable = outputTableName
 }
 
 /****************/
@@ -101,7 +103,7 @@ String inputTable
 )
 String[] geometryColumn
 
-/** Name of the identifier field of the JDBCTable inputJDBCTable. */
+/** Name of the identifier field of the JDBCTable inputTable. */
 @JDBCColumnInput(
     title = "Column identifier",
     description = "A column used as an identifier.",
@@ -127,13 +129,14 @@ Boolean dropTable
 String outputTableName
 
 
+/*****************/
+/** OUTPUT Data **/
+/*****************/
 
-/** String output of the process. */
-@LiteralDataOutput(
-    title = "Output message",
-    description = "The output message.",
-    identifier = "literalOutput"
-)
-String literalOutput
+@JDBCTableOutput(
+        title = "output table",
+        description = "Table that contains the output.",
+        identifier = "outputTable")
+String outputJDBCTable
 
 

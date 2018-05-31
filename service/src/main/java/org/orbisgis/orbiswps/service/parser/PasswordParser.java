@@ -40,11 +40,13 @@
 package org.orbisgis.orbiswps.service.parser;
 
 import net.opengis.ows._2.CodeType;
+import net.opengis.wps._2_0.Format;
 import net.opengis.wps._2_0.InputDescriptionType;
 import net.opengis.wps._2_0.OutputDescriptionType;
 import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.PasswordAttribute;
+import org.orbisgis.orbiswps.service.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.utils.ObjectAnnotationConverter;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import org.orbisgis.orbiswps.service.model.ObjectFactory;
@@ -54,6 +56,8 @@ import org.orbisgis.orbiswps.serviceapi.parser.Parser;
 import javax.xml.bind.JAXBElement;
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Password parser
@@ -69,6 +73,10 @@ public class PasswordParser implements Parser {
         InputDescriptionType input = new InputDescriptionType();
         JAXBElement<Password> jaxbElement = new ObjectFactory().createPassword(password);
         input.setDataDescription(jaxbElement);
+        List<Format> formatList = new ArrayList<>();
+        formatList.add(FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION));
+        formatList.get(0).setDefault(true);
+        jaxbElement.getValue().getFormat().addAll(formatList);
 
         ObjectAnnotationConverter.annotationToObject(f.getAnnotation(InputAttribute.class), input);
         ObjectAnnotationConverter.annotationToObject(f.getAnnotation(DescriptionTypeAttribute.class), input,
@@ -88,6 +96,10 @@ public class PasswordParser implements Parser {
         Password password = new Password();
         OutputDescriptionType output = new OutputDescriptionType();
         JAXBElement<Password> jaxbElement = new ObjectFactory().createPassword(password);
+        List<Format> formatList = new ArrayList<>();
+        formatList.add(FormatFactory.getFormatFromExtension(FormatFactory.TEXT_EXTENSION));
+        formatList.get(0).setDefault(true);
+        jaxbElement.getValue().getFormat().addAll(formatList);
         output.setDataDescription(jaxbElement);
 
         ObjectAnnotationConverter.annotationToObject(f.getAnnotation(DescriptionTypeAttribute.class), output,

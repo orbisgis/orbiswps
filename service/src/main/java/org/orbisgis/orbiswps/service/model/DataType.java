@@ -57,15 +57,15 @@ import java.sql.Types;
 public enum DataType {
     //LiteralData types
     NUMBER("number"),
-    INTEGER("http://www.w3.org/2001/XMLSchema#integer"),
-    DOUBLE("http://www.w3.org/2001/XMLSchema#double"),
-    FLOAT("http://www.w3.org/2001/XMLSchema#float"),
-    SHORT("http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#short"),
-    BYTE("http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#byte"),
-    UNSIGNED_BYTE("http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#unsignedByte"),
-    LONG("http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#long"),
-    STRING("http://www.w3.org/2001/XMLSchema#string"),
-    BOOLEAN("http://www.w3.org/2001/XMLSchema#boolean"),
+    INTEGER("https://www.w3.org/2001/XMLSchema#integer"),
+    DOUBLE("https://www.w3.org/2001/XMLSchema#double"),
+    FLOAT("https://www.w3.org/2001/XMLSchema#float"),
+    SHORT("https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#short"),
+    BYTE("https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#byte"),
+    UNSIGNED_BYTE("https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#unsignedByte"),
+    LONG("https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#long"),
+    STRING("https://www.w3.org/2001/XMLSchema#string"),
+    BOOLEAN("https://www.w3.org/2001/XMLSchema#boolean"),
 
     //Other types
     OTHER("OTHER"),

@@ -46,9 +46,7 @@ import org.orbisgis.orbiswps.service.process.ProgressMonitor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Server-side object created by a processing service in response for a particular process execution.
@@ -77,6 +75,8 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
     /** Progress of the job. */
     private int progress = 0;
 
+    private List<ProcessExecutionListener> processExecutionListeners;
+
     /**
      * Main constructor.
      *
@@ -96,6 +96,15 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
         MAX_PROCESS_POLLING_DELAY_MILLIS = maxPollingDelay;
         BASE_PROCESS_POLLING_DELAY_MILLIS = basePollingDelay;
         processPollingDelay = basePollingDelay;
+        processExecutionListeners = new ArrayList<>();
+    }
+
+    public void addProcessExecutionlistener(ProcessExecutionListener listener){
+        processExecutionListeners.add(listener);
+    }
+
+    public void removeProcessExecutionListener(ProcessExecutionListener listener){
+        processExecutionListeners.remove(listener);
     }
 
     /**
@@ -108,6 +117,9 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
 
     @Override
     public void appendLog(LogType logType, String message) {
+        for(ProcessExecutionListener listener : processExecutionListeners){
+            listener.appendLog(logType, message);
+        }
         logMap.put(message, logType);
     }
 
@@ -117,6 +129,9 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
             startTime = System.currentTimeMillis();
         }
         state = processState;
+        for(ProcessExecutionListener listener : processExecutionListeners){
+            listener.setProcessState(processState);
+        }
     }
 
     /**
@@ -133,6 +148,14 @@ public class Job implements ProcessExecutionListener, PropertyChangeListener {
      */
     public Map<URI, Object> getDataMap(){
         return dataMap;
+    }
+
+    /**
+     * Returns the logMap.
+     * @return The logMap.
+     */
+    public Map<String, LogType> getLogMap(){
+        return logMap;
     }
 
     /**

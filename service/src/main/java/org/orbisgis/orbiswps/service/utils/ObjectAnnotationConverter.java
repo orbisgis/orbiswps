@@ -72,46 +72,19 @@ public class ObjectAnnotationConverter {
      */
     public static BoundingBoxData annotationToObject(BoundingBoxAttribute boundingBoxAttribute, List<Format> formatList)
             throws MalformedScriptException {
-        String[] supportedCrs = boundingBoxAttribute.supportedCRS();
-        return new BoundingBoxData(formatList, supportedCrs, boundingBoxAttribute.dimension());
-    }
-
-    /**
-     * Create the {@link SupportedCRS} object from a string representation of a CRS like EPSG:2041.
-     *
-     * @param crs {@link String} representation of the CRS.
-     * @param isDefault True if the {@link SupportedCRS} is the default one.
-     * @return The supported CRS.
-     */
-    private static SupportedCRS getCRS(String crs, boolean isDefault){
-        if(crs == null || crs.isEmpty()){
-            return null;
+        List<String> supportedCRSList = new ArrayList<>();
+        if(boundingBoxAttribute.supportedCRS().length>0) {
+            supportedCRSList.addAll(Arrays.asList(boundingBoxAttribute.supportedCRS()));
         }
-        SupportedCRS supportedCRS = new SupportedCRS();
-        supportedCRS.setDefault(isDefault);
-
-        String[] splitCrs = crs.split(":");
-        String authority = splitCrs[0].toUpperCase();
-        switch(authority){
-            case "EPSG":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/8.9.2/"+splitCrs[1]);
-                break;
-            case "IAU":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/0/"+splitCrs[1]);
-                break;
-            case "AUTO":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/1.3/"+splitCrs[1]);
-                break;
-            case "OGC":
-                supportedCRS.setValue("http://www.opengis.net/def/crs/"+authority+"/0/"+splitCrs[1]);
-                break;
-            case "IGNF":
-                supportedCRS.setValue("http://registre.ign.fr/ign/IGNF/crs/IGNF/"+splitCrs[1]);
-                break;
-            default:
-                return null;
+        else{
+            supportedCRSList.add(boundingBoxAttribute.defaultCrs());
         }
-        return supportedCRS;
+        if(!supportedCRSList.contains(boundingBoxAttribute.defaultCrs())){
+            supportedCRSList.add(boundingBoxAttribute.defaultCrs());
+        }
+        BoundingBoxData bbox = new BoundingBoxData(formatList, supportedCRSList, boundingBoxAttribute.dimension());
+        bbox.setDefaultCrs(boundingBoxAttribute.defaultCrs());
+        return bbox;
     }
 
     /**
@@ -207,19 +180,27 @@ public class ObjectAnnotationConverter {
      * @return An {@link Enumeration} object with the model from the {@link EnumerationAttribute} annotation.
      * @throws MalformedScriptException Exception thrown in case of a malformed Groovy annotation.
      */
-    public static Enumeration annotationToObject(EnumerationAttribute enumAttribute, Format format)
+    public static Enumeration annotationToObject(EnumerationAttribute enumAttribute, Format format, String[] defaultValues)
             throws MalformedScriptException {
         //Creates the format list
         format.setDefault(true);
         List<Format> formatList = new ArrayList<>();
         formatList.add(format);
         //Creates the enumeration Object and set it
-        Enumeration enumeration = new Enumeration(formatList, enumAttribute.values());
+        List<String> values = new ArrayList<>();
+        Collections.addAll(values, enumAttribute.values());
+        if(defaultValues != null) {
+            Collections.addAll(values, defaultValues);
+        }
+        Set<String> hs = new HashSet<>();
+        hs.addAll(values);
+        values.clear();
+        values.addAll(hs);
+        Enumeration enumeration = new Enumeration(formatList, values.toArray(new String[]{}));
         enumeration.setEditable(enumAttribute.isEditable());
         enumeration.setMultiSelection(enumAttribute.multiSelection());
 
         //Decodes the Groovy annotation 'names' attribute and store each name in a LanguageStringType with its language
-        String[] names = enumAttribute.names();
         enumeration.setValuesNames(enumAttribute.names());
         return enumeration;
     }
@@ -457,15 +438,23 @@ public class ObjectAnnotationConverter {
      */
     private static LiteralDataDomain createLiteralDataDomain(DataType dataType, String literalDataDomainStr,
                                                              boolean isDefault){
-        LiteralDataDomain LiteralDataDomain = new LiteralDataDomain();
-        LiteralDataDomain.setDefault(isDefault);
+        LiteralDataDomain literalDataDomain = new LiteralDataDomain();
+        literalDataDomain.setDefault(isDefault);
         DomainMetadataType domainMetadataType = new DomainMetadataType();
         domainMetadataType.setValue(dataType.name());
         domainMetadataType.setReference(dataType.getUri().toString());
-        LiteralDataDomain.setDataType(domainMetadataType);
+        literalDataDomain.setDataType(domainMetadataType);
         //If no values was specified, allow any value
         if(literalDataDomainStr.isEmpty()){
-            LiteralDataDomain.setAnyValue(new AnyValue());
+            if(dataType.equals(DataType.BOOLEAN)){
+                AllowedValues allowedValues = new AllowedValues();
+                allowedValues.getValueOrRange().add("true");
+                allowedValues.getValueOrRange().add("false");
+                literalDataDomain.setAllowedValues(allowedValues);
+            }
+            else {
+                literalDataDomain.setAnyValue(new AnyValue());
+            }
         }
         else{
             AllowedValues allowedValues = new AllowedValues();
@@ -479,9 +468,9 @@ public class ObjectAnnotationConverter {
                 valueOrRangeList.add(allowedValue);
             }
             allowedValues.getValueOrRange().addAll(valueOrRangeList);
-            LiteralDataDomain.setAllowedValues(allowedValues);
+            literalDataDomain.setAllowedValues(allowedValues);
         }
-        return LiteralDataDomain;
+        return literalDataDomain;
     }
 
     /**

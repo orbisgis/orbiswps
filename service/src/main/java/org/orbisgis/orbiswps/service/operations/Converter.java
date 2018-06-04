@@ -56,11 +56,149 @@ import org.orbisgis.orbiswps.service.utils.FormatFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * @author Sylvain PALOMINOS
  */
 public class Converter {
+
+    /**
+     * Returns true if the given Object comes from the net.opengis.wps._2_0 or net.opengis.ows._2 package, false
+     * otherwise.
+     * @param o Object which package is tested.
+     * @return True if the given Object comes from the net.opengis.wps._2_0 or net.opengis.ows._2 package, false
+     *          otherwise.
+     */
+    public static boolean isWpsOws2(Object o){
+        return o.getClass().getPackage().getName().equals("net.opengis.wps._2_0");
+    }
+
+    /**
+     * Returns true if the given Object comes from the net.opengis.wps._1_0_0 package or net.opengis.ows._1 package,
+     * false otherwise.
+     * @param o Object which package is tested.
+     * @return True if the given Object comes from the net.opengis.wps._1_0_0 or net.opengis.ows._1 package, false
+     *          otherwise.
+     */
+    public static boolean isWpsOws1(Object o){
+        return o.getClass().getPackage().getName().equals("net.opengis.wps._1_0_0") ||
+                o.getClass().getPackage().getName().equals("net.opengis.ows._1");
+    }
+
+    /**
+     * Convert the given WPS/OWS 1 Object into a WPS/OWS 2 Object. If the given Object doesn't comes from the package
+     * net.opengis.wps._1_0_0 or net.opengis.ows._1, return it.
+     * @param o WPS/OWS 1 to convert.
+     * @return The WPS 2.0 Object or the given object if it isn't a WPS/OWS 1 Object.
+     */
+    public Object convertWps1to2(Object o){
+        if(!isWpsOws1(o)){
+            return o;
+        }
+        if(o instanceof net.opengis.ows._1.LanguageStringType){
+            return convertLanguageStringType1to2((net.opengis.ows._1.LanguageStringType) o);
+        }
+        else if(o instanceof net.opengis.ows._1.CodeType){
+            return convertCodeType1to2((net.opengis.ows._1.CodeType) o);
+        }
+        else if(o instanceof List){
+            List list = (List) o;
+            if(!list.isEmpty()) {
+                if(list.get(0) instanceof net.opengis.ows._1.MetadataType){
+                    return convertMetadataTypeList1to2((List<net.opengis.ows._1.MetadataType>) o);
+                }
+            }
+        }
+        else if(o instanceof net.opengis.wps._1_0_0.ProcessDescriptionType){
+            return convertProcessDescriptionType1to2((net.opengis.wps._1_0_0.ProcessDescriptionType) o);
+        }
+        else if(o instanceof net.opengis.wps._1_0_0.InputDescriptionType){
+            return convertInputDescriptionType1to2((net.opengis.wps._1_0_0.InputDescriptionType) o);
+        }
+        else if(o instanceof net.opengis.wps._1_0_0.OutputDescriptionType){
+            return convertOutputDescriptionType1to2((net.opengis.wps._1_0_0.OutputDescriptionType) o);
+        }
+        else if(o instanceof net.opengis.ows._1.ValueType){
+            return convertValueType1to2((net.opengis.ows._1.ValueType) o);
+        }
+        else if(o instanceof net.opengis.wps._1_0_0.GetCapabilities){
+            return convertGetCapabilities1to2((net.opengis.wps._1_0_0.GetCapabilities) o);
+        }
+        return o;
+    }
+
+    /**
+     * Convert the given WPS/OWS 2 Object into a WPS/OWS 1 Object. If the given Object doesn't comes from the package
+     * net.opengis.wps._2_0 or net.opengis.ows._2, return it.
+     * /!\ In the case of converting an UOM of WPS 2 to WPS 1, use instead convertUOM2to1() method.
+     * @param o WPS/OWS 2 to convert.
+     * @param defaultLanguage String representation of the default language that should be used for the
+     *                        In/OutputDescriptionType objects
+     * @param requestedLanguage String representation of the requested language that should be used for the
+     *                          In/OutputDescriptionType objects
+     * @param maxMb String representation of the maximum size of the InputDescriptionType objects
+     * @return The WPS 1.0.0 Object or the given object if it isn't a WPS/OWS 2 Object.
+     */
+    public Object convertWps2to1(Object o, String defaultLanguage, String requestedLanguage, BigInteger maxMb){
+        if(!isWpsOws2(o)){
+            return o;
+        }
+        if(o instanceof net.opengis.ows._2.LanguageStringType){
+            return convertLanguageStringType2to1((net.opengis.ows._2.LanguageStringType) o);
+        }
+        else if(o instanceof net.opengis.ows._2.CodeType){
+            return convertCodeType2to1((net.opengis.ows._2.CodeType) o);
+        }
+        else if(o instanceof List){
+            List list = (List) o;
+            if(!list.isEmpty()) {
+                if(list.get(0) instanceof net.opengis.ows._2.MetadataType){
+                    return convertMetadataTypeList2to1((List<net.opengis.ows._2.MetadataType>) o);
+                }
+                else if(list.get(0) instanceof net.opengis.wps._2_0.InputDescriptionType){
+                    return convertInputDescriptionTypeList2to1((List<net.opengis.wps._2_0.InputDescriptionType>) o,
+                            defaultLanguage, requestedLanguage, maxMb);
+                }
+                else if(list.get(0) instanceof net.opengis.wps._2_0.OutputDescriptionType){
+                    return convertOutputDescriptionTypeList2to1((List<net.opengis.wps._2_0.OutputDescriptionType>) o,
+                            defaultLanguage, requestedLanguage, maxMb);
+                }
+            }
+        }
+        else if(o instanceof net.opengis.wps._2_0.ProcessDescriptionType){
+            return convertProcessDescriptionType2to1((net.opengis.wps._2_0.ProcessDescriptionType) o);
+        }
+        else if(o instanceof net.opengis.wps._2_0.InputDescriptionType){
+            return convertInputDescriptionType2to1((net.opengis.wps._2_0.InputDescriptionType) o, defaultLanguage,
+                    requestedLanguage, maxMb);
+        }
+        else if(o instanceof net.opengis.ows._2.AllowedValues) {
+            return convertAllowedValues2to1((net.opengis.ows._2.AllowedValues) o);
+        }
+        else if(o instanceof net.opengis.ows._2.AnyValue) {
+            return convertAnyValue2to1((net.opengis.ows._2.AnyValue) o);
+        }
+        else if(o instanceof net.opengis.ows._2.ValuesReference) {
+            return convertValuesReference2to1((net.opengis.ows._2.ValuesReference) o);
+        }
+        else if(o instanceof net.opengis.ows._2.DomainMetadataType) {
+            return convertDomainMetadataType2to1((net.opengis.ows._2.DomainMetadataType) o);
+        }
+        else if(o instanceof net.opengis.wps._2_0.GetCapabilitiesType){
+            return convertGetCapabilities2to1((net.opengis.wps._2_0.GetCapabilitiesType) o, defaultLanguage);
+        }
+        return o;
+    }
+
+    /**
+     * Convert the given WPS/OWS 2 Object into a WPS/OWS 1 Object. If the given Object doesn't comes from the package
+     * net.opengis.wps._2_0 or net.opengis.ows._2, return it.
+     * /!\ In the case of converting an UOM of WPS 2 to WPS 1, use instead convertUOM2to1() method.
+     * @param o WPS/OWS 2 to convert.
+     * @return The WPS 1.0.0 Object or the given object if it isn't a WPS/OWS 2 Object.
+     */
+    public Object convertWps2to1(Object o){
+        return convertWps2to1(o, "en", "en", new BigInteger("2000"));
+    }
 
     /**
      * Convert the OWS 2 LanguageStingType to version 1

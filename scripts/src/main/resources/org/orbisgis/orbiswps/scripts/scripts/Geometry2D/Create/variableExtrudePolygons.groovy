@@ -76,7 +76,7 @@ def processing() {
 	}
 
 	//Execute the query
-	sql.execute(query)
+	sql.execute(query.toString())
 	if (dropInputTable) {
 		sql.execute("drop table if exists ${inputTable}".toString())
 	}

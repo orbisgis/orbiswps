@@ -408,6 +408,19 @@ public class WpsServerImpl implements WpsServer {
     }
 
     /**
+     * Execute a ProcessWorker
+     */
+    public Future executeNewProcessWorker(ProcessWorker processWorker) {
+        if (executorService != null) {
+            Future future = executorService.submit(processWorker);
+            workerMap.put(processWorker.getJobId(), future);
+            return future;
+        } else {
+            return Executors.newSingleThreadExecutor().submit(processWorker);
+        }
+    }
+
+    /**
      * Action done when a ProcessWorker has finished.
      */
     public void onProcessWorkerFinished(){
@@ -430,5 +443,9 @@ public class WpsServerImpl implements WpsServer {
     public void cancelProcess(UUID jobId) {
         processManager.cancelProcess(jobId);
         workerMap.get(jobId).cancel(true);
+    }
+
+    public WpsServerProperties_2_0 getProps20() {
+        return props20;
     }
 }

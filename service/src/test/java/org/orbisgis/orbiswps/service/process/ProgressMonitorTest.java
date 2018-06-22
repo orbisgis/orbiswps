@@ -2,6 +2,7 @@ package org.orbisgis.orbiswps.service.process;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.orbisgis.orbiswps.serviceapi.process.ProgressMonitor;
 
 /**
  * This test class perform tests on the ProgressMonitor class

@@ -45,7 +45,7 @@ import junit.framework.Assert;
 import org.h2.tools.RunScript;
 import org.h2gis.functions.factory.H2GISDBFactory;
 import org.junit.*;
-import org.orbisgis.orbiswps.service.process.ProgressMonitor;
+import org.orbisgis.orbiswps.serviceapi.process.ProgressMonitor;
 
 import java.io.BufferedReader;
 import java.io.File;

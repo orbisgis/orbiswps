@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
- * Utility methods for the WpsServer.
+ * Utility methods for the WpsService.
  *
  * @author Sylvain PALOMINOS
  */

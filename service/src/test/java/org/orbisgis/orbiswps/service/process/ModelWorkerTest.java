@@ -2,7 +2,7 @@ package org.orbisgis.orbiswps.service.process;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
+import org.orbisgis.orbiswps.service.WpsServiceImpl;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.model.wpsmodel.WpsModel;
 
@@ -20,22 +20,22 @@ import static org.junit.Assert.assertTrue;
 public class ModelWorkerTest {
 
     private static Unmarshaller unmarshaller;
-    private static WpsServerImpl wpsServerImpl;
-    private static ProcessManager processManager;
+    private static WpsServiceImpl wpsServerImpl;
+    private static ProcessManagerImpl processManagerImpl;
     private static DataSource dataSource;
 
     @BeforeClass
-    public static void init() throws JAXBException, SQLException, ClassNotFoundException {
+    public static void init() throws JAXBException, SQLException {
         unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
         dataSource = org.h2gis.functions.factory.H2GISDBFactory.createDataSource(ModelWorkerTest.class.getSimpleName(), true);
-        wpsServerImpl = new WpsServerImpl(dataSource, Executors.newSingleThreadExecutor());
-        processManager = new ProcessManager(dataSource, wpsServerImpl);
+        wpsServerImpl = new WpsServiceImpl(dataSource, Executors.newSingleThreadExecutor());
+        processManagerImpl = new ProcessManagerImpl(wpsServerImpl, dataSource);
     }
 
     @Test
     public void testModel() throws JAXBException {
         WpsModel model = (WpsModel)unmarshaller.unmarshal(this.getClass().getResourceAsStream("model_simple.xml"));
-        ModelWorker worker = new ModelWorker(model,wpsServerImpl, processManager);
+        ModelWorker worker = new ModelWorker(model,wpsServerImpl, processManagerImpl);
         Map<Integer, List<String>> map = worker.getExecutionTree();
         assertEquals(3, map.size());
         assertEquals(1, map.get(0).size());

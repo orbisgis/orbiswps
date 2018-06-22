@@ -47,14 +47,15 @@ import net.opengis.ows._1.Operation;
 import net.opengis.wps._1_0_0.*;
 import org.h2gis.functions.io.geojson.GeoJsonRead;
 import org.h2gis.functions.io.geojson.GeoJsonWrite;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
+import org.orbisgis.orbiswps.service.process.ProcessWorkerImpl;
 import org.orbisgis.orbiswps.service.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.utils.WpsDataUtils;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,8 +82,8 @@ import static org.orbisgis.orbiswps.service.operations.Converter.convertLanguage
 /**
  * Class managing the job execution and the generation of the Execute request response.
  *
- * @author Sylvain PALOMINOS (UBS 2018)
- * @author Erwan Bocher
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
 public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
 
@@ -101,13 +102,13 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
     private Future future = null;
     private ExecuteResponse response = new ExecuteResponse();
     private WpsServerProperties_1_0_0 wpsProp;
-    private WpsServerImpl wpsServer;
+    private ProcessManager processManager;
     private DataSource ds = null;
     private Marshaller marshaller;
 
     public WPS_1_0_0_JobRunner(ExceptionReport exceptionReport, String language, ProcessIdentifier pi,
                                Map<URI, Object> dataMap, Execute execute, WpsServerProperties_1_0_0 wpsProperties,
-                               WpsServerImpl wpsServer, DataSource ds){
+                               ProcessManager processManager, DataSource ds){
         if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()) {
             this.responseDocumentType = execute.getResponseForm().getResponseDocument();
         }
@@ -117,7 +118,7 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         this.dataMap = dataMap;
         this.execute = execute;
         this.wpsProp = wpsProperties;
-        this.wpsServer = wpsServer;
+        this.processManager = processManager;
         this.isStatus = execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument() &&
                 execute.getResponseForm().getResponseDocument().isSetStatus() &&
                 execute.getResponseForm().getResponseDocument().isStatus();
@@ -190,7 +191,7 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         status.setCreationTime(xmlCalendar);
 
         //Process execution in new thread
-        future = wpsServer.executeNewProcessWorker(job, pi, dataMap);
+        future = processManager.executeNewProcessWorker( new ProcessWorkerImpl(job, pi, processManager, dataMap));
     }
 
     @Override

@@ -39,14 +39,11 @@
  */
 package org.orbisgis.orbiswps.service.process;
 
-import com.sun.imageio.plugins.common.I18N;
 import net.opengis.ows._2.CodeType;
-import net.opengis.wps._2_0.ProcessDescriptionType;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
+import org.orbisgis.orbiswps.service.WpsServiceImpl;
 import org.orbisgis.orbiswps.service.model.wpsmodel.*;
 import org.orbisgis.orbiswps.service.model.wpsmodel.Process;
 import org.orbisgis.orbiswps.service.utils.Job;
-import org.orbisgis.orbiswps.serviceapi.WpsServer;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 
@@ -63,13 +60,13 @@ import java.util.*;
 public class ModelWorker implements Runnable, PropertyChangeListener, ProcessExecutionListener {
 
     private WpsModel wpsModel;
-    private WpsServerImpl wpsServer;
-    private ProcessManager processManager;
+    private WpsServiceImpl wpsServer;
+    private ProcessManagerImpl processManagerImpl;
 
-    public ModelWorker(WpsModel wpsModel, WpsServerImpl wpsServer, ProcessManager processManager){
+    public ModelWorker(WpsModel wpsModel, WpsServiceImpl wpsServer, ProcessManagerImpl processManagerImpl){
         this.wpsModel = wpsModel;
         this.wpsServer = wpsServer;
-        this.processManager = processManager;
+        this.processManagerImpl = processManagerImpl;
     }
 
     /**
@@ -132,13 +129,11 @@ public class ModelWorker implements Runnable, PropertyChangeListener, ProcessExe
     public void executeProcess(String id, Map<URI, Object> dataMap){
         CodeType codeType = new CodeType();
         codeType.setValue(id);
-        ProcessIdentifier pi = processManager.getProcessIdentifier(codeType);
-        Job job = new Job(pi.getProcessDescriptionType(), UUID.randomUUID(), dataMap,
-                wpsServer.getProps20().CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
-                wpsServer.getProps20().CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
+        ProcessIdentifier pi = processManagerImpl.getProcessIdentifier(codeType);
+        Job job = new Job(pi.getProcessDescriptionType(), UUID.randomUUID(), dataMap,10000, 1000);
         job.addProcessExecutionlistener(this);
-        ProcessWorker processWorker = new ProcessWorker(job, pi, processManager, dataMap, wpsServer);
-        wpsServer.executeNewProcessWorker(processWorker);
+        ProcessWorkerImpl processWorkerImpl = new ProcessWorkerImpl(job, pi, processManagerImpl, dataMap, wpsServer);
+        wpsServer.executeNewProcessWorker(processWorkerImpl);
     }
 
     @Override

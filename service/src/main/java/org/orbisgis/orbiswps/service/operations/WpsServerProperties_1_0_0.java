@@ -65,7 +65,8 @@ import java.util.Properties;
 /**
  * Properties of the wps service version 1.0.0.
  *
- * @author Sylvain PALOMINOS
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
 @Component(service = WpsProperties.class)
 public class WpsServerProperties_1_0_0 implements WpsProperties {
@@ -86,7 +87,7 @@ public class WpsServerProperties_1_0_0 implements WpsProperties {
     public CustomProperties CUSTOM_PROPERTIES;
 
     /**
-     * Creates a WpsServerProperties_1_0_0 object which contains all the properties used in a WpsServer.
+     * Creates a WpsServerProperties_1_0_0 object which contains all the properties used in a WpsService.
      * @param propertyFileLocation Location of the properties file. If null or invalid, uses the default properties file.
      */
     public WpsServerProperties_1_0_0(String propertyFileLocation){
@@ -112,7 +113,7 @@ public class WpsServerProperties_1_0_0 implements WpsProperties {
     }
 
     /**
-     * Creates a WpsServerProperties_1_0_0 object which contains all the properties used in a WpsServer with the
+     * Creates a WpsServerProperties_1_0_0 object which contains all the properties used in a WpsService with the
      * default properties file.
      */
     public WpsServerProperties_1_0_0(){

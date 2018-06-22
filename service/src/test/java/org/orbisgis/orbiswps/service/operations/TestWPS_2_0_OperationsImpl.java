@@ -6,10 +6,9 @@ import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.service.process.ProcessManager;
+import org.orbisgis.orbiswps.service.WpsServiceImpl;
+import org.orbisgis.orbiswps.service.process.ProcessManagerImpl;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
-import org.orbisgis.orbiswps.serviceapi.operations.WPS_2_0_Operations;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -22,7 +21,7 @@ import java.util.UUID;
 import static java.lang.Thread.sleep;
 
 /**
- * Test class for the WPS_2_0_OperationsImpl
+ * Test class for the WPS_2_0_Operations
  *
  * @author Sylvain PALOMINOS
  */
@@ -32,18 +31,18 @@ public class TestWPS_2_0_OperationsImpl {
     private WPS_2_0_Operations wps20Operations;
 
     /** Wps server object. */
-    private WpsServerImpl wpsServer;
+    private WpsServiceImpl wpsServer;
 
-    private ProcessManager processManager;
+    private ProcessManagerImpl processManagerImpl;
 
     /**
      * Initialize a wps server for processing all the tests.
      */
     @Before
     public void initialize() {
-        wpsServer = new WpsServerImpl();
-        processManager = new ProcessManager(null, wpsServer);
-        wps20Operations = new WPS_2_0_OperationsImpl(wpsServer, new WpsServerProperties_2_0(null), processManager);
+        wpsServer = new WpsServiceImpl();
+        processManagerImpl = new ProcessManagerImpl(wpsServer);
+        wps20Operations = new WPS_2_0_Operations(wpsServer.getProcessManagerImpl(), new WpsServerProperties_2_0(), null);
     }
 
 
@@ -63,7 +62,7 @@ public class TestWPS_2_0_OperationsImpl {
         SectionsType sectionsType = new SectionsType();
         sectionsType.getSection().add("All");
         getCapabilitiesType.setSections(sectionsType);
-        Object object = wps20Operations.getCapabilities(getCapabilitiesType);
+        Object object = wps20Operations.executeRequest(getCapabilitiesType);
         StringBuilder reason = new StringBuilder();
         if(object instanceof ExceptionReport){
             for(ExceptionType exception : ((ExceptionReport)object).getException()){
@@ -78,8 +77,10 @@ public class TestWPS_2_0_OperationsImpl {
             reason = new StringBuilder("Unknown reason");
         }
         Assert.assertTrue("The wps server capabilities is invalid : " + reason ,
-                object instanceof WPSCapabilitiesType);
-        WPSCapabilitiesType capabilities = (WPSCapabilitiesType)object;
+                object instanceof JAXBElement);
+        Assert.assertTrue("The wps server capabilities is invalid : " + reason ,
+                ((JAXBElement)object).getValue() instanceof WPSCapabilitiesType);
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType)((JAXBElement)object).getValue();
 
         //Contents tests
         Assert.assertNotNull("The wps server contents should not be null.",
@@ -276,20 +277,16 @@ public class TestWPS_2_0_OperationsImpl {
         getCapabilitiesType.setSections(sectionsType);
 
         //Null Capabilities test
-        Object resultObject = wps20Operations.getCapabilities(null);
+        Object resultObject = wps20Operations.executeRequest(null);
 
-        Assert.assertNotNull("Error on unmarshalling the WpsService answer, the object should not be null",
+        Assert.assertNull("Error on unmarshalling the WpsService answer, the object should not be null",
                 resultObject);
-        Assert.assertTrue("Error on unmarshalling the WpsService answer, the object should be a ExceptionReport",
-                resultObject instanceof ExceptionReport);
-        Assert.assertEquals("Error on unmarshalling the WpsService answer, the exception should be 'NoApplicableCode'",
-                ((ExceptionReport) resultObject).getException().get(0).getExceptionCode(), "NoApplicableCode");
 
         //Bad version
         AcceptVersionsType badAcceptVersionsType = new AcceptVersionsType();
         badAcceptVersionsType.getVersion().add("0.0.0.badVersion");
         getCapabilitiesType.setAcceptVersions(badAcceptVersionsType);
-        resultObject = wps20Operations.getCapabilities(getCapabilitiesType);
+        resultObject = wps20Operations.executeRequest(getCapabilitiesType);
         getCapabilitiesType.setAcceptVersions(acceptVersionsType);
 
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the object should not be null",
@@ -306,7 +303,7 @@ public class TestWPS_2_0_OperationsImpl {
         SectionsType badSectionsType = new SectionsType();
         badSectionsType.getSection().add("NotASection");
         getCapabilitiesType.setSections(badSectionsType);
-        resultObject = wps20Operations.getCapabilities(getCapabilitiesType);
+        resultObject = wps20Operations.executeRequest(getCapabilitiesType);
         getCapabilitiesType.setSections(sectionsType);
 
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the object should not be null",
@@ -322,7 +319,7 @@ public class TestWPS_2_0_OperationsImpl {
         GetCapabilitiesType.AcceptLanguages badAcceptLanguages = new GetCapabilitiesType.AcceptLanguages();
         badAcceptLanguages.getLanguage().add("NotALanguage");
         getCapabilitiesType.setAcceptLanguages(badAcceptLanguages);
-        resultObject = wps20Operations.getCapabilities(getCapabilitiesType);
+        resultObject = wps20Operations.executeRequest(getCapabilitiesType);
         getCapabilitiesType.setSections(sectionsType);
 
         Assert.assertNotNull("Error on unmarshalling the WpsService answer, the object should not be null",
@@ -344,7 +341,7 @@ public class TestWPS_2_0_OperationsImpl {
     public void testBadExecution() throws InterruptedException {
         File file = new File(TestWPS_2_0_OperationsImpl.class.getResource("simpleScript.groovy").getFile());
         wpsServer.addProcess(file);
-        processManager.addScript(file.toURI());
+        processManagerImpl.addScript(file.toURI());
         //Test process execution with an input model without any content
         ExecuteRequestType executeRequestType = new ExecuteRequestType();
         CodeType id = new CodeType();
@@ -355,45 +352,44 @@ public class TestWPS_2_0_OperationsImpl {
         Data data = new Data();
         dataInputType.setData(data);
         executeRequestType.getInput().add(dataInputType);
-        StatusInfo statusInfo = (StatusInfo)wps20Operations.execute(executeRequestType);
+        StatusInfo statusInfo = (StatusInfo)wps20Operations.executeRequest(executeRequestType);
         sleep(200);
         GetResult getResult = new GetResult();
         getResult.setJobID(statusInfo.getJobID());
-        Assert.assertNotNull("The Wps result should not be null.", wps20Operations.getResult(getResult));
+        Assert.assertNotNull("The Wps result should not be null.", wps20Operations.executeRequest(getResult));
 
         //Test process execution with an input model with more than one value as content
         data.getContent().add("Value1");
         data.getContent().add("Value2");
-        statusInfo = (StatusInfo)wps20Operations.execute(executeRequestType);
+        statusInfo = (StatusInfo)wps20Operations.executeRequest(executeRequestType);
         sleep(200);
         getResult = new GetResult();
         getResult.setJobID(statusInfo.getJobID());
-        Assert.assertNotNull("The Wps result should not be null.", wps20Operations.getResult(getResult));
+        Assert.assertNotNull("The Wps result should not be null.", wps20Operations.executeRequest(getResult));
     }
 
     /**
-     * Test the execution on a WpsServerImpl without executionService.
+     * Test the execution on a WpsServiceImpl without executionService.
      *
      * @throws JAXBException Exception get if the marshaller fails.
-     * @throws IOException Exception get if the resource getting fails.
      * @throws InterruptedException Exception get if the sleep method fails.
      */
     @Test
-    public void testExecuteWithoutExecutionService() throws JAXBException, IOException, InterruptedException {
+    public void testExecuteWithoutExecutionService() throws JAXBException, InterruptedException {
         File file = new File(TestWPS_2_0_OperationsImpl.class.getResource("simpleScript.groovy").getFile());
         wpsServer.addProcess(file);
-        processManager.addScript(file.toURI());
+        processManagerImpl.addScript(file.toURI());
 
         Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
         //Build the Execute object
         File executeFile = new File(this.getClass().getResource("ExecuteRequest.xml").getFile());
         ExecuteRequestType executeRequestType = (ExecuteRequestType)((JAXBElement)unmarshaller.unmarshal(executeFile)).getValue();
-        StatusInfo statusInfo = (StatusInfo)wps20Operations.execute(executeRequestType);
+        StatusInfo statusInfo = (StatusInfo)wps20Operations.executeRequest(executeRequestType);
         sleep(200);
 
         GetResult getResult = new GetResult();
         getResult.setJobID(statusInfo.getJobID());
-        Result result = (Result)wps20Operations.getResult(getResult);
+        Result result = (Result)wps20Operations.executeRequest(getResult);
         Assert.assertTrue("The process result should not contain outputs.", result.getOutput().isEmpty());
     }
 
@@ -464,7 +460,7 @@ public class TestWPS_2_0_OperationsImpl {
         String value = UUID.randomUUID().toString();
         getStatus.setJobID(value);
 
-        Object status = wps20Operations.getStatus(getStatus);
+        Object status = wps20Operations.executeRequest(getStatus);
 
         assert (status instanceof ExceptionReport);
 
@@ -485,7 +481,7 @@ public class TestWPS_2_0_OperationsImpl {
         String value = UUID.randomUUID().toString();
         getResult.setJobID(value);
 
-        Object status = wps20Operations.getResult(getResult);
+        Object status = wps20Operations.executeRequest(getResult);
 
         assert (status instanceof ExceptionReport);
 
@@ -506,7 +502,7 @@ public class TestWPS_2_0_OperationsImpl {
         String falsyIdentifier = "thisprocessidentifierdoesnotexist";
         codeType.setValue(falsyIdentifier);
         execute.setIdentifier(codeType);
-        Object status = wps20Operations.execute(execute);
+        Object status = wps20Operations.executeRequest(execute);
 
         assert (status instanceof ExceptionReport);
 

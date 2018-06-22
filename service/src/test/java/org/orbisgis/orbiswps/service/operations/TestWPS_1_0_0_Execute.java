@@ -7,9 +7,9 @@ import net.opengis.wps._1_0_0.*;
 import org.h2gis.functions.factory.H2GISDBFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
+import org.orbisgis.orbiswps.service.WpsServiceImpl;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
-import org.orbisgis.orbiswps.service.process.ProcessManager;
+import org.orbisgis.orbiswps.service.process.ProcessManagerImpl;
 
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
@@ -26,15 +26,15 @@ import java.util.concurrent.Executors;
 import static org.junit.Assert.*;
 
 /**
- * Test class for the WPS_2_0_OperationsImpl
+ * Test class for the WPS_2_0_Operations
  *
  * @author Sylvain PALOMINOS
  */
 public class TestWPS_1_0_0_Execute {
 
     /** Wps Operation object. */
-    private WPS_1_0_0_OperationsImpl minWps100Operations;
-    private WPS_1_0_0_OperationsImpl fullWps100Operations;
+    private WPS_1_0_0_Operations minWps100Operations;
+    private WPS_1_0_0_Operations fullWps100Operations;
 
     /**
      * Initialize a wps service for processing all the tests.
@@ -49,33 +49,33 @@ public class TestWPS_1_0_0_Execute {
             fail("Unable to start the database : \n"+e.getMessage());
         }
 
-        WpsServerImpl wpsServer = new WpsServerImpl();
+        WpsServiceImpl wpsServer = new WpsServiceImpl();
         wpsServer.setExecutorService(Executors.newSingleThreadExecutor());
-        ProcessManager processManager = new ProcessManager(ds, wpsServer);
+        ProcessManagerImpl processManagerImpl = new ProcessManagerImpl(wpsServer, ds);
         try {
             URL url = this.getClass().getResource("fullScript.groovy");
             assertNotNull("Unable to load the script 'fullScript.groovy'", url);
             File f = new File(url.toURI());
             wpsServer.addProcess(f);
-            processManager.addScript(f.toURI());
+            processManagerImpl.addScript(f.toURI());
 
             url = this.getClass().getResource("longRunScript.groovy");
             assertNotNull("Unable to load the script 'longRunScript.groovy'", url);
             f = new File(url.toURI());
             wpsServer.addProcess(f);
-            processManager.addScript(f.toURI());
+            processManagerImpl.addScript(f.toURI());
 
             url = this.getClass().getResource("simpleScript.groovy");
             assertNotNull("Unable to load the script 'simpleScript.groovy'", url);
             f = new File(url.toURI());
             wpsServer.addProcess(f);
-            processManager.addScript(f.toURI());
+            processManagerImpl.addScript(f.toURI());
 
             url = this.getClass().getResource("jdbcTableScript.groovy");
             assertNotNull("Unable to load the script 'jdbcTableScript.groovy'", url);
             f = new File(url.toURI());
             wpsServer.addProcess(f);
-            processManager.addScript(f.toURI());
+            processManagerImpl.addScript(f.toURI());
         } catch (URISyntaxException e) {
             fail("Error on loading the scripts : "+e.getMessage());
         }
@@ -84,14 +84,14 @@ public class TestWPS_1_0_0_Execute {
                 TestWPS_1_0_0_Execute.class.getResource("minWpsService100.json").getFile());
         WpsServerProperties_1_0_0 minWpsProps = new WpsServerProperties_1_0_0(
                 TestWPS_1_0_0_Execute.class.getResource("minWpsService100.json").getFile());
-        minWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, minWpsProps, processManager);
+        minWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), minWpsProps, ds);
         minWps100Operations.setDataSource(ds);
 
         assertNotNull("Unable to load the file 'fullWpsService100.json'",
                 TestWPS_1_0_0_Execute.class.getResource("fullWpsService100.json").getFile());
         WpsServerProperties_1_0_0 fullWpsProps = new WpsServerProperties_1_0_0(
                 TestWPS_1_0_0_Execute.class.getResource("fullWpsService100.json").getFile());
-        fullWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, fullWpsProps, processManager);
+        fullWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), fullWpsProps, ds);
         fullWps100Operations.setDataSource(ds);
     }
 
@@ -172,7 +172,7 @@ public class TestWPS_1_0_0_Execute {
         documentOutputDefinitionType.setIdentifier(outCodeType);
         responseDocumentType.getOutput().add(documentOutputDefinitionType);
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -464,7 +464,7 @@ public class TestWPS_1_0_0_Execute {
         documentOutputDefinitionType.setIdentifier(outCodeType);
         responseDocumentType.getOutput().add(documentOutputDefinitionType);
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -623,7 +623,7 @@ public class TestWPS_1_0_0_Execute {
         codeType.setValue("orbisgis:test:full");
         execute.setIdentifier(codeType);
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -695,7 +695,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         execute.setLanguage("fr-fr");
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -742,7 +742,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setReference(referenceType);
         referenceType.setHref("https://raw.githubusercontent.com/orbisgis/orbiswps/master/service/src/main/resources/org/orbisgis/orbiswps/service/i18n.properties");
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -800,7 +800,7 @@ public class TestWPS_1_0_0_Execute {
         output.setAsReference(true);
         responseDocumentType.getOutput().add(output);
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -867,7 +867,7 @@ public class TestWPS_1_0_0_Execute {
 
         responseDocumentType.setLineage(true);
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -947,7 +947,7 @@ public class TestWPS_1_0_0_Execute {
         output.setIdentifier(codeTypeOutput);
         output.setMimeType("text/plain");
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be a String", o instanceof String);
         assertEquals("The result of the Execute operation should be 'table'", "table", o);
     }
@@ -971,7 +971,7 @@ public class TestWPS_1_0_0_Execute {
         responseDocumentType.setStoreExecuteResponse(true);
         responseDocumentType.setStatus(true);
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -1135,7 +1135,7 @@ public class TestWPS_1_0_0_Execute {
         documentOutputDefinitionType.setIdentifier(outputCodeType);
         documentOutputDefinitionType.setMimeType("text/plain");
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -1194,7 +1194,7 @@ public class TestWPS_1_0_0_Execute {
         documentOutputDefinitionType.setIdentifier(outputCodeType);
         documentOutputDefinitionType.setMimeType("application/geo+json");
 
-        Object o = fullWps100Operations.execute(execute);
+        Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
 
@@ -1322,7 +1322,7 @@ public class TestWPS_1_0_0_Execute {
     public void testBadExecute(){
         //Test Execute without identifier
         Execute execute = new Execute();
-        Object object = minWps100Operations.execute(execute);
+        Object object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         ExceptionReport report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1339,7 +1339,7 @@ public class TestWPS_1_0_0_Execute {
         CodeType codeType = new CodeType();
         codeType.setValue("unicorn:process");
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1364,7 +1364,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         DataInputsType dataInputsType = new DataInputsType();
         execute.setDataInputs(dataInputsType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1386,7 +1386,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setData(dataType);
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1408,7 +1408,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setIdentifier(inputCodeType);
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1431,7 +1431,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setData(new DataType());
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1458,7 +1458,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setData(dataType);
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1482,7 +1482,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setReference(inputReferenceType);
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1508,7 +1508,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setReference(inputReferenceType);
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1534,7 +1534,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setData(dataType);
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1562,7 +1562,7 @@ public class TestWPS_1_0_0_Execute {
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1590,7 +1590,7 @@ public class TestWPS_1_0_0_Execute {
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1617,7 +1617,7 @@ public class TestWPS_1_0_0_Execute {
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1647,7 +1647,7 @@ public class TestWPS_1_0_0_Execute {
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1674,7 +1674,7 @@ public class TestWPS_1_0_0_Execute {
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1691,7 +1691,7 @@ public class TestWPS_1_0_0_Execute {
         CodeType simpleCodeType = new CodeType();
         simpleCodeType.setValue("orbisgis:test:simple");
         execute.setIdentifier(simpleCodeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1713,7 +1713,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         ResponseFormType responseFormType = new ResponseFormType();
         execute.setResponseForm(responseFormType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1732,7 +1732,7 @@ public class TestWPS_1_0_0_Execute {
         responseFormType.setResponseDocument(new ResponseDocumentType());
         responseFormType.setRawDataOutput(new OutputDefinitionType());
         execute.setResponseForm(responseFormType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1757,7 +1757,7 @@ public class TestWPS_1_0_0_Execute {
         responseDocumentType.getOutput().add(output);
         responseFormType.setResponseDocument(responseDocumentType);
         execute.setResponseForm(responseFormType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1779,7 +1779,7 @@ public class TestWPS_1_0_0_Execute {
         responseDocumentType.getOutput().add(output);
         responseFormType.setResponseDocument(responseDocumentType);
         execute.setResponseForm(responseFormType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1800,7 +1800,7 @@ public class TestWPS_1_0_0_Execute {
         responseFormType.setResponseDocument(responseDocumentType);
         execute.setResponseForm(responseFormType);
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1825,7 +1825,7 @@ public class TestWPS_1_0_0_Execute {
         responseFormType.setResponseDocument(responseDocumentType);
         execute.setResponseForm(responseFormType);
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1847,7 +1847,7 @@ public class TestWPS_1_0_0_Execute {
         responseFormType.setRawDataOutput(outputDefinitionsType);
         execute.setResponseForm(responseFormType);
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1870,7 +1870,7 @@ public class TestWPS_1_0_0_Execute {
         responseFormType.setRawDataOutput(outputDefinitionsType);
         execute.setResponseForm(responseFormType);
         execute.setIdentifier(codeType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1894,7 +1894,7 @@ public class TestWPS_1_0_0_Execute {
         execute = new Execute();
         execute.setIdentifier(codeType);
         execute.setLanguage("uni:co:rn");
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1915,8 +1915,8 @@ public class TestWPS_1_0_0_Execute {
         responseFormType.setResponseDocument(responseDocumentType);
         responseDocumentType.setStoreExecuteResponse(false);
         responseDocumentType.setStatus(true);
-        minWps100Operations.execute(execute);
-        object = minWps100Operations.execute(execute);
+        minWps100Operations.executeRequest(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1932,8 +1932,8 @@ public class TestWPS_1_0_0_Execute {
         //Test Execute with serverBusy
         /*execute = new Execute();
         execute.setIdentifier(codeType);
-        minWps100Operations.execute(execute);
-        object = minWps100Operations.execute(execute);
+        minWps100Operations.executeRequest(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
@@ -1960,7 +1960,7 @@ public class TestWPS_1_0_0_Execute {
         inputType.setReference(inputReferenceType);
         dataInputsType.getInput().add(inputType);
         execute.setDataInputs(dataInputsType);
-        object = minWps100Operations.execute(execute);
+        object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
         report = (ExceptionReport)object;
         assertTrue("The exception of Exception report should be set", report.isSetException());

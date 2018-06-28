@@ -46,8 +46,8 @@ import org.junit.Test;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.operations.WPS_1_0_0_Operations;
 import org.orbisgis.orbiswps.service.operations.WPS_2_0_Operations;
-import org.orbisgis.orbiswps.service.operations.WpsServerProperties_1_0_0;
-import org.orbisgis.orbiswps.service.operations.WpsServerProperties_2_0;
+import org.orbisgis.orbiswps.service.operations.WPS_1_0_0_ServerProperties;
+import org.orbisgis.orbiswps.service.operations.WPS_2_0_ServerProperties;
 import org.orbisgis.orbiswps.serviceapi.WpsService;
 
 import javax.xml.bind.JAXBException;
@@ -290,8 +290,8 @@ public class TestWpsServiceGetProcesses {
         if (wpsService == null) {
             //Start the WpsService
             WpsServiceImpl localWpsService = new WpsServiceImpl();
-            localWpsService.addWpsOperations(new WPS_1_0_0_Operations(localWpsService.getProcessManagerImpl(), new WpsServerProperties_1_0_0(), null));
-            localWpsService.addWpsOperations(new WPS_2_0_Operations(localWpsService.getProcessManagerImpl(), new WpsServerProperties_2_0(), null));
+            localWpsService.addWpsOperations(new WPS_1_0_0_Operations(localWpsService.getProcessManagerImpl(), new WPS_1_0_0_ServerProperties(), null));
+            localWpsService.addWpsOperations(new WPS_2_0_Operations(localWpsService.getProcessManagerImpl(), new WPS_2_0_ServerProperties(), null));
             //Try to load the groovy scripts
             try {
                 URL url = this.getClass().getResource("JDBCTable.groovy");

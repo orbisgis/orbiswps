@@ -39,15 +39,28 @@
  */
 package org.orbisgis.orbiswps.service.utils;
 
+import org.h2gis.functions.io.geojson.GeoJsonRead;
+import org.h2gis.functions.io.geojson.GeoJsonWrite;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 import net.opengis.ows._1.BoundingBoxType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Class containing methods used to manipulate model for the WPS scripts.
@@ -59,6 +72,8 @@ public class WpsDataUtils {
 
     /** I18N object */
     private static final I18n I18N = I18nFactory.getI18n(WpsDataUtils.class);
+    /** Logger */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WpsDataUtils.class);
 
     /**
      * Convert a BoundingBox string representation into a JTS geometry
@@ -204,5 +219,88 @@ public class WpsDataUtils {
         boundingBoxType.getLowerCorner().add(dyMin);
 
         return boundingBoxType;
+    }
+
+
+    /**
+     * If there is a format request different than 'text/plain', try to convert the given data into the format. If the
+     * conversion fails, return the non converted data.
+     * @param data Data ton convert.
+     * @param mimeType MimeType of the output.
+     * @return The well formatted data.
+     */
+    public static Object formatOutputData(Object data, String mimeType, DataSource ds, String workspacePath){
+        if(mimeType != null && !FormatFactory.TEXT_MIMETYPE.equals(mimeType) && ds != null && data != null) {
+            Connection connection = null;
+            try {
+                connection = ds.getConnection();
+            } catch (SQLException e) {
+                LOGGER.error("Unable to get a connection to the base to format the output\n" + e.getMessage());
+            }
+            if (ds == null) {
+                LOGGER.error("Unable to get the dataSource to format the output");
+            }
+            if (connection != null) {
+                switch (mimeType) {
+                    case FormatFactory.GEOJSON_MIMETYPE:
+                        try {
+                            File f = new File(workspacePath, data.toString()+".geojson");
+                            GeoJsonWrite.writeGeoJson(connection, f.getAbsolutePath(), data.toString());
+                            byte[] bytes = Files.readAllBytes(Paths.get(f.getPath()));
+                            return new String(bytes, 0, bytes.length);
+                        } catch (IOException |SQLException e) {
+                            LOGGER.error("Unable to generate the geojson file from the source '"+data+
+                                    "\n"+e.getLocalizedMessage());
+                        }
+                        break;
+                    default:
+                        return data;
+                }
+            }
+        }
+        return data;
+    }
+
+    public static Object formatInputData(Object data, String mimeType, DataSource ds){
+        if(!FormatFactory.TEXT_MIMETYPE.equals(mimeType) && data != null && ds != null) {
+            Connection connection = null;
+            try {
+                connection = ds.getConnection();
+            } catch (SQLException e) {
+                LOGGER.error("Unable to get a connection to the base to format the output\n" + e.getMessage());
+            }
+            if (ds == null) {
+                LOGGER.error("Unable to get the dataSource to format the output");
+            }
+            if (connection != null && mimeType != null) {
+                switch (mimeType) {
+                    case FormatFactory.GEOJSON_MIMETYPE:
+                        try {
+                            String name = "TABLE"+UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
+                            File f = File.createTempFile(name, ".geojson");
+                            if(!f.exists() && !f.createNewFile()){
+                                LOGGER.error("Unable to create the temporary geojson file");
+                                return data;
+                            }
+                            FileWriter fw = new FileWriter(f);
+                            fw.write(data.toString());
+                            fw.close();
+                            GeoJsonRead.readGeoJson(connection, f.getAbsolutePath(), name);
+                            if(!f.delete()){
+                                LOGGER.error("Unable to delete temporary created geojson file");
+                                return data;
+                            }
+                            return name;
+                        } catch (IOException|SQLException e) {
+                            LOGGER.error("Unable to generate the geojson file from the source '"+data+
+                                    "\n"+e.getLocalizedMessage());
+                            return data;
+                        }
+                    default:
+                        return data;
+                }
+            }
+        }
+        return data;
     }
 }

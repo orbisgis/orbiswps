@@ -49,13 +49,13 @@ public class TestWPS_1_0_0_GetCapabilities {
 
         assertNotNull("Unable to load the file 'minWpsService100.json'",
                 TestWPS_1_0_0_GetCapabilities.class.getResource("minWpsService100.json").getFile());
-        WpsServerProperties_1_0_0 minWpsProps = new WpsServerProperties_1_0_0(
+        WPS_1_0_0_ServerProperties minWpsProps = new WPS_1_0_0_ServerProperties(
                 TestWPS_1_0_0_GetCapabilities.class.getResource("minWpsService100.json").getFile());
         minWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), minWpsProps, null);
 
         assertNotNull("Unable to load the file 'fullWpsService100.json'",
                 TestWPS_1_0_0_GetCapabilities.class.getResource("fullWpsService100.json").getFile());
-        WpsServerProperties_1_0_0 fullWpsProps = new WpsServerProperties_1_0_0(
+        WPS_1_0_0_ServerProperties fullWpsProps = new WPS_1_0_0_ServerProperties(
                 TestWPS_1_0_0_GetCapabilities.class.getResource("fullWpsService100.json").getFile());
         fullWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), fullWpsProps, null);
     }

@@ -65,17 +65,17 @@ import static org.junit.Assert.*;
  */
 public class TestWpsServiceProperty_1_0_0 {
 
-    private static WpsServerProperties_1_0_0 fullProps;
+    private static WPS_1_0_0_ServerProperties fullProps;
 
-    private static WpsServerProperties_1_0_0 minProps;
+    private static WPS_1_0_0_ServerProperties minProps;
 
     private static JsonNodeFactory jsonFactory = new JsonNodeFactory(true);
 
     @BeforeClass
     public static void init() {
-        fullProps = new WpsServerProperties_1_0_0(
+        fullProps = new WPS_1_0_0_ServerProperties(
                 TestWpsServiceProperty_1_0_0.class.getResource("fullWpsService100.json").getFile());
-        minProps = new WpsServerProperties_1_0_0(
+        minProps = new WPS_1_0_0_ServerProperties(
                 TestWpsServiceProperty_1_0_0.class.getResource("minWpsService100.json").getFile());
     }
 
@@ -89,7 +89,7 @@ public class TestWpsServiceProperty_1_0_0 {
         File f = new File("file.json");
         f.deleteOnExit();
         f.createNewFile();
-        WpsServerProperties_1_0_0 test1 = new WpsServerProperties_1_0_0("./file.json");
+        WPS_1_0_0_ServerProperties test1 = new WPS_1_0_0_ServerProperties("./file.json");
         assertNotNull("The 'GLOBAL_PROPERTIES' object should not be null", test1.GLOBAL_PROPERTIES);
         assertNotNull("The 'CUSTOM_PROPERTIES' object should not be null", test1.CUSTOM_PROPERTIES);
         assertNotNull("The 'SERVICE_IDENTIFICATION_PROPERTIES' object should not be null", test1.SERVICE_IDENTIFICATION_PROPERTIES);
@@ -97,7 +97,7 @@ public class TestWpsServiceProperty_1_0_0 {
         assertNotNull("The 'SERVICE_PROVIDER_PROPERTIES' object should not be null", test1.SERVICE_PROVIDER_PROPERTIES);
         assertNotNull("The 'WSDL_PROPERTIES' object should not be null", test1.WSDL_PROPERTIES);
 
-        WpsServerProperties_1_0_0 test2 = new WpsServerProperties_1_0_0();
+        WPS_1_0_0_ServerProperties test2 = new WPS_1_0_0_ServerProperties();
         assertNotNull("The 'GLOBAL_PROPERTIES' object should not be null", test2.GLOBAL_PROPERTIES);
         assertNotNull("The 'CUSTOM_PROPERTIES' object should not be null", test2.CUSTOM_PROPERTIES);
         assertNotNull("The 'SERVICE_IDENTIFICATION_PROPERTIES' object should not be null", test2.SERVICE_IDENTIFICATION_PROPERTIES);
@@ -135,7 +135,7 @@ public class TestWpsServiceProperty_1_0_0 {
         assertExceptionOnGlobalProperties(obj);
         obj.put("default_language", "default_language");
         try {
-            new WpsServerProperties_1_0_0.GlobalProperties(obj);
+            new WPS_1_0_0_ServerProperties.GlobalProperties(obj);
         } catch (Exception ignored) {
             fail("The exception should have not been thrown");
         }
@@ -147,7 +147,7 @@ public class TestWpsServiceProperty_1_0_0 {
      */
     private void assertExceptionOnGlobalProperties(ObjectNode objectNode){
         try {
-            new WpsServerProperties_1_0_0.GlobalProperties(objectNode);
+            new WPS_1_0_0_ServerProperties.GlobalProperties(objectNode);
             fail("An exception should have been thrown");
         } catch (Exception ignore) {}
     }
@@ -178,7 +178,7 @@ public class TestWpsServiceProperty_1_0_0 {
         assertExceptionOnServiceIdentification(obj);
         nodeTitle.put("lang", "lang");
         try {
-            new WpsServerProperties_1_0_0.ServiceIdentificationProperties(obj);
+            new WPS_1_0_0_ServerProperties.ServiceIdentificationProperties(obj);
         } catch (Exception ignored) {
             fail("The exception should have not been thrown");
         }
@@ -192,7 +192,7 @@ public class TestWpsServiceProperty_1_0_0 {
         assertExceptionOnServiceIdentification(obj);
         nodeAbst.put("lang", "lang");
         try {
-            new WpsServerProperties_1_0_0.ServiceIdentificationProperties(obj);
+            new WPS_1_0_0_ServerProperties.ServiceIdentificationProperties(obj);
         } catch (Exception ignored) {
             fail("The exception should have not been thrown");
         }
@@ -211,7 +211,7 @@ public class TestWpsServiceProperty_1_0_0 {
         assertExceptionOnServiceIdentification(obj);
         nodeK.put("lang", "lang");
         try {
-            new WpsServerProperties_1_0_0.ServiceIdentificationProperties(obj);
+            new WPS_1_0_0_ServerProperties.ServiceIdentificationProperties(obj);
         } catch (Exception ignored) {
             fail("The exception should have not been thrown");
         }
@@ -223,7 +223,7 @@ public class TestWpsServiceProperty_1_0_0 {
      */
     private void assertExceptionOnServiceIdentification(ObjectNode objectNode){
         try {
-            new WpsServerProperties_1_0_0.ServiceIdentificationProperties(objectNode);
+            new WPS_1_0_0_ServerProperties.ServiceIdentificationProperties(objectNode);
             fail("An exception should have been thrown");
         } catch (Exception ignore) {}
     }
@@ -241,7 +241,7 @@ public class TestWpsServiceProperty_1_0_0 {
         assertExceptionOnServiceProviderProperties(obj);
         providerNode.put("provider_name", "provider_name");
         try {
-            new WpsServerProperties_1_0_0.ServiceProviderProperties(obj);
+            new WPS_1_0_0_ServerProperties.ServiceProviderProperties(obj);
         } catch (Exception ignored) {
             fail("The exception should have not been thrown");
         }
@@ -253,7 +253,7 @@ public class TestWpsServiceProperty_1_0_0 {
      */
     private void assertExceptionOnServiceProviderProperties(ObjectNode objectNode){
         try {
-            new WpsServerProperties_1_0_0.ServiceProviderProperties(objectNode);
+            new WPS_1_0_0_ServerProperties.ServiceProviderProperties(objectNode);
             fail("An exception should have been thrown");
         } catch (Exception ignore) {}
     }
@@ -294,7 +294,7 @@ public class TestWpsServiceProperty_1_0_0 {
 
         metaNode.put("extended_capabilities", "txt");
         try {
-            new WpsServerProperties_1_0_0.OperationsMetadataProperties(obj);
+            new WPS_1_0_0_ServerProperties.OperationsMetadataProperties(obj);
         } catch (Exception ignored) {
             fail("The exception should have not been thrown");
         }
@@ -302,7 +302,7 @@ public class TestWpsServiceProperty_1_0_0 {
         metaNode.remove("extended_capabilities");
         metaNode.put("extended_capabilities", 0.0);
         try {
-            new WpsServerProperties_1_0_0.OperationsMetadataProperties(obj);
+            new WPS_1_0_0_ServerProperties.OperationsMetadataProperties(obj);
         } catch (Exception ignored) {
             fail("The exception should have not been thrown");
         }
@@ -314,7 +314,7 @@ public class TestWpsServiceProperty_1_0_0 {
      */
     private void assertExceptionOnOperationsMetadataProperties(ObjectNode objectNode){
         try {
-            new WpsServerProperties_1_0_0.OperationsMetadataProperties(objectNode);
+            new WPS_1_0_0_ServerProperties.OperationsMetadataProperties(objectNode);
             fail("An exception should have been thrown");
         } catch (Exception ignore) {}
     }
@@ -331,7 +331,7 @@ public class TestWpsServiceProperty_1_0_0 {
         assertExceptionOnWSDLProperties(obj);
         wsdlNode.put("href", "href");
         try {
-            new WpsServerProperties_1_0_0.WSDLProperties(obj);
+            new WPS_1_0_0_ServerProperties.WSDLProperties(obj);
         } catch (Exception ignored) {
             fail("The exception should have not been thrown");
         }
@@ -343,7 +343,7 @@ public class TestWpsServiceProperty_1_0_0 {
      */
     private void assertExceptionOnWSDLProperties(ObjectNode objectNode){
         try {
-            new WpsServerProperties_1_0_0.WSDLProperties(objectNode);
+            new WPS_1_0_0_ServerProperties.WSDLProperties(objectNode);
             fail("An exception should have been thrown");
         } catch (Exception ignore) {}
     }
@@ -367,7 +367,7 @@ public class TestWpsServiceProperty_1_0_0 {
         assertExceptionOnCustomProperties(obj);
         customNode.put("maximum_megabytes", "maximum_megabytes");
         try {
-            assertEquals("The destroy delay in millis should be '445530000'", 445530000, new WpsServerProperties_1_0_0.CustomProperties(obj).getDestroyDelayInMillis());
+            assertEquals("The destroy delay in millis should be '445530000'", 445530000, new WPS_1_0_0_ServerProperties.CustomProperties(obj).getDestroyDelayInMillis());
         } catch (Exception ignored) {
             fail("The exception should have not been thrown");
         }
@@ -379,7 +379,7 @@ public class TestWpsServiceProperty_1_0_0 {
      */
     private void assertExceptionOnCustomProperties(ObjectNode objectNode){
         try {
-            new WpsServerProperties_1_0_0.CustomProperties(objectNode);
+            new WPS_1_0_0_ServerProperties.CustomProperties(objectNode);
             fail("An exception should have been thrown");
         } catch (Exception ignore) {}
     }
@@ -390,7 +390,7 @@ public class TestWpsServiceProperty_1_0_0 {
      */
     @Test
     public void testBadDomainType() throws NoSuchMethodException {
-        Method method = WpsServerProperties_1_0_0.class.getDeclaredMethod("getDomainType", JsonNode.class);
+        Method method = WPS_1_0_0_ServerProperties.class.getDeclaredMethod("getDomainType", JsonNode.class);
         method.setAccessible(true);
         ObjectNode obj = new ObjectNode(jsonFactory);
         assertExceptionOnMethod(obj, method);

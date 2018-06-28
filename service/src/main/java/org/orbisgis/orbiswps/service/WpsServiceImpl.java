@@ -43,7 +43,6 @@ import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import org.orbisgis.orbiswps.service.operations.*;
 import org.orbisgis.orbiswps.service.process.ProcessManagerImpl;
-import org.orbisgis.orbiswps.service.process.ProcessWorkerImpl;
 import org.orbisgis.orbiswps.serviceapi.operations.WpsOperations;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.serviceapi.WpsServiceListener;
@@ -131,9 +130,9 @@ public class WpsServiceImpl implements WpsService {
         this.executorService = executorService;
         //Creates the attribute for the processes execution
         processManagerImpl = new ProcessManagerImpl(this, dataSource);
-        WpsServerProperties_2_0 props20 = new WpsServerProperties_2_0(propertyFileLocation);
+        WPS_2_0_ServerProperties props20 = new WPS_2_0_ServerProperties(propertyFileLocation);
         wpsOperationsList.add(new WPS_2_0_Operations(processManagerImpl, props20, dataSource));
-        WpsServerProperties_1_0_0 props100 = new WpsServerProperties_1_0_0(propertyFileLocation);
+        WPS_1_0_0_ServerProperties props100 = new WPS_1_0_0_ServerProperties(propertyFileLocation);
         wpsOperationsList.add(new WPS_1_0_0_Operations(processManagerImpl, props100, dataSource));
     }
 
@@ -147,9 +146,9 @@ public class WpsServiceImpl implements WpsService {
         this.executorService = executorService;
         //Creates the attribute for the processes execution
         processManagerImpl = new ProcessManagerImpl(this, dataSource);
-        WpsServerProperties_2_0 props20 = new WpsServerProperties_2_0(property20FileLocation);
+        WPS_2_0_ServerProperties props20 = new WPS_2_0_ServerProperties(property20FileLocation);
         wpsOperationsList.add(new WPS_2_0_Operations(processManagerImpl, props20, dataSource));
-        WpsServerProperties_1_0_0 props100 = new WpsServerProperties_1_0_0(property100FileLocation);
+        WPS_1_0_0_ServerProperties props100 = new WPS_1_0_0_ServerProperties(property100FileLocation);
         wpsOperationsList.add(new WPS_1_0_0_Operations(processManagerImpl, props100, dataSource));
     }
 
@@ -337,17 +336,9 @@ public class WpsServiceImpl implements WpsService {
     /**
      * Action done when a ProcessWorkerImpl has finished.
      */
-    public void onProcessWorkerFinished(){
+    public void onProcessWorkerFinished(UUID jobId){
         //clear the workerMap
-        List<UUID> toRemove = new ArrayList<>();
-        for(Map.Entry<UUID, Future> entry : workerMap.entrySet()){
-            if(entry.getValue().isDone()){
-                toRemove.add(entry.getKey());
-            }
-        }
-        for(UUID uuid : toRemove){
-            workerMap.remove(uuid);
-        }
+        workerMap.remove(jobId);
     }
 
     /**

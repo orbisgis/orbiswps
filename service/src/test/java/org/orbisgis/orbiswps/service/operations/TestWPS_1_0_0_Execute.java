@@ -82,14 +82,14 @@ public class TestWPS_1_0_0_Execute {
 
         assertNotNull("Unable to load the file 'minWpsService100.json'",
                 TestWPS_1_0_0_Execute.class.getResource("minWpsService100.json").getFile());
-        WpsServerProperties_1_0_0 minWpsProps = new WpsServerProperties_1_0_0(
+        WPS_1_0_0_ServerProperties minWpsProps = new WPS_1_0_0_ServerProperties(
                 TestWPS_1_0_0_Execute.class.getResource("minWpsService100.json").getFile());
         minWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), minWpsProps, ds);
         minWps100Operations.setDataSource(ds);
 
         assertNotNull("Unable to load the file 'fullWpsService100.json'",
                 TestWPS_1_0_0_Execute.class.getResource("fullWpsService100.json").getFile());
-        WpsServerProperties_1_0_0 fullWpsProps = new WpsServerProperties_1_0_0(
+        WPS_1_0_0_ServerProperties fullWpsProps = new WPS_1_0_0_ServerProperties(
                 TestWPS_1_0_0_Execute.class.getResource("fullWpsService100.json").getFile());
         fullWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), fullWpsProps, ds);
         fullWps100Operations.setDataSource(ds);
@@ -175,6 +175,10 @@ public class TestWPS_1_0_0_Execute {
         Object o = fullWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         ExecuteResponse executeResponse = (ExecuteResponse)o;
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {}
 
         testMandatoryExecuteResponse(executeResponse);
 
@@ -1041,7 +1045,7 @@ public class TestWPS_1_0_0_Execute {
         assertTrue("The 'statusLocation' property of ExecuteResponse should be a file",
                 f.isFile());
 
-        Thread.sleep(3000);
+        Thread.sleep(1500);
         o = unmarshaller.unmarshal(f);
 
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);

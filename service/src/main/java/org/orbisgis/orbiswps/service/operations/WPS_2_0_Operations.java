@@ -43,7 +43,6 @@ import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import net.opengis.wps._2_0.ObjectFactory;
-import org.orbisgis.orbiswps.service.WpsServiceImpl;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
 import org.orbisgis.orbiswps.service.process.ProcessWorkerImpl;
 import org.orbisgis.orbiswps.service.utils.Job;
@@ -55,10 +54,6 @@ import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xnap.commons.i18n.I18n;
-import org.xnap.commons.i18n.I18nFactory;
 
 import javax.sql.DataSource;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -67,7 +62,8 @@ import java.net.URI;
 import java.util.*;
 
 /**
- * Implementations of the WPS 2.0 operations.
+ * Implementations of the WPS 2.0 operations. This class is called when a wps request with the version 2.0 is
+ * received by the service.
  *
  * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
  * @author Erwan Bocher (CNRS)
@@ -75,28 +71,29 @@ import java.util.*;
 @Component(immediate = true, service = WpsOperations.class)
 public class WPS_2_0_Operations implements WpsOperations {
 
-
-    /** LOGGER */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_2_0_Operations.class);
-    /** I18N */
-    private static final I18n I18N = I18nFactory.getI18n(WPS_2_0_Operations.class);
     /** WPS version */
     private static final String WPS_VERSION = "2.0";
+    /** Encoding simple */
+    private static final String ENCODING_SIMPLE = "simple";
 
     /** Map containing the WPS Jobs and their UUID */
     private Map<UUID, Job> jobMap = new HashMap<>();
     /** WPS 2.0 properties of the server */
-    private WpsServerProperties_2_0 wpsProp;
+    private WPS_2_0_ServerProperties wpsProp;
     /** DataSource used of the execution of the processes */
     private DataSource ds;
-
+    /** Wps 2.0 ObjectFactory */
     private ObjectFactory factory = new ObjectFactory();
+    /** Process Manager used for the process execution. */
     private ProcessManager processManager;
 
-
     /** Enumeration of the section names. */
-    private static enum SectionName {ServiceIdentification, ServiceProvider, OperationMetadata, Contents, Languages, All}
-
+    private enum SectionName {ServiceIdentification, ServiceProvider, OperationMetadata, Contents, Languages, All}
+    /** Enumeration of the exception code. */
+    private enum ExceptionCode
+    {InvalidParameterValue, NoApplicableCode, VersionNegotiationFailed, NoSuchProcess, NoSuchJob}
+    /** Enumeration of the exception locator. */
+    private enum ExceptionLocator {Sections, AcceptLanguages, Lang, Identifier, NoSuchJob}
 
     /**
      * Main constructor.
@@ -105,7 +102,7 @@ public class WPS_2_0_Operations implements WpsOperations {
      * @param wpsProp WPS properties of the server.
      * @param dataSource DataSource used of the execution of the processes.
      */
-    public WPS_2_0_Operations(ProcessManager processManager, WpsServerProperties_2_0 wpsProp, DataSource dataSource){
+    public WPS_2_0_Operations(ProcessManager processManager, WPS_2_0_ServerProperties wpsProp, DataSource dataSource){
         setWpsProperties(wpsProp);
         setProcessManager(processManager);
         setDataSource(dataSource);
@@ -124,7 +121,7 @@ public class WPS_2_0_Operations implements WpsOperations {
 
     /**
      * Empty constructor mainly used in case of an OSGI application. If it is not the case, use instead
-     * {@code WPS_2_0_Operations(WpsServiceImpl wpsService, WpsServerProperties_2_0 wpsProp, DataSource dataSource)}
+     * {@code WPS_2_0_Operations(WpsServiceImpl wpsService, WPS_2_0_ServerProperties wpsProp, DataSource dataSource)}
      */
     public WPS_2_0_Operations(){}
 
@@ -139,8 +136,8 @@ public class WPS_2_0_Operations implements WpsOperations {
     @Reference
     @Override
     public boolean setWpsProperties(WpsProperties wpsProperties) {
-        if(wpsProperties != null && wpsProperties.getWpsVersion().equals("2.0")){
-            this.wpsProp = (WpsServerProperties_2_0) wpsProperties;
+        if(wpsProperties != null && wpsProperties.getWpsVersion().equals(WPS_VERSION)){
+            this.wpsProp = (WPS_2_0_ServerProperties) wpsProperties;
             return true;
         }
         return false;
@@ -208,11 +205,11 @@ public class WPS_2_0_Operations implements WpsOperations {
      *             without the updateSequence parameter.
      */
     private Object getCapabilities(GetCapabilitiesType getCapabilities){
-        /** First check the getCapabilities for exceptions **/
+        /* First check the getCapabilities for exceptions */
         ExceptionReport exceptionReport = new ExceptionReport();
         if(getCapabilities == null){
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoApplicableCode");
+            exceptionType.setExceptionCode(ExceptionCode.NoApplicableCode.name());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
         }
@@ -230,7 +227,7 @@ public class WPS_2_0_Operations implements WpsOperations {
             }
             if(!isVersionAccepted) {
                 ExceptionType exceptionType = new ExceptionType();
-                exceptionType.setExceptionCode("VersionNegotiationFailed");
+                exceptionType.setExceptionCode(ExceptionCode.VersionNegotiationFailed.name());
                 exceptionReport.getException().add(exceptionType);
                 return exceptionReport;
             }
@@ -249,8 +246,8 @@ public class WPS_2_0_Operations implements WpsOperations {
                 }
                 if (!validSection) {
                     ExceptionType exceptionType = new ExceptionType();
-                    exceptionType.setExceptionCode("InvalidParameterValue");
-                    exceptionType.setLocator("Sections:"+section);
+                    exceptionType.setExceptionCode(ExceptionCode.InvalidParameterValue.name());
+                    exceptionType.setLocator(ExceptionLocator.Sections.name()+":"+section);
                     exceptionReport.getException().add(exceptionType);
                     return exceptionReport;
                 }
@@ -299,8 +296,8 @@ public class WPS_2_0_Operations implements WpsOperations {
                     }
                     else{
                         ExceptionType exceptionType = new ExceptionType();
-                        exceptionType.setExceptionCode("InvalidParameterValue");
-                        exceptionType.setLocator("AcceptLanguages");
+                        exceptionType.setExceptionCode(ExceptionCode.InvalidParameterValue.name());
+                        exceptionType.setLocator(ExceptionLocator.AcceptLanguages.name());
                         exceptionReport.getException().add(exceptionType);
                         return exceptionReport;
                     }
@@ -311,16 +308,14 @@ public class WPS_2_0_Operations implements WpsOperations {
         if (availableLanguages.isEmpty()) {
             Collections.addAll(availableLanguages, wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES);
         }
-        //Output format check
-        //Only the text/xml mime type is support for now, so check are needed
 
-        /** Building of the WPSCapabilitiesTypeAnswer **/
+        /* Building of the WPSCapabilitiesTypeAnswer */
 
         //Copy the content of the basicCapabilities into the new one
         WPSCapabilitiesType capabilitiesType = new WPSCapabilitiesType();
         capabilitiesType.setExtension(new WPSCapabilitiesType.Extension());
         capabilitiesType.setUpdateSequence(wpsProp.GLOBAL_PROPERTIES.SERVER_VERSION);
-        capabilitiesType.setVersion("2.0");
+        capabilitiesType.setVersion(WPS_VERSION);
         if(requestedSections.contains(SectionName.All) || requestedSections.contains(SectionName.Languages)) {
             CapabilitiesBaseType.Languages languages = new CapabilitiesBaseType.Languages();
             for(String language : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
@@ -370,7 +365,7 @@ public class WPS_2_0_Operations implements WpsOperations {
             capabilitiesType.setServiceProvider(serviceProvider);
         }
 
-        /** Sets the Contents **/
+        /* Sets the Contents */
         if(requestedSections.contains(SectionName.All) || requestedSections.contains(SectionName.Contents)) {
             Contents contents = new Contents();
             List<ProcessSummaryType> processSummaryTypeList = new ArrayList<>();
@@ -436,8 +431,8 @@ public class WPS_2_0_Operations implements WpsOperations {
 
             if (!isLang) {
                 ExceptionType exceptionType = new ExceptionType();
-                exceptionType.setExceptionCode("InvalidParameterValue");
-                exceptionType.setLocator("Lang");
+                exceptionType.setExceptionCode(ExceptionCode.InvalidParameterValue.name());
+                exceptionType.setLocator(ExceptionLocator.Lang.name());
                 exceptionReport.getException().add(exceptionType);
                 return exceptionReport;
             }
@@ -445,8 +440,8 @@ public class WPS_2_0_Operations implements WpsOperations {
 
         if(describeProcess.getIdentifier().isEmpty()){
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("InvalidParameterValue");
-            exceptionType.setLocator("Identifier");
+            exceptionType.setExceptionCode(ExceptionCode.InvalidParameterValue.name());
+            exceptionType.setLocator(ExceptionLocator.Identifier.name());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
         }
@@ -495,7 +490,7 @@ public class WPS_2_0_Operations implements WpsOperations {
         }
         if(processOfferingList.isEmpty()){
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoSuchProcess");
+            exceptionType.setExceptionCode(ExceptionCode.NoSuchProcess.name());
             exceptionType.getExceptionText().addAll(wrongId);
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
@@ -542,35 +537,27 @@ public class WPS_2_0_Operations implements WpsOperations {
             }
             dataMap.put(id, data);
         }
-        //Generation of the StatusInfo
-        StatusInfo statusInfo = new StatusInfo();
-        //Generation of the Job unique ID
-        UUID jobId = UUID.randomUUID();
-        statusInfo.setJobID(jobId.toString());
-        //Get the Process
-        ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(execute.getIdentifier());
 
+        ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(execute.getIdentifier());
         if (processIdentifier == null){
             ExceptionReport exceptionReport = new ExceptionReport();
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoSuchProcess");
+            exceptionType.setExceptionCode(WPS_2_0_Operations.ExceptionCode.NoSuchProcess.name());
             exceptionType.setLocator(execute.getIdentifier().getValue());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
         }
-
-        //Generate the processInstance
-        Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
-                wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
-                wpsProp.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
-        jobMap.put(jobId, job);
-        statusInfo.setStatus(job.getState().name());
+        WPS_2_0_Worker worker = new WPS_2_0_Worker(wpsProp, processIdentifier, processManager, dataMap);
+        //Generation of the StatusInfo
+        StatusInfo statusInfo = new StatusInfo();
+        statusInfo.setJobID(worker.getJobId().toString());
+        jobMap.put(worker.getJobId(), worker.getJob());
+        statusInfo.setStatus(worker.getJob().getState().name());
 
         //Process execution in new thread
-        processManager.executeNewProcessWorker(new ProcessWorkerImpl(job, processIdentifier, processManager, dataMap));
+        processManager.executeNewProcessWorker(worker);
         //Return the StatusInfo to the user
-        statusInfo.setStatus(job.getState().name());
-        XMLGregorianCalendar date = WpsServerUtils.getXMLGregorianCalendar(job.getProcessPollingTime());
+        XMLGregorianCalendar date = WpsServerUtils.getXMLGregorianCalendar(worker.getJob().getProcessPollingTime());
         statusInfo.setNextPoll(date);
         return statusInfo;
     }
@@ -594,7 +581,7 @@ public class WPS_2_0_Operations implements WpsOperations {
         if (job == null){
             ExceptionReport exceptionReport = new ExceptionReport();
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoSuchJob");
+            exceptionType.setExceptionCode(ExceptionCode.NoSuchJob.name());
             exceptionType.setLocator(getStatus.getJobID());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
@@ -642,7 +629,7 @@ public class WPS_2_0_Operations implements WpsOperations {
         if (job == null){
             ExceptionReport exceptionReport = new ExceptionReport();
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoSuchJob");
+            exceptionType.setExceptionCode(ExceptionCode.NoSuchJob.name());
             exceptionType.setLocator(getResult.getJobID());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
@@ -663,7 +650,7 @@ public class WPS_2_0_Operations implements WpsOperations {
                 DataOutputType output = new DataOutputType();
                 output.setId(entry.getKey().toString());
                 Data data = new Data();
-                data.setEncoding("simple");
+                data.setEncoding(ENCODING_SIMPLE);
                 data.setMimeType("");
                 List<Serializable> serializableList = new ArrayList<>();
                 if (entry.getValue() == null) {

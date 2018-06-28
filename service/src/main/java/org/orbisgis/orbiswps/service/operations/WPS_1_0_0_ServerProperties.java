@@ -56,11 +56,9 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Properties of the wps service version 1.0.0.
@@ -69,12 +67,12 @@ import java.util.Properties;
  * @author Erwan Bocher (CNRS)
  */
 @Component(service = WpsProperties.class)
-public class WpsServerProperties_1_0_0 implements WpsProperties {
+public class WPS_1_0_0_ServerProperties implements WpsProperties {
 
     /** Logger */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WpsServerProperties_1_0_0.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_1_0_0_ServerProperties.class);
     /** I18N */
-    private static final I18n I18N = I18nFactory.getI18n(WpsServerProperties_1_0_0.class);
+    private static final I18n I18N = I18nFactory.getI18n(WPS_1_0_0_ServerProperties.class);
     /** Name of the default server properties file */
     private static final String BASIC_SERVER_PROPERTIES = "wps_1_0_0_conf.json";
 
@@ -87,10 +85,10 @@ public class WpsServerProperties_1_0_0 implements WpsProperties {
     public CustomProperties CUSTOM_PROPERTIES;
 
     /**
-     * Creates a WpsServerProperties_1_0_0 object which contains all the properties used in a WpsService.
+     * Creates a WPS_1_0_0_ServerProperties object which contains all the properties used in a WpsService.
      * @param propertyFileLocation Location of the properties file. If null or invalid, uses the default properties file.
      */
-    public WpsServerProperties_1_0_0(String propertyFileLocation){
+    public WPS_1_0_0_ServerProperties(String propertyFileLocation){
         boolean propertiesLoaded = false;
         if(propertyFileLocation != null) {
             //Load the property file
@@ -108,16 +106,16 @@ public class WpsServerProperties_1_0_0 implements WpsProperties {
             }
         }
         if(GLOBAL_PROPERTIES == null) {
-            loadProperties(WpsServerProperties_1_0_0.class.getResource(BASIC_SERVER_PROPERTIES));
+            loadProperties(WPS_1_0_0_ServerProperties.class.getResource(BASIC_SERVER_PROPERTIES));
         }
     }
 
     /**
-     * Creates a WpsServerProperties_1_0_0 object which contains all the properties used in a WpsService with the
+     * Creates a WPS_1_0_0_ServerProperties object which contains all the properties used in a WpsService with the
      * default properties file.
      */
-    public WpsServerProperties_1_0_0(){
-        loadProperties(WpsServerProperties_1_0_0.class.getResource(BASIC_SERVER_PROPERTIES));
+    public WPS_1_0_0_ServerProperties(){
+        loadProperties(WPS_1_0_0_ServerProperties.class.getResource(BASIC_SERVER_PROPERTIES));
     }
 
     /**

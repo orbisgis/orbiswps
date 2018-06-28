@@ -61,4 +61,6 @@ public interface ProcessManager {
      * @param date Date when the result should be destroyed.
      */
     void scheduleResultDestroying(URI resultUri, XMLGregorianCalendar date);
+
+    void onProcessWorkerFinished(UUID jobId);
 }

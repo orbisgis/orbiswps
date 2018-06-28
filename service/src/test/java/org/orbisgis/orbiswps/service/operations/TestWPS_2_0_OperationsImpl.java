@@ -42,7 +42,7 @@ public class TestWPS_2_0_OperationsImpl {
     public void initialize() {
         wpsServer = new WpsServiceImpl();
         processManagerImpl = new ProcessManagerImpl(wpsServer);
-        wps20Operations = new WPS_2_0_Operations(wpsServer.getProcessManagerImpl(), new WpsServerProperties_2_0(), null);
+        wps20Operations = new WPS_2_0_Operations(wpsServer.getProcessManagerImpl(), new WPS_2_0_ServerProperties(), null);
     }
 
 

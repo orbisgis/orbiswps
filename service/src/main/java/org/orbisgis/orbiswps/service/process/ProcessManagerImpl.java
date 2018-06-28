@@ -608,6 +608,11 @@ public class ProcessManagerImpl implements ProcessManager {
         closureMap.get(jobId).cancel();
     }
 
+    @Override
+    public void onProcessWorkerFinished(UUID jobId){
+        wpsService.onProcessWorkerFinished(jobId);
+    }
+
     /**
      * Filter the process list according to the database.
      * It is done in a separated function because when the processes are loaded, it is possible that the Database has not been

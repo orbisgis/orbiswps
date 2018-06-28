@@ -43,7 +43,7 @@ import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
 import net.opengis.wps._2_0.LiteralDataDomainType;
 import org.locationtech.jts.io.ParseException;
-import org.orbisgis.orbiswps.service.WpsServiceImpl;
+import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
 import org.orbisgis.orbiswps.service.utils.WpsDataUtils;
 import org.orbisgis.orbiswps.serviceapi.operations.WpsOperations;
@@ -60,6 +60,8 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import javax.sql.DataSource;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
@@ -86,11 +88,13 @@ public class WPS_1_0_0_Operations implements WpsOperations {
     private static final String WPS_VERSION = "1.0.0";
 
     /** WPS properties of the server */
-    private WpsServerProperties_1_0_0 wpsProp;
+    private WPS_1_0_0_ServerProperties wpsProp;
     /** DataSource used of the execution of the processes */
     private DataSource ds;
     /** ProcessManager */
     private ProcessManager processManager;
+
+    private Marshaller marshaller;
 
     /**
      * Main constructor.
@@ -99,10 +103,9 @@ public class WPS_1_0_0_Operations implements WpsOperations {
      * @param wpsProp WPS properties of the server.
      * @param dataSource DataSource used of the execution of the processes.
      */
-    public WPS_1_0_0_Operations(ProcessManager processManager, WpsServerProperties_1_0_0 wpsProp, DataSource dataSource){
+    public WPS_1_0_0_Operations(ProcessManager processManager, WPS_1_0_0_ServerProperties wpsProp, DataSource dataSource){
+        this(processManager, dataSource);
         setWpsProperties(wpsProp);
-        setProcessManager(processManager);
-        setDataSource(dataSource);
     }
 
     /**
@@ -112,15 +115,22 @@ public class WPS_1_0_0_Operations implements WpsOperations {
      * @param dataSource DataSource used of the execution of the processes.
      */
     public WPS_1_0_0_Operations(ProcessManager processManager, DataSource dataSource){
+        this();
         setProcessManager(processManager);
         setDataSource(dataSource);
     }
 
     /**
      * Empty constructor mainly used in case of an OSGI application. If it is not the case, use instead
-     * {@code WPS_1_0_0_Operations(WpsServiceImpl wpsService, WpsServerProperties_1_0_0 wpsProp, DataSource dataSource)}
+     * {@code WPS_1_0_0_Operations(WpsServiceImpl wpsService, WPS_1_0_0_ServerProperties wpsProp, DataSource dataSource)}
      */
-    public WPS_1_0_0_Operations(){}
+    public WPS_1_0_0_Operations(){
+        try {
+            marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     @Reference
@@ -135,7 +145,7 @@ public class WPS_1_0_0_Operations implements WpsOperations {
     @Override
     public boolean setWpsProperties(WpsProperties wpsProperties) {
         if(wpsProperties != null && wpsProperties.getWpsVersion().equals("1.0.0")){
-            this.wpsProp = (WpsServerProperties_1_0_0) wpsProperties;
+            this.wpsProp = (WPS_1_0_0_ServerProperties) wpsProperties;
             return true;
         }
         return false;
@@ -633,8 +643,69 @@ public class WPS_1_0_0_Operations implements WpsOperations {
             return report;
         }
 
-        return new WPS_1_0_0_JobRunner(exceptionReport, language, pi, dataMap, execute, wpsProp, processManager, ds)
-                .getResponse();
+        WPS_1_0_0_Worker worker = new WPS_1_0_0_Worker(exceptionReport, language, pi, dataMap, execute, wpsProp,
+                processManager, ds, marshaller);
+        ExecuteResponse response = new ExecuteResponse();
+        for (Operation op : wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS) {
+            if (op.getName().equalsIgnoreCase("getcapabilities")) {
+                response.setServiceInstance(op.getDCP().get(0).getHTTP().getGetOrPost().get(0).getValue().getHref());
+            }
+        }
+        if (execute.getLanguage() != null) {
+            response.setLang(execute.getLanguage());
+        } else {
+            response.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+        }
+        response.setProcess(Converter.convertProcessDescriptionType2to1(worker.getJob().getProcess()));
+
+        worker.setResponse(response);
+        worker.setFuture(processManager.executeNewProcessWorker(worker));
+
+        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()){
+            ResponseDocumentType responseDocumentType = execute.getResponseForm().getResponseDocument();
+            if (responseDocumentType.isLineage()) {
+                response.setDataInputs(execute.getDataInputs());
+                OutputDefinitionsType outputDefinitionsType = new OutputDefinitionsType();
+                for (net.opengis.wps._2_0.OutputDescriptionType output : worker.getJob().getProcess().getOutput()) {
+                    DocumentOutputDefinitionType document = new DocumentOutputDefinitionType();
+                    document.setTitle(convertLanguageStringType2to1(output.getTitle().get(0)));
+                    if (output.getAbstract() == null && !output.getAbstract().isEmpty()) {
+                        document.setAbstract(convertLanguageStringType2to1(output.getAbstract().get(0)));
+                    }
+                    document.setIdentifier(convertCodeType2to1(output.getIdentifier()));
+                    outputDefinitionsType.getOutput().add(document);
+                }
+                response.setOutputDefinitions(outputDefinitionsType);
+            }
+            if (!responseDocumentType.isSetStoreExecuteResponse() || !responseDocumentType.isStoreExecuteResponse()) {
+                response.setProcessOutputs(worker.getResult());
+            } else {
+                File f;
+                try {
+                    f = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH, worker.getJobId().toString());
+                    response.setStatusLocation(f.toURI().toString());
+                    Marshaller marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
+                    marshaller.marshal(response, new FileOutputStream(f));
+                } catch (FileNotFoundException |JAXBException e) {
+                    LOGGER.error("Error get on writing the response as an accessible " +
+                            "resource.\n"+e.getMessage());
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("NoApplicableCode");
+                    exceptionType.getExceptionText().add("Error get on writing the response as an accessible " +
+                            "resource.\n"+e.getMessage());
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+            }
+        }
+        else if(execute.isSetResponseForm() && execute.getResponseForm().isSetRawDataOutput()){
+            return worker.getResult().getOutput().get(0).getData().getComplexData().getContent().get(0);
+        }
+        else {
+            response.setProcessOutputs(worker.getResult());
+        }
+        response.setStatus(worker.getStatus());
+        return response;
     }
 
     /**

@@ -159,8 +159,9 @@ String[] idField
 String[] operations = ["geomtype"]
 
 @LiteralDataInput(
-    title = "Drop the output table if exists",
-    description = "Drop the output table if exists.")
+        title = "Drop the output table if exists",
+        description = "Drop the output table if exists.",
+        identifier = "dropOutTable")
 Boolean dropTable 
 
 @LiteralDataInput(
@@ -172,7 +173,8 @@ String outputTableName
 
 @LiteralDataInput(
     title = "Drop the input table",
-    description = "Drop the input table when the script is finished.")
+    description = "Drop the input table when the script is finished.",
+        identifier = "dropInTable")
 Boolean dropInputTable
 
 

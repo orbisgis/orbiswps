@@ -43,9 +43,13 @@ import net.opengis.ows._2.CodeType;
 import org.orbisgis.orbiswps.service.WpsServiceImpl;
 import org.orbisgis.orbiswps.service.model.wpsmodel.*;
 import org.orbisgis.orbiswps.service.model.wpsmodel.Process;
+import org.orbisgis.orbiswps.service.operations.WPS_2_0_ServerProperties;
+import org.orbisgis.orbiswps.service.operations.WPS_2_0_Worker;
 import org.orbisgis.orbiswps.service.utils.Job;
+import org.orbisgis.orbiswps.serviceapi.WpsService;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
@@ -65,25 +69,23 @@ import java.util.concurrent.Future;
  * @author Sylvain PALOMINOS (UBS 2018)
  * @author Erwan Bocher (CNRS)
  */
-public class ModelWorker implements Runnable, PropertyChangeListener, ProcessExecutionListener {
+public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyChangeListener, ProcessExecutionListener {
 
     /** Logger */
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelWorker.class);
     /** I18N object */
     private static final I18n I18N = I18nFactory.getI18n(ModelWorker.class);
 
-    private static final int SECOND_IN_MILLIS = 1000;
-
     private WpsModel wpsModel;
-    private WpsServiceImpl wpsServer;
-    private ProcessManagerImpl processManagerImpl;
-    private Map<URI, Object> dataMap;
 
-    public ModelWorker(WpsModel wpsModel, WpsServiceImpl wpsServer, ProcessManagerImpl processManagerImpl) {
-        this.wpsModel = wpsModel;
-        this.wpsServer = wpsServer;
-        this.processManagerImpl = processManagerImpl;
-        this.dataMap = new HashMap<>();
+    private long basePoll;
+    private long maxPool;
+
+    public ModelWorker(WPS_2_0_ServerProperties wpsProps, ProcessIdentifierImpl pi, ProcessManager processManagerImpl){
+        super(wpsProps, pi, processManagerImpl, new HashMap<URI, Object>());
+        this.wpsModel = pi.getModel();
+        basePoll = wpsProps.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY;
+        maxPool = wpsProps.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY;
     }
 
     public Map<URI, Object> getDataMap(){
@@ -163,12 +165,12 @@ public class ModelWorker implements Runnable, PropertyChangeListener, ProcessExe
     public Future executeProcess(String id, Map<URI, Object> dataMap){
         CodeType codeType = new CodeType();
         codeType.setValue(id);
-        ProcessIdentifier pi = processManagerImpl.getProcessIdentifier(codeType);
+        ProcessIdentifier pi = processManager.getProcessIdentifier(codeType);
         Job job = new Job(pi.getProcessDescriptionType(), UUID.randomUUID(), dataMap,
-                SECOND_IN_MILLIS*10, SECOND_IN_MILLIS);
+                maxPool, basePoll);
         job.addProcessExecutionlistener(this);
-        ProcessWorkerImpl processWorkerImpl = new ProcessWorkerImpl(job, pi, processManagerImpl, dataMap, wpsServer);
-        return wpsServer.executeNewProcessWorker(processWorkerImpl);
+        ProcessWorkerImpl processWorkerImpl = new ProcessWorkerImpl(job, pi, processManager, dataMap);
+        return processManager.executeNewProcessWorker(processWorkerImpl);
     }
 
     @Override

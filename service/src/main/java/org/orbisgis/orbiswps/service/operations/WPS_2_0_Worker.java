@@ -66,9 +66,9 @@ public class WPS_2_0_Worker implements ProcessExecutionListener, ProcessWorker {
     /** Process to execute */
     private ProcessIdentifier processIdentifier;
     /** The process manager */
-    private ProcessManager processManager;
+    protected ProcessManager processManager;
     /** Map containing the process execution output/input model and URI */
-    private Map<URI, Object> dataMap;
+    protected Map<URI, Object> dataMap;
     /** I18N object */
     private static final I18n I18N = I18nFactory.getI18n(ProcessWorkerImpl.class);
     /** Logger */

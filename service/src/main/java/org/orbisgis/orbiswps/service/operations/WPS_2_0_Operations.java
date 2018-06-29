@@ -43,6 +43,8 @@ import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
 import net.opengis.wps._2_0.ObjectFactory;
+import org.orbisgis.orbiswps.service.process.ModelWorker;
+import org.orbisgis.orbiswps.service.process.ProcessIdentifierImpl;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
 import org.orbisgis.orbiswps.service.process.ProcessWorkerImpl;
 import org.orbisgis.orbiswps.service.utils.Job;
@@ -52,6 +54,7 @@ import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessWorker;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -547,7 +550,13 @@ public class WPS_2_0_Operations implements WpsOperations {
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
         }
-        WPS_2_0_Worker worker = new WPS_2_0_Worker(wpsProp, processIdentifier, processManager, dataMap);
+        WPS_2_0_Worker worker;
+        if(processIdentifier instanceof ProcessIdentifierImpl && ((ProcessIdentifierImpl) processIdentifier).isModel()){
+            worker = new ModelWorker(wpsProp, (ProcessIdentifierImpl)processIdentifier, processManager);
+        }
+        else {
+            worker = new WPS_2_0_Worker(wpsProp, processIdentifier, processManager, dataMap);
+        }
         //Generation of the StatusInfo
         StatusInfo statusInfo = new StatusInfo();
         statusInfo.setJobID(worker.getJobId().toString());

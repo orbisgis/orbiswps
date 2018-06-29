@@ -49,6 +49,7 @@ import net.opengis.wps._2_0.ProcessOffering;
 import org.orbisgis.orbiswps.groovyapi.attributes.InputAttribute;
 import org.orbisgis.orbiswps.groovyapi.attributes.OutputAttribute;
 import org.orbisgis.orbiswps.service.model.*;
+import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import org.orbisgis.orbiswps.serviceapi.parser.Parser;
 import org.slf4j.Logger;

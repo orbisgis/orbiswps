@@ -41,6 +41,7 @@ package org.orbisgis.orbiswps.service.process;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
 import net.opengis.wps._2_0.ProcessOffering;
+import org.orbisgis.orbiswps.service.model.wpsmodel.WpsModel;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
@@ -67,6 +68,8 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
     private I18n i18n;
 
     private Map<String, Object> properties;
+
+    private WpsModel model;
 
     /**
      * Main constructor.
@@ -145,4 +148,17 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
     public Map<String, Object> getProperties() {
         return properties;
     }
+
+    public boolean isModel(){
+        return model != null;
+    }
+
+    public void setModel(WpsModel model){
+        this.model = model;
+    }
+
+    public WpsModel getModel(){
+        return model;
+    }
+
 }

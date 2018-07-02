@@ -41,7 +41,7 @@ public class ModelWorkerTest {
         processManagerImpl.addScript(ModelWorkerTest.class.getResource("B.groovy").toURI());
         processManagerImpl.addScript(ModelWorkerTest.class.getResource("C.groovy").toURI());
         WpsModel model = (WpsModel) unmarshaller.unmarshal(ModelWorkerTest.class.getResourceAsStream("model_simple.xml"));
-        id = new ProcessIdentifierImpl(WpsServerUtils.getProcessOfferingFromModel(model), "");
+        id = new ProcessIdentifierImpl(WpsServerUtils.getProcessOfferingFromModel(model, processManagerImpl), "");
         id.setModel(model);
     }
 

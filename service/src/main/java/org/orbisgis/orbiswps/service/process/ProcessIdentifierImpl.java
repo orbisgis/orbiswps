@@ -58,6 +58,10 @@ import java.util.Map;
 
 public class ProcessIdentifierImpl implements ProcessIdentifier {
 
+    /** I18N object */
+    private static final I18n I18N = I18nFactory.getI18n(ProcessIdentifierImpl.class);
+
+
     /** ProcessOffering object. */
     private ProcessOffering processOffering;
     /** File path of the process. */
@@ -136,6 +140,9 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
     }
 
     public I18n getI18n() {
+        if(i18n == null){
+            i18n = I18N;
+        }
         return i18n;
     }
 

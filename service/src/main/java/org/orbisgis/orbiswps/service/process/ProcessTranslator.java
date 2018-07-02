@@ -143,7 +143,12 @@ public class ProcessTranslator {
                 i18n.setLocale(Locale.forLanguageTag(lang.substring(0, 2)));
                 LanguageStringType translatedTitle = new LanguageStringType();
                 translatedTitle.setLang(lang);
-                translatedTitle.setValue(i18n.tr(title.getValue()));
+                if(title.isSetValue()) {
+                    translatedTitle.setValue(i18n.tr(title.getValue()));
+                }
+                else{
+                    translatedTitle.setValue("");
+                }
                 titleList.add(translatedTitle);
             }
         }

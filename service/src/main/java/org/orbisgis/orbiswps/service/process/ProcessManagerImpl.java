@@ -194,7 +194,7 @@ public class ProcessManagerImpl implements ProcessManager {
                         LOGGER.error(I18N.tr("Unable to parse the model {0}.\nCause : {1}", scriptUri, e.getMessage()), e);
                     }
                     if(o instanceof WpsModel){
-                        processOffering = WpsServerUtils.getProcessOfferingFromModel((WpsModel) o);
+                        processOffering = WpsServerUtils.getProcessOfferingFromModel((WpsModel) o, this);
                         pi = new ProcessIdentifierImpl(processOffering, f.getAbsolutePath());
                         ((ProcessIdentifierImpl) pi).setModel((WpsModel) o);
                     }

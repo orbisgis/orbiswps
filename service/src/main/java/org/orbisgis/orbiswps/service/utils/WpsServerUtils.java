@@ -2,12 +2,13 @@ package org.orbisgis.orbiswps.service.utils;
 
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
+import net.opengis.wps._2_0.DescriptionType;
 import net.opengis.wps._2_0.ObjectFactory;
 import org.orbisgis.orbiswps.service.model.DataType;
-import org.orbisgis.orbiswps.service.model.wpsmodel.Input;
-import org.orbisgis.orbiswps.service.model.wpsmodel.Keyword;
-import org.orbisgis.orbiswps.service.model.wpsmodel.Output;
-import org.orbisgis.orbiswps.service.model.wpsmodel.WpsModel;
+import org.orbisgis.orbiswps.service.model.wpsmodel.*;
+import org.orbisgis.orbiswps.service.model.wpsmodel.Process;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
@@ -17,8 +18,10 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Utility methods for the WpsService.
@@ -52,9 +55,14 @@ public class WpsServerUtils {
         return date;
     }
 
-    public static ProcessOffering getProcessOfferingFromModel(WpsModel model){
+    public static ProcessOffering getProcessOfferingFromModel(WpsModel model, ProcessManager processManager){
         ObjectFactory factory = new ObjectFactory();
         ProcessDescriptionType processDescriptionType = new ProcessDescriptionType();
+        List<String> processList = new ArrayList<>();
+
+        for(Process process : model.getProcesses().getProcess()){
+            processList.add(process.getIdentifier());
+        }
 
         CodeType idCodeType = new CodeType();
         idCodeType.setValue(model.getIdentifier());
@@ -83,56 +91,76 @@ public class WpsServerUtils {
 
         for(Input input : model.getInputs().getInput()){
             InputDescriptionType inputDescriptionType = new InputDescriptionType();
-
-            CodeType processId = new CodeType();
-            processId.setValue(input.getIdentifier());
-            inputDescriptionType.setIdentifier(processId);
-
-            LiteralDataType.LiteralDataDomain domain = new LiteralDataType.LiteralDataDomain();
-            domain.setDefault(true);
-            domain.setAnyValue(new AnyValue());
-            DomainMetadataType domainMetadataType = new DomainMetadataType();
-            domainMetadataType.setValue(DataType.STRING.name());
-            domain.setDataType(domainMetadataType);
-            LiteralDataType literalDataType = new LiteralDataType();
-            literalDataType.getLiteralDataDomain().add(domain);
-            inputDescriptionType.setDataDescription(factory.createLiteralData(literalDataType));
-
-            LanguageStringType inTitle = new LanguageStringType();
-            inTitle.setValue(input.getTitle());
-            inputDescriptionType.getTitle().add(inTitle);
-
-            if(input.getAbstract() != null) {
-                LanguageStringType inAbstract = new LanguageStringType();
-                inAbstract.setValue(input.getAbstract());
-                inputDescriptionType.getAbstract().add(inAbstract);
+            DescriptionType descriptionType = null;
+            for(Process process : model.getProcesses().getProcess()){
+                for(ProcessInput processInput : process.getProcessInput()){
+                    if(processInput.getValue().equals(input.getIdentifier())){
+                        descriptionType =  getInputOrOutputFromProcesses(processList, processInput.getIdentifier(), processManager);
+                    }
+                }
             }
 
+            if(descriptionType instanceof InputDescriptionType){
+                inputDescriptionType = (InputDescriptionType)descriptionType;
+            }
+            else {
+                CodeType processId = new CodeType();
+                processId.setValue(input.getIdentifier());
+                inputDescriptionType.setIdentifier(processId);
+
+                LiteralDataType.LiteralDataDomain domain = new LiteralDataType.LiteralDataDomain();
+                domain.setDefault(true);
+                domain.setAnyValue(new AnyValue());
+                DomainMetadataType domainMetadataType = new DomainMetadataType();
+                domainMetadataType.setValue(DataType.STRING.name());
+                domain.setDataType(domainMetadataType);
+                LiteralDataType literalDataType = new LiteralDataType();
+                literalDataType.getLiteralDataDomain().add(domain);
+                inputDescriptionType.setDataDescription(factory.createLiteralData(literalDataType));
+
+                LanguageStringType inTitle = new LanguageStringType();
+                inTitle.setValue(input.getTitle());
+                inputDescriptionType.getTitle().add(inTitle);
+
+                if (input.getAbstract() != null) {
+                    LanguageStringType inAbstract = new LanguageStringType();
+                    inAbstract.setValue(input.getAbstract());
+                    inputDescriptionType.getAbstract().add(inAbstract);
+                }
+            }
             processDescriptionType.getInput().add(inputDescriptionType);
         }
 
         for(Output output : model.getOutputs().getOutput()){
             OutputDescriptionType outputDescriptionType = new OutputDescriptionType();
 
-            CodeType processId = new CodeType();
-            processId.setValue(output.getIdentifier());
-            outputDescriptionType.setIdentifier(processId);
+            DescriptionType descriptionType =
+                    getInputOrOutputFromProcesses(processList, output.getIdentifier(), processManager);
 
-            LiteralDataType.LiteralDataDomain domain = new LiteralDataType.LiteralDataDomain();
-            domain.setDefault(true);
-            domain.setAnyValue(new AnyValue());
-            LiteralDataType literalDataType = new LiteralDataType();
-            literalDataType.getLiteralDataDomain().add(domain);
-            outputDescriptionType.setDataDescription(factory.createLiteralData(literalDataType));
+            if(descriptionType instanceof InputDescriptionType){
+                outputDescriptionType = (OutputDescriptionType)descriptionType;
+            }
+            else {
+                CodeType processId = new CodeType();
+                processId.setValue(output.getIdentifier());
+                outputDescriptionType.setIdentifier(processId);
 
-            LanguageStringType outTitle = new LanguageStringType();
-            outTitle.setValue(output.getTitle());
-            outputDescriptionType.getTitle().add(outTitle);
+                LiteralDataType.LiteralDataDomain domain = new LiteralDataType.LiteralDataDomain();
+                domain.setDefault(true);
+                domain.setAnyValue(new AnyValue());
+                LiteralDataType literalDataType = new LiteralDataType();
+                literalDataType.getLiteralDataDomain().add(domain);
+                outputDescriptionType.setDataDescription(factory.createLiteralData(literalDataType));
 
-            if(output.getAbstract() != null) {
-                LanguageStringType outAbstract = new LanguageStringType();
-                outAbstract.setValue(output.getAbstract());
-                outputDescriptionType.getAbstract().add(outAbstract);
+                LanguageStringType outTitle = new LanguageStringType();
+                outTitle.setValue(output.getTitle());
+                outputDescriptionType.getTitle().add(outTitle);
+
+                if (output.getAbstract() != null) {
+                    LanguageStringType outAbstract = new LanguageStringType();
+                    outAbstract.setValue(output.getAbstract());
+                    outputDescriptionType.getAbstract().add(outAbstract);
+                }
             }
 
             processDescriptionType.getOutput().add(outputDescriptionType);
@@ -141,5 +169,26 @@ public class WpsServerUtils {
         ProcessOffering processOffering = new ProcessOffering();
         processOffering.setProcess(processDescriptionType);
         return processOffering;
+    }
+
+    private static DescriptionType getInputOrOutputFromProcesses(List<String> processIdList, String inputOrOutputId, ProcessManager processManager){
+        for(String processId : processIdList){
+            CodeType codeType = new CodeType();
+            codeType.setValue(processId);
+            ProcessIdentifier pi = processManager.getProcessIdentifier(codeType);
+            if(pi != null){
+                for(InputDescriptionType input : pi.getProcessDescriptionType().getInput()){
+                    if(input.getIdentifier().getValue().equals(inputOrOutputId)){
+                        return input;
+                    }
+                }
+                for(OutputDescriptionType output : pi.getProcessDescriptionType().getOutput()){
+                    if(output.getIdentifier().getValue().equals(inputOrOutputId)){
+                        return output;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

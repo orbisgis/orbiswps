@@ -50,9 +50,10 @@ import java.util.List;
 /**
  * A WPS Service provides access to simple or complex computational processing services.
  *
- * @author Sylvain PALOMINOS
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
-public interface WpsServer {
+public interface WpsService {
 
     /**
      * Ask the WPS Server to execute the operation contained in the xml argument an returns the xml answer.
@@ -77,14 +78,14 @@ public interface WpsServer {
     void removeProcess(URI identifier);
 
     /**
-     * Registers a WpsServerListener.
-     * @param wpsServerListener WpsServerListener to register.
+     * Registers a WpsServiceListener.
+     * @param wpsServiceListener WpsServiceListener to register.
      */
-    void addWpsServerListener(WpsServerListener wpsServerListener);
+    void addWpsServerListener(WpsServiceListener wpsServiceListener);
 
     /**
-     * Unregisters a WpsServerListener.
-     * @param wpsServerListener WpsServerListener to unregister.
+     * Unregisters a WpsServiceListener.
+     * @param wpsServiceListener WpsServiceListener to unregister.
      */
-    void removeWpsServerListener(WpsServerListener wpsServerListener);
+    void removeWpsServerListener(WpsServiceListener wpsServiceListener);
 }

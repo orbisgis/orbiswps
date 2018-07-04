@@ -42,65 +42,174 @@ package org.orbisgis.orbiswps.service.operations;
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
 import net.opengis.wps._2_0.GetCapabilitiesType;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
-import org.orbisgis.orbiswps.service.process.ProcessManager;
-import org.orbisgis.orbiswps.service.utils.Job;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
+import net.opengis.wps._2_0.ObjectFactory;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
+import org.orbisgis.orbiswps.service.process.ProcessWorkerImpl;
+import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
-import org.orbisgis.orbiswps.serviceapi.operations.WPS_2_0_Operations;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsOperations;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.sql.DataSource;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.*;
 
 /**
- * Implementations of the WPS 2.0 operations.
- * 
- * @author Sylvain PALOMINOS
+ * Implementations of the WPS 2.0 operations. This class is called when a wps request with the version 2.0 is
+ * received by the service.
+ *
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
-public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
+@Component(immediate = true, service = WpsOperations.class)
+public class WPS_2_0_Operations implements WpsOperations {
+
+    /** WPS version */
+    private static final String WPS_VERSION = "2.0";
+    /** Encoding simple */
+    private static final String ENCODING_SIMPLE = "simple";
 
     /** Map containing the WPS Jobs and their UUID */
-    private Map<UUID, Job> jobMap;
-
-    /** Instance of the WpsServer. */
-    private WpsServerImpl wpsServer;
-
+    private Map<UUID, Job> jobMap = new HashMap<>();
     /** WPS 2.0 properties of the server */
-    private WpsServerProperties_2_0 wpsProp;
-
+    private WPS_2_0_ServerProperties wpsProp;
+    /** DataSource used of the execution of the processes */
+    private DataSource ds;
+    /** Wps 2.0 ObjectFactory */
+    private ObjectFactory factory = new ObjectFactory();
+    /** Process Manager used for the process execution. */
     private ProcessManager processManager;
-
-    /** Main constructor */
-    public WPS_2_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_2_0 wpsProp,
-                                  ProcessManager processManager){
-        this.wpsServer = wpsServer;
-        this.wpsProp = wpsProp;
-        this.processManager = processManager;
-        jobMap = new HashMap<>();
-    }
-
-    @Override
-    public void setWpsProperties(WpsProperties wpsProperties) {
-        if(wpsProperties.getWpsVersion().equals("2.0")){
-            this.wpsProp = (WpsServerProperties_2_0) wpsProperties;
-        }
-    }
 
     /** Enumeration of the section names. */
     private enum SectionName {ServiceIdentification, ServiceProvider, OperationMetadata, Contents, Languages, All}
+    /** Enumeration of the exception code. */
+    private enum ExceptionCode
+    {InvalidParameterValue, NoApplicableCode, VersionNegotiationFailed, NoSuchProcess, NoSuchJob}
+    /** Enumeration of the exception locator. */
+    private enum ExceptionLocator {Sections, AcceptLanguages, Lang, Identifier, NoSuchJob}
+
+    /**
+     * Main constructor.
+     *
+     * @param processManager Instance of the ProcessManager.
+     * @param wpsProp WPS properties of the server.
+     * @param dataSource DataSource used of the execution of the processes.
+     */
+    public WPS_2_0_Operations(ProcessManager processManager, WPS_2_0_ServerProperties wpsProp, DataSource dataSource){
+        setWpsProperties(wpsProp);
+        setProcessManager(processManager);
+        setDataSource(dataSource);
+    }
+
+    /**
+     * Constructor without properties
+     *
+     * @param processManager Instance of the ProcessManager.
+     * @param dataSource DataSource used of the execution of the processes.
+     */
+    public WPS_2_0_Operations(ProcessManager processManager, DataSource dataSource){
+        setProcessManager(processManager);
+        setDataSource(dataSource);
+    }
+
+    /**
+     * Empty constructor mainly used in case of an OSGI application. If it is not the case, use instead
+     * {@code WPS_2_0_Operations(WpsServiceImpl wpsService, WPS_2_0_ServerProperties wpsProp, DataSource dataSource)}
+     */
+    public WPS_2_0_Operations(){}
+
+    @Reference
+    public void setDataSource(DataSource dataSource) {
+        ds = dataSource;
+    }
+    public void unsetDataSource(DataSource dataSource) {
+        ds = null;
+    }
+
+    @Reference
+    @Override
+    public boolean setWpsProperties(WpsProperties wpsProperties) {
+        if(wpsProperties != null && wpsProperties.getWpsVersion().equals(WPS_VERSION)){
+            this.wpsProp = (WPS_2_0_ServerProperties) wpsProperties;
+            return true;
+        }
+        return false;
+    }
+    public void unsetWpsProperties(WpsProperties wpsProperties) {
+        wpsProperties = null;
+    }
 
     @Override
-    public Object getCapabilities(GetCapabilitiesType getCapabilities){
-        /** First check the getCapabilities for exceptions **/
+    public String getWpsVersion() {
+        return WPS_VERSION;
+    }
+
+    @Override
+    public boolean isRequestAccepted(Object request) {
+        return request instanceof GetCapabilitiesType ||
+                request instanceof DescribeProcess ||
+                request instanceof ExecuteRequestType ||
+                request instanceof GetStatus ||
+                request instanceof GetResult ||
+                request instanceof Dismiss;
+    }
+
+    @Override
+    public Object executeRequest(Object request) {
+        Object result = null;
+        if(request instanceof GetCapabilitiesType){
+            result = getCapabilities((GetCapabilitiesType)request);
+        }
+        else if(request instanceof DescribeProcess){
+            result = describeProcess((DescribeProcess)request);
+        }
+        else if(request instanceof ExecuteRequestType){
+            result = execute((ExecuteRequestType)request);
+        }
+        else if(request instanceof GetStatus){
+            result = getStatus((GetStatus)request);
+        }
+        else if(request instanceof GetResult){
+            result = getResult((GetResult)request);
+        }
+        else if(request instanceof Dismiss){
+            result = dismiss((Dismiss)request);
+        }
+        return result;
+    }
+
+    @Override
+    public void setProcessManager(ProcessManager processManager) {
+        this.processManager = processManager;
+    }
+
+    /**
+     * This operation allows a client to retrieve service metadata, basic process offerings, and the available
+     * processes present on a WPS server.
+     *
+     * @param getCapabilities Request to a WPS server to perform the GetCapabilities operation.
+     *                        This operation allows a client to retrieve a Capabilities XML document providing
+     *                        metadata for the specific WPS server.
+     * @return WPS GetCapabilities operation response.
+     *             This document provides clients with service metadata about a specific service instance,
+     *             including metadata about the processes that can be executed.
+     *             Since the server does not implement the updateSequence and Sections parameters,
+     *             the server shall always return the complete Capabilities document,
+     *             without the updateSequence parameter.
+     */
+    private Object getCapabilities(GetCapabilitiesType getCapabilities){
+        /* First check the getCapabilities for exceptions */
         ExceptionReport exceptionReport = new ExceptionReport();
         if(getCapabilities == null){
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoApplicableCode");
+            exceptionType.setExceptionCode(ExceptionCode.NoApplicableCode.name());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
         }
@@ -118,7 +227,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
             }
             if(!isVersionAccepted) {
                 ExceptionType exceptionType = new ExceptionType();
-                exceptionType.setExceptionCode("VersionNegotiationFailed");
+                exceptionType.setExceptionCode(ExceptionCode.VersionNegotiationFailed.name());
                 exceptionReport.getException().add(exceptionType);
                 return exceptionReport;
             }
@@ -137,8 +246,8 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
                 }
                 if (!validSection) {
                     ExceptionType exceptionType = new ExceptionType();
-                    exceptionType.setExceptionCode("InvalidParameterValue");
-                    exceptionType.setLocator("Sections:"+section);
+                    exceptionType.setExceptionCode(ExceptionCode.InvalidParameterValue.name());
+                    exceptionType.setLocator(ExceptionLocator.Sections.name()+":"+section);
                     exceptionReport.getException().add(exceptionType);
                     return exceptionReport;
                 }
@@ -187,8 +296,8 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
                     }
                     else{
                         ExceptionType exceptionType = new ExceptionType();
-                        exceptionType.setExceptionCode("InvalidParameterValue");
-                        exceptionType.setLocator("AcceptLanguages");
+                        exceptionType.setExceptionCode(ExceptionCode.InvalidParameterValue.name());
+                        exceptionType.setLocator(ExceptionLocator.AcceptLanguages.name());
                         exceptionReport.getException().add(exceptionType);
                         return exceptionReport;
                     }
@@ -199,16 +308,14 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         if (availableLanguages.isEmpty()) {
             Collections.addAll(availableLanguages, wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES);
         }
-        //Output format check
-        //Only the text/xml mime type is support for now, so check are needed
 
-        /** Building of the WPSCapabilitiesTypeAnswer **/
+        /* Building of the WPSCapabilitiesTypeAnswer */
 
         //Copy the content of the basicCapabilities into the new one
         WPSCapabilitiesType capabilitiesType = new WPSCapabilitiesType();
         capabilitiesType.setExtension(new WPSCapabilitiesType.Extension());
         capabilitiesType.setUpdateSequence(wpsProp.GLOBAL_PROPERTIES.SERVER_VERSION);
-        capabilitiesType.setVersion("2.0");
+        capabilitiesType.setVersion(WPS_VERSION);
         if(requestedSections.contains(SectionName.All) || requestedSections.contains(SectionName.Languages)) {
             CapabilitiesBaseType.Languages languages = new CapabilitiesBaseType.Languages();
             for(String language : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
@@ -258,7 +365,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
             capabilitiesType.setServiceProvider(serviceProvider);
         }
 
-        /** Sets the Contents **/
+        /* Sets the Contents */
         if(requestedSections.contains(SectionName.All) || requestedSections.contains(SectionName.Contents)) {
             Contents contents = new Contents();
             List<ProcessSummaryType> processSummaryTypeList = new ArrayList<>();
@@ -297,11 +404,18 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
             capabilitiesType.setContents(contents);
         }
 
-        return capabilitiesType;
+        return factory.createCapabilities(capabilitiesType);
     }
 
-    @Override
-    public Object describeProcess(DescribeProcess describeProcess) {
+    /**
+     * The DescribeProcess operation allows WPS clients to query detailed process descriptions for the process
+     * offerings.
+     *
+     * @param describeProcess WPS DescribeProcess operation request.
+     * @return List structure that is returned by the WPS DescribeProcess operation.
+     *         Contains XML descriptions for the queried process identifiers.
+     */
+    private Object describeProcess(DescribeProcess describeProcess) {
 
         ExceptionReport exceptionReport = new ExceptionReport();
 
@@ -317,8 +431,8 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
 
             if (!isLang) {
                 ExceptionType exceptionType = new ExceptionType();
-                exceptionType.setExceptionCode("InvalidParameterValue");
-                exceptionType.setLocator("Lang");
+                exceptionType.setExceptionCode(ExceptionCode.InvalidParameterValue.name());
+                exceptionType.setLocator(ExceptionLocator.Lang.name());
                 exceptionReport.getException().add(exceptionType);
                 return exceptionReport;
             }
@@ -326,8 +440,8 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
 
         if(describeProcess.getIdentifier().isEmpty()){
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("InvalidParameterValue");
-            exceptionType.setLocator("Identifier");
+            exceptionType.setExceptionCode(ExceptionCode.InvalidParameterValue.name());
+            exceptionType.setLocator(ExceptionLocator.Identifier.name());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
         }
@@ -376,7 +490,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         }
         if(processOfferingList.isEmpty()){
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoSuchProcess");
+            exceptionType.setExceptionCode(ExceptionCode.NoSuchProcess.name());
             exceptionType.getExceptionText().addAll(wrongId);
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
@@ -388,8 +502,25 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         }
     }
 
-    @Override
-    public Object execute(ExecuteRequestType execute) {
+    /**
+     * The Execute operation allows WPS clients to run a specified process implemented by a server,
+     * using the input parameter values provided and returning the output values produced.
+     * Inputs may be included directly in the Execute request (by value), or reference web accessible resources
+     * (by reference).
+     * The outputs may be returned in the form of an XML response document,
+     * either embedded within the response document or stored as web accessible resources.
+     * Alternatively, for a single output, the server may be directed to return that output in its raw form without
+     * being wrapped in an XML response document.
+     *
+     * @param execute The Execute request is a common structure for synchronous and asynchronous execution.
+     *                It inherits basic properties from the RequestBaseType and contains additional elements that
+     *                identify the process that shall be executed, the model inputs and outputs, and the response type
+     *                of the service.
+     * @return Depending on the desired execution mode and the response type declared in the execute request,
+     *         the execute response may take one of three different forms:
+     *         A response document, a StatusInfo document, or raw model.
+     */
+    private Object execute(ExecuteRequestType execute) {
         //Generate the DataMap
         Map<URI, Object> dataMap = new HashMap<>();
         for(DataInputType input : execute.getInput()){
@@ -406,41 +537,43 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
             }
             dataMap.put(id, data);
         }
-        //Generation of the StatusInfo
-        StatusInfo statusInfo = new StatusInfo();
-        //Generation of the Job unique ID
-        UUID jobId = UUID.randomUUID();
-        statusInfo.setJobID(jobId.toString());
-        //Get the Process
-        ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(execute.getIdentifier());
 
+        ProcessIdentifier processIdentifier = processManager.getProcessIdentifier(execute.getIdentifier());
         if (processIdentifier == null){
             ExceptionReport exceptionReport = new ExceptionReport();
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoSuchProcess");
+            exceptionType.setExceptionCode(WPS_2_0_Operations.ExceptionCode.NoSuchProcess.name());
             exceptionType.setLocator(execute.getIdentifier().getValue());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
         }
-
-        //Generate the processInstance
-        Job job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
-                wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
-                wpsProp.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
-        jobMap.put(jobId, job);
-        statusInfo.setStatus(job.getState().name());
+        WPS_2_0_Worker worker = new WPS_2_0_Worker(wpsProp, processIdentifier, processManager, dataMap);
+        //Generation of the StatusInfo
+        StatusInfo statusInfo = new StatusInfo();
+        statusInfo.setJobID(worker.getJobId().toString());
+        jobMap.put(worker.getJobId(), worker.getJob());
+        statusInfo.setStatus(worker.getJob().getState().name());
 
         //Process execution in new thread
-        wpsServer.executeNewProcessWorker(job, processIdentifier, dataMap);
+        processManager.executeNewProcessWorker(worker);
         //Return the StatusInfo to the user
-        statusInfo.setStatus(job.getState().name());
-        XMLGregorianCalendar date = WpsServerUtils.getXMLGregorianCalendar(job.getProcessPollingTime());
+        XMLGregorianCalendar date = WpsServerUtils.getXMLGregorianCalendar(worker.getJob().getProcessPollingTime());
         statusInfo.setNextPoll(date);
         return statusInfo;
     }
 
-    @Override
-    public Object getStatus(GetStatus getStatus) {
+    /**
+     * WPS GetStatus operation request. This operation is used to query status information of executed processes.
+     * The response to a GetStatus operation is a StatusInfo document or an exception.
+     * Depending on the implementation, a WPS may "forget" old process executions sooner or later.
+     * In this case, there is no status information available and an exception shall be returned instead of a
+     * StatusInfo response.
+     *
+     * @param getStatus GetStatus document. It contains an additional element that identifies the JobID of the
+     *                  processing job, of which the status shall be returned.
+     * @return StatusInfo document.
+     */
+    private Object getStatus(GetStatus getStatus) {
         //Get the job concerned by the getStatus request
         UUID jobId = UUID.fromString(getStatus.getJobID());
         Job job = jobMap.get(jobId);
@@ -448,7 +581,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         if (job == null){
             ExceptionReport exceptionReport = new ExceptionReport();
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoSuchJob");
+            exceptionType.setExceptionCode(ExceptionCode.NoSuchJob.name());
             exceptionType.setLocator(getStatus.getJobID());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
@@ -474,8 +607,17 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         return statusInfo;
     }
 
-    @Override
-    public Object getResult(GetResult getResult) {
+    /**
+     * WPS GetResult operation request. This operation is used to query the results of asynchrously
+     * executed processes. The response to a GetResult operation is a wps:ProcessingResult, a raw model response, or an exception.
+     * Depending on the implementation, a WPS may "forget" old process executions sooner or later.
+     * In this case, there is no result information available and an exception shall be returned.
+     *
+     * @param getResult GetResult document. It contains an additional element that identifies the JobID of the
+     *                  processing job, of which the result shall be returned.
+     * @return Result document.
+     */
+    private Object getResult(GetResult getResult) {
         Result result = new Result();
         //generate the XMLGregorianCalendar Object to put in the Result Object
         long destructionDelay = wpsProp.CUSTOM_PROPERTIES.getDestroyDelayInMillis();
@@ -487,7 +629,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         if (job == null){
             ExceptionReport exceptionReport = new ExceptionReport();
             ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("NoSuchJob");
+            exceptionType.setExceptionCode(ExceptionCode.NoSuchJob.name());
             exceptionType.setLocator(getResult.getJobID());
             exceptionReport.getException().add(exceptionType);
             return exceptionReport;
@@ -508,7 +650,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
                 DataOutputType output = new DataOutputType();
                 output.setId(entry.getKey().toString());
                 Data data = new Data();
-                data.setEncoding("simple");
+                data.setEncoding(ENCODING_SIMPLE);
                 data.setMimeType("");
                 List<Serializable> serializableList = new ArrayList<>();
                 if (entry.getValue() == null) {
@@ -522,7 +664,7 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
                 listOutput.add(output);
                 //Sets and schedule the destroy date
                 if (destructionDelay != 0) {
-                    wpsServer.scheduleResultDestroying(entry.getKey(),
+                    processManager.scheduleResultDestroying(entry.getKey(),
                             WpsServerUtils.getXMLGregorianCalendar(destructionDelay));
                 }
             }
@@ -535,10 +677,18 @@ public class WPS_2_0_OperationsImpl implements WPS_2_0_Operations {
         return result;
     }
 
-    @Override
-    public StatusInfo dismiss(Dismiss dismiss) {
+    /**
+     * The dismiss operation allow a client to communicate that he is no longer interested in the results of a job.
+     * In this case, the server may free all associated resources and “forget” the JobID.
+     * For jobs that are still running, the server may cancel the execution at any time.
+     * For jobs that were already finished, the associated status information and the stored results may be deleted
+     * without further notice, regardless of the expiration time given in the last status report.
+     * @param dismiss Dismiss request.
+     * @return StatusInfo document.
+     */
+    private StatusInfo dismiss(Dismiss dismiss) {
         UUID jobId = UUID.fromString(dismiss.getJobID());
-        wpsServer.cancelProcess(jobId);
+        processManager.cancelProcess(jobId);
         Job job = jobMap.get(jobId);
         //Generate the StatusInfo to return
         StatusInfo statusInfo = new StatusInfo();

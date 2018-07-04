@@ -37,7 +37,7 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service.process;
+package org.orbisgis.orbiswps.serviceapi.process;
 
 import org.h2gis.api.ProgressVisitor;
 

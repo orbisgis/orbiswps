@@ -39,15 +39,60 @@
  */
 package org.orbisgis.orbiswps.serviceapi.operations;
 
+import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
+
 /**
- * This interface describe all the operation that should be implemented by a WPS 1.0.0 server.
+ * This interface describe the bases of the classes containing the operation dedicated to a defined version of WPS.
+ * The properties of the server are set with the suitable WpsProperties object.
+ * The WPS service will use the methods {@code getWpsVersion()} and {@code isRequestAccepted(Object request)} to find
+ * the suitable WpsOperation class to execute a wps request.
+ * The execution will be done with the method {@code executeRequest(Object object)} which will return the result of
+ * the execution or a {@code null} value if the given request is not supported.
  *
- * @author Sylvain PALOMINOS
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
 public interface WpsOperations {
+
     /**
-     * Sets the wpsProperties.
-     * @param wpsProperties The WPS properties.
+     * Sets the properties of the WPS service.
+     *
+     * @param wpsProperties The WpsProperties object containing the properties of the service.
+     *
+     * @return True if the WpsProperties object has been recognized an loaded, false otherwise.
      */
-    void setWpsProperties(WpsProperties wpsProperties);
+    boolean setWpsProperties(WpsProperties wpsProperties);
+
+    /**
+     * Returns the string representation of the version of WPS supported i.e. "1.0.0" or "2.0".
+     *
+     * @return The version of WPS supported i.e. "1.0.0" or "2.0".
+     */
+    String getWpsVersion();
+
+    /**
+     * Returns true if the given Object is a supported WPS request.
+     *
+     * @param request WPS request which version is the same as the one returned from {@code getWpsVersion()}.
+     *
+     * @return True if the request is supported, false otherwise.
+     */
+    boolean isRequestAccepted(Object request);
+
+    /**
+     * Executes the given request and returns the result. If the request is not supported, a {@code null} value is
+     * returned.
+     *
+     * @param request Request to execute.
+     *
+     * @return The request result or null if the request is not supported.
+     */
+    Object executeRequest(Object request);
+
+    /**
+     * Sets the ProcessManager
+     *
+     * @param processManager The ProcessManager
+     */
+    void setProcessManager(ProcessManager processManager);
 }

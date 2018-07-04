@@ -41,16 +41,19 @@ package org.orbisgis.orbiswps.serviceapi;
 
 /**
  * Interface defining methods which will be used by the OrbisGISWpsServer to indicates changes like the add of scripts.
+ *
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
-public interface WpsServerListener {
+public interface WpsServiceListener {
 
     /**
-     * Action to do when a script were add in the WpsServer.
+     * Action to do when a script were add in the WpsService.
      */
     void onScriptAdd();
 
     /**
-     * Action to do when a script were removed in the WpsServer.
+     * Action to do when a script were removed in the WpsService.
      */
     void onScriptRemoved();
 }

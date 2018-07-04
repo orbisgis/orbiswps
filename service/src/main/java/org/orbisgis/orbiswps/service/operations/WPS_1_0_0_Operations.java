@@ -39,25 +39,29 @@
  */
 package org.orbisgis.orbiswps.service.operations;
 
-import org.locationtech.jts.io.ParseException;
 import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
 import net.opengis.wps._2_0.LiteralDataDomainType;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.service.process.ProcessManager;
+import org.locationtech.jts.io.ParseException;
+import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
-import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.utils.WpsDataUtils;
-import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsOperations;
 import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import javax.sql.DataSource;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
@@ -70,35 +74,64 @@ import static org.orbisgis.orbiswps.service.operations.Converter.*;
 /**
  * Implementations of the WPS 1.0.0 operations.
  *
- * @author Sylvain PALOMINOS
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
-public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
+@Component(immediate = true, service = {WpsOperations.class})
+public class WPS_1_0_0_Operations implements WpsOperations {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_1_0_0_OperationsImpl.class);
+    /** LOGGER */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_1_0_0_Operations.class);
     /** I18N */
-    private static final I18n I18N = I18nFactory.getI18n(WPS_1_0_0_OperationsImpl.class);
+    private static final I18n I18N = I18nFactory.getI18n(WPS_1_0_0_Operations.class);
+    /** WPS version */
+    private static final String WPS_VERSION = "1.0.0";
 
-    /** Map containing the WPS Jobs and their UUID */
-    private Map<UUID, Job> jobMap;
-
-    /** Instance of the WpsServer. */
-    private WpsServerImpl wpsServer;
-
-    /** WPS 2.0 properties of the server */
-    private WpsServerProperties_1_0_0 wpsProp;
-
+    /** WPS properties of the server */
+    private WPS_1_0_0_ServerProperties wpsProp;
+    /** DataSource used of the execution of the processes */
+    private DataSource ds;
+    /** ProcessManager */
     private ProcessManager processManager;
 
-    private DataSource ds;
+    private Marshaller marshaller;
 
-    /** Main constructor */
-    public WPS_1_0_0_OperationsImpl(WpsServerImpl wpsServer, WpsServerProperties_1_0_0 wpsProp,
-                                    ProcessManager processManager){
-        this.wpsProp = wpsProp;
-        this.wpsServer = wpsServer;
-        this.processManager = processManager;
-        jobMap = new HashMap<>();
+    /**
+     * Main constructor.
+     *
+     * @param processManager Instance of the ProcessManager.
+     * @param wpsProp WPS properties of the server.
+     * @param dataSource DataSource used of the execution of the processes.
+     */
+    public WPS_1_0_0_Operations(ProcessManager processManager, WPS_1_0_0_ServerProperties wpsProp, DataSource dataSource){
+        this(processManager, dataSource);
+        setWpsProperties(wpsProp);
     }
+
+    /**
+     * Constructor without properties
+     *
+     * @param processManager Instance of the ProcessManager.
+     * @param dataSource DataSource used of the execution of the processes.
+     */
+    public WPS_1_0_0_Operations(ProcessManager processManager, DataSource dataSource){
+        this();
+        setProcessManager(processManager);
+        setDataSource(dataSource);
+    }
+
+    /**
+     * Empty constructor mainly used in case of an OSGI application. If it is not the case, use instead
+     * {@code WPS_1_0_0_Operations(WpsServiceImpl wpsService, WPS_1_0_0_ServerProperties wpsProp, DataSource dataSource)}
+     */
+    public WPS_1_0_0_Operations(){
+        try {
+            marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Reference
     public void setDataSource(DataSource dataSource) {
@@ -108,8 +141,65 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         ds = null;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     @Override
-    public Object getCapabilities(GetCapabilities getCapabilities) {
+    public boolean setWpsProperties(WpsProperties wpsProperties) {
+        if(wpsProperties != null && wpsProperties.getWpsVersion().equals("1.0.0")){
+            this.wpsProp = (WPS_1_0_0_ServerProperties) wpsProperties;
+            return true;
+        }
+        return false;
+    }
+    public void unsetWpsProperties(WpsProperties wpsProperties) {
+        this.wpsProp = null;
+    }
+
+    @Override
+    public String getWpsVersion() {
+        return WPS_VERSION;
+    }
+
+    @Override
+    public boolean isRequestAccepted(Object request) {
+        return request instanceof GetCapabilities ||
+                request instanceof DescribeProcess ||
+                request instanceof Execute;
+    }
+
+    @Override
+    public Object executeRequest(Object request) {
+        Object result = null;
+        if(request instanceof GetCapabilities){
+            result = getCapabilities((GetCapabilities)request);
+        }
+        else if(request instanceof DescribeProcess){
+            result = describeProcess((DescribeProcess)request);
+        }
+        else if(request instanceof Execute){
+            result = execute((Execute)request);
+        }
+        return result;
+    }
+
+    @Override
+    public void setProcessManager(ProcessManager processManager) {
+        this.processManager = processManager;
+    }
+
+
+    /**
+     * The mandatory GetCapabilities operation allows clients to retrieve service metadata from a server.
+     * The response to a GetCapabilities request shall contain service metadata about the server, including brief
+     * metadata describing all the processes implemented.
+     *
+     * @param getCapabilities Request to a WPS server to perform the GetCapabilities operation.
+     *                        This operation allows a client to retrieve a Capabilities XML document providing
+     *                        metadata for the specific WPS server.
+     * @return WPS GetCapabilities operation response.
+     *             This document provides clients with service metadata about a specific service instance,
+     *             including metadata about the processes that can be executed.
+     */
+    private Object getCapabilities(GetCapabilities getCapabilities) {
         // First check the getCapabilities for exceptions
         ExceptionReport exceptionReport = new ExceptionReport();
         if (getCapabilities == null) {
@@ -295,8 +385,15 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         return wpsCapabilitiesType;
     }
 
-    @Override
-    public Object describeProcess(DescribeProcess describeProcess) {
+    /**
+     * The DescribeProcess operation allows WPS clients to request a full description of one or more processes that
+     * can be executed by the Execute operation.
+     * This description includes the input and output parameters and formats.
+     * @param describeProcess WPS DescribeProcess operation request.
+     * @return List structure that is returned by the WPS DescribeProcess operation.
+     *         Contains XML descriptions for the queried process identifiers.
+     */
+    private Object describeProcess(DescribeProcess describeProcess) {
         ExceptionReport exceptionReport = new ExceptionReport();
 
         if(!describeProcess.isSetIdentifier() || describeProcess.getIdentifier().isEmpty()){
@@ -384,8 +481,20 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
         return processDescriptions;
     }
 
-    @Override
-    public Object execute(Execute execute) {
+    /**
+     * The Execute operation allows WPS clients to run a specified process implemented by a server, using the input
+     * parameter values provided and returning the output values produced. Inputs can be included directly in the
+     * Execute request, or reference web accessible resources.
+     * The outputs can be returned in the form of an XML response document, either embedded within the response
+     * document or stored as web accessible resources. If the outputs are stored, the Execute response shall consist
+     * of a XML document that includes a URL for each stored output, which the client can use to retrieve those outputs.
+     * Alternatively, for a single output, the server can be directed to return that output in its raw form without
+     * being wrapped in an XML reponse document.
+     *
+     * @param execute The Execute request is a common structure for execution.
+     * @return  A response object.
+     */
+    private Object execute(Execute execute) {
         ExceptionReport exceptionReport = new ExceptionReport();
         exceptionReport.setVersion("1.0.0");
         exceptionReport.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
@@ -534,10 +643,81 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             return report;
         }
 
-        return new WPS_1_0_0_JobRunner(exceptionReport, language, pi, dataMap, execute, wpsProp, wpsServer, ds)
-                .getResponse();
+        WPS_1_0_0_Worker worker = new WPS_1_0_0_Worker(exceptionReport, language, pi, dataMap, execute, wpsProp,
+                processManager, ds, marshaller);
+        ExecuteResponse response = new ExecuteResponse();
+        for (Operation op : wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS) {
+            if (op.getName().equalsIgnoreCase("getcapabilities")) {
+                response.setServiceInstance(op.getDCP().get(0).getHTTP().getGetOrPost().get(0).getValue().getHref());
+            }
+        }
+        if (execute.getLanguage() != null) {
+            response.setLang(execute.getLanguage());
+        } else {
+            response.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+        }
+        response.setProcess(Converter.convertProcessDescriptionType2to1(worker.getJob().getProcess()));
+
+        worker.setResponse(response);
+        worker.setFuture(processManager.executeNewProcessWorker(worker));
+
+        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()){
+            ResponseDocumentType responseDocumentType = execute.getResponseForm().getResponseDocument();
+            if (responseDocumentType.isLineage()) {
+                response.setDataInputs(execute.getDataInputs());
+                OutputDefinitionsType outputDefinitionsType = new OutputDefinitionsType();
+                for (net.opengis.wps._2_0.OutputDescriptionType output : worker.getJob().getProcess().getOutput()) {
+                    DocumentOutputDefinitionType document = new DocumentOutputDefinitionType();
+                    document.setTitle(convertLanguageStringType2to1(output.getTitle().get(0)));
+                    if (output.getAbstract() == null && !output.getAbstract().isEmpty()) {
+                        document.setAbstract(convertLanguageStringType2to1(output.getAbstract().get(0)));
+                    }
+                    document.setIdentifier(convertCodeType2to1(output.getIdentifier()));
+                    outputDefinitionsType.getOutput().add(document);
+                }
+                response.setOutputDefinitions(outputDefinitionsType);
+            }
+            if (!responseDocumentType.isSetStoreExecuteResponse() || !responseDocumentType.isStoreExecuteResponse()) {
+                response.setProcessOutputs(worker.getResult());
+            } else {
+                File f;
+                try {
+                    f = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH, worker.getJobId().toString());
+                    response.setStatusLocation(f.toURI().toString());
+                    Marshaller marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
+                    marshaller.marshal(response, new FileOutputStream(f));
+                } catch (FileNotFoundException |JAXBException e) {
+                    LOGGER.error("Error get on writing the response as an accessible " +
+                            "resource.\n"+e.getMessage());
+                    ExceptionType exceptionType = new ExceptionType();
+                    exceptionType.setExceptionCode("NoApplicableCode");
+                    exceptionType.getExceptionText().add("Error get on writing the response as an accessible " +
+                            "resource.\n"+e.getMessage());
+                    exceptionReport.getException().add(exceptionType);
+                    return exceptionReport;
+                }
+            }
+        }
+        else if(execute.isSetResponseForm() && execute.getResponseForm().isSetRawDataOutput()){
+            return worker.getResult().getOutput().get(0).getData().getComplexData().getContent().get(0);
+        }
+        else {
+            response.setProcessOutputs(worker.getResult());
+        }
+        response.setStatus(worker.getStatus());
+        return response;
     }
 
+    /**
+     * Download and return a web resource pointed by an InputReferenceType.
+     *
+     * @param referenceType InputReferenceType pointing to a web resource.
+     *
+     * @return The web resource.
+     */
+    //TODO Move this method to an utility class
+    //TODO change the parameter to be usable for the WPS 2.0.0
+    //TODO return instead an InputStream to avoid the overload of the memory
     private Object getReferenceData(InputReferenceType referenceType){
         HttpURLConnection connection = null;
         try {
@@ -606,8 +786,10 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
     /**
      * Checks if the output is well formed and compatible with the outputs of the process.
+     *
      * @param output Output to test.
      * @param processIdentifier The process.
+     *
      * @return An ExceptionReport object if there is an error, null otherwise.
      */
     private ExceptionReport checkExecuteOutputs(OutputDefinitionType output, ProcessIdentifier processIdentifier) {
@@ -660,8 +842,10 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
     /**
      * Checks if all the inputs is well formed and compatible with the outputs of the process.
+     *
      * @param execute Execute request.
      * @param processIdentifier The process.
+     *
      * @return An ExceptionReport object if there is an error, null otherwise.
      */
     private ExceptionReport checkExecuteInputs(Execute execute, ProcessIdentifier processIdentifier){
@@ -831,7 +1015,9 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
 
     /**
      * Checks if all the ResponseForm is well formed and compatible with the server properties.
+     *
      * @param execute Execute request.
+     *
      * @return An ExceptionReport object if there is an error, null otherwise.
      */
     private ExceptionReport checkExecuteResponseForm(Execute execute){
@@ -876,12 +1062,5 @@ public class WPS_1_0_0_OperationsImpl implements WPS_1_0_0_Operations {
             }
         }
         return null;
-    }
-
-    @Override
-    public void setWpsProperties(WpsProperties wpsProperties) {
-        if(wpsProperties.getWpsVersion().equals("1.0.0")){
-            this.wpsProp = (WpsServerProperties_1_0_0) wpsProperties;
-        }
     }
 }

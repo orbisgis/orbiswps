@@ -44,16 +44,14 @@ import net.opengis.ows._2.CodeType;
 import net.opengis.ows._2.MetadataType;
 import net.opengis.wps._2_0.*;
 import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
+import org.orbisgis.orbiswps.service.WpsServiceImpl;
 import org.orbisgis.orbiswps.service.model.*;
 import org.orbisgis.orbiswps.service.model.Enumeration;
-import org.orbisgis.orbiswps.service.model.BoundingBoxData;
 import org.orbisgis.orbiswps.service.parser.ParserController;
 import org.orbisgis.orbiswps.service.utils.CancelClosure;
 import org.orbisgis.orbiswps.service.utils.WpsSql;
-import org.orbisgis.orbiswps.serviceapi.WpsServer;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata;
+import org.orbisgis.orbiswps.serviceapi.process.*;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata.DBMS_TYPE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +59,7 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import javax.sql.DataSource;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -70,41 +69,57 @@ import java.net.URI;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * Class used to manage process.
  * It manages the sources (remote or local) and keeps the list of instantiated processes.
  *
- * @author Sylvain PALOMINOS
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  **/
 
-public class ProcessManager {
+public class ProcessManagerImpl implements ProcessManager {
     /** List of process identifier*/
     private List<ProcessIdentifier> processIdList;
     /** Controller used to parse process */
     private ParserController parserController;
     /** DataSource to use. */
     private DataSource dataSource;
-    /** WpsServer to use. */
-    private WpsServer wpsServer;
     /** Map of closure for the process cancellation. */
     private Map<UUID, CancelClosure> closureMap;
     /** Logger object. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManagerImpl.class);
     /** I18N object */
-    private static final I18n I18N = I18nFactory.getI18n(ProcessManager.class);
+    private static final I18n I18N = I18nFactory.getI18n(ProcessManagerImpl.class);
     private DBMS_TYPE database;
+    private WpsServiceImpl wpsService;
 
     /**
      * Main constructor.
      * @param dataSource
-     * @param wpsServer
      */
-    public ProcessManager(DataSource dataSource, WpsServer wpsServer){
+    public ProcessManagerImpl(WpsServiceImpl wpsService, DataSource dataSource){
+        this.wpsService = wpsService;
         processIdList = new ArrayList<>();
         parserController = new ParserController();
         this.setDataSource(dataSource);
-        this.wpsServer = wpsServer;
+        this.closureMap = new HashMap<>();
+        //Method get from H2GIS JDBCUtilities to avoid adding a dependency
+        try {
+            if(dataSource!=null && dataSource.getConnection()!=null && dataSource.getConnection().getMetaData()!=null) {
+                String driverName = dataSource.getConnection().getMetaData().getDriverName();
+                database = driverName.equalsIgnoreCase("H2 JDBC Driver") ? DBMS_TYPE.H2GIS : DBMS_TYPE.POSTGIS;
+            }
+        } catch (SQLException ignore) {
+            LOGGER.error((I18N.tr("Unable detect if the dataSource is H2GIS or Postgresql")));
+        }
+    }
+
+    public ProcessManagerImpl(WpsServiceImpl wpsService){
+        this.wpsService = wpsService;
+        processIdList = new ArrayList<>();
+        parserController = new ParserController();
         this.closureMap = new HashMap<>();
         //Method get from H2GIS JDBCUtilities to avoid adding a dependency
         try {
@@ -118,8 +133,8 @@ public class ProcessManager {
     }
 
     /**
-     * Sets the DataSource that should be used by the ProcessManager
-     * @param dataSource The DataSource that should be used by the ProcessManager
+     * Sets the DataSource that should be used by the ProcessManagerImpl
+     * @param dataSource The DataSource that should be used by the ProcessManagerImpl
      */
     public void setDataSource(DataSource dataSource){
         this.dataSource = dataSource;
@@ -313,12 +328,17 @@ public class ProcessManager {
                 groovyObject.setProperty("isH2", database.equals(DBMS_TYPE.H2GIS));
             }
             groovyObject.setProperty("i18n", processIdentifier.getI18n());
-            groovyObject.setProperty("logger", LoggerFactory.getLogger(ProcessManager.class));
+            groovyObject.setProperty("logger", LoggerFactory.getLogger(ProcessManagerImpl.class));
             groovyObject.setProperty("progressMonitor", progressMonitor);
             groovyObject.invokeMethod("processing", null);
             retrieveData(process, clazz, groovyObject, dataMap);
         }
         return groovyObject;
+    }
+
+    @Override
+    public void scheduleResultDestroying(URI resultUri, XMLGregorianCalendar date) {
+        wpsService.scheduleResultDestroying(resultUri, date);
     }
 
     /**
@@ -381,7 +401,7 @@ public class ProcessManager {
                 }
             }
         } catch (IllegalAccessException e) {
-            LoggerFactory.getLogger(ProcessManager.class).error(e.getMessage());
+            LoggerFactory.getLogger(ProcessManagerImpl.class).error(e.getMessage());
         }
     }
 
@@ -405,7 +425,7 @@ public class ProcessManager {
         try {
             groovyObject = (GroovyObject) clazz.newInstance();
         } catch (InstantiationException|IllegalAccessException e) {
-            LoggerFactory.getLogger(ProcessManager.class).error(e.getMessage());
+            LoggerFactory.getLogger(ProcessManagerImpl.class).error(e.getMessage());
             return null;
         }
         try {
@@ -480,7 +500,7 @@ public class ProcessManager {
                 }
             }
         } catch (IllegalAccessException e) {
-            LoggerFactory.getLogger(ProcessManager.class).error(e.getMessage());
+            LoggerFactory.getLogger(ProcessManagerImpl.class).error(e.getMessage());
             return null;
         }
         return groovyObject;
@@ -563,11 +583,7 @@ public class ProcessManager {
         }
     }
 
-    /**
-     * Returns the ProcessIdentifier containing the process with the given CodeType.
-     * @param identifier CodeType used as identifier of a process.
-     * @return The process.
-     */
+    @Override
     public ProcessIdentifier getProcessIdentifier(CodeType identifier){
         for(ProcessIdentifier pi : processIdList){
             if(pi.getProcessDescriptionType().getIdentifier().getValue().equals(identifier.getValue())){
@@ -577,20 +593,24 @@ public class ProcessManager {
         return null;
     }
 
-    /**
-     * Returns all the process identifiers.
-     * @return All the process identifiers.
-     */
+    @Override
     public List<ProcessIdentifier> getAllProcessIdentifier(){
         return processIdList;
     }
 
-    /**
-     * Cancel the job corresponding to the jobID.
-     * @param jobId Id of the job to cancel.
-     */
+    @Override
+    public Future executeNewProcessWorker(ProcessWorker processWorker) {
+        return wpsService.executeNewProcessWorker(processWorker);
+    }
+
+    @Override
     public void cancelProcess(UUID jobId){
         closureMap.get(jobId).cancel();
+    }
+
+    @Override
+    public void onProcessWorkerFinished(UUID jobId){
+        wpsService.onProcessWorkerFinished(jobId);
     }
 
     /**

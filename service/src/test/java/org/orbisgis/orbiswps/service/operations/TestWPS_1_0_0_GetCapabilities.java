@@ -6,23 +6,20 @@ import net.opengis.wps._1_0_0.ProcessBriefType;
 import net.opengis.wps._1_0_0.WPSCapabilitiesType;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.service.process.ProcessManager;
-import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
+import org.orbisgis.orbiswps.service.WpsServiceImpl;
+import org.orbisgis.orbiswps.service.process.ProcessManagerImpl;
 import org.w3._1999.xlink.ActuateType;
 import org.w3._1999.xlink.ShowType;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import static org.junit.Assert.*;
 
 /**
- * Test class for the WPS_2_0_OperationsImpl
+ * Test class for the WPS_2_0_Operations
  *
  * @author Sylvain PALOMINOS
  */
@@ -38,29 +35,29 @@ public class TestWPS_1_0_0_GetCapabilities {
     @Before
     public void initialize() {
 
-        WpsServerImpl wpsServer = new WpsServerImpl();
-        ProcessManager processManager = new ProcessManager(null, wpsServer);
+        WpsServiceImpl wpsServer = new WpsServiceImpl();
+        ProcessManagerImpl processManagerImpl = new ProcessManagerImpl(wpsServer);
         try {
             URL url = this.getClass().getResource("simpleScript.groovy");
             assertNotNull("Unable to load the script 'simpleScript.groovy'", url);
             File f = new File(url.toURI());
             wpsServer.addProcess(f);
-            processManager.addScript(f.toURI());
+            processManagerImpl.addScript(f.toURI());
         } catch (URISyntaxException e) {
             fail("Error on loading the scripts : "+e.getMessage());
         }
 
         assertNotNull("Unable to load the file 'minWpsService100.json'",
                 TestWPS_1_0_0_GetCapabilities.class.getResource("minWpsService100.json").getFile());
-        WpsServerProperties_1_0_0 minWpsProps = new WpsServerProperties_1_0_0(
+        WPS_1_0_0_ServerProperties minWpsProps = new WPS_1_0_0_ServerProperties(
                 TestWPS_1_0_0_GetCapabilities.class.getResource("minWpsService100.json").getFile());
-        minWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, minWpsProps, processManager);
+        minWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), minWpsProps, null);
 
         assertNotNull("Unable to load the file 'fullWpsService100.json'",
                 TestWPS_1_0_0_GetCapabilities.class.getResource("fullWpsService100.json").getFile());
-        WpsServerProperties_1_0_0 fullWpsProps = new WpsServerProperties_1_0_0(
+        WPS_1_0_0_ServerProperties fullWpsProps = new WPS_1_0_0_ServerProperties(
                 TestWPS_1_0_0_GetCapabilities.class.getResource("fullWpsService100.json").getFile());
-        fullWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, fullWpsProps, processManager);
+        fullWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), fullWpsProps, null);
     }
 
     /**
@@ -70,7 +67,7 @@ public class TestWPS_1_0_0_GetCapabilities {
     public void testFullEmptyGetCapabilities(){
         //Ask for the GetCapabilities
         GetCapabilities getCapabilities = new GetCapabilities();
-        Object object = fullWps100Operations.getCapabilities(getCapabilities);
+        Object object = fullWps100Operations.executeRequest(getCapabilities);
         assertTrue("The wps service answer should be 'WPSCapabilitiesType",object instanceof WPSCapabilitiesType);
         WPSCapabilitiesType capabilities = (WPSCapabilitiesType)object;
         
@@ -133,7 +130,7 @@ public class TestWPS_1_0_0_GetCapabilities {
         AcceptVersionsType acceptVersionsType = new AcceptVersionsType();
         acceptVersionsType.getVersion().add("1.0.0");
         getCapabilities.setAcceptVersions(acceptVersionsType);
-        Object object = fullWps100Operations.getCapabilities(getCapabilities);
+        Object object = fullWps100Operations.executeRequest(getCapabilities);
         assertTrue("The wps service answer should be 'WPSCapabilitiesType",object instanceof WPSCapabilitiesType);
         WPSCapabilitiesType capabilities = (WPSCapabilitiesType)object;
 
@@ -1097,7 +1094,7 @@ public class TestWPS_1_0_0_GetCapabilities {
     public void testMinEmptyGetCapabilities(){
         //Ask for the GetCapabilities
         GetCapabilities getCapabilities = new GetCapabilities();
-        Object object = minWps100Operations.getCapabilities(getCapabilities);
+        Object object = minWps100Operations.executeRequest(getCapabilities);
         assertTrue("The wps service answer should be 'WPSCapabilitiesType",object instanceof WPSCapabilitiesType);
         WPSCapabilitiesType capabilities = (WPSCapabilitiesType)object;
 
@@ -1342,7 +1339,7 @@ public class TestWPS_1_0_0_GetCapabilities {
         AcceptVersionsType acceptVersionsType = new AcceptVersionsType();
         acceptVersionsType.getVersion().add("1.0.0");
         getCapabilities.setAcceptVersions(acceptVersionsType);
-        Object object = minWps100Operations.getCapabilities(getCapabilities);
+        Object object = minWps100Operations.executeRequest(getCapabilities);
         assertTrue("The wps service answer should be 'WPSCapabilitiesType",object instanceof WPSCapabilitiesType);
         WPSCapabilitiesType capabilities = (WPSCapabilitiesType)object;
 
@@ -1577,12 +1574,9 @@ public class TestWPS_1_0_0_GetCapabilities {
 
     /**
      * Tests the GetCapabilities operation with a malformed GetCapabilities.
-     *
-     * @throws JAXBException Exception get if the marshaller fails.
-     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
-    public void testBadGetCapabilities() throws JAXBException, IOException {
+    public void testBadGetCapabilities() {
         //Create a well formed get capabilities
         GetCapabilities getCapabilities = new GetCapabilities();
         AcceptVersionsType acceptVersionsType = new AcceptVersionsType();
@@ -1591,20 +1585,16 @@ public class TestWPS_1_0_0_GetCapabilities {
         getCapabilities.setLanguage("en");
 
         //Null Capabilities test
-        Object resultObject = minWps100Operations.getCapabilities(null);
+        Object resultObject = minWps100Operations.executeRequest(null);
 
-        assertNotNull("Error on unmarshalling the WpsService answer, the object should not be null",
+        assertNull("Error on unmarshalling the WpsService answer, the object should not be null",
                 resultObject);
-        assertTrue("Error on unmarshalling the WpsService answer, the object should be a ExceptionReport",
-                resultObject instanceof ExceptionReport);
-        assertEquals("Error on unmarshalling the WpsService answer, the exception should be 'NoApplicableCode'",
-                ((ExceptionReport) resultObject).getException().get(0).getExceptionCode(), "NoApplicableCode");
 
         //Bad version
         AcceptVersionsType badAcceptVersionsType = new AcceptVersionsType();
         badAcceptVersionsType.getVersion().add("0.0.0.badVersion");
         getCapabilities.setAcceptVersions(badAcceptVersionsType);
-        resultObject = minWps100Operations.getCapabilities(getCapabilities);
+        resultObject = minWps100Operations.executeRequest(getCapabilities);
         getCapabilities.setAcceptVersions(acceptVersionsType);
 
         assertNotNull("Error on unmarshalling the WpsService answer, the object should not be null",
@@ -1616,7 +1606,7 @@ public class TestWPS_1_0_0_GetCapabilities {
 
         //Bad language
         getCapabilities.setLanguage("NotALanguage");
-        resultObject = minWps100Operations.getCapabilities(getCapabilities);
+        resultObject = minWps100Operations.executeRequest(getCapabilities);
 
         assertNotNull("Error on unmarshalling the WpsService answer, the object should not be null",
                 resultObject);

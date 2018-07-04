@@ -62,14 +62,15 @@ import java.util.Properties;
 /**
  * Properties of the wps server.
  *
- * @author Sylvain PALOMINOS
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
 @Component(service = WpsProperties.class)
-public class WpsServerProperties_2_0 implements WpsProperties {
+public class WPS_2_0_ServerProperties implements WpsProperties {
 
     /** CoreWorkspace of OrbisGIS */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WpsServerProperties_2_0.class);
-    private static final I18n I18N = I18nFactory.getI18n(WpsServerProperties_2_0.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_2_0_ServerProperties.class);
+    private static final I18n I18N = I18nFactory.getI18n(WPS_2_0_ServerProperties.class);
     private static final String SERVER_PROPERTIES = "wpsServer.properties";
     private static final String BASIC_SERVER_PROPERTIES = "basicWpsServer.properties";
 
@@ -81,10 +82,10 @@ public class WpsServerProperties_2_0 implements WpsProperties {
     public CustomProperties CUSTOM_PROPERTIES;
 
     /**
-     * Creates a WpsServerProperties_2_0 object which contains all the properties used in a WpsServer.
+     * Creates a WPS_2_0_ServerProperties object which contains all the properties used in a WpsService.
      * @param propertyFileLocation Location of the properties file. If null, it uses the default properties file.
      */
-    public WpsServerProperties_2_0(String propertyFileLocation){
+    public WPS_2_0_ServerProperties(String propertyFileLocation){
         Properties wpsProperties = null;
         if(propertyFileLocation != null) {
             //Load the property file
@@ -134,9 +135,9 @@ public class WpsServerProperties_2_0 implements WpsProperties {
     }
 
     /**
-     * Creates a WpsServerProperties_2_0 object which contains all the properties used in a WpsServer.
+     * Creates a WPS_2_0_ServerProperties object which contains all the properties used in a WpsService.
      */
-    public WpsServerProperties_2_0(){
+    public WPS_2_0_ServerProperties(){
         Properties wpsProperties = new Properties();
         URL url = this.getClass().getResource(BASIC_SERVER_PROPERTIES);
         if(url == null){

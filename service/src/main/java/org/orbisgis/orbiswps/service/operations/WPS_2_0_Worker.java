@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -37,30 +37,29 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.service.process;
+package org.orbisgis.orbiswps.service.operations;
 
 import net.opengis.wps._2_0.ProcessDescriptionType;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.service.process.ProcessWorkerImpl;
 import org.orbisgis.orbiswps.service.utils.Job;
+import org.orbisgis.orbiswps.serviceapi.process.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Class extending the SwingWorkerPM class dedicated to the WPS process execution.
+ * Class managing the job execution and the generation of the Execute request response.
  *
- * @author Sylvain PALOMINOS
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
-public class ProcessWorker implements Runnable, PropertyChangeListener {
+public class WPS_2_0_Worker implements ProcessExecutionListener, ProcessWorker {
 
     /** Process execution listener which will be watching the execution */
     private Job job;
@@ -71,22 +70,27 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
     /** Map containing the process execution output/input model and URI */
     private Map<URI, Object> dataMap;
     /** I18N object */
-    private static final I18n I18N = I18nFactory.getI18n(ProcessWorker.class);
+    private static final I18n I18N = I18nFactory.getI18n(ProcessWorkerImpl.class);
     /** Logger */
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWorker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWorkerImpl.class);
     private ProgressMonitor progressMonitor;
-    private WpsServerImpl wpsServer;
 
-    public ProcessWorker(Job job,
-                         ProcessIdentifier processIdentifier,
-                         ProcessManager processManager,
-                         Map<URI, Object> dataMap,
-                         WpsServerImpl wpsServer){
-        this.job = job;
+    public WPS_2_0_Worker(WPS_2_0_ServerProperties wpsProp,
+                             ProcessIdentifier processIdentifier,
+                             ProcessManager processManager,
+                             Map<URI, Object> dataMap){
+
+        //Generation of the Job unique ID
+        UUID jobId = UUID.randomUUID();
+        //Get the Process
+
+        //Generate the processInstance
+        job = new Job(processIdentifier.getProcessDescriptionType(), jobId, dataMap,
+                wpsProp.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
+                wpsProp.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
         this.processIdentifier = processIdentifier;
         this.processManager = processManager;
         this.dataMap = dataMap;
-        this.wpsServer = wpsServer;
         progressMonitor = new ProgressMonitor(job.getProcess().getTitle().get(0).getValue());
         progressMonitor.addPropertyChangeListener(ProgressMonitor.PROPERTY_PROGRESS, this.job);
         progressMonitor.addPropertyChangeListener(ProgressMonitor.PROPERTY_CANCEL, this);
@@ -130,7 +134,7 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
                 job.setProcessState(ProcessExecutionListener.ProcessState.SUCCEEDED);
             }
             progressMonitor.endOfProgress();
-            wpsServer.onProcessWorkerFinished();
+            processManager.onProcessWorkerFinished(job.getId());
         }
         catch (Exception e) {
             if(job != null) {
@@ -143,7 +147,7 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
                 LOGGER.error(I18N.tr("Error on execution the WPS  process {0}.\nCause : {1}.",
                         process.getTitle(),e.getMessage()));
             }
-            wpsServer.onProcessWorkerFinished();
+            processManager.onProcessWorkerFinished(job.getId());
         }
     }
 
@@ -154,7 +158,22 @@ public class ProcessWorker implements Runnable, PropertyChangeListener {
         }
     }
 
+    @Override
     public UUID getJobId(){
         return job.getId();
+    }
+
+    @Override
+    public void appendLog(LogType logType, String message) {
+        job.appendLog(logType, message);
+    }
+
+    @Override
+    public void setProcessState(ProcessState processState) {
+        job.setProcessState(processState);
+    }
+
+    public Job getJob(){
+        return job;
     }
 }

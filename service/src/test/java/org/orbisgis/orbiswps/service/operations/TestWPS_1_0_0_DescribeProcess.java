@@ -4,9 +4,8 @@ import net.opengis.ows._1.*;
 import net.opengis.wps._1_0_0.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
-import org.orbisgis.orbiswps.service.process.ProcessManager;
-import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
+import org.orbisgis.orbiswps.service.WpsServiceImpl;
+import org.orbisgis.orbiswps.service.process.ProcessManagerImpl;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -16,7 +15,7 @@ import java.net.URL;
 import static org.junit.Assert.*;
 
 /**
- * Test class for the WPS_2_0_OperationsImpl
+ * Test class for the WPS_2_0_Operations
  *
  * @author Sylvain PALOMINOS
  */
@@ -32,29 +31,29 @@ public class TestWPS_1_0_0_DescribeProcess {
     @Before
     public void initialize() {
 
-        WpsServerImpl wpsServer = new WpsServerImpl();
-        ProcessManager processManager = new ProcessManager(null, wpsServer);
+        WpsServiceImpl wpsServer = new WpsServiceImpl();
+        ProcessManagerImpl processManagerImpl = new ProcessManagerImpl(wpsServer);
         try {
             URL url = this.getClass().getResource("fullScript.groovy");
             assertNotNull("Unable to load the script 'fullScript.groovy'", url);
             File f = new File(url.toURI());
             wpsServer.addProcess(f);
-            processManager.addScript(f.toURI());
+            processManagerImpl.addScript(f.toURI());
         } catch (URISyntaxException e) {
             fail("Error on loading the scripts : "+e.getMessage());
         }
 
         assertNotNull("Unable to load the file 'minWpsService100.json'",
                 TestWPS_1_0_0_DescribeProcess.class.getResource("minWpsService100.json").getFile());
-        WpsServerProperties_1_0_0 minWpsProps = new WpsServerProperties_1_0_0(
+        WPS_1_0_0_ServerProperties minWpsProps = new WPS_1_0_0_ServerProperties(
                 TestWPS_1_0_0_DescribeProcess.class.getResource("minWpsService100.json").getFile());
-        minWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, minWpsProps, processManager);
+        minWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), minWpsProps, null);
 
         assertNotNull("Unable to load the file 'fullWpsService100.json'",
                 TestWPS_1_0_0_DescribeProcess.class.getResource("fullWpsService100.json").getFile());
-        WpsServerProperties_1_0_0 fullWpsProps = new WpsServerProperties_1_0_0(
+        WPS_1_0_0_ServerProperties fullWpsProps = new WPS_1_0_0_ServerProperties(
                 TestWPS_1_0_0_DescribeProcess.class.getResource("fullWpsService100.json").getFile());
-        fullWps100Operations =  new WPS_1_0_0_OperationsImpl(wpsServer, fullWpsProps, processManager);
+        fullWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), fullWpsProps, null);
     }
 
     /**
@@ -67,7 +66,7 @@ public class TestWPS_1_0_0_DescribeProcess {
         CodeType codeType = new CodeType();
         codeType.setValue("orbisgis:test:full");
         describeProcess.getIdentifier().add(codeType);
-        Object object = fullWps100Operations.describeProcess(describeProcess);
+        Object object = fullWps100Operations.executeRequest(describeProcess);
         assertTrue("The wps service answer should be 'ProcessDescriptions",object instanceof ProcessDescriptions);
         ProcessDescriptions processDescriptions = (ProcessDescriptions)object;
 
@@ -768,7 +767,7 @@ public class TestWPS_1_0_0_DescribeProcess {
         CodeType codeType = new CodeType();
         codeType.setValue("orbisgis:test:full");
         describeProcess.getIdentifier().add(codeType);
-        Object object = minWps100Operations.describeProcess(describeProcess);
+        Object object = minWps100Operations.executeRequest(describeProcess);
         assertTrue("The wps service answer should be 'ProcessDescriptions",object instanceof ProcessDescriptions);
         ProcessDescriptions processDescriptions = (ProcessDescriptions)object;
 
@@ -808,7 +807,7 @@ public class TestWPS_1_0_0_DescribeProcess {
         codeType.setValue("orbisgis:test:full");
         describeProcess.getIdentifier().add(codeType);
         describeProcess.setLanguage("fr-fr");
-        Object object = minWps100Operations.describeProcess(describeProcess);
+        Object object = minWps100Operations.executeRequest(describeProcess);
         assertTrue("The wps service answer should be 'ProcessDescriptions",object instanceof ProcessDescriptions);
         ProcessDescriptions processDescriptions = (ProcessDescriptions)object;
 
@@ -901,7 +900,7 @@ public class TestWPS_1_0_0_DescribeProcess {
     public void testBadDescribeProcess(){
         //Ask for the DescribeProcess without code type
         DescribeProcess describeProcess = new DescribeProcess();
-        Object object = minWps100Operations.describeProcess(describeProcess);
+        Object object = minWps100Operations.executeRequest(describeProcess);
         assertTrue("The wps service answer should be 'ExceptionReport",object instanceof ExceptionReport);
         ExceptionReport exceptionReport = (ExceptionReport)object;
         assertTrue("The ExceptionReport should contains an exception", exceptionReport.isSetException());
@@ -916,7 +915,7 @@ public class TestWPS_1_0_0_DescribeProcess {
         CodeType codeType = new CodeType();
         codeType.setValue("UnicornId");
         describeProcess.getIdentifier().add(codeType);
-        object = minWps100Operations.describeProcess(describeProcess);
+        object = minWps100Operations.executeRequest(describeProcess);
         assertTrue("The wps service answer should be 'ExceptionReport",object instanceof ExceptionReport);
         exceptionReport = (ExceptionReport)object;
         assertTrue("The ExceptionReport should contains an exception", exceptionReport.isSetException());
@@ -932,7 +931,7 @@ public class TestWPS_1_0_0_DescribeProcess {
         codeType.setValue("orbisgis:test:full");
         describeProcess.getIdentifier().add(codeType);
         describeProcess.setLanguage("Uni-co-rn");
-        object = minWps100Operations.describeProcess(describeProcess);
+        object = minWps100Operations.executeRequest(describeProcess);
         assertTrue("The wps service answer should be 'ExceptionReport",object instanceof ExceptionReport);
         exceptionReport = (ExceptionReport)object;
         assertTrue("The ExceptionReport should contains an exception", exceptionReport.isSetException());

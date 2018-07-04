@@ -70,7 +70,6 @@ public class WpsModelTest {
 
     /**
      * Test if the decoding and convert of the JDBCColumn annotation into its java object is valid.
-     * @throws org.orbiswps.server.model.MalformedScriptException
      */
     @Test
     public void testJDBCColumnAttributeConvert() throws MalformedScriptException {

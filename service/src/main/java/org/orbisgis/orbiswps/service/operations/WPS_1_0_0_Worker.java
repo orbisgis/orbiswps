@@ -47,16 +47,17 @@ import net.opengis.ows._1.Operation;
 import net.opengis.wps._1_0_0.*;
 import org.h2gis.functions.io.geojson.GeoJsonRead;
 import org.h2gis.functions.io.geojson.GeoJsonWrite;
-import org.orbisgis.orbiswps.service.WpsServerImpl;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.service.process.ProcessTranslator;
+import org.orbisgis.orbiswps.service.process.ProcessWorkerImpl;
 import org.orbisgis.orbiswps.service.utils.FormatFactory;
 import org.orbisgis.orbiswps.service.utils.Job;
 import org.orbisgis.orbiswps.service.utils.WpsDataUtils;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
-import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBException;
@@ -64,6 +65,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.URI;
@@ -81,33 +83,38 @@ import static org.orbisgis.orbiswps.service.operations.Converter.convertLanguage
 /**
  * Class managing the job execution and the generation of the Execute request response.
  *
- * @author Sylvain PALOMINOS (UBS 2018)
- * @author Erwan Bocher
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
-public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
+public class WPS_1_0_0_Worker implements ProcessExecutionListener, ProcessWorker {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_1_0_0_JobRunner.class);
+    /** I18N object */
+    private static final I18n I18N = I18nFactory.getI18n(ProcessWorkerImpl.class);
+    /** Logger */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WPS_1_0_0_Worker.class);
 
     private Job job;
     private ResponseDocumentType responseDocumentType;
     private ExceptionReport exceptionReport;
     private String language;
     private ProcessIdentifier pi;
+    /** Map containing the process execution output/input model and URI */
     private Map<URI, Object> dataMap;
     private Execute execute;
     private StatusType status;
     private boolean isStatus;
     private ExecuteResponse.ProcessOutputs processOutputs = null;
     private Future future = null;
-    private ExecuteResponse response = new ExecuteResponse();
-    private WpsServerProperties_1_0_0 wpsProp;
-    private WpsServerImpl wpsServer;
-    private DataSource ds = null;
+    private WPS_1_0_0_ServerProperties wpsProp;
+    private ProcessManager processManager;
+    private DataSource ds;
+    private ProgressMonitor progressMonitor;
+    private ExecuteResponse response;
     private Marshaller marshaller;
 
-    public WPS_1_0_0_JobRunner(ExceptionReport exceptionReport, String language, ProcessIdentifier pi,
-                               Map<URI, Object> dataMap, Execute execute, WpsServerProperties_1_0_0 wpsProperties,
-                               WpsServerImpl wpsServer, DataSource ds){
+    public WPS_1_0_0_Worker(ExceptionReport exceptionReport, String language, ProcessIdentifier pi,
+                            Map<URI, Object> dataMap, Execute execute, WPS_1_0_0_ServerProperties wpsProperties,
+                            ProcessManager processManager, DataSource ds, Marshaller marshaller){
         if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()) {
             this.responseDocumentType = execute.getResponseForm().getResponseDocument();
         }
@@ -117,39 +124,96 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         this.dataMap = dataMap;
         this.execute = execute;
         this.wpsProp = wpsProperties;
-        this.wpsServer = wpsServer;
+        this.processManager = processManager;
         this.isStatus = execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument() &&
                 execute.getResponseForm().getResponseDocument().isSetStatus() &&
                 execute.getResponseForm().getResponseDocument().isStatus();
         this.ds = ds;
-        try {
-            marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
-        } catch (JAXBException e) {
-            LOGGER.error("Unable to create the marshaller.\n"+e.getMessage());
-        }
-
-        setResponse();
-        startJob();
+        this.marshaller = marshaller;
+        initJob();
     }
 
-    private void setResponse(){
-        for (Operation op : wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS) {
-            if (op.getName().equalsIgnoreCase("getcapabilities")) {
-                response.setServiceInstance(op.getDCP().get(0).getHTTP().getGetOrPost().get(0).getValue().getHref());
+
+    @Override
+    public void run() {
+        String title = job.getProcess().getTitle().get(0).getValue();
+        progressMonitor.setTaskName(I18N.tr("{0} : Preprocessing", title));
+        if(job != null) {
+            job.setProcessState(ProcessExecutionListener.ProcessState.RUNNING);
+        }
+        net.opengis.wps._2_0.ProcessDescriptionType process = pi.getProcessDescriptionType();
+        //Catch all the Exception that can be thrown during the script execution.
+        try {
+            //Print in the log the process execution start
+            if(job != null) {
+                job.appendLog(ProcessExecutionListener.LogType.INFO, I18N.tr("Start the process."));
             }
+
+            //Pre-process the model
+            if(job != null) {
+                job.appendLog(ProcessExecutionListener.LogType.INFO, I18N.tr("Pre-processing."));
+            }
+
+            //Execute the process and retrieve the groovy object.
+            if(job != null) {
+                job.appendLog(ProcessExecutionListener.LogType.INFO, I18N.tr("Execute the script."));
+            }
+            progressMonitor.setTaskName(I18N.tr("{0} : Execution", title));
+            processManager.executeProcess(job.getId(), pi, dataMap, pi.getProperties(), progressMonitor);
+            progressMonitor.setTaskName(I18N.tr("{0} : Postprocessing", title));
+            //Post-process the model
+            if(job != null) {
+                job.appendLog(ProcessExecutionListener.LogType.INFO, I18N.tr("Post-processing."));
+            }
+
+            //Print in the log the process execution end
+            if(job != null) {
+                job.appendLog(ProcessExecutionListener.LogType.INFO, I18N.tr("End of the process."));
+                job.setProcessState(ProcessExecutionListener.ProcessState.SUCCEEDED);
+            }
+            progressMonitor.endOfProgress();
+            processManager.onProcessWorkerFinished(job.getId());
         }
-        if (execute.getLanguage() != null) {
-            response.setLang(execute.getLanguage());
-        } else {
-            response.setLang(wpsProp.GLOBAL_PROPERTIES.DEFAULT_LANGUAGE);
+        catch (Exception e) {
+            if(job != null) {
+                job.setProcessState(ProcessExecutionListener.ProcessState.FAILED);
+                LOGGER.error(e.getLocalizedMessage());
+                //Print in the log the process execution error
+                job.appendLog(ProcessExecutionListener.LogType.ERROR, e.getMessage());
+            }
+            else{
+                LOGGER.error(I18N.tr("Error on execution the WPS  process {0}.\nCause : {1}.",
+                        process.getTitle(),e.getMessage()));
+            }
+            processManager.onProcessWorkerFinished(job.getId());
         }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        if(propertyChangeEvent.getPropertyName().equals(ProgressMonitor.PROPERTY_CANCEL)){
+            processManager.cancelProcess(job.getId());
+        }
+    }
+
+    public StatusType getStatus(){
+        return status;
+    }
+
+    public void setFuture(Future future){
+        this.future = future;
+    }
+
+    @Override
+    public UUID getJobId(){
+        return job.getId();
     }
 
     public Job getJob(){
         return job;
     }
 
-    private void startJob(){
+    private void initJob(){
         //Generation of the Job unique ID
         UUID jobId = UUID.randomUUID();
 
@@ -158,16 +222,17 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         languages.add(language);
 
         net.opengis.wps._2_0.ProcessDescriptionType process = ProcessTranslator.getTranslatedProcess(pi, languages);
-        response.setProcess(Converter.convertProcessDescriptionType2to1(process));
         if(execute.isSetDataInputs() && execute.getDataInputs().isSetInput()) {
             for (InputType inputType : execute.getDataInputs().getInput()){
                 if((inputType.isSetData() && inputType.getData().isSetComplexData())){
                     URI uri = URI.create(inputType.getIdentifier().getValue());
-                    dataMap.put(uri, formatInputData(dataMap.get(uri), inputType.getData().getComplexData().getMimeType()));
+                    dataMap.put(uri, WpsDataUtils.formatInputData(
+                            dataMap.get(uri), inputType.getData().getComplexData().getMimeType(), ds));
                 }
                 if(inputType.isSetReference()){
                     URI uri = URI.create(inputType.getIdentifier().getValue());
-                    dataMap.put(uri, formatInputData(dataMap.get(uri), inputType.getReference().getMimeType()));
+                    dataMap.put(uri, WpsDataUtils.formatInputData(
+                            dataMap.get(uri), inputType.getReference().getMimeType(), ds));
                 }
             }
         }
@@ -189,8 +254,9 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         }
         status.setCreationTime(xmlCalendar);
 
-        //Process execution in new thread
-        future = wpsServer.executeNewProcessWorker(job, pi, dataMap);
+        progressMonitor = new ProgressMonitor(job.getProcess().getTitle().get(0).getValue());
+        progressMonitor.addPropertyChangeListener(ProgressMonitor.PROPERTY_PROGRESS, this.job);
+        progressMonitor.addPropertyChangeListener(ProgressMonitor.PROPERTY_CANCEL, this);
     }
 
     @Override
@@ -199,12 +265,10 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
     @Override
     public void setProcessState(ProcessState processState) {
         updateStatus();
-        response.setStatus(status);
         //If the process has finished and it should be store
         if(responseDocumentType != null && responseDocumentType.isSetStoreExecuteResponse() &&
                 responseDocumentType.isStoreExecuteResponse() &&
                 (processState.equals(ProcessState.FAILED) || processState.equals(ProcessState.SUCCEEDED))){
-            getResponse();
         }
     }
 
@@ -225,57 +289,6 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
         }
         updateStatus();
         return processOutputs;
-    }
-
-    /**
-     * Returns the response to the Execute request. If the generation of the response fails, return an ExceptionReport.
-     * @return An ExecuteResponse if no fail, otherwise an ExceptionReport.
-     */
-    public Object getResponse(){
-        response.setStatus(status);
-        if(responseDocumentType != null){
-            if (responseDocumentType.isLineage()) {
-                response.setDataInputs(execute.getDataInputs());
-                OutputDefinitionsType outputDefinitionsType = new OutputDefinitionsType();
-                for (net.opengis.wps._2_0.OutputDescriptionType output : job.getProcess().getOutput()) {
-                    DocumentOutputDefinitionType document = new DocumentOutputDefinitionType();
-                    document.setTitle(convertLanguageStringType2to1(output.getTitle().get(0)));
-                    if (output.getAbstract() == null && !output.getAbstract().isEmpty()) {
-                        document.setAbstract(convertLanguageStringType2to1(output.getAbstract().get(0)));
-                    }
-                    document.setIdentifier(convertCodeType2to1(output.getIdentifier()));
-                    outputDefinitionsType.getOutput().add(document);
-                }
-                response.setOutputDefinitions(outputDefinitionsType);
-            }
-            if (!responseDocumentType.isSetStoreExecuteResponse() || !responseDocumentType.isStoreExecuteResponse()) {
-                response.setProcessOutputs(getResult());
-            } else {
-                File f;
-                try {
-                    f = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH, job.getId().toString());
-                    response.setStatusLocation(f.toURI().toString());
-                    marshaller.marshal(response, new FileOutputStream(f));
-                } catch (FileNotFoundException |JAXBException e) {
-                    LOGGER.error("Error get on writing the response as an accessible " +
-                            "resource.\n"+e.getMessage());
-                    ExceptionType exceptionType = new ExceptionType();
-                    exceptionType.setExceptionCode("NoApplicableCode");
-                    exceptionType.getExceptionText().add("Error get on writing the response as an accessible " +
-                            "resource.\n"+e.getMessage());
-                    exceptionReport.getException().add(exceptionType);
-                    return exceptionReport;
-                }
-            }
-        }
-        else if(execute.isSetResponseForm() && execute.getResponseForm().isSetRawDataOutput()){
-            getResult();
-            return processOutputs.getOutput().get(0).getData().getComplexData().getContent().get(0);
-        }
-        else {
-            response.setProcessOutputs(getResult());
-        }
-        return response;
     }
 
     /**
@@ -334,15 +347,37 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                         !responseDocumentType.getOutput().isEmpty()) {
                     for (DocumentOutputDefinitionType output : responseDocumentType.getOutput()) {
                         processOutputs.getOutput().addAll(getOutputData(outputs, output, dataMap));
-                        response.setProcessOutputs(processOutputs);
                     }
                 }
                 else{
                     processOutputs.getOutput().addAll(getOutputData(outputs, null, dataMap));
-                    response.setProcessOutputs(processOutputs);
                 }
                 break;
         }
+        if (responseDocumentType!=null && responseDocumentType.isSetStoreExecuteResponse() &&
+                responseDocumentType.isStoreExecuteResponse()) {
+            try {
+                writeResponse(response);
+            } catch (JAXBException e) {
+                LOGGER.error(I18N.tr("Error while writing process response :\n{0}", e.getLocalizedMessage()));
+            }
+        }
+    }
+
+    public void setResponse(ExecuteResponse executeResponse){
+        this.response = executeResponse;
+    }
+
+    public void writeResponse(ExecuteResponse executeResponse) throws JAXBException {
+        File f = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH,job.getId().toString());
+        response = executeResponse;
+        if(response == null){
+            response = new ExecuteResponse();
+        }
+        response.setStatus(status);
+        response.setStatusLocation(f.toURI().toString());
+        response.setProcessOutputs(processOutputs);
+        marshaller.marshal(response, f);
     }
 
     /**
@@ -375,7 +410,8 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                             File file = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH,
                                     uri.toString().replaceAll("([.:/\\\\])", "_"));
                             FileOutputStream fout = new FileOutputStream(file);
-                            fout.write(formatOutputData(o, output.getMimeType()).toString().getBytes());
+                            fout.write(WpsDataUtils.formatOutputData(o, output.getMimeType(), ds,
+                                    wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH).toString().getBytes());
                             fout.close();
                             OutputReferenceType referenceType = new OutputReferenceType();
                             referenceType.setHref(file.toURI().toURL().toString());
@@ -439,94 +475,13 @@ public class WPS_1_0_0_JobRunner implements ProcessExecutionListener {
                         } else {
                             complexDataType.setSchema(dflt.getFormat().getSchema());
                         }
-                        complexDataType.getContent().add(formatOutputData(o, complexDataType.getMimeType()));
+                        complexDataType.getContent().add(WpsDataUtils.formatOutputData(o,
+                                complexDataType.getMimeType(), ds, wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH));
                         dataType.setComplexData(complexDataType);
                     }
                 }
             }
         }
         return list;
-    }
-
-    /**
-     * If there is a format request different than 'text/plain', try to convert the given data into the format. If the
-     * conversion fails, return the non converted data.
-     * @param data Data ton convert.
-     * @param mimeType MimeType of the output.
-     * @return The well formatted data.
-     */
-    private Object formatOutputData(Object data, String mimeType){
-        if(mimeType != null && !FormatFactory.TEXT_MIMETYPE.equals(mimeType) && ds != null && data != null) {
-            Connection connection = null;
-            try {
-                connection = ds.getConnection();
-            } catch (SQLException e) {
-                LOGGER.error("Unable to get a connection to the base to format the output\n" + e.getMessage());
-            }
-            if (ds == null) {
-                LOGGER.error("Unable to get the dataSource to format the output");
-            }
-            if (connection != null) {
-                switch (mimeType) {
-                    case FormatFactory.GEOJSON_MIMETYPE:
-                        try {
-                            File f = new File(wpsProp.CUSTOM_PROPERTIES.WORKSPACE_PATH, data.toString()+".geojson");
-                            GeoJsonWrite.writeGeoJson(connection, f.getAbsolutePath(), data.toString());
-                            byte[] bytes = Files.readAllBytes(Paths.get(f.getPath()));
-                            return new String(bytes, 0, bytes.length);
-                        } catch (IOException|SQLException e) {
-                            LOGGER.error("Unable to generate the geojson file from the source '"+data+
-                                    "\n"+e.getLocalizedMessage());
-                        }
-                        break;
-                    default:
-                        return data;
-                }
-            }
-        }
-        return data;
-    }
-
-    private Object formatInputData(Object data, String mimeType){
-        if(!FormatFactory.TEXT_MIMETYPE.equals(mimeType) && data != null && ds != null) {
-            Connection connection = null;
-            try {
-                connection = ds.getConnection();
-            } catch (SQLException e) {
-                LOGGER.error("Unable to get a connection to the base to format the output\n" + e.getMessage());
-            }
-            if (ds == null) {
-                LOGGER.error("Unable to get the dataSource to format the output");
-            }
-            if (connection != null && mimeType != null) {
-                switch (mimeType) {
-                    case FormatFactory.GEOJSON_MIMETYPE:
-                        try {
-                            String name = "TABLE"+UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
-                            File f = File.createTempFile(name, ".geojson");
-                            if(!f.exists() && !f.createNewFile()){
-                                LOGGER.error("Unable to create the temporary geojson file");
-                                return data;
-                            }
-                            FileWriter fw = new FileWriter(f);
-                            fw.write(data.toString());
-                            fw.close();
-                            GeoJsonRead.readGeoJson(connection, f.getAbsolutePath(), name);
-                            if(!f.delete()){
-                                LOGGER.error("Unable to delete temporary created geojson file");
-                                return data;
-                            }
-                            return name;
-                        } catch (IOException|SQLException e) {
-                            LOGGER.error("Unable to generate the geojson file from the source '"+data+
-                                    "\n"+e.getLocalizedMessage());
-                            return data;
-                        }
-                    default:
-                        return data;
-                }
-            }
-        }
-        return data;
     }
 }

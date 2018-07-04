@@ -47,7 +47,7 @@ import net.opengis.wps._2_0.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
-import org.orbisgis.orbiswps.serviceapi.WpsServerListener;
+import org.orbisgis.orbiswps.serviceapi.WpsServiceListener;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -63,20 +63,20 @@ import java.util.concurrent.Executors;
 import static java.lang.Thread.sleep;
 
 /**
- * Test class for the WpsServerImpl.
+ * Test class for the WpsServiceImpl.
  *
  * @author Sylvain PALOMINOS
  */
-public class TestWpsServerImpl {
+public class TestWpsServiceImpl {
 
-    private WpsServerImpl wpsServer;
+    private WpsServiceImpl wpsServer;
 
     /**
      * Initialize a wps server for processing all the tests.
      */
     @Before
     public void initialize(){
-        WpsServerImpl wpsServer = new WpsServerImpl(null, null, Executors.newFixedThreadPool(1));
+        WpsServiceImpl wpsServer = new WpsServiceImpl(null, null, Executors.newFixedThreadPool(1));
 
         try {
             URL url = this.getClass().getResource("JDBCTable.groovy");
@@ -240,10 +240,9 @@ public class TestWpsServerImpl {
      * Test the Execute, GetStatus and GetResult requests.
      *
      * @throws JAXBException Exception get if the marshaller fails.
-     * @throws IOException Exception get if the resource getting fails.
      */
     @Test
-    public void testExecuteStatusResultRequest() throws JAXBException, IOException {
+    public void testExecuteStatusResultRequest() throws JAXBException {
         Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
         //Build the Execute object
         File executeFile = new File(this.getClass().getResource("ExecuteRequest.xml").getFile());
@@ -786,8 +785,8 @@ public class TestWpsServerImpl {
      */
     @Test
     public void testAddRemoveProcess() throws URISyntaxException {
-        CustomWpsServerListener listener1 = new CustomWpsServerListener();
-        CustomWpsServerListener listener2 = new CustomWpsServerListener();
+        CustomWpsServiceListener listener1 = new CustomWpsServiceListener();
+        CustomWpsServiceListener listener2 = new CustomWpsServiceListener();
         wpsServer.addWpsServerListener(listener1);
         wpsServer.addWpsServerListener(listener2);
 
@@ -808,9 +807,9 @@ public class TestWpsServerImpl {
     }
 
     /**
-     * Class implementing the interface WpsServerListener used for the tests.
+     * Class implementing the interface WpsServiceListener used for the tests.
      */
-    private class CustomWpsServerListener implements WpsServerListener{
+    private class CustomWpsServiceListener implements WpsServiceListener {
         int scriptAddCount = 0;
         int getScriptAddCount(){return scriptAddCount;}
         int scriptRemovedCount = 0;

@@ -41,19 +41,15 @@ package org.orbisgis.orbiswps.service;
 
 import net.opengis.ows._2.*;
 import net.opengis.wps._2_0.*;
-import net.opengis.wps._2_0.GetCapabilitiesType;
 import org.orbisgis.orbiswps.service.operations.*;
-import org.orbisgis.orbiswps.serviceapi.operations.WPS_1_0_0_Operations;
-import org.orbisgis.orbiswps.serviceapi.operations.WPS_2_0_Operations;
-import org.orbisgis.orbiswps.serviceapi.operations.WpsProperties;
+import org.orbisgis.orbiswps.service.process.ProcessManagerImpl;
+import org.orbisgis.orbiswps.serviceapi.operations.WpsOperations;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
-import org.orbisgis.orbiswps.serviceapi.WpsServerListener;
+import org.orbisgis.orbiswps.serviceapi.WpsServiceListener;
 import org.orbisgis.orbiswps.serviceapi.*;
-import org.orbisgis.orbiswps.service.process.ProcessManager;
-import org.orbisgis.orbiswps.service.utils.Job;
-import org.orbisgis.orbiswps.service.process.ProcessWorker;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessMetadata;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessWorker;
 import org.osgi.service.component.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,39 +70,29 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static org.orbisgis.orbiswps.service.operations.Converter.convertGetCapabilities1to2;
-import static org.orbisgis.orbiswps.service.operations.Converter.convertGetCapabilities2to1;
-
 /**
- * This class is an implementation of a WPS server.
- * It is used a a base for the OrbisGIS local WPS server.
+ * Implementations of a WPS Service.
  *
- * @author Sylvain PALOMINOS
+ * @author Sylvain PALOMINOS (CNRS 2017, UBS 2018)
+ * @author Erwan Bocher (CNRS)
  */
-@Component(immediate = true, service = WpsServer.class)
-public class WpsServerImpl implements WpsServer {
+@Component(immediate = true, service = WpsService.class)
+public class WpsServiceImpl implements WpsService {
 
     /** Logger */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WpsServerImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WpsServiceImpl.class);
     /** I18N object */
-    private static final I18n I18N = I18nFactory.getI18n(WpsServerImpl.class);
+    private static final I18n I18N = I18nFactory.getI18n(WpsServiceImpl.class);
 
     /** Process manager which contains all the loaded scripts. */
-    private ProcessManager processManager;
+    private ProcessManagerImpl processManagerImpl;
     /** ExecutorService of OrbisGIS */
     private ExecutorService executorService;
-    /** True if a process is running, false otherwise. */
-    private boolean processRunning = false;
     /** List of OrbisGISWpsServerListener. */
-    private List<WpsServerListener> wpsServerListenerList = new ArrayList<>();
-    /** Class execution the WPS 2.0 operations. */
-    private WPS_2_0_Operations wps20Operations;
-    private WpsServerProperties_2_0 props20;
-    /** Class execution the WPS 1.0.0 operations. */
-    private WPS_1_0_0_Operations wps100Operations;
-    private WpsServerProperties_1_0_0 props100;
+    private List<WpsServiceListener> wpsServiceListenerList = new ArrayList<>();
 
     private Map<UUID, Future> workerMap = new HashMap<>();
+    private List<WpsOperations> wpsOperationsList = new ArrayList<>();
 
 
     /**********************************************/
@@ -116,97 +102,71 @@ public class WpsServerImpl implements WpsServer {
     /**
      * EmptyConstructor which load all its properties thanks to the set method setWpsProperties().
      */
-    public WpsServerImpl(){
+    public WpsServiceImpl(){
         //Creates the attribute for the processes execution
-        processManager = new ProcessManager(null, this);
-        wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
-        wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
+        processManagerImpl = new ProcessManagerImpl(this);
     }
 
     /**
-     * Initialization of the WpsServer with the given properties.
+     * Initialization of the WpsService with the given properties.
      *
      * @param dataSource DataSource to be used by the server.
      */
-    public WpsServerImpl(DataSource dataSource, ExecutorService executorService){
+    public WpsServiceImpl(DataSource dataSource, ExecutorService executorService){
         this.executorService = executorService;
         //Creates the attribute for the processes execution
-        processManager = new ProcessManager(dataSource, this);
-        wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
-        wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
-        ((WPS_1_0_0_OperationsImpl)wps100Operations).setDataSource(dataSource);
+        processManagerImpl = new ProcessManagerImpl(this, dataSource);
+        wpsOperationsList.add(new WPS_2_0_Operations(processManagerImpl, dataSource));
+        wpsOperationsList.add(new WPS_1_0_0_Operations(processManagerImpl, dataSource));
     }
 
     /**
-     * Initialization of the WpsServer with the given properties.
+     * Initialization of the WpsService with the given properties.
      *
      * @param dataSource DataSource to be used by the server.
      * @param propertyFileLocation Location of the property file of the Server.
      */
-    public WpsServerImpl(DataSource dataSource, String propertyFileLocation, ExecutorService executorService){
+    public WpsServiceImpl(DataSource dataSource, String propertyFileLocation, ExecutorService executorService){
         this.executorService = executorService;
         //Creates the attribute for the processes execution
-        processManager = new ProcessManager(dataSource, this);
-        props20 = new WpsServerProperties_2_0(propertyFileLocation);
-        wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
-        props100 = new WpsServerProperties_1_0_0(propertyFileLocation);
-        wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
-        ((WPS_1_0_0_OperationsImpl)wps100Operations).setDataSource(dataSource);
+        processManagerImpl = new ProcessManagerImpl(this, dataSource);
+        WPS_2_0_ServerProperties props20 = new WPS_2_0_ServerProperties(propertyFileLocation);
+        wpsOperationsList.add(new WPS_2_0_Operations(processManagerImpl, props20, dataSource));
+        WPS_1_0_0_ServerProperties props100 = new WPS_1_0_0_ServerProperties(propertyFileLocation);
+        wpsOperationsList.add(new WPS_1_0_0_Operations(processManagerImpl, props100, dataSource));
     }
 
     /**
-     * Initialization of the WpsServer with the given properties.
+     * Initialization of the WpsService with the given properties.
      *
      * @param dataSource DataSource to be used by the server.
      */
-    public WpsServerImpl(DataSource dataSource, String property100FileLocation, String property20FileLocation,
-                         ExecutorService executorService){
+    public WpsServiceImpl(DataSource dataSource, String property100FileLocation, String property20FileLocation,
+                          ExecutorService executorService){
         this.executorService = executorService;
         //Creates the attribute for the processes execution
-        processManager = new ProcessManager(dataSource, this);
-        props20 = new WpsServerProperties_2_0(property20FileLocation);
-        wps20Operations = new WPS_2_0_OperationsImpl(this, props20, processManager);
-        props100 = new WpsServerProperties_1_0_0(property100FileLocation);
-        wps100Operations = new WPS_1_0_0_OperationsImpl(this, props100, processManager);
-        ((WPS_1_0_0_OperationsImpl)wps100Operations).setDataSource(dataSource);
+        processManagerImpl = new ProcessManagerImpl(this, dataSource);
+        WPS_2_0_ServerProperties props20 = new WPS_2_0_ServerProperties(property20FileLocation);
+        wpsOperationsList.add(new WPS_2_0_Operations(processManagerImpl, props20, dataSource));
+        WPS_1_0_0_ServerProperties props100 = new WPS_1_0_0_ServerProperties(property100FileLocation);
+        wpsOperationsList.add(new WPS_1_0_0_Operations(processManagerImpl, props100, dataSource));
     }
 
     @Reference
     public void setDataSource(DataSource dataSource) {
-        processManager.setDataSource(dataSource);
+        processManagerImpl.setDataSource(dataSource);
     }
     public void unsetDataSource(DataSource dataSource) {
-        processManager.setDataSource(null);
+        processManagerImpl.setDataSource(null);
     }
 
-    @Reference
-    public void setWpsProperties(WpsProperties wpsProperties) {
-        if(wpsProperties.getWpsVersion().equals("1.0.0")){
-            props100 = (WpsServerProperties_1_0_0)wpsProperties;
-            if(wps100Operations != null){
-                wps100Operations.setWpsProperties(props100);
-            }
-        }
-        else if(wpsProperties.getWpsVersion().equals("2.0")){
-            props20 = (WpsServerProperties_2_0)wpsProperties;
-            if(wps20Operations != null){
-                wps20Operations.setWpsProperties(props20);
-            }
-        }
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addWpsOperations(WpsOperations wpsOperations) {
+        wpsOperations.setProcessManager(this.processManagerImpl);
+        this.wpsOperationsList.add(wpsOperations);
     }
-    public void unsetWpsProperties(WpsProperties wpsProperties) {
-        if(wpsProperties.getWpsVersion().equals("1.0.0")){
-            props100 = null;
-            if(wps100Operations != null){
-                wps100Operations.setWpsProperties(null);
-            }
-        }
-        else if(wpsProperties.getWpsVersion().equals("2.0")){
-            props20 = null;
-            if(wps20Operations != null){
-                wps20Operations.setWpsProperties(null);
-            }
-        }
+    public void removeWpsOperations(WpsOperations wpsOperations) {
+        this.wpsOperationsList.remove(wpsOperations);
     }
 
     @Reference
@@ -221,7 +181,7 @@ public class WpsServerImpl implements WpsServer {
     public void addWpsScriptBundle(WpsScriptBundle wpsScriptBundle) {
         List<URL> scriptList = wpsScriptBundle.getScriptsList();
         for(URL url : scriptList) {
-            ProcessIdentifier pi = this.processManager.addScript(url);
+            ProcessIdentifier pi = this.processManagerImpl.addScript(url);
             if(pi != null && pi.getProcessOffering() != null) {
                 pi.setI18n(wpsScriptBundle.getI18n());
                 pi.setProperties(wpsScriptBundle.getGroovyProperties());
@@ -248,16 +208,16 @@ public class WpsServerImpl implements WpsServer {
                 }
             }
         }
-        for(WpsServerListener listener : wpsServerListenerList){
+        for(WpsServiceListener listener : wpsServiceListenerList){
             listener.onScriptAdd();
         }
     }
 
     public void removeWpsScriptBundle(WpsScriptBundle wpsScriptBundle) {
         for(URL url : wpsScriptBundle.getScriptsList()) {
-            this.processManager.removeProcess(url);
+            this.processManagerImpl.removeProcess(url);
         }
-        for(WpsServerListener listener : wpsServerListenerList){
+        for(WpsServiceListener listener : wpsServiceListenerList){
             listener.onScriptAdd();
         }
     }
@@ -275,8 +235,6 @@ public class WpsServerImpl implements WpsServer {
     @Override
     public OutputStream callOperation(InputStream xml) {
         Object result = null;
-        net.opengis.wps._2_0.ObjectFactory factory20 = new net.opengis.wps._2_0.ObjectFactory();
-        net.opengis.wps._1_0_0.ObjectFactory factory100 = new net.opengis.wps._1_0_0.ObjectFactory();
         try {
             Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
             Object o = unmarshaller.unmarshal(xml);
@@ -284,39 +242,10 @@ public class WpsServerImpl implements WpsServer {
                 o = ((JAXBElement) o).getValue();
             }
             //Call the WPS method associated to the unmarshalled object
-            //Case of the getCapabilities request
-            if(o instanceof net.opengis.wps._1_0_0.GetCapabilities){
-                result = wps100Operations.getCapabilities((net.opengis.wps._1_0_0.GetCapabilities)o);
-                if(result instanceof net.opengis.wps._1_0_0.WPSCapabilitiesType){
-                    result = factory100.createCapabilities((net.opengis.wps._1_0_0.WPSCapabilitiesType) result);
+            for(WpsOperations wpsOperations : wpsOperationsList){
+                if(wpsOperations.isRequestAccepted(o)){
+                    result = wpsOperations.executeRequest(o);
                 }
-            }
-            else if(o instanceof net.opengis.wps._2_0.GetCapabilitiesType){
-                result = wps20Operations.getCapabilities((GetCapabilitiesType)o);
-                if(result instanceof WPSCapabilitiesType){
-                    result = factory20.createCapabilities((WPSCapabilitiesType) result);
-                }
-            }
-            else if(o instanceof net.opengis.wps._1_0_0.DescribeProcess){
-                result = wps100Operations.describeProcess((net.opengis.wps._1_0_0.DescribeProcess)o);
-            }
-            else if(o instanceof net.opengis.wps._2_0.DescribeProcess){
-                result = wps20Operations.describeProcess((net.opengis.wps._2_0.DescribeProcess)o);
-            }
-            else if(o instanceof net.opengis.wps._1_0_0.Execute){
-                result = wps100Operations.execute((net.opengis.wps._1_0_0.Execute)o);
-            }
-            else if(o instanceof net.opengis.wps._2_0.ExecuteRequestType){
-                result = wps20Operations.execute((net.opengis.wps._2_0.ExecuteRequestType)o);
-            }
-            else if(o instanceof net.opengis.wps._2_0.GetStatus){
-                result = wps20Operations.getStatus((net.opengis.wps._2_0.GetStatus)o);
-            }
-            else if(o instanceof net.opengis.wps._2_0.GetResult){
-                result = wps20Operations.getResult((net.opengis.wps._2_0.GetResult)o);
-            }
-            else if(o instanceof net.opengis.wps._2_0.Dismiss){
-                result = wps20Operations.dismiss((net.opengis.wps._2_0.Dismiss)o);
             }
         } catch (JAXBException e) {
             LOGGER.error(I18N.tr("Unable to parse the incoming xml.\nCause : {0}.", e.getMessage()));
@@ -345,15 +274,15 @@ public class WpsServerImpl implements WpsServer {
     public List<ProcessIdentifier> addProcess(File f){
         List<ProcessIdentifier> piList = new ArrayList<>();
         if(f.getName().endsWith(".groovy")) {
-            ProcessIdentifier pi = this.processManager.addScript(f.toURI());
+            ProcessIdentifier pi = this.processManagerImpl.addScript(f.toURI());
             if(pi != null && pi.getProcessOffering() != null && pi.getProcessDescriptionType() != null){
                 piList.add(pi);
             }
         }
         else if(f.isDirectory()){
-            piList.addAll(this.processManager.addLocalSource(f.toURI()));
+            piList.addAll(this.processManagerImpl.addLocalSource(f.toURI()));
         }
-        for(WpsServerListener listener : wpsServerListenerList){
+        for(WpsServiceListener listener : wpsServiceListenerList){
             listener.onScriptAdd();
         }
         return piList;
@@ -363,23 +292,23 @@ public class WpsServerImpl implements WpsServer {
     public void removeProcess(URI identifier){
         CodeType codeType = new CodeType();
         codeType.setValue(identifier.toString());
-        ProcessDescriptionType process = this.processManager.getProcess(codeType);
+        ProcessDescriptionType process = this.processManagerImpl.getProcess(codeType);
         if(process != null) {
-            this.processManager.removeProcess(process);
+            this.processManagerImpl.removeProcess(process);
         }
-        for(WpsServerListener listener : wpsServerListenerList){
+        for(WpsServiceListener listener : wpsServiceListenerList){
             listener.onScriptRemoved();
         }
     }
 
     @Override
-    public void addWpsServerListener(WpsServerListener wpsServerListener) {
-        this.wpsServerListenerList.add(wpsServerListener);
+    public void addWpsServerListener(WpsServiceListener wpsServiceListener) {
+        this.wpsServiceListenerList.add(wpsServiceListener);
     }
 
     @Override
-    public void removeWpsServerListener(WpsServerListener wpsServerListener) {
-        this.wpsServerListenerList.remove(wpsServerListener);
+    public void removeWpsServerListener(WpsServiceListener wpsServiceListener) {
+        this.wpsServiceListenerList.remove(wpsServiceListener);
     }
 
     /**
@@ -392,35 +321,24 @@ public class WpsServerImpl implements WpsServer {
     }
 
     /**
-     * Indicates if a process is actually running.
-     * @return True if a process is running, false otherwise.
+     * Execute a ProcessWorkerImpl
      */
-    public Future executeNewProcessWorker(Job job, ProcessIdentifier processIdentifier, Map<URI, Object> dataMap) {
-        ProcessWorker worker = new ProcessWorker(job, processIdentifier, processManager, dataMap, this);
-
+    public Future executeNewProcessWorker(ProcessWorker processWorker) {
         if (executorService != null) {
-            Future future = executorService.submit(worker);
-            workerMap.put(worker.getJobId(), future);
+            Future future = executorService.submit(processWorker);
+            workerMap.put(processWorker.getJobId(), future);
             return future;
         } else {
-            return Executors.newSingleThreadExecutor().submit(worker);
+            return Executors.newSingleThreadExecutor().submit(processWorker);
         }
     }
 
     /**
-     * Action done when a ProcessWorker has finished.
+     * Action done when a ProcessWorkerImpl has finished.
      */
-    public void onProcessWorkerFinished(){
+    public void onProcessWorkerFinished(UUID jobId){
         //clear the workerMap
-        List<UUID> toRemove = new ArrayList<>();
-        for(Map.Entry<UUID, Future> entry : workerMap.entrySet()){
-            if(entry.getValue().isDone()){
-                toRemove.add(entry.getKey());
-            }
-        }
-        for(UUID uuid : toRemove){
-            workerMap.remove(uuid);
-        }
+        workerMap.remove(jobId);
     }
 
     /**
@@ -428,7 +346,11 @@ public class WpsServerImpl implements WpsServer {
      * @param jobId Id of the job to cancel.
      */
     public void cancelProcess(UUID jobId) {
-        processManager.cancelProcess(jobId);
+        processManagerImpl.cancelProcess(jobId);
         workerMap.get(jobId).cancel(true);
+    }
+
+    public ProcessManagerImpl getProcessManagerImpl() {
+        return processManagerImpl;
     }
 }

@@ -44,9 +44,11 @@ import net.opengis.wps._2_0.ProcessOfferings;
 import org.junit.Assert;
 import org.junit.Test;
 import org.orbisgis.orbiswps.service.model.JaxbContainer;
-import org.orbisgis.orbiswps.service.operations.WpsServerProperties_1_0_0;
-import org.orbisgis.orbiswps.service.operations.WpsServerProperties_2_0;
-import org.orbisgis.orbiswps.serviceapi.WpsServer;
+import org.orbisgis.orbiswps.service.operations.WPS_1_0_0_Operations;
+import org.orbisgis.orbiswps.service.operations.WPS_2_0_Operations;
+import org.orbisgis.orbiswps.service.operations.WPS_1_0_0_ServerProperties;
+import org.orbisgis.orbiswps.service.operations.WPS_2_0_ServerProperties;
+import org.orbisgis.orbiswps.serviceapi.WpsService;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -62,8 +64,8 @@ import java.net.URL;
  * @author Sylvain PALOMINOS
  * @author Erwan Bocher
  */
-public class TestWpsServerGetProcesses {
-    private WpsServer wpsServer;
+public class TestWpsServiceGetProcesses {
+    private WpsService wpsService;
 
     /**
      * Test the JDBCTable script DescribeProcess request.
@@ -71,7 +73,7 @@ public class TestWpsServerGetProcesses {
      * @throws java.io.IOException
      */
     @Test
-    public void testJDBCTableScript() throws JAXBException, IOException {
+    public void testJDBCTableScript() throws JAXBException {
         //Start the wpsService
         initWpsService();
         Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
@@ -85,7 +87,7 @@ public class TestWpsServerGetProcesses {
         marshaller.marshal(describeProcess, out);
         //Write the OutputStream content into an Input stream before sending it to the wpsService
         InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
-        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsService.callOperation(in);
         //Get back the result of the DescribeProcess request as a BufferReader
         InputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
         //Unmarshall the result and check that the object is the same as the resource unmashalled xml.
@@ -122,7 +124,7 @@ public class TestWpsServerGetProcesses {
         marshaller.marshal(describeProcess, out);
         //Write the OutputStream content into an Input stream before sending it to the wpsService
         InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
-        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsService.callOperation(in);
         //Get back the result of the DescribeProcess request as a BufferReader
         InputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
         //Unmarshall the result and check that the object is the same as the resource unmashalled xml.
@@ -156,7 +158,7 @@ public class TestWpsServerGetProcesses {
         marshaller.marshal(describeProcess, out);
         //Write the OutputStream content into an Input stream before sending it to the wpsService
         InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
-        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsService.callOperation(in);
         //Get back the result of the DescribeProcess request as a BufferReader
         InputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
         //Unmarshall the result and check that the object is the same as the resource unmashalled xml.
@@ -192,7 +194,7 @@ public class TestWpsServerGetProcesses {
         marshaller.marshal(describeProcess, out);
         //Write the OutputStream content into an Input stream before sending it to the wpsService
         InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
-        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsService.callOperation(in);
         //Get back the result of the DescribeProcess request as a BufferReader
         InputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
         //Unmarshall the result and check that the object is the same as the resource unmashalled xml.
@@ -228,7 +230,7 @@ public class TestWpsServerGetProcesses {
         marshaller.marshal(describeProcess, out);
         //Write the OutputStream content into an Input stream before sending it to the wpsService
         InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
-        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsService.callOperation(in);
         //Get back the result of the DescribeProcess request as a BufferReader
         InputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
         //Unmarshall the result and check that the object is the same as the resource unmashalled xml.
@@ -264,7 +266,7 @@ public class TestWpsServerGetProcesses {
         marshaller.marshal(describeProcess, out);
         //Write the OutputStream content into an Input stream before sending it to the wpsService
         InputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
-        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsServer.callOperation(in);
+        ByteArrayOutputStream xml = (ByteArrayOutputStream) wpsService.callOperation(in);
         //Get back the result of the DescribeProcess request as a BufferReader
         InputStream resultXml = new ByteArrayInputStream(xml.toByteArray());
         //Unmarshall the result and check that the object is the same as the resource unmashalled xml.
@@ -285,11 +287,11 @@ public class TestWpsServerGetProcesses {
      * The initialised wpsService can't execute the processes.
      */
     private void initWpsService() {
-        if (wpsServer == null) {
+        if (wpsService == null) {
             //Start the WpsService
-            WpsServerImpl localWpsService = new WpsServerImpl();
-            localWpsService.setWpsProperties(new WpsServerProperties_1_0_0());
-            localWpsService.setWpsProperties(new WpsServerProperties_2_0());
+            WpsServiceImpl localWpsService = new WpsServiceImpl();
+            localWpsService.addWpsOperations(new WPS_1_0_0_Operations(localWpsService.getProcessManagerImpl(), new WPS_1_0_0_ServerProperties(), null));
+            localWpsService.addWpsOperations(new WPS_2_0_Operations(localWpsService.getProcessManagerImpl(), new WPS_2_0_ServerProperties(), null));
             //Try to load the groovy scripts
             try {
                 URL url = this.getClass().getResource("JDBCTable.groovy");
@@ -325,7 +327,7 @@ public class TestWpsServerGetProcesses {
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
-            wpsServer = localWpsService;
+            wpsService = localWpsService;
         }
     }
 }

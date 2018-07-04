@@ -18,7 +18,7 @@
  *
  * OrbisWPS is distributed under GPL 3 license.
  *
- * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ * Copyright (C) 2015-2018 CNRS (Lab-STICC UMR CNRS 6285)
  *
  *
  * OrbisWPS is free software: you can redistribute it and/or modify it under the
@@ -37,53 +37,33 @@
  * or contact directly:
  * info_at_ orbisgis.org
  */
-package org.orbisgis.orbiswps.serviceapi.process;
+package org.orbisgis.orbiswps.service.process
 
-import net.opengis.wps._2_0.ProcessDescriptionType;
-import net.opengis.wps._2_0.ProcessOffering;
-import org.xnap.commons.i18n.I18n;
+import org.orbisgis.orbiswps.groovyapi.input.*
+import org.orbisgis.orbiswps.groovyapi.output.*
+import org.orbisgis.orbiswps.groovyapi.process.*
 
-import java.net.URL;
-import java.util.Map;
-
-/**
- * Class containing information to identify a process.
- *
- * @author Sylvain PALOMINOS
- **/
-
-public interface ProcessIdentifier {
-
-    void setProcessI18n(I18n processI18n);
-
-    /**
-     * Returns the ProcessDescriptionType object.
-     * @return The ProcessDescriptionType object.
-     */
-    ProcessDescriptionType getProcessDescriptionType();
-
-
-    /**
-     * Returns the ProcessOffering object.
-     * @return The ProcessOffering object.
-     */
-    ProcessOffering getProcessOffering();
-
-    /**
-     * Returns the process file path.
-     * @return The process file path.
-     */
-    String getFilePath();
-
-    /**
-     * Returns the source URL of the file.
-     * @return The source URL.
-     */
-    URL getSourceUrl();
-
-    I18n getProcessI18n();
-
-    void setProperties(Map<String, Object> properties);
-
-    Map<String, Object> getProperties();
+@Process(title = "A",
+        identifier = "A"
+)
+def processing() {
+    Aout1 = Ain1 + Ain2
 }
+
+@LiteralDataInput(
+        title = "Ain1",
+        identifier = "Ain1"
+)
+String Ain1
+
+@LiteralDataInput(
+        title = "Ain2",
+        identifier = "Ain2"
+)
+String Ain2
+
+@LiteralDataOutput(
+        title = "Aout1",
+        identifier = "Aout1"
+)
+String Aout1

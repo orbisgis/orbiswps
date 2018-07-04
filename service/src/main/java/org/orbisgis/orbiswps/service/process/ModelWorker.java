@@ -43,31 +43,64 @@ import net.opengis.ows._2.CodeType;
 import org.orbisgis.orbiswps.service.WpsServiceImpl;
 import org.orbisgis.orbiswps.service.model.wpsmodel.*;
 import org.orbisgis.orbiswps.service.model.wpsmodel.Process;
+import org.orbisgis.orbiswps.service.operations.WPS_2_0_ServerProperties;
+import org.orbisgis.orbiswps.service.operations.WPS_2_0_Worker;
 import org.orbisgis.orbiswps.service.utils.Job;
+import org.orbisgis.orbiswps.serviceapi.WpsService;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
+import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
+import org.orbisgis.orbiswps.serviceapi.process.ProgressMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xnap.commons.i18n.I18n;
+import org.xnap.commons.i18n.I18nFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  *
  * @author Sylvain PALOMINOS (UBS 2018)
  * @author Erwan Bocher (CNRS)
  */
-public class ModelWorker implements Runnable, PropertyChangeListener, ProcessExecutionListener {
+public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyChangeListener, ProcessExecutionListener {
 
+    /** Logger */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModelWorker.class);
+    /** I18N object */
+    private static final I18n I18N = I18nFactory.getI18n(ModelWorker.class);
+
+    /** Model */
     private WpsModel wpsModel;
-    private WpsServiceImpl wpsServer;
-    private ProcessManagerImpl processManagerImpl;
+    /** Wps 2.0 service properties */
+    private WPS_2_0_ServerProperties wpsProps;
 
-    public ModelWorker(WpsModel wpsModel, WpsServiceImpl wpsServer, ProcessManagerImpl processManagerImpl){
-        this.wpsModel = wpsModel;
-        this.wpsServer = wpsServer;
-        this.processManagerImpl = processManagerImpl;
+    public ModelWorker(WPS_2_0_ServerProperties wpsProps, ProcessIdentifierImpl pi, ProcessManager processManagerImpl,
+                       Map<URI, Object> dataMap){
+        super(wpsProps, pi, processManagerImpl, dataMap);
+        this.wpsModel = pi.getModel();
+        this.wpsProps = wpsProps;
     }
+
+    /**
+     * Returns the dataMap.
+     * @return The dataMap.
+     */
+    public Map<URI, Object> getDataMap(){
+        return dataMap;
+    }
+
+    /**
+     * Returns the running sub-process jobs.
+     */
+    public List<Job> runningJobs = new ArrayList<>();
 
     /**
      * Analyse the model to get the execution order of the different processes
@@ -75,6 +108,13 @@ public class ModelWorker implements Runnable, PropertyChangeListener, ProcessExe
     public Map<Integer, List<String>> getExecutionTree(){
         Map<Integer, List<String>> processMap = new HashMap<>();
         List<Process> processes = new ArrayList<>();
+
+        for(Input input : wpsModel.getInputs().getInput()){
+            URI uri = URI.create(input.getIdentifier());
+            if(!dataMap.containsKey(uri)){
+                dataMap.put(uri, input.getData());
+            }
+        }
 
         List<String> outputs = new ArrayList<>();
         for(Process process : wpsModel.getProcesses().getProcess()){
@@ -126,32 +166,73 @@ public class ModelWorker implements Runnable, PropertyChangeListener, ProcessExe
         return processMap;
     }
 
-    public void executeProcess(String id, Map<URI, Object> dataMap){
+    /**
+     * Link the sub-process inputs with the data resulting from the previous executions.
+     * @param process Sub-process to link
+     */
+    private void updateDataMapWithProcess(Process process){
+        for(ProcessInput input : process.getProcessInput()){
+            URI uri = URI.create(input.getValue());
+            if(dataMap.containsKey(uri)){
+                dataMap.put(URI.create(input.getIdentifier()), dataMap.get(uri));
+            }
+        }
+    }
+
+    /**
+     * Execute a sub-process in the ProcessManager and return the corresponding Future object.
+     * @param id Identifier of the sub-process to execute.
+     * @param dataMap Map containing all the data for the process execution.
+     * @return The Future object resulting of the execution.
+     */
+    public Future executeProcess(String id, Map<URI, Object> dataMap){
         CodeType codeType = new CodeType();
         codeType.setValue(id);
-        ProcessIdentifier pi = processManagerImpl.getProcessIdentifier(codeType);
-        Job job = new Job(pi.getProcessDescriptionType(), UUID.randomUUID(), dataMap,10000, 1000);
+        ProcessIdentifier pi = processManager.getProcessIdentifier(codeType);
+        Job job = new Job(pi.getProcessDescriptionType(), UUID.randomUUID(), dataMap,
+                wpsProps.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
+                wpsProps.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
+        runningJobs.add(job);
         job.addProcessExecutionlistener(this);
-        ProcessWorkerImpl processWorkerImpl = new ProcessWorkerImpl(job, pi, processManagerImpl, dataMap, wpsServer);
-        wpsServer.executeNewProcessWorker(processWorkerImpl);
+        ProcessWorkerImpl processWorkerImpl = new ProcessWorkerImpl(job, pi, processManager, dataMap);
+        return processManager.executeNewProcessWorker(processWorkerImpl);
     }
 
     @Override
     public void run() {
-
+        Map<Integer, List<String>> map =  getExecutionTree();
+        Map<String, String> mapping = wpsModel.getProcessModelInputMap();
+        for(Map.Entry<URI, Object> entry : dataMap.entrySet()){
+            if(mapping.containsKey(entry.getKey().toString())){
+                dataMap.put(URI.create(mapping.get(entry.getKey().toString())), entry.getValue());
+            }
+        }
+        for(int i=0; i<map.size(); i++){
+            List<Future> futureList = new ArrayList<>();
+            for(String id : map.get(i)){
+                for(Process process : wpsModel.getProcesses().getProcess()) {
+                    if(process.getIdentifier().equals(id))
+                        updateDataMapWithProcess(process);
+                }
+                futureList.add(executeProcess(id, dataMap));
+            }
+            for(Future future : futureList){
+                try {
+                    future.get();
+                } catch (InterruptedException|ExecutionException e) {
+                    LOGGER.error(I18N.tr("Error while executing sub process : {1}\n", e.getLocalizedMessage()));
+                }
+            }
+        }
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-
-    }
-
-    @Override
-    public void appendLog(LogType logType, String message) {
-
-    }
-
-    @Override
-    public void setProcessState(ProcessState processState) {
+        if(propertyChangeEvent.getPropertyName().equals(ProgressMonitor.PROPERTY_CANCEL)){
+            for(Job job : runningJobs){
+                processManager.cancelProcess(job.getId());
+            }
+            processManager.cancelProcess(job.getId());
+        }
     }
 }

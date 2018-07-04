@@ -47,8 +47,10 @@ import org.orbisgis.orbiswps.groovyapi.attributes.DescriptionTypeAttribute;
 import org.orbisgis.orbiswps.service.WpsServiceImpl;
 import org.orbisgis.orbiswps.service.model.*;
 import org.orbisgis.orbiswps.service.model.Enumeration;
+import org.orbisgis.orbiswps.service.model.wpsmodel.WpsModel;
 import org.orbisgis.orbiswps.service.parser.ParserController;
 import org.orbisgis.orbiswps.service.utils.CancelClosure;
+import org.orbisgis.orbiswps.service.utils.WpsServerUtils;
 import org.orbisgis.orbiswps.service.utils.WpsSql;
 import org.orbisgis.orbiswps.serviceapi.model.MalformedScriptException;
 import org.orbisgis.orbiswps.serviceapi.process.*;
@@ -59,6 +61,8 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import javax.sql.DataSource;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -92,12 +96,17 @@ public class ProcessManagerImpl implements ProcessManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManagerImpl.class);
     /** I18N object */
     private static final I18n I18N = I18nFactory.getI18n(ProcessManagerImpl.class);
+    /** Type of the database available. */
     private DBMS_TYPE database;
+    /** WpsService to use for the process life cycle. */
     private WpsServiceImpl wpsService;
+    /** JAXB unmarshaller . */
+    private Unmarshaller unmarshaller;
 
     /**
-     * Main constructor.
-     * @param dataSource
+     * Constructor with DataSource.
+     * @param wpsService WpsServiceImpl to use for the process life (execution, result, destroy ...).
+     * @param dataSource DataSource to use for the process execution.
      */
     public ProcessManagerImpl(WpsServiceImpl wpsService, DataSource dataSource){
         this.wpsService = wpsService;
@@ -114,8 +123,17 @@ public class ProcessManagerImpl implements ProcessManager {
         } catch (SQLException ignore) {
             LOGGER.error((I18N.tr("Unable detect if the dataSource is H2GIS or Postgresql")));
         }
+        try {
+            unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
+        } catch (JAXBException e) {
+            LOGGER.error((I18N.tr("Unable to create the unmarshaller")));
+        }
     }
 
+    /**
+     * Main constructor.
+     * @param wpsService WpsServiceImpl to use for the process life (execution, result, destroy ...).
+     */
     public ProcessManagerImpl(WpsServiceImpl wpsService){
         this.wpsService = wpsService;
         processIdList = new ArrayList<>();
@@ -129,6 +147,11 @@ public class ProcessManagerImpl implements ProcessManager {
             }
         } catch (SQLException ignore) {
             LOGGER.error((I18N.tr("Unable detect if the dataSource is H2GIS or Postgresql")));
+        }
+        try {
+            unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
+        } catch (JAXBException e) {
+            LOGGER.error((I18N.tr("Unable to create the unmarshaller")));
         }
     }
 
@@ -161,12 +184,29 @@ public class ProcessManagerImpl implements ProcessManager {
             return null;
         }
         //Test that the script name is not only '.groovy'
-        if (f.getName().endsWith(".groovy") && f.getName().length()>7) {
+        if ((f.getName().endsWith(".groovy") || f.getName().endsWith(".xml")) && f.getName().length()>7) {
             //Ensure that the process does not already exists.
             //Parse the process
             ProcessOffering processOffering = null;
+            ProcessIdentifier pi = null;
             try {
-                processOffering = parserController.parseProcess(f.getAbsolutePath());
+                if(f.getName().endsWith(".groovy")) {
+                    processOffering = parserController.parseProcess(f.getAbsolutePath());
+                    pi = new ProcessIdentifierImpl(processOffering, f.getAbsolutePath());
+                }
+                else if(f.getName().endsWith(".xml")){
+                    Object o = null;
+                    try {
+                        o = unmarshaller.unmarshal(f);
+                    } catch (JAXBException e) {
+                        LOGGER.error(I18N.tr("Unable to parse the model {0}.\nCause : {1}", scriptUri, e.getMessage()), e);
+                    }
+                    if(o instanceof WpsModel){
+                        processOffering = WpsServerUtils.getProcessOfferingFromModel((WpsModel) o, this);
+                        pi = new ProcessIdentifierImpl(processOffering, f.getAbsolutePath());
+                        ((ProcessIdentifierImpl) pi).setModel((WpsModel) o);
+                    }
+                }
                 if(processOffering == null){
                     LOGGER.error(I18N.tr("Unable to parse the process {0}.", scriptUri));
                     return null;
@@ -199,9 +239,7 @@ public class ProcessManagerImpl implements ProcessManager {
                 LOGGER.error(I18N.tr("Unable to parse the process {0}.\nCause : {1}", scriptUri, e.getMessage()), e);
             }
             //If the process is not already registered
-            if(processOffering != null) {
-                //Save the process in a ProcessIdentifier
-                ProcessIdentifier pi = new ProcessIdentifierImpl(processOffering, f.getAbsolutePath());
+            if(pi != null) {
                 processIdList.add(pi);
                 return pi;
             }
@@ -327,7 +365,7 @@ public class ProcessManagerImpl implements ProcessManager {
                 groovyObject.setProperty("sql", sql);
                 groovyObject.setProperty("isH2", database.equals(DBMS_TYPE.H2GIS));
             }
-            groovyObject.setProperty("i18n", processIdentifier.getI18n());
+            groovyObject.setProperty("i18n", processIdentifier.getProcessI18n());
             groovyObject.setProperty("logger", LoggerFactory.getLogger(ProcessManagerImpl.class));
             groovyObject.setProperty("progressMonitor", progressMonitor);
             groovyObject.invokeMethod("processing", null);
@@ -571,6 +609,11 @@ public class ProcessManagerImpl implements ProcessManager {
             processIdList.remove(toRemove);
         }
     }
+
+    /**
+     * Removes the process with the given URL.
+     * @param processUrl URL of the process to remove.
+     */
     public void removeProcess(URL processUrl) {
         ProcessIdentifier toRemove = null;
         for(ProcessIdentifier pi : processIdList){

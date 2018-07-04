@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wpsModel xmlns="http://www.orbisgis.org" xsi:schemaLocation="http://www.orbisgis.org schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<wpsModel xmlns="http://www.orbisgis.org" xsi:schemaLocation="http://www.orbisgis.org/schema.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<identifier>unique id</identifier>
 	<title>title or languages</title>
 	<abstract>abstr or languages</abstract>
@@ -10,9 +10,9 @@
 	</keywords>
 	
 	<inputs>
-		<input identifier="input1"><data>toto</data></input>
-		<input identifier="input2"><data>toto</data></input>
-		<input identifier="input3"><data>toto</data></input>
+		<input identifier="input1"><data>t</data></input>
+		<input identifier="input2"><data>a</data></input>
+		<input identifier="input3"><data>t</data></input>
 		<input identifier="input4"><data>toto</data></input>
 	</inputs>
 	<outputs>
@@ -21,21 +21,21 @@
 
 	<processes>
 		<process identifier="A">
-	    		<processInput identifier="Ain1">input1</processInput>
-	    		<processInput identifier="Ain2">Bout1</processInput>
-	    		<processOutput identifier="Aout1"></processOutput>
+	    		<processInput identifier="A:Ain1">input1</processInput>
+	    		<processInput identifier="A:Ain2">B:Bout1</processInput>
+	    		<processOutput identifier="A:Aout1"></processOutput>
 		</process>
 		<process identifier="B">
-	    		<processInput identifier="Bin1">input2</processInput>
-	    		<processInput identifier="Bin2">input3</processInput>
-	    		<processOutput identifier="Bout1"></processOutput>
-	    		<processOutput identifier="Bout2"></processOutput>
+	    		<processInput identifier="B:Bin1">input2</processInput>
+	    		<processInput identifier="B:Bin2">input3</processInput>
+	    		<processOutput identifier="B:Bout1"></processOutput>
+	    		<processOutput identifier="B:Bout2"></processOutput>
 		</process>
 		<process identifier="C">
-	    		<processInput identifier="Cin1">Aout1</processInput>
-	    		<processInput identifier="Cin2">Bout2</processInput>
-	    		<processInput identifier="Cin3">input4</processInput>
-	    		<processOutput identifier="Cout1">outpu1</processOutput>
+	    		<processInput identifier="C:Cin1">A:Aout1</processInput>
+	    		<processInput identifier="C:Cin2">B:Bout2</processInput>
+	    		<processInput identifier="C:Cin3">input4</processInput>
+	    		<processOutput identifier="C:Cout1">outpu1</processOutput>
 		</process>
 	</processes>
 </wpsModel>

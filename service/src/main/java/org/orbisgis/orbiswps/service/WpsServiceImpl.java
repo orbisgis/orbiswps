@@ -183,7 +183,7 @@ public class WpsServiceImpl implements WpsService {
         for(URL url : scriptList) {
             ProcessIdentifier pi = this.processManagerImpl.addScript(url);
             if(pi != null && pi.getProcessOffering() != null) {
-                pi.setI18n(wpsScriptBundle.getI18n());
+                pi.setProcessI18n(wpsScriptBundle.getI18n());
                 pi.setProperties(wpsScriptBundle.getGroovyProperties());
                 Map<ProcessMetadata.INTERNAL_METADATA, Object> map = wpsScriptBundle.getScriptMetadata(url);
                 for (Map.Entry<ProcessMetadata.INTERNAL_METADATA, Object> entry : map.entrySet()) {
@@ -273,7 +273,7 @@ public class WpsServiceImpl implements WpsService {
     @Override
     public List<ProcessIdentifier> addProcess(File f){
         List<ProcessIdentifier> piList = new ArrayList<>();
-        if(f.getName().endsWith(".groovy")) {
+        if(f.getName().endsWith(".groovy") || f.getName().endsWith(".xml")) {
             ProcessIdentifier pi = this.processManagerImpl.addScript(f.toURI());
             if(pi != null && pi.getProcessOffering() != null && pi.getProcessDescriptionType() != null){
                 piList.add(pi);

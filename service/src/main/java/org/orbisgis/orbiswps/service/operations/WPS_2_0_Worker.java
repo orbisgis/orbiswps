@@ -62,7 +62,7 @@ import java.util.UUID;
 public class WPS_2_0_Worker implements ProcessExecutionListener, ProcessWorker {
 
     /** Process execution listener which will be watching the execution */
-    private Job job;
+    protected Job job;
     /** Process to execute */
     private ProcessIdentifier processIdentifier;
     /** The process manager */

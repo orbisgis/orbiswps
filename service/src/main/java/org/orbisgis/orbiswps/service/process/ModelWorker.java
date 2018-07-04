@@ -50,6 +50,7 @@ import org.orbisgis.orbiswps.serviceapi.WpsService;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessExecutionListener;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessIdentifier;
 import org.orbisgis.orbiswps.serviceapi.process.ProcessManager;
+import org.orbisgis.orbiswps.serviceapi.process.ProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnap.commons.i18n.I18n;
@@ -92,6 +93,8 @@ public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyCha
     public Map<URI, Object> getDataMap(){
         return dataMap;
     }
+
+    public List<Job> runningJobs = new ArrayList<>();
 
     /**
      * Analyse the model to get the execution order of the different processes
@@ -172,6 +175,7 @@ public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyCha
         ProcessIdentifier pi = processManager.getProcessIdentifier(codeType);
         Job job = new Job(pi.getProcessDescriptionType(), UUID.randomUUID(), dataMap,
                 maxPool, basePoll);
+        runningJobs.add(job);
         job.addProcessExecutionlistener(this);
         ProcessWorkerImpl processWorkerImpl = new ProcessWorkerImpl(job, pi, processManager, dataMap);
         return processManager.executeNewProcessWorker(processWorkerImpl);
@@ -207,15 +211,11 @@ public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyCha
 
     @Override
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-
-    }
-
-    @Override
-    public void appendLog(LogType logType, String message) {
-
-    }
-
-    @Override
-    public void setProcessState(ProcessState processState) {
+        if(propertyChangeEvent.getPropertyName().equals(ProgressMonitor.PROPERTY_CANCEL)){
+            for(Job job : runningJobs){
+                processManager.cancelProcess(job.getId());
+            }
+            processManager.cancelProcess(job.getId());
+        }
     }
 }

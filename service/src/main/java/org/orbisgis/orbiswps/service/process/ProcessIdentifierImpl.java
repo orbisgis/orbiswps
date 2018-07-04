@@ -47,7 +47,6 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -69,7 +68,7 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
     /** Source URL. */
     private URL sourceUrl;
 
-    private I18n i18n;
+    private I18n processI18n = I18N;
 
     private Map<String, Object> properties;
 
@@ -85,7 +84,6 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
         this.processOffering = processOffering;
         this.filePath = filePath;
         this.sourceUrl = null;
-        this.i18n = I18nFactory.getI18n(ProcessIdentifierImpl.class);
     }
 
     /**
@@ -98,12 +96,11 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
         this.processOffering = processOffering;
         this.filePath = null;
         this.sourceUrl = sourceUrl;
-        this.i18n = I18nFactory.getI18n(ProcessIdentifierImpl.class);
     }
 
     @Override
-    public void setI18n(I18n i18n){
-        this.i18n = i18n;
+    public void setProcessI18n(I18n processI18n){
+        this.processI18n = processI18n;
     }
 
     /**
@@ -139,11 +136,15 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
         return sourceUrl;
     }
 
-    public I18n getI18n() {
-        if(i18n == null){
-            i18n = I18N;
+    /**
+     * Returns the process I18N object.
+     * @return The process I18N object.
+     */
+    public I18n getProcessI18n() {
+        if(processI18n == null){
+            processI18n = I18N;
         }
-        return i18n;
+        return processI18n;
     }
 
     @Override
@@ -156,14 +157,25 @@ public class ProcessIdentifierImpl implements ProcessIdentifier {
         return properties;
     }
 
+    /**
+     * Returns true if the process identifier represents a model and not a simple process. Returns false otherwise.
+     * @return true if the process identifier represents a model and not a simple process.
+     */
     public boolean isModel(){
         return model != null;
     }
 
+    /**
+     * Sets the model.
+     * @param model Model of the ProcessIdentifier
+     */
     public void setModel(WpsModel model){
         this.model = model;
     }
 
+    /**
+     * Returns the model.
+     */
     public WpsModel getModel(){
         return model;
     }

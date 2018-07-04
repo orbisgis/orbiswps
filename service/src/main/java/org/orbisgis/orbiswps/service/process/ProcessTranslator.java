@@ -70,7 +70,7 @@ public class ProcessTranslator {
      */
     public static ProcessDescriptionType getTranslatedProcess(
             ProcessIdentifier pi, List<String> languages){
-        I18n i18n = pi.getI18n();
+        I18n i18n = pi.getProcessI18n();
         ProcessDescriptionType process = pi.getProcessDescriptionType();
         ProcessDescriptionType translatedProcess = new ProcessDescriptionType();
         translatedProcess.setLang(languages.get(0));
@@ -104,7 +104,7 @@ public class ProcessTranslator {
         }
         translatedProcess.getOutput().clear();
         translatedProcess.getOutput().addAll(outputList);
-        translateDescriptionType(translatedProcess, process, languages, pi.getI18n());
+        translateDescriptionType(translatedProcess, process, languages, pi.getProcessI18n());
         return translatedProcess;
     }
 

@@ -172,8 +172,8 @@ String outputTableName
 
 
 @LiteralDataInput(
-    title = "Drop the input table",
-    description = "Drop the input table when the script is finished.",
+        title = "Drop the input table",
+        description = "Drop the input table when the script is finished.",
         identifier = "dropInTable")
 Boolean dropInputTable
 

@@ -96,13 +96,17 @@ public class ProcessManagerImpl implements ProcessManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManagerImpl.class);
     /** I18N object */
     private static final I18n I18N = I18nFactory.getI18n(ProcessManagerImpl.class);
+    /** Type of the database available. */
     private DBMS_TYPE database;
+    /** WpsService to use for the process life cycle. */
     private WpsServiceImpl wpsService;
+    /** JAXB unmarshaller . */
     private Unmarshaller unmarshaller;
 
     /**
-     * Main constructor.
-     * @param dataSource
+     * Constructor with DataSource.
+     * @param wpsService WpsServiceImpl to use for the process life (execution, result, destroy ...).
+     * @param dataSource DataSource to use for the process execution.
      */
     public ProcessManagerImpl(WpsServiceImpl wpsService, DataSource dataSource){
         this.wpsService = wpsService;
@@ -126,6 +130,10 @@ public class ProcessManagerImpl implements ProcessManager {
         }
     }
 
+    /**
+     * Main constructor.
+     * @param wpsService WpsServiceImpl to use for the process life (execution, result, destroy ...).
+     */
     public ProcessManagerImpl(WpsServiceImpl wpsService){
         this.wpsService = wpsService;
         processIdList = new ArrayList<>();
@@ -357,7 +365,7 @@ public class ProcessManagerImpl implements ProcessManager {
                 groovyObject.setProperty("sql", sql);
                 groovyObject.setProperty("isH2", database.equals(DBMS_TYPE.H2GIS));
             }
-            groovyObject.setProperty("i18n", processIdentifier.getI18n());
+            groovyObject.setProperty("i18n", processIdentifier.getProcessI18n());
             groovyObject.setProperty("logger", LoggerFactory.getLogger(ProcessManagerImpl.class));
             groovyObject.setProperty("progressMonitor", progressMonitor);
             groovyObject.invokeMethod("processing", null);
@@ -601,6 +609,11 @@ public class ProcessManagerImpl implements ProcessManager {
             processIdList.remove(toRemove);
         }
     }
+
+    /**
+     * Removes the process with the given URL.
+     * @param processUrl URL of the process to remove.
+     */
     public void removeProcess(URL processUrl) {
         ProcessIdentifier toRemove = null;
         for(ProcessIdentifier pi : processIdList){

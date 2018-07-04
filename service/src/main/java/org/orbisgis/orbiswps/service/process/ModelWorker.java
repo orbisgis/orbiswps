@@ -77,23 +77,29 @@ public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyCha
     /** I18N object */
     private static final I18n I18N = I18nFactory.getI18n(ModelWorker.class);
 
+    /** Model */
     private WpsModel wpsModel;
-
-    private long basePoll;
-    private long maxPool;
+    /** Wps 2.0 service properties */
+    private WPS_2_0_ServerProperties wpsProps;
 
     public ModelWorker(WPS_2_0_ServerProperties wpsProps, ProcessIdentifierImpl pi, ProcessManager processManagerImpl,
                        Map<URI, Object> dataMap){
         super(wpsProps, pi, processManagerImpl, dataMap);
         this.wpsModel = pi.getModel();
-        basePoll = wpsProps.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY;
-        maxPool = wpsProps.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY;
+        this.wpsProps = wpsProps;
     }
 
+    /**
+     * Returns the dataMap.
+     * @return The dataMap.
+     */
     public Map<URI, Object> getDataMap(){
         return dataMap;
     }
 
+    /**
+     * Returns the running sub-process jobs.
+     */
     public List<Job> runningJobs = new ArrayList<>();
 
     /**
@@ -160,6 +166,10 @@ public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyCha
         return processMap;
     }
 
+    /**
+     * Link the sub-process inputs with the data resulting from the previous executions.
+     * @param process Sub-process to link
+     */
     private void updateDataMapWithProcess(Process process){
         for(ProcessInput input : process.getProcessInput()){
             URI uri = URI.create(input.getValue());
@@ -169,12 +179,19 @@ public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyCha
         }
     }
 
+    /**
+     * Execute a sub-process in the ProcessManager and return the corresponding Future object.
+     * @param id Identifier of the sub-process to execute.
+     * @param dataMap Map containing all the data for the process execution.
+     * @return The Future object resulting of the execution.
+     */
     public Future executeProcess(String id, Map<URI, Object> dataMap){
         CodeType codeType = new CodeType();
         codeType.setValue(id);
         ProcessIdentifier pi = processManager.getProcessIdentifier(codeType);
         Job job = new Job(pi.getProcessDescriptionType(), UUID.randomUUID(), dataMap,
-                maxPool, basePoll);
+                wpsProps.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY,
+                wpsProps.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY);
         runningJobs.add(job);
         job.addProcessExecutionlistener(this);
         ProcessWorkerImpl processWorkerImpl = new ProcessWorkerImpl(job, pi, processManager, dataMap);

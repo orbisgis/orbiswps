@@ -55,6 +55,12 @@ public class WpsServerUtils {
         return date;
     }
 
+    /**
+     * Returns a ProcessOffering object from the given model.
+     * @param model Model to parse to generate the ProcessOffering.
+     * @param processManager Class use to get information of the model sub-processes to feed the ProcessOffering.
+     * @return A well formed ProcessOffering.
+     */
     public static ProcessOffering getProcessOfferingFromModel(WpsModel model, ProcessManager processManager){
         ObjectFactory factory = new ObjectFactory();
         ProcessDescriptionType processDescriptionType = new ProcessDescriptionType();
@@ -97,7 +103,7 @@ public class WpsServerUtils {
                     if(processInput.getValue().equals(input.getIdentifier())){
                         model.addInputMapping(processInput.getIdentifier(), input.getIdentifier());
                         descriptionType =  getInputOrOutputFromProcesses(processList, processInput.getIdentifier(),
-                                input.getIdentifier(), processManager);
+                                processManager);
                     }
                 }
             }
@@ -137,9 +143,9 @@ public class WpsServerUtils {
             OutputDescriptionType outputDescriptionType = new OutputDescriptionType();
 
             DescriptionType descriptionType = getInputOrOutputFromProcesses(processList, output.getIdentifier(),
-                    output.getIdentifier(), processManager);
+                    processManager);
 
-            if(descriptionType instanceof InputDescriptionType){
+            if(descriptionType instanceof OutputDescriptionType){
                 outputDescriptionType = (OutputDescriptionType)descriptionType;
             }
             else {
@@ -173,8 +179,15 @@ public class WpsServerUtils {
         return processOffering;
     }
 
+    /**
+     * Generate a DescriptionType object from the given id of an input or output with the data of the sub-processes.
+     * @param processIdList List of the sub-processes.
+     * @param inputOrOutputId Identifier of the input or output.
+     * @param processManager ProcessManager to use to gather data.
+     * @return A DescriptionType object corresponding to the given identifier.
+     */
     private static DescriptionType getInputOrOutputFromProcesses(List<String> processIdList, String inputOrOutputId,
-                                                                 String identifier, ProcessManager processManager){
+                                                                 ProcessManager processManager){
         for(String processId : processIdList){
             CodeType codeType = new CodeType();
             codeType.setValue(processId);

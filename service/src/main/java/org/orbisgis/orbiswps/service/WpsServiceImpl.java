@@ -183,7 +183,7 @@ public class WpsServiceImpl implements WpsService {
         for(URL url : scriptList) {
             ProcessIdentifier pi = this.processManagerImpl.addScript(url);
             if(pi != null && pi.getProcessOffering() != null) {
-                pi.setI18n(wpsScriptBundle.getI18n());
+                pi.setProcessI18n(wpsScriptBundle.getI18n());
                 pi.setProperties(wpsScriptBundle.getGroovyProperties());
                 Map<ProcessMetadata.INTERNAL_METADATA, Object> map = wpsScriptBundle.getScriptMetadata(url);
                 for (Map.Entry<ProcessMetadata.INTERNAL_METADATA, Object> entry : map.entrySet()) {

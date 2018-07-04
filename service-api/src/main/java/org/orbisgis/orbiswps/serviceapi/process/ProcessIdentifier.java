@@ -54,7 +54,7 @@ import java.util.Map;
 
 public interface ProcessIdentifier {
 
-    void setI18n(I18n i18n);
+    void setProcessI18n(I18n processI18n);
 
     /**
      * Returns the ProcessDescriptionType object.
@@ -81,7 +81,7 @@ public interface ProcessIdentifier {
      */
     URL getSourceUrl();
 
-    I18n getI18n();
+    I18n getProcessI18n();
 
     void setProperties(Map<String, Object> properties);
 

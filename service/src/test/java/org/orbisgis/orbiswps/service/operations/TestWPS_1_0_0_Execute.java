@@ -985,14 +985,6 @@ public class TestWPS_1_0_0_Execute {
                 executeResponse.isSetDataInputs());
         assertTrue("The 'status' property of ExecuteResponse should be set",
                 executeResponse.isSetStatus());
-        assertTrue("The 'status' property of ExecuteResponse should be set to 'ProcessStarted' or 'ProcessSucceeded'",
-                executeResponse.getStatus().isSetProcessStarted() || executeResponse.getStatus().isSetProcessSucceeded());
-        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessPaused'",
-                executeResponse.getStatus().isSetProcessPaused());
-        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessAccepted'",
-                executeResponse.getStatus().isSetProcessAccepted());
-        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessFailed'",
-                executeResponse.getStatus().isSetProcessFailed());
         assertFalse("The 'processOutputs' property of ExecuteResponse should not be set",
                 executeResponse.isSetProcessOutputs());
 
@@ -1007,8 +999,14 @@ public class TestWPS_1_0_0_Execute {
         assertTrue("The 'statusLocation' property of ExecuteResponse should be a file",
                 f.isFile());
 
-        Unmarshaller unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
-        o = unmarshaller.unmarshal(f.getAbsoluteFile());
+        Unmarshaller unmarshaller = null;
+        try {
+            unmarshaller = JaxbContainer.JAXBCONTEXT.createUnmarshaller();
+            o = unmarshaller.unmarshal(f.getAbsoluteFile());
+        }
+        catch(JAXBException e){
+            fail(e.getMessage());
+        }
 
         assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
         executeResponse = (ExecuteResponse)o;

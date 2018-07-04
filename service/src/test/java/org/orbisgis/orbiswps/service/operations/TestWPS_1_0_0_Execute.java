@@ -985,16 +985,14 @@ public class TestWPS_1_0_0_Execute {
                 executeResponse.isSetDataInputs());
         assertTrue("The 'status' property of ExecuteResponse should be set",
                 executeResponse.isSetStatus());
-        assertTrue("The 'status' property of ExecuteResponse should be set to 'ProcessStarted'",
-                executeResponse.getStatus().isSetProcessStarted());
+        assertTrue("The 'status' property of ExecuteResponse should be set to 'ProcessStarted' or 'ProcessSucceeded'",
+                executeResponse.getStatus().isSetProcessStarted() || executeResponse.getStatus().isSetProcessSucceeded());
         assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessPaused'",
                 executeResponse.getStatus().isSetProcessPaused());
         assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessAccepted'",
                 executeResponse.getStatus().isSetProcessAccepted());
         assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessFailed'",
                 executeResponse.getStatus().isSetProcessFailed());
-        assertFalse("The 'status' property of ExecuteResponse should not be set to 'ProcessSucceeded'",
-                executeResponse.getStatus().isSetProcessSucceeded());
         assertFalse("The 'processOutputs' property of ExecuteResponse should not be set",
                 executeResponse.isSetProcessOutputs());
 

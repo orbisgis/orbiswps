@@ -47,7 +47,7 @@ public class ModelWorkerTest {
 
     @Test
     public void testModelExecutionTree() {
-        ModelWorker worker = new ModelWorker(props, id, processManagerImpl);
+        ModelWorker worker = new ModelWorker(props, id, processManagerImpl, new HashMap<URI, Object>());
         Map<Integer, List<String>> map = worker.getExecutionTree();
         assertEquals(3, map.size());
         assertEquals(1, map.get(0).size());
@@ -58,7 +58,7 @@ public class ModelWorkerTest {
 
     @Test
     public void testModelProcessExecution() throws ExecutionException, InterruptedException {
-        ModelWorker worker = new ModelWorker(props, id, processManagerImpl);
+        ModelWorker worker = new ModelWorker(props, id, processManagerImpl, new HashMap<URI, Object>());
         Map<URI, Object> map = new HashMap<>();
         map.put(URI.create("A:Ain1"), "t");
         map.put(URI.create("A:Ain2"), "a");
@@ -70,7 +70,7 @@ public class ModelWorkerTest {
 
     @Test
     public void testModelDataMap() {
-        ModelWorker worker = new ModelWorker(props, id, processManagerImpl);
+        ModelWorker worker = new ModelWorker(props, id, processManagerImpl, new HashMap<URI, Object>());
         worker.getExecutionTree();
         Map<URI, Object> dataMap = worker.getDataMap();
         assertEquals(4, dataMap.size());
@@ -82,7 +82,7 @@ public class ModelWorkerTest {
 
     @Test
     public void testModelRun() {
-        ModelWorker worker = new ModelWorker(props, id, processManagerImpl);
+        ModelWorker worker = new ModelWorker(props, id, processManagerImpl, new HashMap<URI, Object>());
         worker.run();
         Map<URI, Object> dataMap = worker.getDataMap();
         URI uri = URI.create("C:Cout1");

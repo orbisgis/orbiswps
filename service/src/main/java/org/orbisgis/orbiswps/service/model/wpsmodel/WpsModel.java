@@ -39,11 +39,9 @@
  */
 package org.orbisgis.orbiswps.service.model.wpsmodel;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -98,6 +96,8 @@ public class WpsModel {
     protected Outputs outputs;
     @XmlElement(required = true)
     protected Processes processes;
+    @XmlTransient
+    private Map<String, String> processModelInputMap = new HashMap<>();
 
     /**
      * Get the value of identifier.
@@ -291,4 +291,11 @@ public class WpsModel {
         this.processes = value;
     }
 
+    public void addInputMapping(String processInputId, String modelInputId) {
+        processModelInputMap.put(processInputId, modelInputId);
+    }
+
+    public Map<String, String> getProcessModelInputMap(){
+        return processModelInputMap;
+    }
 }

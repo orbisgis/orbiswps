@@ -552,7 +552,7 @@ public class WPS_2_0_Operations implements WpsOperations {
         }
         WPS_2_0_Worker worker;
         if(processIdentifier instanceof ProcessIdentifierImpl && ((ProcessIdentifierImpl) processIdentifier).isModel()){
-            worker = new ModelWorker(wpsProp, (ProcessIdentifierImpl)processIdentifier, processManager);
+            worker = new ModelWorker(wpsProp, (ProcessIdentifierImpl)processIdentifier, processManager, dataMap);
         }
         else {
             worker = new WPS_2_0_Worker(wpsProp, processIdentifier, processManager, dataMap);

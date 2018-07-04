@@ -95,7 +95,9 @@ public class WpsServerUtils {
             for(Process process : model.getProcesses().getProcess()){
                 for(ProcessInput processInput : process.getProcessInput()){
                     if(processInput.getValue().equals(input.getIdentifier())){
-                        descriptionType =  getInputOrOutputFromProcesses(processList, processInput.getIdentifier(), processManager);
+                        model.addInputMapping(processInput.getIdentifier(), input.getIdentifier());
+                        descriptionType =  getInputOrOutputFromProcesses(processList, processInput.getIdentifier(),
+                                input.getIdentifier(), processManager);
                     }
                 }
             }
@@ -134,8 +136,8 @@ public class WpsServerUtils {
         for(Output output : model.getOutputs().getOutput()){
             OutputDescriptionType outputDescriptionType = new OutputDescriptionType();
 
-            DescriptionType descriptionType =
-                    getInputOrOutputFromProcesses(processList, output.getIdentifier(), processManager);
+            DescriptionType descriptionType = getInputOrOutputFromProcesses(processList, output.getIdentifier(),
+                    output.getIdentifier(), processManager);
 
             if(descriptionType instanceof InputDescriptionType){
                 outputDescriptionType = (OutputDescriptionType)descriptionType;
@@ -171,7 +173,8 @@ public class WpsServerUtils {
         return processOffering;
     }
 
-    private static DescriptionType getInputOrOutputFromProcesses(List<String> processIdList, String inputOrOutputId, ProcessManager processManager){
+    private static DescriptionType getInputOrOutputFromProcesses(List<String> processIdList, String inputOrOutputId,
+                                                                 String identifier, ProcessManager processManager){
         for(String processId : processIdList){
             CodeType codeType = new CodeType();
             codeType.setValue(processId);

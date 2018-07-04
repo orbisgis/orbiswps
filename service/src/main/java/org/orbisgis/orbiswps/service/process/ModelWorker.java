@@ -81,8 +81,9 @@ public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyCha
     private long basePoll;
     private long maxPool;
 
-    public ModelWorker(WPS_2_0_ServerProperties wpsProps, ProcessIdentifierImpl pi, ProcessManager processManagerImpl){
-        super(wpsProps, pi, processManagerImpl, new HashMap<URI, Object>());
+    public ModelWorker(WPS_2_0_ServerProperties wpsProps, ProcessIdentifierImpl pi, ProcessManager processManagerImpl,
+                       Map<URI, Object> dataMap){
+        super(wpsProps, pi, processManagerImpl, dataMap);
         this.wpsModel = pi.getModel();
         basePoll = wpsProps.CUSTOM_PROPERTIES.BASE_PROCESS_POLLING_DELAY;
         maxPool = wpsProps.CUSTOM_PROPERTIES.MAX_PROCESS_POLLING_DELAY;
@@ -100,7 +101,10 @@ public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyCha
         List<Process> processes = new ArrayList<>();
 
         for(Input input : wpsModel.getInputs().getInput()){
-            dataMap.put(URI.create(input.getIdentifier()), input.getData());
+            URI uri = URI.create(input.getIdentifier());
+            if(!dataMap.containsKey(uri)){
+                dataMap.put(uri, input.getData());
+            }
         }
 
         List<String> outputs = new ArrayList<>();
@@ -176,6 +180,12 @@ public class ModelWorker extends WPS_2_0_Worker implements Runnable, PropertyCha
     @Override
     public void run() {
         Map<Integer, List<String>> map =  getExecutionTree();
+        Map<String, String> mapping = wpsModel.getProcessModelInputMap();
+        for(Map.Entry<URI, Object> entry : dataMap.entrySet()){
+            if(mapping.containsKey(entry.getKey().toString())){
+                dataMap.put(URI.create(mapping.get(entry.getKey().toString())), entry.getValue());
+            }
+        }
         for(int i=0; i<map.size(); i++){
             List<Future> futureList = new ArrayList<>();
             for(String id : map.get(i)){

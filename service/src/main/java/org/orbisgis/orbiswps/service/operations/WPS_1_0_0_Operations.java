@@ -415,7 +415,6 @@ public class WPS_1_0_0_Operations implements WpsOperations {
             for(String lang : wpsProp.GLOBAL_PROPERTIES.SUPPORTED_LANGUAGES) {
                 if (lang.equals(language)) {
                     processDescriptions.setLang(language);
-
                 }
             }
         }
@@ -548,8 +547,14 @@ public class WPS_1_0_0_Operations implements WpsOperations {
             return exceptionReport;
         }
 
+        //Tests the ResponseForm object
+        ExceptionReport report = checkExecuteResponseForm(execute);
+        if(report != null){
+            return report;
+        }
+
         //Test that all the inputs of the Execute request are valid
-        ExceptionReport report = checkExecuteInputs(execute, pi);
+        report = checkExecuteInputs(execute, pi);
         if(report != null){
             return report;
         }
@@ -564,7 +569,13 @@ public class WPS_1_0_0_Operations implements WpsOperations {
                     } catch (ParseException e) {
                         LOGGER.error("Unable to parse the boundingbox '"+input.getIdentifier().getValue()+"'\n"+
                                 e.getLocalizedMessage());
-                        dataMap.put(id, null);
+                        ExceptionType exceptionType = new ExceptionType();
+                        exceptionType.setExceptionCode("InvalidParameterValue");
+                        exceptionType.setLocator("DataInputs");
+                        exceptionType.getExceptionText().add("Error while parsing the bounding box " +
+                                input.getIdentifier().getValue());
+                        exceptionReport.getException().add(exceptionType);
+                        return exceptionReport;
                     }
                 } else if (input.isSetData() && input.getData().isSetComplexData()) {
                     for(Object data : input.getData().getComplexData().getContent()){
@@ -637,12 +648,6 @@ public class WPS_1_0_0_Operations implements WpsOperations {
             }
         }
 
-        //Tests the ResponseForm object
-        report = checkExecuteResponseForm(execute);
-        if(report != null){
-            return report;
-        }
-
         WPS_1_0_0_Worker worker = new WPS_1_0_0_Worker(exceptionReport, language, pi, dataMap, execute, wpsProp,
                 processManager, ds, marshaller);
         ExecuteResponse response = new ExecuteResponse();
@@ -669,7 +674,7 @@ public class WPS_1_0_0_Operations implements WpsOperations {
                 for (net.opengis.wps._2_0.OutputDescriptionType output : worker.getJob().getProcess().getOutput()) {
                     DocumentOutputDefinitionType document = new DocumentOutputDefinitionType();
                     document.setTitle(convertLanguageStringType2to1(output.getTitle().get(0)));
-                    if (output.getAbstract() == null && !output.getAbstract().isEmpty()) {
+                    if (output.getAbstract() == null || !output.getAbstract().isEmpty()) {
                         document.setAbstract(convertLanguageStringType2to1(output.getAbstract().get(0)));
                     }
                     document.setIdentifier(convertCodeType2to1(output.getIdentifier()));
@@ -716,7 +721,6 @@ public class WPS_1_0_0_Operations implements WpsOperations {
      * @return The web resource.
      */
     //TODO Move this method to an utility class
-    //TODO change the parameter to be usable for the WPS 2.0.0
     //TODO return instead an InputStream to avoid the overload of the memory
     private Object getReferenceData(InputReferenceType referenceType){
         HttpURLConnection connection = null;
@@ -750,29 +754,26 @@ public class WPS_1_0_0_Operations implements WpsOperations {
         }
         //If the reference is not a valid URL, try to load it as an URI
         if (connection == null) {
-
             URI uri = URI.create(referenceType.getHref());
-            if(uri != null){
-                try {
-                    BufferedReader rd = new BufferedReader(new FileReader(new File(uri)));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-                    while ((line = rd.readLine()) != null) {
-                        response.append(line);
-                        response.append('\r');
-                    }
-                    rd.close();
-                    return response.toString();
+            try {
+                BufferedReader rd = new BufferedReader(new FileReader(new File(uri)));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    response.append(line);
+                    response.append('\r');
                 }
-                catch(Exception ignored){
-                    ExceptionType exceptionType = new ExceptionType();
-                    exceptionType.setExceptionCode("InvalidParameterValue");
-                    exceptionType.setLocator("DataInputs");
-                    exceptionType.getExceptionText().add("Unable to get the data from the reference." +
-                            " It seems to be an invalid URL/URI\n");
-                    LOGGER.error("Unable to get the data from the reference. It seems to be an invalid URL/URI\n");
-                    return exceptionType;
-                }
+                rd.close();
+                return response.toString();
+            }
+            catch(Exception ignored){
+                ExceptionType exceptionType = new ExceptionType();
+                exceptionType.setExceptionCode("InvalidParameterValue");
+                exceptionType.setLocator("DataInputs");
+                exceptionType.getExceptionText().add("Unable to get the data from the reference." +
+                        " It seems to be an invalid URL/URI\n");
+                LOGGER.error("Unable to get the data from the reference. It seems to be an invalid URL/URI\n");
+                return exceptionType;
             }
         }
         ExceptionType exceptionType = new ExceptionType();
@@ -1022,42 +1023,42 @@ public class WPS_1_0_0_Operations implements WpsOperations {
      */
     private ExceptionReport checkExecuteResponseForm(Execute execute){
         ExceptionReport exceptionReport = new ExceptionReport();
-        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument() &&
-                execute.getResponseForm().isSetRawDataOutput()){
-            ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("InvalidParameterValue");
-            exceptionType.setLocator("ResponseForm");
-            exceptionType.getExceptionText().add("Only one of ResponseDocument or RawDataOutput should be set");
-            exceptionReport.getException().add(exceptionType);
-            return exceptionReport;
-        }
-
-        if(execute.isSetResponseForm() && !execute.getResponseForm().isSetResponseDocument() &&
-                !execute.getResponseForm().isSetRawDataOutput()){
-            ExceptionType exceptionType = new ExceptionType();
-            exceptionType.setExceptionCode("InvalidParameterValue");
-            exceptionType.setLocator("ResponseForm");
-            exceptionType.getExceptionText().add("One of ResponseDocument or RawDataOutput should be set");
-            exceptionReport.getException().add(exceptionType);
-            return exceptionReport;
-        }
-        if(execute.isSetResponseForm() && execute.getResponseForm().isSetResponseDocument()) {
-            if (execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()) {
-                if (!wpsProp.GLOBAL_PROPERTIES.STORE_SUPPORTED) {
-                    ExceptionType exceptionType = new ExceptionType();
-                    exceptionType.setExceptionCode("StorageNotSupported");
-                    exceptionReport.getException().add(exceptionType);
-                    return exceptionReport;
-                }
+        if(execute.isSetResponseForm()) {
+            if (execute.getResponseForm().isSetResponseDocument() && execute.getResponseForm().isSetRawDataOutput()) {
+                ExceptionType exceptionType = new ExceptionType();
+                exceptionType.setExceptionCode("InvalidParameterValue");
+                exceptionType.setLocator("ResponseForm");
+                exceptionType.getExceptionText().add("Only one of ResponseDocument or RawDataOutput should be set");
+                exceptionReport.getException().add(exceptionType);
+                return exceptionReport;
             }
-            if (execute.getResponseForm().getResponseDocument().isStatus()) {
-                if (!wpsProp.GLOBAL_PROPERTIES.STATUS_SUPPORTED) {
-                    ExceptionType exceptionType = new ExceptionType();
-                    exceptionType.setExceptionCode("InvalidParameterValue");
-                    exceptionType.setLocator("ResponseForm");
-                    exceptionType.getExceptionText().add("Status not supported");
-                    exceptionReport.getException().add(exceptionType);
-                    return exceptionReport;
+
+            if (!execute.getResponseForm().isSetResponseDocument() && !execute.getResponseForm().isSetRawDataOutput()) {
+                ExceptionType exceptionType = new ExceptionType();
+                exceptionType.setExceptionCode("InvalidParameterValue");
+                exceptionType.setLocator("ResponseForm");
+                exceptionType.getExceptionText().add("One of ResponseDocument or RawDataOutput should be set");
+                exceptionReport.getException().add(exceptionType);
+                return exceptionReport;
+            }
+            if (execute.getResponseForm().isSetResponseDocument()) {
+                if (execute.getResponseForm().getResponseDocument().isStoreExecuteResponse()) {
+                    if (!wpsProp.GLOBAL_PROPERTIES.STORE_SUPPORTED) {
+                        ExceptionType exceptionType = new ExceptionType();
+                        exceptionType.setExceptionCode("StorageNotSupported");
+                        exceptionReport.getException().add(exceptionType);
+                        return exceptionReport;
+                    }
+                }
+                if (execute.getResponseForm().getResponseDocument().isStatus()) {
+                    if (!wpsProp.GLOBAL_PROPERTIES.STATUS_SUPPORTED) {
+                        ExceptionType exceptionType = new ExceptionType();
+                        exceptionType.setExceptionCode("InvalidParameterValue");
+                        exceptionType.setLocator("ResponseForm");
+                        exceptionType.getExceptionText().add("Status not supported");
+                        exceptionReport.getException().add(exceptionType);
+                        return exceptionReport;
+                    }
                 }
             }
         }

@@ -35,6 +35,7 @@ public class TestWPS_1_0_0_Execute {
     /** Wps Operation object. */
     private WPS_1_0_0_Operations minWps100Operations;
     private WPS_1_0_0_Operations fullWps100Operations;
+    private WPS_1_0_0_Operations badWps100Operations;
 
     /**
      * Initialize a wps service for processing all the tests.
@@ -93,6 +94,13 @@ public class TestWPS_1_0_0_Execute {
                 TestWPS_1_0_0_Execute.class.getResource("fullWpsService100.json").getFile());
         fullWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), fullWpsProps, ds);
         fullWps100Operations.setDataSource(ds);
+
+        assertNotNull("Unable to load the file 'badWpsService100.json'",
+                TestWPS_1_0_0_Execute.class.getResource("badWpsService100.json").getFile());
+        WPS_1_0_0_ServerProperties badWpsProps = new WPS_1_0_0_ServerProperties(
+                TestWPS_1_0_0_Execute.class.getResource("badWpsService100.json").getFile());
+        badWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), badWpsProps, ds);
+        badWps100Operations.setDataSource(ds);
     }
 
     /**
@@ -723,6 +731,36 @@ public class TestWPS_1_0_0_Execute {
             }
         }
 
+
+        execute = new Execute();
+        codeType = new CodeType();
+        codeType.setValue("orbisgis:test:full");
+        execute.setIdentifier(codeType);
+        execute.setLanguage("fr");
+
+        o = fullWps100Operations.executeRequest(execute);
+        assertTrue("The result of the Execute operation should be an ExecuteResponse", o instanceof ExecuteResponse);
+        executeResponse = (ExecuteResponse)o;
+
+        assertTrue("The 'process' property of ExecuteResponse should be set",
+                executeResponse.isSetProcess());
+        assertTrue("The 'process' 'title' property of ExecuteResponse should be set",
+                executeResponse.getProcess().isSetTitle());
+        assertTrue("The 'process' 'title' 'language' property of ExecuteResponse should be set",
+                executeResponse.getProcess().getTitle().isSetLang());
+        assertEquals("The 'process' 'title' 'language' property of ExecuteResponse should be set to 'fr'",
+                "fr", executeResponse.getProcess().getTitle().getLang());
+        assertTrue("The 'processOutputs' property of ExecuteResponse should be set",
+                executeResponse.isSetProcessOutputs());
+        for(OutputDataType outputDataType : executeResponse.getProcessOutputs().getOutput()){
+            assertTrue("The 'output' 'title' 'language' property should be set", outputDataType.getTitle().isSetLang());
+            assertEquals("The 'output' 'title' 'language' property should be set to 'fr'",
+                    "fr", outputDataType.getTitle().getLang());
+            if(outputDataType.isSetAbstract()) {
+                assertEquals("The 'output' 'abstract' 'language' property should be set to 'fr'",
+                        "fr", outputDataType.getAbstract().getLang());
+            }
+        }
     }
 
     /**
@@ -1323,12 +1361,12 @@ public class TestWPS_1_0_0_Execute {
      * Test an empty GetCapabilities request with a full WPS property
      */
     @Test
-    public void testBadExecute(){
+    public void testBadExecute() {
         //Test Execute without identifier
         Execute execute = new Execute();
         Object object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        ExceptionReport report = (ExceptionReport)object;
+        ExceptionReport report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1345,7 +1383,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1370,7 +1408,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setDataInputs(dataInputsType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1392,7 +1430,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setDataInputs(dataInputsType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1414,7 +1452,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setDataInputs(dataInputsType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1437,7 +1475,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setDataInputs(dataInputsType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1464,7 +1502,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setDataInputs(dataInputsType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1488,7 +1526,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setDataInputs(dataInputsType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1514,7 +1552,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setDataInputs(dataInputsType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1540,7 +1578,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setDataInputs(dataInputsType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1568,7 +1606,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1596,7 +1634,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1623,7 +1661,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1643,6 +1681,7 @@ public class TestWPS_1_0_0_Execute {
         boundingBoxType.getLowerCorner().add(1.0);
         boundingBoxType.getUpperCorner().add(0.0);
         boundingBoxType.getUpperCorner().add(1.0);
+        boundingBoxType.setDimensions(new BigInteger("2"));
         dataType.setBoundingBoxData(boundingBoxType);
         inputType.setData(dataType);
         inputCodeType = new CodeType();
@@ -1653,7 +1692,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1663,12 +1702,75 @@ public class TestWPS_1_0_0_Execute {
         assertEquals("The exception 'locator' should be set to 'DataInputs'", "DataInputs",
                 report.getException().get(0).getLocator());
 
-        //Test Execute with bad BoundingBox without corners
+        //Test Execute with bad BoundingBox without upper corners
         execute = new Execute();
         dataInputsType = new DataInputsType();
         inputType = new InputType();
         dataType = new DataType();
         boundingBoxType = new BoundingBoxType();
+        boundingBoxType.setCrs("http://www.opengis.net/def/crs/EPSG/8.9.2/4326");
+        boundingBoxType.getLowerCorner().add(0.0);
+        boundingBoxType.getLowerCorner().add(1.0);
+        dataType.setBoundingBoxData(boundingBoxType);
+        inputType.setData(dataType);
+        inputCodeType = new CodeType();
+        inputCodeType.setValue("orbisgis:test:full:input:boundingboxdata");
+        inputType.setIdentifier(inputCodeType);
+        dataInputsType.getInput().add(inputType);
+        execute.setDataInputs(dataInputsType);
+        execute.setIdentifier(codeType);
+        object = minWps100Operations.executeRequest(execute);
+        assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
+        report = (ExceptionReport) object;
+        assertTrue("The exception of Exception report should be set", report.isSetException());
+        assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
+        assertEquals("The exception 'exceptionCode' should be set to 'InvalidParameterValue'", "InvalidParameterValue",
+                report.getException().get(0).getExceptionCode());
+        assertTrue("The exception 'locator' should be set", report.getException().get(0).isSetLocator());
+        assertEquals("The exception 'locator' should be set to 'DataInputs'", "DataInputs",
+                report.getException().get(0).getLocator());
+
+        //Test Execute with bad BoundingBox without lower corners
+        execute = new Execute();
+        dataInputsType = new DataInputsType();
+        inputType = new InputType();
+        dataType = new DataType();
+        boundingBoxType = new BoundingBoxType();
+        boundingBoxType.setCrs("http://www.opengis.net/def/crs/EPSG/8.9.2/4326");
+        boundingBoxType.getUpperCorner().add(0.0);
+        boundingBoxType.getUpperCorner().add(1.0);
+        dataType.setBoundingBoxData(boundingBoxType);
+        inputType.setData(dataType);
+        inputCodeType = new CodeType();
+        inputCodeType.setValue("orbisgis:test:full:input:boundingboxdata");
+        inputType.setIdentifier(inputCodeType);
+        dataInputsType.getInput().add(inputType);
+        execute.setDataInputs(dataInputsType);
+        execute.setIdentifier(codeType);
+        object = minWps100Operations.executeRequest(execute);
+        assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
+        report = (ExceptionReport) object;
+        assertTrue("The exception of Exception report should be set", report.isSetException());
+        assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
+        assertEquals("The exception 'exceptionCode' should be set to 'InvalidParameterValue'", "InvalidParameterValue",
+                report.getException().get(0).getExceptionCode());
+        assertTrue("The exception 'locator' should be set", report.getException().get(0).isSetLocator());
+        assertEquals("The exception 'locator' should be set to 'DataInputs'", "DataInputs",
+                report.getException().get(0).getLocator());
+
+        //Test Execute with bad 3D BoundingBox
+        execute = new Execute();
+        dataInputsType = new DataInputsType();
+        inputType = new InputType();
+        dataType = new DataType();
+        boundingBoxType = new BoundingBoxType();
+        boundingBoxType.getLowerCorner().add(2.0);
+        boundingBoxType.getUpperCorner().add(0.0);
+        boundingBoxType.getUpperCorner().add(1.0);
+        boundingBoxType.getUpperCorner().add(2.0);
+        boundingBoxType.setDimensions(new BigInteger("3"));
         boundingBoxType.setCrs("http://www.opengis.net/def/crs/EPSG/8.9.2/4326");
         dataType.setBoundingBoxData(boundingBoxType);
         inputType.setData(dataType);
@@ -1680,7 +1782,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1697,7 +1799,31 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(simpleCodeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
+        assertTrue("The exception of Exception report should be set", report.isSetException());
+        assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
+        assertEquals("The exception 'exceptionCode' should be set to 'InvalidParameterValue'", "InvalidParameterValue",
+                report.getException().get(0).getExceptionCode());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetLocator());
+        assertEquals("The exception 'exceptionCode' should be set to 'DataInputs'", "DataInputs",
+                report.getException().get(0).getLocator());
+
+        //Test Execute without a non existing input
+        execute = new Execute();
+        execute.setIdentifier(simpleCodeType);
+        inputCodeType = new CodeType();
+        inputCodeType.setValue("orbisgis:test:simple:input:enumeration");
+        inputType.setIdentifier(inputCodeType);
+        dataInputsType.getInput().add(inputType);
+        inputCodeType = new CodeType();
+        inputCodeType.setValue("orbisgis:test:simple:input:notavalidinput");
+        inputType.setIdentifier(inputCodeType);
+        dataInputsType.getInput().add(inputType);
+        execute.setDataInputs(dataInputsType);
+        object = minWps100Operations.executeRequest(execute);
+        assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1719,7 +1845,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setResponseForm(responseFormType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1738,7 +1864,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setResponseForm(responseFormType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1763,7 +1889,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setResponseForm(responseFormType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1785,7 +1911,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setResponseForm(responseFormType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1831,7 +1957,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1853,7 +1979,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1876,7 +2002,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setIdentifier(codeType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1889,6 +2015,41 @@ public class TestWPS_1_0_0_Execute {
         assertEquals("The exception 'exceptionText' should be set to 'The format unicorn/type is not supported'",
                 "The format unicorn/type is not supported", report.getException().get(0).getExceptionText().get(0));
 
+        //Test Execute with an unmarshalling exception for the response
+        execute = new Execute();
+        execute.setIdentifier(codeType);
+        responseFormType = new ResponseFormType();
+        execute.setResponseForm(responseFormType);
+        responseDocumentType = new ResponseDocumentType();
+        responseFormType.setResponseDocument(responseDocumentType);
+        responseDocumentType.setStoreExecuteResponse(true);
+        object = badWps100Operations.executeRequest(execute);
+        assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
+        report = (ExceptionReport) object;
+        assertTrue("The exception of Exception report should be set", report.isSetException());
+        assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
+        assertEquals("The exception 'exceptionCode' should be set to 'NoApplicableCode'", "NoApplicableCode",
+                report.getException().get(0).getExceptionCode());
+
+        //Test Execute with responseDocument and rawData set
+        execute = new Execute();
+        execute.setIdentifier(codeType);
+        responseFormType = new ResponseFormType();
+        execute.setResponseForm(responseFormType);
+        responseFormType.setResponseDocument(new ResponseDocumentType());
+        responseFormType.setRawDataOutput(new OutputDefinitionType());
+        object = minWps100Operations.executeRequest(execute);
+        assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
+        report = (ExceptionReport) object;
+        assertTrue("The exception of Exception report should be set", report.isSetException());
+        assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
+        assertEquals("The exception 'exceptionCode' should be set to 'InvalidParameterValue'", "InvalidParameterValue",
+                report.getException().get(0).getExceptionCode());
+        assertTrue("The exception 'locator' should be set", report.getException().get(0).isSetLocator());
+        assertEquals("The exception 'locator' should be set to 'ResponseForm'", "ResponseForm",
+                report.getException().get(0).getLocator());
 
         ////
         //Other code types
@@ -1900,7 +2061,7 @@ public class TestWPS_1_0_0_Execute {
         execute.setLanguage("uni:co:rn");
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
@@ -1919,10 +2080,9 @@ public class TestWPS_1_0_0_Execute {
         responseFormType.setResponseDocument(responseDocumentType);
         responseDocumentType.setStoreExecuteResponse(false);
         responseDocumentType.setStatus(true);
-        minWps100Operations.executeRequest(execute);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
-        report = (ExceptionReport)object;
+        report = (ExceptionReport) object;
         assertTrue("The exception of Exception report should be set", report.isSetException());
         assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
         assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());

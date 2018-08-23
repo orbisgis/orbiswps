@@ -1573,6 +1573,34 @@ public class TestWPS_1_0_0_GetCapabilities {
     }
 
     /**
+     * Test GetCapabilities request with best effort languages
+     */
+    @Test
+    public void testLang(){
+        //Best effort language
+        GetCapabilities getCapabilities = new GetCapabilities();
+        getCapabilities.setLanguage("en-ca");
+        AcceptVersionsType acceptVersionsType = new AcceptVersionsType();
+        acceptVersionsType.getVersion().add("1.0.0");
+        getCapabilities.setAcceptVersions(acceptVersionsType);
+        Object object = minWps100Operations.executeRequest(getCapabilities);
+        assertTrue("The wps service answer should be 'WPSCapabilitiesType",object instanceof WPSCapabilitiesType);
+        WPSCapabilitiesType capabilities = (WPSCapabilitiesType)object;
+        assertEquals("The best effort languages should be 'en'", "en", capabilities.getLang());
+
+        //Any language
+        getCapabilities = new GetCapabilities();
+        getCapabilities.setLanguage("*");
+        acceptVersionsType = new AcceptVersionsType();
+        acceptVersionsType.getVersion().add("1.0.0");
+        getCapabilities.setAcceptVersions(acceptVersionsType);
+        object = minWps100Operations.executeRequest(getCapabilities);
+        assertTrue("The wps service answer should be 'WPSCapabilitiesType",object instanceof WPSCapabilitiesType);
+        capabilities = (WPSCapabilitiesType)object;
+        assertEquals("The best effort languages should be 'en'", "en", capabilities.getLang());
+    }
+
+    /**
      * Tests the GetCapabilities operation with a malformed GetCapabilities.
      */
     @Test

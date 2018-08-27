@@ -90,7 +90,7 @@ public class Converter {
      * @param o WPS/OWS 1 to convert.
      * @return The WPS 2.0 Object or the given object if it isn't a WPS/OWS 1 Object.
      */
-    public Object convertWps1to2(Object o){
+    public static Object convertWps1to2(Object o){
         if(!isWpsOws1(o)){
             return o;
         }
@@ -138,7 +138,7 @@ public class Converter {
      * @param maxMb String representation of the maximum size of the InputDescriptionType objects
      * @return The WPS 1.0.0 Object or the given object if it isn't a WPS/OWS 2 Object.
      */
-    public Object convertWps2to1(Object o, String defaultLanguage, String requestedLanguage, BigInteger maxMb){
+    public static Object convertWps2to1(Object o, String defaultLanguage, String requestedLanguage, BigInteger maxMb){
         if(!isWpsOws2(o)){
             return o;
         }
@@ -186,7 +186,31 @@ public class Converter {
         else if(o instanceof net.opengis.wps._2_0.GetCapabilitiesType){
             return convertGetCapabilities2to1((net.opengis.wps._2_0.GetCapabilitiesType) o, defaultLanguage);
         }
+        else if(o instanceof net.opengis.ows._2.ExceptionReport){
+            return convertExceptionReport2to1((net.opengis.ows._2.ExceptionReport) o);
+        }
         return o;
+    }
+
+    /**
+     * Convert the givenExceptionReport 2 Object into a ExceptionReport 1 Object.
+     * @param exceptionReport givenExceptionReport 2 to convert.
+     * @return The givenExceptionReport 1.0.0 Object.
+     */
+    public static net.opengis.ows._1.ExceptionReport convertExceptionReport2to1(net.opengis.ows._2.ExceptionReport exceptionReport){
+        ExceptionReport ret = new ExceptionReport();
+        for(net.opengis.ows._2.ExceptionType type : exceptionReport.getException()){
+            ExceptionType exceptionType = new ExceptionType();
+            exceptionType.setExceptionCode(type.getExceptionCode());
+            exceptionType.setLocator(type.getLocator());
+            for(String message : type.getExceptionText()){
+                exceptionType.getExceptionText().add(message);
+            }
+            ret.getException().add(exceptionType);
+        }
+        ret.setLang(exceptionReport.getLang());
+        ret.setVersion(exceptionReport.getVersion());
+        return ret;
     }
 
     /**
@@ -196,7 +220,7 @@ public class Converter {
      * @param o WPS/OWS 2 to convert.
      * @return The WPS 1.0.0 Object or the given object if it isn't a WPS/OWS 2 Object.
      */
-    public Object convertWps2to1(Object o){
+    public static Object convertWps2to1(Object o){
         return convertWps2to1(o, "en", "en", new BigInteger("2000"));
     }
 

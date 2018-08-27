@@ -39,6 +39,8 @@
  */
 package org.orbisgis.orbiswps.service.utils;
 
+import net.opengis.ows._2.ExceptionReport;
+import net.opengis.ows._2.ExceptionType;
 import org.h2gis.functions.io.geojson.GeoJsonRead;
 import org.h2gis.functions.io.geojson.GeoJsonWrite;
 import org.locationtech.jts.geom.Geometry;
@@ -52,10 +54,11 @@ import org.xnap.commons.i18n.I18n;
 import org.xnap.commons.i18n.I18nFactory;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -302,5 +305,84 @@ public class WpsDataUtils {
             }
         }
         return data;
+    }
+
+
+    /**
+     * Download and return a web resource pointed by an InputReferenceType.
+     *
+     * @param href String url of the web resource
+     * @param method Request method name (POST or GET)
+     * @param maximumMegaBytes Maximum size allowed of the data.
+     *
+     * @return The web resource.
+     */
+    //TODO Move this method to an utility class
+    //TODO return instead an InputStream to avoid the overload of the memory
+    public static Object getReferenceData(String href, String method, String maximumMegaBytes){
+        HttpURLConnection connection = null;
+        try {
+            //Create connection
+            URL url = new URL(href);
+            connection = (HttpURLConnection) url.openConnection();
+            if(method != null) {
+                connection.setRequestMethod(method);
+            }
+            connection.setRequestProperty("Content-Length", maximumMegaBytes);
+            connection.setUseCaches(false);
+            connection.setDoOutput(true);
+
+            //Get Response
+            InputStream is = connection.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                response.append(line);
+                response.append('\r');
+            }
+            rd.close();
+            return response.toString();
+        } catch (Exception ignore) {
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        //If the reference is not a valid URL, try to load it as an URI
+        if (connection == null) {
+            URI uri = URI.create(href);
+            try {
+                BufferedReader rd = new BufferedReader(new FileReader(new File(uri)));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    response.append(line);
+                    response.append('\r');
+                }
+                rd.close();
+                return response.toString();
+            }
+            catch(Exception ignored){
+                ExceptionType exceptionType = new ExceptionType();
+                exceptionType.setExceptionCode("InvalidParameterValue");
+                exceptionType.setLocator("DataInputs");
+                exceptionType.getExceptionText().add("Unable to get the data from the reference." +
+                        " It seems to be an invalid URL/URI\n");
+                LOGGER.error("Unable to get the data from the reference. It seems to be an invalid URL/URI\n");
+                ExceptionReport report = new ExceptionReport();
+                report.getException().add(exceptionType);
+                return report;
+            }
+        }
+        ExceptionType exceptionType = new ExceptionType();
+        exceptionType.setExceptionCode("InvalidParameterValue");
+        exceptionType.setLocator("DataInputs");
+        exceptionType.getExceptionText().add("Unable to get the data from the reference." +
+                " It seems to be an invalid URL/URI\n");
+        LOGGER.error("Unable to get the data from the reference. It seems to be an invalid URL/URI\n");
+        ExceptionReport report = new ExceptionReport();
+        report.getException().add(exceptionType);
+        return report;
     }
 }

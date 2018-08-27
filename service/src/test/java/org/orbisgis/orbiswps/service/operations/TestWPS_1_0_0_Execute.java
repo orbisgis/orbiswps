@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.*;
@@ -101,6 +102,28 @@ public class TestWPS_1_0_0_Execute {
                 TestWPS_1_0_0_Execute.class.getResource("badWpsService100.json").getFile());
         badWps100Operations =  new WPS_1_0_0_Operations(wpsServer.getProcessManagerImpl(), badWpsProps, ds);
         badWps100Operations.setDataSource(ds);
+    }
+
+    /**
+     * Tests the functions comming from the Operation interface.
+     */
+    @Test
+    public void basicsTests(){
+        WPS_1_0_0_Operations op = new WPS_1_0_0_Operations(null, null, null);
+        assertEquals("1.0.0", op.getWpsVersion());
+        op = new WPS_1_0_0_Operations(null, null);
+        assertEquals("1.0.0", op.getWpsVersion());
+        op = new WPS_1_0_0_Operations();
+        assertEquals("1.0.0", op.getWpsVersion());
+        assertTrue(op.isRequestAccepted(new GetCapabilities()));
+        assertTrue(op.isRequestAccepted(new DescribeProcess()));
+        assertTrue(op.isRequestAccepted(new Execute()));
+        assertNull(op.executeRequest(null));
+        op.setProcessManager(null);
+        op.setDataSource(null);
+        op.unsetDataSource(null);
+        op.setWpsProperties(null);
+        op.unsetWpsProperties(null);
     }
 
     /**
@@ -1833,15 +1856,63 @@ public class TestWPS_1_0_0_Execute {
         assertEquals("The exception 'exceptionCode' should be set to 'DataInputs'", "DataInputs",
                 report.getException().get(0).getLocator());
 
+        //Test Execute without a non existing input
+        execute = new Execute();
+        execute.setIdentifier(simpleCodeType);
+        inputCodeType = new CodeType();
+        inputCodeType.setValue("orbisgis:test:simple:input:enumeration");
+        inputType.setIdentifier(inputCodeType);
+        inputType.setReference(inputReferenceType);
+        dataInputsType.getInput().add(inputType);
+        execute.setDataInputs(dataInputsType);
+        object = minWps100Operations.executeRequest(execute);
+        assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
+        report = (ExceptionReport) object;
+        assertTrue("The exception of Exception report should be set", report.isSetException());
+        assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
+        assertEquals("The exception 'exceptionCode' should be set to 'InvalidParameterValue'", "InvalidParameterValue",
+                report.getException().get(0).getExceptionCode());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetLocator());
+        assertEquals("The exception 'exceptionCode' should be set to 'DataInputs'", "DataInputs",
+                report.getException().get(0).getLocator());
 
         ////
         //ResponseForm test
         ////
 
-        //Test Execute with empty responseForm
+        //Test Execute without a non existing output
         execute = new Execute();
         execute.setIdentifier(codeType);
         ResponseFormType responseFormType = new ResponseFormType();
+        ResponseDocumentType responseDocumentType = new ResponseDocumentType();
+        DocumentOutputDefinitionType output = new DocumentOutputDefinitionType();
+        CodeType outputCodeType = new CodeType();
+        outputCodeType.setValue("orbisgis:test:full:output:rawdata");
+        output.setIdentifier(outputCodeType);
+        output = new DocumentOutputDefinitionType();
+        outputCodeType = new CodeType();
+        outputCodeType.setValue("orbisgis:test:full:output:notanoutput");
+        output.setIdentifier(outputCodeType);
+        responseDocumentType.getOutput().add(output);
+        responseFormType.setResponseDocument(responseDocumentType);
+        execute.setResponseForm(responseFormType);
+        object = minWps100Operations.executeRequest(execute);
+        assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
+        report = (ExceptionReport) object;
+        assertTrue("The exception of Exception report should be set", report.isSetException());
+        assertFalse("The exception list of ExceptionReport should not be empty", report.getException().isEmpty());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetExceptionCode());
+        assertEquals("The exception 'exceptionCode' should be set to 'InvalidParameterValue'", "InvalidParameterValue",
+                report.getException().get(0).getExceptionCode());
+        assertTrue("The exception 'exceptionCode' should be set", report.getException().get(0).isSetLocator());
+        assertEquals("The exception 'exceptionCode' should be set to 'ResponseForm'", "ResponseForm",
+                report.getException().get(0).getLocator());
+
+        //Test Execute with empty responseForm
+        execute = new Execute();
+        execute.setIdentifier(codeType);
+        responseFormType = new ResponseFormType();
         execute.setResponseForm(responseFormType);
         object = minWps100Operations.executeRequest(execute);
         assertTrue("The result of the Execute operation should be an ExceptionReport", object instanceof ExceptionReport);
@@ -1878,10 +1949,10 @@ public class TestWPS_1_0_0_Execute {
         execute = new Execute();
         execute.setIdentifier(codeType);
         responseFormType = new ResponseFormType();
-        ResponseDocumentType responseDocumentType = new ResponseDocumentType();
+        responseDocumentType = new ResponseDocumentType();
         responseDocumentType.setStoreExecuteResponse(true);
-        DocumentOutputDefinitionType output = new DocumentOutputDefinitionType();
-        CodeType outputCodeType = new CodeType();
+        output = new DocumentOutputDefinitionType();
+        outputCodeType = new CodeType();
         outputCodeType.setValue("orbisgis:test:full:output:rawdata");
         output.setIdentifier(outputCodeType);
         responseDocumentType.getOutput().add(output);

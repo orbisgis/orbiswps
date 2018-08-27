@@ -98,6 +98,12 @@ public class WPS_2_0_Operations implements WpsOperations {
     /** Enumeration of the exception locator. */
     private enum ExceptionLocator {Sections, AcceptLanguages, Lang, Identifier, NoSuchJob}
 
+
+    ////////////////////
+    /// Constructors ///
+    ////////////////////
+
+
     /**
      * Main constructor.
      *
@@ -128,6 +134,12 @@ public class WPS_2_0_Operations implements WpsOperations {
      */
     public WPS_2_0_Operations(){}
 
+
+    /////////////////////////////
+    /// OSGI setter unsetters ///
+    /////////////////////////////
+
+
     @Reference
     public void setDataSource(DataSource dataSource) {
         ds = dataSource;
@@ -148,6 +160,12 @@ public class WPS_2_0_Operations implements WpsOperations {
     public void unsetWpsProperties(WpsProperties wpsProperties) {
         wpsProperties = null;
     }
+
+
+    ////////////////////////
+    /// Override methods ///
+    ////////////////////////
+
 
     @Override
     public String getWpsVersion() {
@@ -192,6 +210,12 @@ public class WPS_2_0_Operations implements WpsOperations {
     public void setProcessManager(ProcessManager processManager) {
         this.processManager = processManager;
     }
+
+
+    /////////////////////////
+    /// WPS 1.0.0 methods ///
+    /////////////////////////
+
 
     /**
      * This operation allows a client to retrieve service metadata, basic process offerings, and the available

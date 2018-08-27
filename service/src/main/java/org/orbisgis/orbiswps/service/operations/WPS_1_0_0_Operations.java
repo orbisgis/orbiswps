@@ -93,8 +93,14 @@ public class WPS_1_0_0_Operations implements WpsOperations {
     private DataSource ds;
     /** ProcessManager */
     private ProcessManager processManager;
-
+    /** JAXB XML marshaller used to store request results*/
     private Marshaller marshaller;
+
+
+    ////////////////////
+    /// Constructors ///
+    ////////////////////
+
 
     /**
      * Main constructor.
@@ -128,10 +134,14 @@ public class WPS_1_0_0_Operations implements WpsOperations {
         try {
             marshaller = JaxbContainer.JAXBCONTEXT.createMarshaller();
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOGGER.error(I18N.tr("Error on creating the marshaller\n{0}", e.getMessage()));
         }
     }
 
+
+    /////////////////////////////
+    /// OSGI setter unsetters ///
+    /////////////////////////////
 
     @Reference
     public void setDataSource(DataSource dataSource) {
@@ -153,6 +163,12 @@ public class WPS_1_0_0_Operations implements WpsOperations {
     public void unsetWpsProperties(WpsProperties wpsProperties) {
         this.wpsProp = null;
     }
+
+
+    ////////////////////////
+    /// Override methods ///
+    ////////////////////////
+
 
     @Override
     public String getWpsVersion() {
@@ -185,6 +201,11 @@ public class WPS_1_0_0_Operations implements WpsOperations {
     public void setProcessManager(ProcessManager processManager) {
         this.processManager = processManager;
     }
+
+
+    /////////////////////////
+    /// WPS 1.0.0 methods ///
+    /////////////////////////
 
 
     /**
@@ -585,10 +606,10 @@ public class WPS_1_0_0_Operations implements WpsOperations {
                     dataMap.put(id, input.getData().getLiteralData().getValue());
                 }
                 else if(input.isSetReference() && input.getReference().isSetHref()){
-                    Object data = getReferenceData(input.getReference());
-                    if(data instanceof ExceptionType){
-                        exceptionReport.getException().add((ExceptionType)data);
-                        return exceptionReport;
+                    Object data = WpsDataUtils.getReferenceData(input.getReference().getHref(),
+                            input.getReference().getMethod(), wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES);
+                    if(data instanceof net.opengis.ows._2.ExceptionReport){
+                        return Converter.convertExceptionReport2to1((net.opengis.ows._2.ExceptionReport)data);
                     }
                     else {
                         dataMap.put(id, data);
@@ -711,78 +732,6 @@ public class WPS_1_0_0_Operations implements WpsOperations {
         }
         response.setStatus(worker.getStatus());
         return response;
-    }
-
-    /**
-     * Download and return a web resource pointed by an InputReferenceType.
-     *
-     * @param referenceType InputReferenceType pointing to a web resource.
-     *
-     * @return The web resource.
-     */
-    //TODO Move this method to an utility class
-    //TODO return instead an InputStream to avoid the overload of the memory
-    private Object getReferenceData(InputReferenceType referenceType){
-        HttpURLConnection connection = null;
-        try {
-            //Create connection
-            URL url = new URL(referenceType.getHref());
-            connection = (HttpURLConnection) url.openConnection();
-            if(referenceType.isSetMethod()) {
-                connection.setRequestMethod(referenceType.getMethod());
-            }
-            connection.setRequestProperty("Content-Length", wpsProp.CUSTOM_PROPERTIES.MAXIMUM_MEGABYTES);
-            connection.setUseCaches(false);
-            connection.setDoOutput(true);
-
-            //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            return response.toString();
-        } catch (Exception ignore) {
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-        //If the reference is not a valid URL, try to load it as an URI
-        if (connection == null) {
-            URI uri = URI.create(referenceType.getHref());
-            try {
-                BufferedReader rd = new BufferedReader(new FileReader(new File(uri)));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    response.append(line);
-                    response.append('\r');
-                }
-                rd.close();
-                return response.toString();
-            }
-            catch(Exception ignored){
-                ExceptionType exceptionType = new ExceptionType();
-                exceptionType.setExceptionCode("InvalidParameterValue");
-                exceptionType.setLocator("DataInputs");
-                exceptionType.getExceptionText().add("Unable to get the data from the reference." +
-                        " It seems to be an invalid URL/URI\n");
-                LOGGER.error("Unable to get the data from the reference. It seems to be an invalid URL/URI\n");
-                return exceptionType;
-            }
-        }
-        ExceptionType exceptionType = new ExceptionType();
-        exceptionType.setExceptionCode("InvalidParameterValue");
-        exceptionType.setLocator("DataInputs");
-        exceptionType.getExceptionText().add("Unable to get the data from the reference." +
-                " It seems to be an invalid URL/URI\n");
-        LOGGER.error("Unable to get the data from the reference. It seems to be an invalid URL/URI\n");
-        return exceptionType;
     }
 
     /**

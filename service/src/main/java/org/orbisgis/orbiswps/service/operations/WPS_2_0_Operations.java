@@ -352,20 +352,16 @@ public class WPS_2_0_Operations implements WpsOperations {
         }
         if(requestedSections.contains(SectionName.All) || requestedSections.contains(SectionName.OperationMetadata)) {
             OperationsMetadata operationsMetadata = new OperationsMetadata();
-            List<Operation> operationList = new ArrayList<>();
-            operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.DESCRIBE_PROCESS_OPERATION);
-            operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.DISMISS_OPERATION);
-            operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.EXECUTE_OPERATION);
-            operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.GET_CAPABILITIES_OPERATION);
-            operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.GET_RESULT_OPERATION);
-            operationList.add(wpsProp.OPERATIONS_METADATA_PROPERTIES.GET_STATUS_OPERATION);
+            List<Operation> operationList = new ArrayList<>(wpsProp.OPERATIONS_METADATA_PROPERTIES.OPERATIONS);
             operationList.removeAll(Collections.singleton(null));
             operationsMetadata.getOperation().addAll(operationList);
             capabilitiesType.setOperationsMetadata(operationsMetadata);
         }
         if(requestedSections.contains(SectionName.All) || requestedSections.contains(SectionName.ServiceIdentification)) {
             ServiceIdentification serviceIdentification = new ServiceIdentification();
-            serviceIdentification.setFees(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.FEES);
+            if(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.FEES!=null) {
+                serviceIdentification.setFees(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.FEES);
+            }
             serviceIdentification.setServiceType(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.SERVICE_TYPE);
             for(String version : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.SERVICE_TYPE_VERSIONS) {
                 serviceIdentification.getServiceTypeVersion().add(version);
@@ -376,11 +372,15 @@ public class WPS_2_0_Operations implements WpsOperations {
             for(LanguageStringType abstract_ : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ABSTRACT) {
                 serviceIdentification.getAbstract().add(abstract_);
             }
-            for(KeywordsType keywords : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.KEYWORDS) {
-                serviceIdentification.getKeywords().add(keywords);
+            if(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.KEYWORDS != null) {
+                for (KeywordsType keywords : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.KEYWORDS) {
+                    serviceIdentification.getKeywords().add(keywords);
+                }
             }
-            for(String constraint : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ACCESS_CONSTRAINTS) {
-                serviceIdentification.getAccessConstraints().add(constraint);
+            if(wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ACCESS_CONSTRAINTS != null) {
+                for (String constraint : wpsProp.SERVICE_IDENTIFICATION_PROPERTIES.ACCESS_CONSTRAINTS) {
+                    serviceIdentification.getAccessConstraints().add(constraint);
+                }
             }
             capabilitiesType.setServiceIdentification(serviceIdentification);
         }

@@ -1,0 +1,671 @@
+/*
+ * OrbisWPS contains a set of libraries to build a Web Processing Service (WPS)
+ * compliant with the 2.0 specification.
+ *
+ * OrbisWPS is part of the OrbisGIS platform
+ *
+ * OrbisGIS is a java GIS application dedicated to research in GIScience.
+ * OrbisGIS is developed by the GIS group of the DECIDE team of the
+ * Lab-STICC CNRS laboratory, see <http://www.lab-sticc.fr/>.
+ *
+ * The GIS group of the DECIDE team is located at :
+ *
+ * Laboratoire Lab-STICC – CNRS UMR 6285
+ * Equipe DECIDE
+ * UNIVERSITÉ DE BRETAGNE-SUD
+ * Institut Universitaire de Technologie de Vannes
+ * 8, Rue Montaigne - BP 561 56017 Vannes Cedex
+ *
+ * OrbisWPS is distributed under GPL 3 license.
+ *
+ * Copyright (C) 2015-2017 CNRS (Lab-STICC UMR CNRS 6285)
+ *
+ *
+ * OrbisWPS is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * OrbisWPS is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * OrbisWPS. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * For more information, please consult: <http://www.orbisgis.org/>
+ * or contact directly:
+ * info_at_ orbisgis.org
+ */
+
+//This json file contains comment which are not allowed it a standard JSON.
+//The file should be made compliant with tools like JSMIN before being parsed.
+
+//If it is not specified that the property is optional, it is mandatory by default
+{
+  //Service supported. Should be WPS
+  "service": "WPS",
+  //Service version. Used to build the update sequence
+  "service_version": "2.0",
+  //Array of versions FULLY supported by the server (including the default version)
+  "supported_versions": [
+    "2.0"
+  ],
+  //Service metadata document version value is "increased" whenever any change is made in complete service metadata
+  //Optional
+  "update_sequence": "2.0",
+  //Default language FULLY supported by the server
+  "default_language": "en",
+  //Array of languages FULLY supported by the server (including the default language)
+  "supported_languages": [
+    "en",
+    "fr-fr"
+  ],
+  //Response format to the client.
+  //Only 'text/xml' supported
+  "supported_formats": [
+    "text/xml"
+  ],
+  //Server job control option. Can be 'sync-execute' and/or 'async-execute'
+  "job_control_options": [
+    "async-execute",
+    "sync-execute"
+  ],
+  //Server output
+  "data_transmission_type": [
+    "value",
+    "reference"
+  ],
+  //Definition of the ServiceIdentification section
+  "service_identification": {
+    //A service type name from registry of services, normally used for machine-to-machine communication
+    "service_type": "WPS",
+    //Array of versions of this service type implemented by this server
+    "service_type_version": [
+      "2.0"
+    ],
+    //Array of identifiers of OGC Web Service (OWS) Application Profile
+    //Optional
+    //Not supported
+    "profile": [
+      "NONE"
+    ],
+    //Array of the translated title of this server, normally used for display to a human. The translations must have a
+    //language property
+    "title": [
+      {
+        "value": "Local WPS Service",
+        "lang": "en"
+      },
+      {
+        "value": "Service WPS locale",
+        "lang": "fr-fr"
+      }
+    ],
+    //Array of the translated descriptions of this server, normally used for display to a human. The translations must
+    //have a language property
+    //Optional
+    "abstract": [
+      {
+        "value": "A local instance of a WPS Service",
+        "lang": "en"
+      },
+      {
+        "value": "Instance locale d'un service WPS",
+        "lang": "fr-fr"
+      }
+    ],
+    //Unordered list of one or more commonly used or formalised word(s) or phrase(s) used to describe this server. The
+    //keywords must have a language property
+    //Optional
+    "keywords": [
+      {
+        "keyword": [
+          {
+            "value": "Toolbox",
+            "lang": "en"
+          },
+          {
+            "value": "Toolbox",
+            "lang": "fr-fr"
+          }
+        ]
+      },
+      {
+        "keyword": [
+          {
+            "value": "WPS service",
+            "lang": "en"
+          },
+          {
+            "value": "Service WPS",
+            "lang": "fr-fr"
+          }
+        ]
+      },
+      {
+        "keyword": [
+          {
+            "value": "OrbisGIS",
+            "lang": "en"
+          },
+          {
+            "value": "OrbisGIS",
+            "lang": "fr-fr"
+          }
+        ]
+      }
+    ],
+    //Fees and terms for retrieving model from or otherwise using this server, including the monetary units as
+    //specified in ISO 4217. Reserved value NONE (case insensitive) shall be used to mean no fees or terms.
+    //Optional
+    //Not supported
+    "fees": "NONE",
+    //Access constraints that should be observed to assure the protection of privacy or intellectual property, and any
+    //other restrictions on retrieving or using model from or otherwise using this server. Reserved value NONE
+    //(case insensitive) shall be used to mean no constraint are imposed
+    //Optional
+    //Not supported
+    "access_constraints": [
+      "NONE"
+    ]
+  },
+  //Definition of the ServiceProvider section
+  "service_provider": {
+    //Unique identifier for service provider organization
+    "provider_name": "OrbisGIS",
+    //Reference to the most relevant web site of the service provider
+    //Optional
+    "provider_site": {
+      //Any URL
+      //Optional
+      "href": "http://orbisgis.org/",
+      //Any URI
+      //Optional
+      "role": "role",
+      //Any URI
+      //Optional
+      "arcrole": "arcrole",
+      //String value
+      //Optional
+      "title": "title",
+      //Possible values : "new", "replace", "embed", "other", "none"
+      //Optional
+      "show": "none",
+      //Possible values : "onLoad", "onRequest", "other", "none"
+      //Optional
+      "actuate": "none"
+    },
+    //Information for contacting the service provider. The OnlineResource element within this ServiceContact element
+    //not be used to reference a web site of the service provider.
+    //Optional
+    "service_contact": {
+      //Name of the responsible person: surname, given name, title separated by a delimiter.
+      //Optional
+      "individual_name": "name",
+      //Role or position of the responsible person
+      //Optional
+      "position_name": "position",
+      //Information required to enable contact with the responsible person and/or organization.
+      //Optional
+      "contact_info": {
+        //Phone of the responsible party
+        //Optional
+        "phone": {
+          //Telephone numbers by which individuals can speak to the responsible organization or individual
+          //Optional
+          "voice": [
+            "phone1",
+            "phone2"
+          ],
+          //Telephone numbers of a facsimile machine for the responsible organization or individual
+          //Optional
+          "facsimile": [
+            "facsim1",
+            "facsim2"
+          ]
+        },
+        //Address of the responsible party
+        //Optional
+        "address": {
+          //Addresses lines for the location
+          //Optional
+          "delivery_point": [
+            "point1",
+            "point2"
+          ],
+          //City of the location
+          //Optional
+          "city": "city",
+          //State or province of the location
+          //Optional
+          "administrative_area": "area",
+          //ZIP or other postal code
+          //Optional
+          "postal_code": "code",
+          //Country of the physical address
+          //Optional
+          "country": "country",
+          //Addresses of the electronic mailbox of the responsible organization or individual
+          //Optional
+          "emails": [
+            "email1",
+            "email2"
+          ]
+        },
+        //On-line information that can be used to contact the individual or organization
+        //Optional
+        "online_resource": {
+          //Any URL
+          //Optional
+          "href": "href",
+          //Any URI
+          //Optional
+          "role": "role",
+          //Any URI
+          //Optional
+          "arcrole": "arcrole",
+          //String value
+          //Optional
+          "title": "title",
+          //Possible values : "new", "replace", "embed", "other", "none"
+          //Optional
+          "show": "none",
+          //Possible values : "onLoad", "onRequest", "other", "none"
+          //Optional
+          "actuate": "none"
+        },
+        //Time period (including time zone) when individuals can contact the organization or individual
+        //Optional
+        "hours_of_service": "hours",
+        //Supplemental instructions on how or when to contact the individual or organization
+        //Optional
+        "instructions": "instructions"
+      },
+      //Function performed by the responsible party.
+      //Optional
+      "role": "role"
+    }
+  },
+  //Metadata about the operations provided by this service and implemented by this server
+  "operation_metadata": {
+    //Metadata for one operation that this server interface implements
+    "operation": [
+      {
+        //Name of this operation
+        "name": "GetCapabilities",
+        //Information for a Distributed Computing Platform supported for this operation. Only one HTTP DCP allowed
+        "dcp": [
+          {
+            //Connect point URLs for the http Distributed Computing Platform. At least one GEt or POST should be included
+            "http": {
+              //Connect point URL prefix and any constraint for HTTP "Get" or "Post" request method for this operation request
+              "get_or_post": [
+                {
+                  //Connect point URL for this operation request
+                  "url": {
+                    //Any URL
+                    //Optional
+                    "href": "getcapabilitiesurl1",
+                    //Any URI
+                    //Optional
+                    "role": "role",
+                    //Any URI
+                    //Optional
+                    "arcrole": "arcrole",
+                    //String value
+                    //Optional
+                    "title": "title",
+                    //Possible values : "new", "replace", "embed", "other", "none"
+                    //Optional
+                    "show": "none",
+                    //Possible values : "onLoad", "onRequest", "other", "none"
+                    //Optional
+                    "actuate": "none"
+                  },
+                  //Constraint on valid domain of a non-parameter quantity that this request method for this operation
+                  //which this server implements
+                  //Optional
+                  "constraint": [
+                    {
+                      //Name or identifier of this quantity
+                      "name": "cstr1",
+                      //Specifies the possible values of this quantity. It should be one of the following objects :
+                      //'allowed_values', 'any_value', 'no_values', 'values_reference'.
+                      //For a 'allowed_values' example see constraint named 'cstr1'
+                      //For a 'any_value' example see constraint named 'cstr2'
+                      //For a 'no_values' example see constraint named 'cstr3'
+                      //For a 'values_reference' example see constraint named 'cstr4'
+                      "possible_value": {
+                        //List of all valid values and/or ranges of values for this quantity
+                        "allowed_values": {
+                          //Value for this quantity
+                          //Optional
+                          "value": [
+                            "value1",
+                            "value2"
+                          ],
+                          //Range of values of numeric parameter
+                          //Optional
+                          "range": [
+                            {
+                              //Minimum value of this range of this numeric parameter
+                              //Optional
+                              "minimum_value": "0",
+                              //Maximum values of this range of this numeric parameter
+                              //Optional
+                              "maximum_value": "10",
+                              //Regular distance or spacing between allowed values in this range
+                              //Optional
+                              "spacing": "2",
+                              //Specifies which of minimum and maximum values are included in this range
+                              //Should be one of the following values :
+                              //'closed' : Specified minimum and maximum values are included in this range
+                              //'open' : Specified minimum and maximum values are NOT included in this range
+                              //'open-closed' : Specified minimum value is NOT included in this range, and specified maximum values IS included in this range
+                              //'closed-open' : Specified minimum value IS included in this range, and specified maximum values is NOT included in this range
+                              //Set to "closed" if not included
+                              //Optional
+                              "range_closure": "closed"
+                            }
+                          ]
+                        }
+                      },
+                      //Default value for this quantity
+                      //Optional
+                      "default_value": "dfltvalue",
+                      //Reference to meaning or semantics of this value or set of values
+                      //Optional
+                      "meaning": {
+                        //Human-readable name of metadata described by referenced document
+                        "name": "name",
+                        //Reference to metadata about this domain
+                        //Optional
+                        "reference": "uri"
+                      },
+                      //Reference to the data type of this set of values
+                      //Optional
+                      "data_type": {
+                        //Human-readable name of metadata described by referenced document
+                        "name": "name",
+                        //Reference to metadata about this domain
+                        //Optional
+                        "reference": "uri"
+                      },
+                      //Indicates that this quantity has units or reference system, and provides value used
+                      //Should contains one of the following objects : 'uom', 'reference_system'.
+                      //For a 'uom' example see constraint named 'cstr1'
+                      //For a 'reference_system' example see constraint named 'cstr2'
+                      //Optional
+                      "values_unit": {
+                        //Identifier of unit of measure of this set of values
+                        "uom": {
+                          //Human-readable name of metadata described by referenced document
+                          "name": "name",
+                          //Reference to metadata about this domain
+                          //Optional
+                          "reference": "uri"
+                        }
+                      },
+                      //Additional metadata about domain of this quantity
+                      //Optional
+                      "metadata": [
+                        {
+                          //Any URL
+                          //Optional
+                          "href": "href",
+                          //Any URI
+                          //Optional
+                          "role": "role",
+                          //Any URI
+                          //Optional
+                          "arcrole": "arcrole",
+                          //String value
+                          //Optional
+                          "title": "title",
+                          //Possible values : "new", "replace", "embed", "other", "none"
+                          //Optional
+                          "show": "none",
+                          //Possible values : "onLoad", "onRequest", "other", "none"
+                          //Optional
+                          "actuate": "none",
+                          //Optional
+                          "about": "about"
+                        }
+                      ]
+                    },
+                    {
+                      //Name or identifier of this quantity
+                      "name": "cstr2",
+                      //Specifies the possible values of this quantity. It should be one of the following objects :
+                      //'allowed_values', 'any_value', 'no_values', 'values_reference'.
+                      //For a 'allowed_values' example see constraint named 'cstr1'
+                      //For a 'any_value' example see constraint named 'cstr2'
+                      //For a 'no_values' example see constraint named 'cstr3'
+                      //For a 'values_reference' example see constraint named 'cstr4'
+                      "possible_value": {
+                        //Specifies that any values is allowed for this quantity
+                        "any_value": {}
+                      },
+                      //Indicates that this quantity has units or reference system, and provides value used
+                      //Should contains one of the following objects : 'uom', 'reference_system'.
+                      //For a 'uom' example see constraint named 'cstr1'
+                      //For a 'reference_system' example see constraint named 'cstr2'
+                      //Optional
+                      "values_unit": {
+                        //Identifier of reference system used by this set of values
+                        "reference_system": {
+                          //Human-readable name of metadata described by referenced document
+                          "name": "name",
+                          //Reference to metadata about this domain
+                          //Optional
+                          "reference": "uri"
+                        }
+                      }
+                    },
+                    {
+                      //Name or identifier of this quantity
+                      "name": "cstr3",
+                      //Specifies the possible values of this quantity. It should be one of the following objects :
+                      //'allowed_values', 'any_value', 'no_values', 'values_reference'.
+                      //For a 'allowed_values' example see constraint named 'cstr1'
+                      //For a 'any_value' example see constraint named 'cstr2'
+                      //For a 'no_values' example see constraint named 'cstr3'
+                      //For a 'values_reference' example see constraint named 'cstr4'
+                      "possible_value": {
+                        //Specifies that no values are allowed for this quantity
+                        "no_values": {}
+                      }
+                    },
+                    {
+                      //Name or identifier of this quantity
+                      "name": "cstr4",
+                      //Specifies the possible values of this quantity. It should be one of the following objects :
+                      //'allowed_values', 'any_value', 'no_values', 'values_reference'.
+                      //For a 'allowed_values' example see constraint named 'cstr1'
+                      //For a 'any_value' example see constraint named 'cstr2'
+                      //For a 'no_values' example see constraint named 'cstr3'
+                      //For a 'values_reference' example see constraint named 'cstr4'
+                      "possible_value": {
+                        //Reference to list of all valid values and/or ranges f values for this quantity
+                        "values_reference": {
+                          //Human-readable name of list of values provided by referenced document
+                          "name": "name",
+                          //Reference to list of all valid values and/or ranges of values for this quantity
+                          //Optional
+                          "reference": "refuri"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  //Connect point URL for this operation request
+                  "url": {
+                    //Any URI
+                    "href": "getcapabilitiesurl2"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        //Parameter valid domain that applies to this operation which this server implements
+        //Optional
+        "parameter": [
+          {
+            //Name or identifier of this quantity
+            "name": "param",
+            //Specifies the possible values of this quantity. It should be one of the following objects :
+            //'allowed_values', 'any_value', 'no_values', 'values_reference'.
+            "possible_value": {
+              "any_value": {}
+            }
+          }
+        ],
+        //Constraint on valid domain of a non-parameter quantity that applies to this operation which this server
+        //implements
+        //Optional
+        "constraint": [
+          {
+            //Name or identifier of this quantity
+            "name": "cstr",
+            //Specifies the possible values of this quantity. It should be one of the following objects :
+            //'allowed_values', 'any_value', 'no_values', 'values_reference'.
+            "possible_value": {
+              "any_value": {
+              }
+            }
+          }
+        ],
+        //Metadara about this operation and its implementation
+        //Optional
+        "metadata": [
+          {
+            //Any URI
+            "href": "href",
+            //Any URI
+            //Optional
+            "role": "role",
+            //Any URI
+            //Optional
+            "arcrole": "arcrole",
+            //String value
+            //Optional
+            "title": "title",
+            //String value
+            //Optional
+            "about": "about",
+            //Possible values : "new", "replace", "embed", "other", "none"
+            //Optional
+            "show": "none",
+            //Possible values : "onLoad", "onRequest", "other", "none"
+            //Optional
+            "actuate": "none",
+            //Optional
+            "abstract_metadata": "abstractMetadata"
+          }
+        ]
+      },
+      {
+        //Name of this operation
+        "name": "DescribeProcess",
+        //Information for a Distributed Computing Platform supported for this operation. Only one HTTP DCP allowed
+        "dcp": [
+          {
+            //Connect point URLs for the http Distributed Computing Platform. At least one GEt or POST should be included
+            "http": {
+              //Connect point URL prefix and any constraint for HTTP "Get" or "Post" request method for this operation request
+              "get_or_post": [
+                {
+                  //Connect point URL for this operation request
+                  "url": {
+                    "href": "describeprocessurl1"
+                  }
+                },
+                {
+                  //Connect point URL for this operation request
+                  "url": {
+                    "href": "describeprocessurl2"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        //Name of this operation
+        "name": "Execute",
+        //Information for a Distributed Computing Platform supported for this operation. Only one HTTP DCP allowed
+        "dcp": [
+          {
+            //Connect point URLs for the http Distributed Computing Platform. At least one GEt or POST should be included
+            "http": {
+              //Connect point URL prefix and any constraint for HTTP "Get" or "Post" request method for this operation request
+              "get_or_post": [
+                {
+                  //Connect point URL for this operation request
+                  "url": {
+                    "href": "executeurl1"
+                  }
+                },
+                {
+                  //Connect point URL for this operation request
+                  "url": {
+                    "href": "executeurl2"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    //Parameter valid domain that applies to one or more operations which this server implements
+    //Optional
+    "parameter": [
+      {
+        //Name or identifier of this quantity
+        "name": "param",
+        //Specifies the possible values of this quantity. It should be one of the following objects :
+        //'allowed_values', 'any_value', 'no_values', 'values_reference'.
+        "possible_value": {
+          "any_value":{}
+        }
+      }
+    ],
+    //Constraint on valid domain of a non-parameter quantity that applies to this server
+    //Optional
+    "constraint": [
+      {
+        //Name or identifier of this quantity
+        "name": "cstr",
+        //Specifies the possible values of this quantity. It should be one of the following objects :
+        //'allowed_values', 'any_value', 'no_values', 'values_reference'.
+        "possible_value": {
+          "any_value":{}
+        }
+      }
+    ],
+    //Metadata about server and software additional abilities
+    //Optional
+    //NotSupported
+    "extended_capabilities": {}
+  },
+  //Custom properties
+  "custom_properties": {
+    //Duration before result destroying
+    "destroy_duration": "0Y2D0H0M0S",
+    //Maximum value  of the process polling delay in milliseconds
+    "max_process_polling_delay": 10000,
+    //Base value  of the process polling delay in milliseconds
+    //The process polling delay will be incremented by the base after each polling until it reaches the max one.
+    "base_process_polling_delay": 1000,
+    "maximum_megabytes": 2000,
+    //
+    "default_jdbctable_format": "txt",
+    "available_jdbctable_format": ["xml", "geojson", "txt", "gml"],
+    "workspace_path": "target"
+  }
+}

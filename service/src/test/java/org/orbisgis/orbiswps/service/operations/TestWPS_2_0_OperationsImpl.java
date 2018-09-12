@@ -106,30 +106,28 @@ public class TestWPS_2_0_OperationsImpl {
                 capabilities.getServiceIdentification().getServiceTypeVersion());
         Assert.assertFalse("The wps server service identification service type version should not be empty",
                 capabilities.getServiceIdentification().getServiceTypeVersion().isEmpty());
-        Assert.assertEquals("The wps server service identification service type version should be '2.0.0'",
-                capabilities.getServiceIdentification().getServiceTypeVersion().get(0), "2.0.0");
+        Assert.assertEquals("The wps server service identification service type version should be '2.0'",
+                capabilities.getServiceIdentification().getServiceTypeVersion().get(0), "2.0");
 
         Assert.assertNotNull("The wps server service identification profile should not be null",
                 capabilities.getServiceIdentification().getProfile());
         Assert.assertTrue("The wps server service identification profile should be empty",
                 capabilities.getServiceIdentification().getProfile().isEmpty());
 
-        Assert.assertNotNull("The wps server service identification fees should not be null",
+        Assert.assertNull("The wps server service identification fees should not be null",
                 capabilities.getServiceIdentification().getFees());
-        Assert.assertEquals("The wps server service identification fees should be 'NONE'",
-                capabilities.getServiceIdentification().getFees(), "NONE");
 
         Assert.assertNotNull("The wps server service identification access constraint should not be null",
                 capabilities.getServiceIdentification().getAccessConstraints());
-        Assert.assertTrue("The wps server service identification access constraint should contain 'NONE'",
-                capabilities.getServiceIdentification().getAccessConstraints().contains("NONE"));
+        Assert.assertTrue("The wps server service identification access constraint should be empty",
+                capabilities.getServiceIdentification().getAccessConstraints().isEmpty());
 
         Assert.assertNotNull("The wps server service identification title should not be null",
                 capabilities.getServiceIdentification().getTitle());
         Assert.assertFalse("The wps server service identification title should not be empty",
                 capabilities.getServiceIdentification().getTitle().isEmpty());
-        Assert.assertEquals("The wps server service identification title value should be 'OrbisGIS Local WPS Service'",
-                capabilities.getServiceIdentification().getTitle().get(0).getValue(), "OrbisGIS Local WPS Service");
+        Assert.assertEquals("The wps server service identification title value should be 'Local WPS Service'",
+                capabilities.getServiceIdentification().getTitle().get(0).getValue(), "Local WPS Service");
         Assert.assertEquals("The wps server service identification title language should be 'en'",
                 capabilities.getServiceIdentification().getTitle().get(0).getLang(), "en");
 
@@ -138,9 +136,9 @@ public class TestWPS_2_0_OperationsImpl {
         Assert.assertFalse("The wps server service identification abstract should not be empty",
                 capabilities.getServiceIdentification().getAbstract().isEmpty());
         Assert.assertEquals("The wps server service identification abstract value should be " +
-                        "'OrbisGIS local instance of the WPS Service'",
+                        "'A local instance of a WPS Service'",
                 capabilities.getServiceIdentification().getAbstract().get(0).getValue(),
-                "OrbisGIS local instance of the WPS Service");
+                "A local instance of a WPS Service");
         Assert.assertEquals("The wps server service identification abstract language should be 'en'",
                 capabilities.getServiceIdentification().getAbstract().get(0).getLang(), "en");
 
@@ -424,7 +422,8 @@ public class TestWPS_2_0_OperationsImpl {
         else if(operation.getDCP().get(0).getHTTP().getGetOrPost().get(0) == null) {
             error = "The wps operation metadata operation '"+name+"' dcp 0 HTTP Get or Post 0 should not be null";
         }
-        else if(operation.getDCP().get(0).getHTTP().getGetOrPost().get(1) == null) {
+        else if(operation.getDCP().get(0).getHTTP().getGetOrPost().size() >1 &&
+                operation.getDCP().get(0).getHTTP().getGetOrPost().get(1) == null) {
             error = "The wps operation metadata operation '"+name+"' dcp 0 HTTP Get or Post 1 should not be null";
         }
         else if(operation.getParameter() == null) {

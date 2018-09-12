@@ -89,7 +89,6 @@ public class WPS_1_0_0_ServerProperties implements WpsProperties {
      * @param propertyFileLocation Location of the properties file. If null or invalid, uses the default properties file.
      */
     public WPS_1_0_0_ServerProperties(String propertyFileLocation){
-        boolean propertiesLoaded = false;
         if(propertyFileLocation != null) {
             //Load the property file
             File propertiesFile = new File(propertyFileLocation);
